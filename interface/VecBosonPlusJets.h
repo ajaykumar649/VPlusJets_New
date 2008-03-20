@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria Segoni
 //         Created:  Thu May 24 15:59:54 CEST 2007
-// $Id$
+// $Id: VecBosonPlusJets.h,v 1.1 2008/03/20 17:04:35 segoni Exp $
 //
 //
 
@@ -87,13 +87,13 @@ class VecBosonPlusJets : public edm::EDAnalyzer {
 
       void bookProcessIDHistoes();
 
-      void PlotsBeforeSelection(const edm::Event& iEvent);
+      //void PlotsBeforeSelection(const edm::Event& iEvent);
       bool doZed(const edm::Event& iEvent);
       bool doW(const edm::Event& iEvent);
       bool doMET(const edm::Event& iEvent);
       bool doRecoJets(const edm::Event& iEvent);
 
-      void fillHistoes();
+      void fillHistoes(const unsigned int selectionTier);
     
 
 	///CONFIGURABLE MEMBER DATA
@@ -134,9 +134,10 @@ class VecBosonPlusJets : public edm::EDAnalyzer {
 	std::vector<const reco::Candidate *> ZCandidates; 
 	unsigned int NumberoOfZedCand;
 	static bool foundZCandidate[3];
-	static float TypeOfZCounter[3];
 	uint32_t ZRecoFlagNumber;
 	std::vector<double> ZMassRegion;
+   	std::string selectStage[3];
+
 
 	edm::Handle<CaloMETCollection> calo;  
 	//edm::Handle<CaloMETCollection> recmetMu;
@@ -169,7 +170,6 @@ class VecBosonPlusJets : public edm::EDAnalyzer {
 	
 	
 	double EventWeight; 
-	float EventWeightFloat;
 	int processIDInt;
 
       // STANDARD MEMBER DATA & HISTOGRAMS
@@ -182,35 +182,34 @@ class VecBosonPlusJets : public edm::EDAnalyzer {
 
 
         
-	TH1D*       ProcessIDBeforeCuts;  
+	TH1D*       ProcessIDHisto[3];  
  	
-     	std::map<int, TH1D*>  NumberOfWCandidates;
-	std::map<int, TH1D*>  WTransvMass;  
+     	std::map<int, TH1D*>  NumberOfWCandidates[3];
+	std::map<int, TH1D*>  WTransvMass[3];  
  
-     	std::map<int, TH1D*>  ZCandidatesMass;
-     	std::map<int, TH1D*>  ZCandidatesPt;
-     	std::map<int, TH1D*>  NumberOfZCandidates;
+     	std::map<int, TH1D*>  ZCandidatesMass[3];
+     	std::map<int, TH1D*>  ZCandidatesPt[3];
+     	std::map<int, TH1D*>  NumberOfZCandidates[3];
      	
-     	std::map<int, TH1D*>  muPt[2];
-     	std::map<int, TH1D*>  muEta[2];
-     	std::map<int, TH1D*>  muPhi[2];
-     	std::map<int, TH1D*>  muIso[2];
+     	std::map<int, TH1D*>  muPt[3][2];
+     	std::map<int, TH1D*>  muEta[3][2];
+     	std::map<int, TH1D*>  muPhi[3][2];
+     	std::map<int, TH1D*>  muIso[3][2];
 
-	std::map<int, TH1D*>  TypeOfZCandidates;
+	std::map<int, TH1D*>  TypeOfZCandidates[3];
 
-     	std::map<int, TH1D*>  MET;
-     	std::map<int, TH1D*>  METx;
-     	std::map<int, TH1D*>  METy;
+     	std::map<int, TH1D*>  MET[3];
+     	std::map<int, TH1D*>  METx[3];
+     	std::map<int, TH1D*>  METy[3];
 
-      	std::map<int, TH1D*>  JetMult;     	 
-     	std::map<int, TH1D*>  JetPTAll;    	 
-     	std::map<int, TH1D*>  JetEtaAll;   	 
-     	std::map<int, TH1D*>  JetPhiAll;   	 
-     	std::map<int, TH2D*>  JetEtaVSPTAll;	 
+      	std::map<int, TH1D*>  JetMult[3];     	 
+     	std::map<int, TH1D*>  JetPTAll[3];    	 
+     	std::map<int, TH1D*>  JetEtaAll[3];   	 
+     	std::map<int, TH1D*>  JetPhiAll[3];   	 
+     	std::map<int, TH2D*>  JetEtaVSPTAll[3];	 
 };
 
 
 bool VecBosonPlusJets::foundZCandidate[3];
-float  VecBosonPlusJets::TypeOfZCounter[3];
 
 #endif
