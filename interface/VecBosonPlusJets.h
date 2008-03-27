@@ -15,7 +15,7 @@
 //
 // Original Author:  Ilaria Segoni
 //         Created:  Thu May 24 15:59:54 CEST 2007
-// $Id: VecBosonPlusJets.h,v 1.1 2008/03/20 17:04:35 segoni Exp $
+// $Id: VecBosonPlusJets.h,v 1.2 2008/03/20 18:04:07 segoni Exp $
 //
 //
 
@@ -47,7 +47,6 @@
 
 // system include files
 
-#include "PhysicsTools/RecoCandAlgos/interface/CandidateProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"

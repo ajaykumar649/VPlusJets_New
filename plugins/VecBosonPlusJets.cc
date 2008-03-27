@@ -14,7 +14,7 @@
 //
 // Original Author:  Ilaria Segoni
 //         Created:  Thu May 24 15:59:54 CEST 2007
-// $Id: VecBosonPlusJets.cc,v 1.1 2008/03/20 17:04:36 segoni Exp $
+// $Id: VecBosonPlusJets.cc,v 1.2 2008/03/20 18:04:07 segoni Exp $
 //
 //
 
