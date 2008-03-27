@@ -1,3 +1,12 @@
+//This module isolates the jets collection objects from the muon collection objects
+//requiring that the distance in the eta-phi plane is greater than deltar
+//producing a reco::CandidateBaseRefVector
+//
+//
+//(It actually works for any container of candidates because of the CandidateView implementation )
+//
+//Author: Alberto Orso Maria Iorio
+
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
