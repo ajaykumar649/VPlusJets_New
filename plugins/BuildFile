@@ -8,6 +8,10 @@
   <use name=SimGeneral/HepPDTRecord>
   <use name=DataFormats/MuonReco>
   <use name=FWCore/ParameterSet>
+<<<<<<< BuildFile
+  <use name=DataFormats/HepMCCandidate>
+=======
+>>>>>>> 1.2
   <use name=DataFormats/JetReco>
   <use name=DataFormats/Candidate>
 </library>
