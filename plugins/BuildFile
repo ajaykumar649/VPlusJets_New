@@ -1,5 +1,6 @@
 <export></export>
 <library name=ElectroWeakAnalysisVPlusJets_plugins file=*.cc>
+  <use name=DataFormats/METReco>
   <use name=FWCore/Framework>
   <use name=PhysicsTools/UtilAlgos>
   <use name=PhysicsTools/Utilities>
@@ -7,12 +8,8 @@
   <use name=SimGeneral/HepPDTRecord>
   <use name=DataFormats/MuonReco>
   <use name=FWCore/ParameterSet>
-  <use name=DataFormats/HepMCCandidate>
-  <use name=ElectroWeakAnalysis/ZMuMu>
   <use name=DataFormats/JetReco>
-  <use name=DataFormats/METReco>
   <use name=DataFormats/Candidate>
-  <use name=root>
 </library>
 
 

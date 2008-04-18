@@ -6,9 +6,6 @@
 
 
 
-
-
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -79,77 +76,77 @@ zMuMuJetsHistogrammer::zMuMuJetsHistogrammer(const ParameterSet & cfg)
   
   Service<TFileService> fs;
   
-  genJetsPt = fs->make<TH1D>("genJetsPt","genJetsPt",400,0,500);
-  genJetsEta = fs->make<TH1D>("genJetsEta","genJetsEta",200,-3,3);
-  genJetsEnergy = fs->make<TH1D>("genJetsEnergy","genJetsEnergy",200,0,1000);
-  genJetsPhi =  fs->make<TH1D>("genJetsPhi","genJetsPhi",200,0,7);
+  genJetsPt = fs->make<TH1D>("genJetsPt","genJetsPt",100,0,400);
+  genJetsEta = fs->make<TH1D>("genJetsEta","genJetsEta",100,-3,3);
+  genJetsEnergy = fs->make<TH1D>("genJetsEnergy","genJetsEnergy",100,0,500);
+  genJetsPhi =  fs->make<TH1D>("genJetsPhi","genJetsPhi",100,0,7);
   
-  genJetsTotalPt =  fs->make<TH1D>("genJetsTotalPt","genJetsTotalPt",400,0,500);
-  genJetsTotalEnergy =  fs->make<TH1D>("genJetsTotalEnergy","genJetsTotalEnergy",200,0,2000);
+  genJetsTotalPt =  fs->make<TH1D>("genJetsTotalPt","genJetsTotalPt",100,0,400);
+  genJetsTotalEnergy =  fs->make<TH1D>("genJetsTotalEnergy","genJetsTotalEnergy",100,0,500);
   genJetsNumber = fs->make<TH1D>("genJetsNumber","genJetsNumber",10,0,10);
-  genJetsTotalPhi =  fs->make<TH1D>("genJetsTotalPhi","genJetsTotalPhi",200,0,7);
+  genJetsTotalPhi =  fs->make<TH1D>("genJetsTotalPhi","genJetsTotalPhi",100,0,7);
 
-  matchedGenJetsPt = fs->make<TH1D>("matchedGenJetsPt","matchedGenJetsPt",400,0,500);
-  matchedGenJetsEta = fs->make<TH1D>("matchedGenJetsEta","matchedGenJetsEta",200,-3,3);
-  matchedGenJetsEnergy = fs->make<TH1D>("matchedGenJetsEnergy","matchedGenJetsEnergy",200,0,1000);
-  matchedGenJetsPhi =  fs->make<TH1D>("matchedGenJetsPhi","matchedGenJetsPhi",200,0,7);
+  matchedGenJetsPt = fs->make<TH1D>("matchedGenJetsPt","matchedGenJetsPt",100,0,400);
+  matchedGenJetsEta = fs->make<TH1D>("matchedGenJetsEta","matchedGenJetsEta",100,-3,3);
+  matchedGenJetsEnergy = fs->make<TH1D>("matchedGenJetsEnergy","matchedGenJetsEnergy",100,0,500);
+  matchedGenJetsPhi =  fs->make<TH1D>("matchedGenJetsPhi","matchedGenJetsPhi",100,0,7);
   
-  matchedGenJetsTotalPt =  fs->make<TH1D>("matchedGenJetsTotalPt","matchedGenJetsTotalPt",400,0,500);
-  matchedGenJetsTotalEnergy =  fs->make<TH1D>("matchedGenJetsTotalEnergy","matchedGenJetsTotalEnergy",200,0,2000);
+  matchedGenJetsTotalPt =  fs->make<TH1D>("matchedGenJetsTotalPt","matchedGenJetsTotalPt",100,0,500);
+  matchedGenJetsTotalEnergy =  fs->make<TH1D>("matchedGenJetsTotalEnergy","matchedGenJetsTotalEnergy",100,0,500);
   matchedGenJetsNumber = fs->make<TH1D>("matchedGenJetsNumber","matchedGenJetsNumber",10,0,10);
   
-  caloJetsPt = fs->make<TH1D>("caloJetsPt","caloJetsPt",400,0,500);
-  caloJetsEta = fs->make<TH1D>("caloJetsEta","caloJetsEta",200,-3,3);
-  caloJetsEnergy = fs->make<TH1D>("caloJetsEnergy","caloJetsEnergy",200,0,1000); 
-  caloJetsPhi =  fs->make<TH1D>("caloJetsPhi","caloJetsPhi",200,0,7);
+  caloJetsPt = fs->make<TH1D>("caloJetsPt","caloJetsPt",100,0,400);
+  caloJetsEta = fs->make<TH1D>("caloJetsEta","caloJetsEta",100,-3,3);
+  caloJetsEnergy = fs->make<TH1D>("caloJetsEnergy","caloJetsEnergy",100,0,500); 
+  caloJetsPhi =  fs->make<TH1D>("caloJetsPhi","caloJetsPhi",100,0,7);
    
-  caloJetsTotalPt =  fs->make<TH1D>("caloJetsTotalPt","caloJetsTotalPt",400,0,500);
-  caloJetsTotalEnergy =  fs->make<TH1D>("caloJetsTotalEnergy","caloJetsTotalEnergy",200,0,2000);
+  caloJetsTotalPt =  fs->make<TH1D>("caloJetsTotalPt","caloJetsTotalPt",100,0,400);
+  caloJetsTotalEnergy =  fs->make<TH1D>("caloJetsTotalEnergy","caloJetsTotalEnergy",100,0,500);
   caloJetsNumber = fs->make<TH1D>("caloJetsNumber","caloJetsNumber",10,0,10);
-  caloJetsTotalPhi =  fs->make<TH1D>("caloJetsTotalPhi","caloJetsTotalPhi",200,0,7);
+  caloJetsTotalPhi =  fs->make<TH1D>("caloJetsTotalPhi","caloJetsTotalPhi",100,0,7);
  
-  matchedCaloJetsPt = fs->make<TH1D>("matchedCaloJetsPt","matchedCaloJetsPt",400,0,500);
-  matchedCaloJetsEta = fs->make<TH1D>("matchedCaloJetsEta","matchedCaloJetsEta",200,-3,3);
-  matchedCaloJetsEnergy = fs->make<TH1D>("matchedCaloJetsEnergy","matchedCaloJetsEnergy",200,0,1000);
-  matchedCaloJetsPhi =  fs->make<TH1D>("matchedCaloJetsPhi","matchedCaloJetsPhi",200,0,7);
+  matchedCaloJetsPt = fs->make<TH1D>("matchedCaloJetsPt","matchedCaloJetsPt",100,0,400);
+  matchedCaloJetsEta = fs->make<TH1D>("matchedCaloJetsEta","matchedCaloJetsEta",100,-3,3);
+  matchedCaloJetsEnergy = fs->make<TH1D>("matchedCaloJetsEnergy","matchedCaloJetsEnergy",100,0,500);
+  matchedCaloJetsPhi =  fs->make<TH1D>("matchedCaloJetsPhi","matchedCaloJetsPhi",100,0,7);
 
-  matchedCaloJetsTotalPt =  fs->make<TH1D>("matchedCaloJetsTotalPt","matchedCaloJetsTotalPt",400,0,500);
-  matchedCaloJetsTotalEnergy =  fs->make<TH1D>("matchedCaloJetsTotalEnergy","matchedCaloJetsTotalEnergy",200,0,2000);
+  matchedCaloJetsTotalPt =  fs->make<TH1D>("matchedCaloJetsTotalPt","matchedCaloJetsTotalPt",100,0,400);
+  matchedCaloJetsTotalEnergy =  fs->make<TH1D>("matchedCaloJetsTotalEnergy","matchedCaloJetsTotalEnergy",100,0,500);
   matchedCaloJetsNumber = fs->make<TH1D>("matchedCaloJetsNumber","matchedCaloJetsNumber",10,0,10);
 
-  partonsPt = fs->make<TH1D>("partonsPt","partonsPt",400,0,500);
-  partonsEta = fs->make<TH1D>("partonsEta","partonsEta",200,-3,3);
-  partonsEnergy = fs->make<TH1D>("partonsEnergy","partonsEnergy",200,0,1000);
-  partonsPhi = fs->make<TH1D>("partonsPhi","partonsPhi",200,0,7);
+  partonsPt = fs->make<TH1D>("partonsPt","partonsPt",100,0,400);
+  partonsEta = fs->make<TH1D>("partonsEta","partonsEta",100,-3,3);
+  partonsEnergy = fs->make<TH1D>("partonsEnergy","partonsEnergy",100,0,500);
+  partonsPhi = fs->make<TH1D>("partonsPhi","partonsPhi",100,0,7);
   partonsId = fs->make<TH1D>("partonsId","partonsId",35,-10,25);
 
-  partonsTotalPt = fs->make<TH1D>("partonsTotalPt","partonsTotalPt",400,0,500);
-  partonsTotalEnergy = fs->make<TH1D>("partonsTotalEnergy","partonsTotalEnergy",200,0,2000);
+  partonsTotalPt = fs->make<TH1D>("partonsTotalPt","partonsTotalPt",100,0,400);
+  partonsTotalEnergy = fs->make<TH1D>("partonsTotalEnergy","partonsTotalEnergy",100,0,500);
   partonsNumber = fs->make<TH1D>("partonsNumber","partonsNumber",10,0,10);
 
-  muonsPt = fs->make<TH1D>("muonsPt","muonsPt",400,0,500);
-  muonsEta = fs->make<TH1D>("muonsEta","muonsEta",200,-3,3);
-  muonsEnergy = fs->make<TH1D>("muonsEnergy","muonsEnergy",200,0,1000);
-  muonsPhi = fs->make<TH1D>("muonsPhi","muonsPhi",200,0,7);
+  muonsPt = fs->make<TH1D>("muonsPt","muonsPt",100,0,400);
+  muonsEta = fs->make<TH1D>("muonsEta","muonsEta",100,-3,3);
+  muonsEnergy = fs->make<TH1D>("muonsEnergy","muonsEnergy",100,0,500);
+  muonsPhi = fs->make<TH1D>("muonsPhi","muonsPhi",100,0,7);
    
-  totalMuonsPt = fs->make<TH1D>("totalMuonsPt","totalMuonsPt",400,0,500);
-  totalMuonsEta = fs->make<TH1D>("totalMuonsEta","totalMuonsEta",200,-3,3);
-  totalMuonsEnergy = fs->make<TH1D>("totalMuonsEnergy","totalMuonsEnergy",200,0,1000);
-  totalMuonsPhi = fs->make<TH1D>("totalMuonsPhi","totalMuonsPhi",200,0,7);
-  totalMuonsMass = fs->make<TH1D>("totalMuonsMass","totalMuonsMass",200,0,150);
+  totalMuonsPt = fs->make<TH1D>("totalMuonsPt","totalMuonsPt",100,0,400);
+  totalMuonsEta = fs->make<TH1D>("totalMuonsEta","totalMuonsEta",100,-3,3);
+  totalMuonsEnergy = fs->make<TH1D>("totalMuonsEnergy","totalMuonsEnergy",100,0,500);
+  totalMuonsPhi = fs->make<TH1D>("totalMuonsPhi","totalMuonsPhi",100,0,7);
+  totalMuonsMass = fs->make<TH1D>("totalMuonsMass","totalMuonsMass",100,0,150);
     
-  zMass = fs->make<TH1D>("zMass","zMass",400,0,150);
-  zPt = fs->make<TH1D>("zPt","zPt",200,0,500);
-  zEta = fs->make<TH1D>("zEta","zEta",200,-3,3);
-  zEnergy = fs->make<TH1D>("zEnergy","zEnergy",200,0,1000);
-  zPhi = fs->make<TH1D>("zPhi","zPhi",200,0,7);
-  zY = fs->make<TH1D>("zRapidity","zRapidity",300,-7,7);
+  zMass = fs->make<TH1D>("zMass","zMass",100,0,200);
+  zPt = fs->make<TH1D>("zPt","zPt",100,0,400);
+  zEta = fs->make<TH1D>("zEta","zEta",100,-3,3);
+  zEnergy = fs->make<TH1D>("zEnergy","zEnergy",100,0,500);
+  zPhi = fs->make<TH1D>("zPhi","zPhi",100,0,7);
+  zY = fs->make<TH1D>("zRapidity","zRapidity",100,-7,7);
 
-  zMCMass = fs->make<TH1D>("zMCMass","zMCMass",400,0,150);
-  zMCPt = fs->make<TH1D>("zMCPt","zMCPt",200,0,7000);
-  zMCEta = fs->make<TH1D>("zMCEta","zMCEta",200,-3,3);
-  zMCEnergy = fs->make<TH1D>("zMCEnergy","zMCEnergy",200,0,1000);
-  zMCPhi = fs->make<TH1D>("zMCPhi","zMCPhi",200,0,7);
+  zMCMass = fs->make<TH1D>("zMCMass","zMCMass",100,0,200);
+  zMCPt = fs->make<TH1D>("zMCPt","zMCPt",100,0,400);
+  zMCEta = fs->make<TH1D>("zMCEta","zMCEta",100,-3,3);
+  zMCEnergy = fs->make<TH1D>("zMCEnergy","zMCEnergy",100,0,500);
+  zMCPhi = fs->make<TH1D>("zMCPhi","zMCPhi",100,0,7);
   zMCY = fs->make<TH1D>("zMCRapidity","zMCRapidity",300,-7,7);
   
   
@@ -286,7 +283,18 @@ void zMuMuJetsHistogrammer::analyze( const Event& evt, const EventSetup& evtstp)
    zMCPhi->Fill(p.phi());
    zMCPhi->Fill(p.eta());
  }
- 
+
+ for(size_t i = 0; i < z->size(); i++ ){
+   const Candidate & p = (*z)[i];
+   sum = sum + p.p4();
+   zMass->Fill(p.mass());
+   zPt->Fill(p.pt());
+   zY->Fill(p.y());
+   zPhi->Fill(p.phi());
+   zPhi->Fill(p.eta());
+ }
+                                                                                                                                                             
+
   
  leadingPartonsVSCaloJets->Fill(nPartons,nCaloJets);
  leadingPartonsVSGenJets->Fill(nPartons,nGenJets);

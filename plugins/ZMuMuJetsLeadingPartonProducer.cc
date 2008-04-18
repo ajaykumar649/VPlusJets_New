@@ -29,7 +29,7 @@ private:
 
 ZMuMuJetsLeadingPartonProducer::ZMuMuJetsLeadingPartonProducer(const ParameterSet& cfg) :
   src_(cfg.getParameter<InputTag>("src")) {
-  produces<GenParticleCollection>().setBranchAlias("genPartons");
+  produces<GenParticleCollection>().setBranchAlias("leadingPartons");
 }
 
 void ZMuMuJetsLeadingPartonProducer::produce(Event& evt, const EventSetup&) {

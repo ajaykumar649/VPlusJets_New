@@ -21,25 +21,27 @@ using namespace reco;
 using namespace std;
 
 
-class ZMuMuJetsJetsIsolator : public EDProducer{
+class ZMuMuJetsIsolatedJetsProducer : public EDProducer{
 public:
-  ZMuMuJetsJetsIsolator(const ParameterSet & cfg);
+  ZMuMuJetsIsolatedJetsProducer(const ParameterSet & cfg);
   void produce(Event & evt,const EventSetup & evtsetup); 
 private:
   InputTag jets_, muons_;
-  double deltar_; 
+  string name_; 
+ double deltar_; 
 };
 
-ZMuMuJetsJetsIsolator::ZMuMuJetsJetsIsolator(const ParameterSet & cfg){
+ZMuMuJetsIsolatedJetsProducer::ZMuMuJetsIsolatedJetsProducer(const ParameterSet & cfg){
   jets_ = cfg.getParameter<InputTag  >("jets");
   muons_ = cfg.getParameter<InputTag  >("muons");
   deltar_ = cfg.getParameter<double  >("deltar");
-  produces< CandidateBaseRefVector  >().setBranchAlias("isolatedJets");
+  name_ = cfg.getParameter<string>("name"); 
+ produces< CandidateBaseRefVector  >().setBranchAlias(name_);
   
 }
 
 
-void ZMuMuJetsJetsIsolator::produce(Event & evt,const EventSetup& evtsetup){
+void ZMuMuJetsIsolatedJetsProducer::produce(Event & evt,const EventSetup& evtsetup){
   Handle<View<Candidate >  > jets;
   evt.getByLabel(jets_, jets); 
   Handle<View<Candidate >  > muons;
@@ -69,4 +71,4 @@ void ZMuMuJetsJetsIsolator::produce(Event & evt,const EventSetup& evtsetup){
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(ZMuMuJetsJetsIsolator);
+DEFINE_FWK_MODULE(ZMuMuJetsIsolatedJetsProducer);
