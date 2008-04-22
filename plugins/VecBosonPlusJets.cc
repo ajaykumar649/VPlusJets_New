@@ -7,14 +7,13 @@
 /**\class VecBosonPlusJets VecBosonPlusJets.cc ElectroWeakAnalysis/VecBosonPlusJets/src/VecBosonPlusJets.cc
 
  Description: <one line class summary>
-
  Implementation:
      <Notes on implementation>
 */
 //
 // Original Author:  Ilaria Segoni
 //         Created:  Thu May 24 15:59:54 CEST 2007
-// $Id: VecBosonPlusJets.cc,v 1.2 2008/03/20 18:04:07 segoni Exp $
+// $Id: VecBosonPlusJets.cc,v 1.1 2008/03/27 15:11:46 oiorio Exp $
 //
 //
 

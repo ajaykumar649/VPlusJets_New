@@ -41,7 +41,8 @@ public:
  explicit zMuMuJetsHistogrammer( const ParameterSet & );
 private:
   void analyze( const Event& , const EventSetup& );
-  InputTag partons_, genJets_, caloJets_ , z_ , muons_, zMC_,  matchedCaloJets_, matchedGenJets_ ;    
+  InputTag partons_, genJets_, caloJets_ , z_ , muons_, zMC_,  matchedCaloJets_, matchedGenJets_ ;  bool hasGlobalWeight_;
+  InputTag csa07weight_; 
   
   TH1D *partonsPt, *partonsEta, *partonsEnergy, *partonsPhi, *partonsId,  *partonsNumber , *partonsTotalPt , *partonsTotalEnergy;
    
@@ -64,6 +65,9 @@ private:
 
 zMuMuJetsHistogrammer::zMuMuJetsHistogrammer(const ParameterSet & cfg)
 {
+  
+  hasGlobalWeight_ = cfg.getParameter<bool>("hasglobalweight");
+  if(hasGlobalWeight_==false)csa07weight_ =cfg.getParameter<InputTag>("weight");
   
   partons_=cfg.getParameter<InputTag>("partons");
   genJets_=cfg.getParameter<InputTag>("genJets");
@@ -159,6 +163,8 @@ zMuMuJetsHistogrammer::zMuMuJetsHistogrammer(const ParameterSet & cfg)
 
 void zMuMuJetsHistogrammer::analyze( const Event& evt, const EventSetup& evtstp)
 {
+
+
   Handle<View<Candidate> > partons ;
   evt.getByLabel(partons_,partons);
   Handle< View<Candidate> > caloJets ;
@@ -177,7 +183,18 @@ void zMuMuJetsHistogrammer::analyze( const Event& evt, const EventSetup& evtstp)
   evt.getByLabel(zMC_,zMC);
 
   XYZTLorentzVector sum(0,0,0,0) ;
+
+  double weight=1;
+  if(hasGlobalWeight_==false){
    
+    Handle<  double   > csaweight  ;   
+    evt.getByLabel(csa07weight_,csaweight);
+    weight = (*csaweight);
+  
+}
+
+
+
   size_t nPartons = partons->size();
   size_t nCaloJets = caloJets->size();
   size_t nGenJets = genJets->size();
@@ -191,30 +208,30 @@ void zMuMuJetsHistogrammer::analyze( const Event& evt, const EventSetup& evtstp)
   for(size_t i = 0; i < nPartons; i++ ){
     const Candidate & p = (*partons)[i];
     sum = sum + p.p4();
-    partonsEta->Fill(p.eta());
-    partonsPhi->Fill(p.phi());
-    partonsEnergy->Fill(p.energy());
-    partonsPt->Fill(p.pt());  
-    partonsId->Fill(p.pdgId());
+    partonsEta->Fill(p.eta(),weight);
+    partonsPhi->Fill(p.phi(),weight);
+    partonsEnergy->Fill(p.energy(),weight);
+    partonsPt->Fill(p.pt(),weight);  
+    partonsId->Fill(p.pdgId(),weight);
   }
   
-  partonsTotalPt->Fill(sum.pt());
-  partonsTotalEnergy->Fill(sum.energy());
+  partonsTotalPt->Fill(sum.pt(),weight);
+  partonsTotalEnergy->Fill(sum.energy(),weight);
   partonsNumber->Fill(nPartons);
   
   sum = XYZTLorentzVector(0,0,0,0);
   for(size_t i = 0; i < nGenJets; i++ ){
     const Candidate & p = (*genJets)[i];
     sum = sum + p.p4();   
-    genJetsPhi->Fill(p.phi());
-    genJetsEta->Fill(p.eta());
-    genJetsEnergy->Fill(p.energy());
-    genJetsPt->Fill(p.pt());
+    genJetsPhi->Fill(p.phi(),weight);
+    genJetsEta->Fill(p.eta(),weight);
+    genJetsEnergy->Fill(p.energy(),weight);
+    genJetsPt->Fill(p.pt(),weight);
   } 
-  genJetsTotalEnergy->Fill(sum.energy());
-  genJetsTotalPt->Fill(sum.pt());
+  genJetsTotalEnergy->Fill(sum.energy(),weight);
+  genJetsTotalPt->Fill(sum.pt(),weight);
   genJetsNumber->Fill(nGenJets);
-  genJetsTotalPhi->Fill(sum.phi());
+  genJetsTotalPhi->Fill(sum.phi(),weight);
 
   sum = XYZTLorentzVector(0,0,0,0);
   size_t maxIndex = 0;
@@ -222,76 +239,76 @@ void zMuMuJetsHistogrammer::analyze( const Event& evt, const EventSetup& evtstp)
     const Candidate & p = (*caloJets)[i];
     sum = sum + p.p4();    
     if(p.energy() > ((*caloJets)[maxIndex]).energy()) maxIndex = i; 
-    caloJetsEnergy->Fill(p.energy());
-    caloJetsPt->Fill(p.pt());
-    caloJetsEta->Fill(p.eta());
-    caloJetsPhi->Fill( p.phi());
+    caloJetsEnergy->Fill(p.energy(),weight);
+    caloJetsPt->Fill(p.pt(),weight);
+    caloJetsEta->Fill(p.eta(),weight);
+    caloJetsPhi->Fill( p.phi(),weight);
   }
-  caloJetsTotalEnergy->Fill(sum.energy());
-  caloJetsTotalPt->Fill(sum.pt());
+  caloJetsTotalEnergy->Fill(sum.energy(),weight);
+  caloJetsTotalPt->Fill(sum.pt(),weight);
   caloJetsNumber->Fill(nCaloJets);
-  caloJetsTotalPhi->Fill(sum.phi());
+  caloJetsTotalPhi->Fill(sum.phi(),weight);
   
   sum = XYZTLorentzVector(0,0,0,0);
   for(size_t i = 0; i < matchedCaloJets->size(); i++ ){
     const Candidate & p = (*matchedCaloJets)[i];
     sum = sum + p.p4();    
-    matchedCaloJetsEnergy->Fill(p.energy());
-    matchedCaloJetsPt->Fill(p.pt());
-    matchedCaloJetsEta->Fill(p.eta());
-    matchedCaloJetsPhi->Fill( p.phi());
+    matchedCaloJetsEnergy->Fill(p.energy(),weight);
+    matchedCaloJetsPt->Fill(p.pt(),weight);
+    matchedCaloJetsEta->Fill(p.eta(),weight);
+    matchedCaloJetsPhi->Fill( p.phi(),weight);
   }
-  matchedCaloJetsTotalEnergy->Fill(sum.energy());
-  matchedCaloJetsTotalPt->Fill(sum.pt());
-  matchedCaloJetsNumber->Fill(matchedCaloJets->size());
+  matchedCaloJetsTotalEnergy->Fill(sum.energy(),weight);
+  matchedCaloJetsTotalPt->Fill(sum.pt(),weight);
+  matchedCaloJetsNumber->Fill(matchedCaloJets->size(),weight);
   
  sum = XYZTLorentzVector(0,0,0,0);
  for(size_t i = 0; i < matchedGenJets->size(); i++ ){
    const Candidate & p = (*matchedGenJets)[i];
    sum = sum + p.p4();    
-   matchedGenJetsEnergy->Fill(p.energy());
-   matchedGenJetsPt->Fill(p.pt());
-   matchedGenJetsEta->Fill(p.eta());
-   matchedGenJetsPhi->Fill( p.phi());
+   matchedGenJetsEnergy->Fill(p.energy(),weight);
+   matchedGenJetsPt->Fill(p.pt(),weight);
+   matchedGenJetsEta->Fill(p.eta(),weight);
+   matchedGenJetsPhi->Fill( p.phi(),weight);
  }
- matchedGenJetsTotalEnergy->Fill(sum.energy());
- matchedGenJetsTotalPt->Fill(sum.pt());
- matchedGenJetsNumber->Fill(matchedGenJets->size());
+ matchedGenJetsTotalEnergy->Fill(sum.energy(),weight);
+ matchedGenJetsTotalPt->Fill(sum.pt(),weight);
+ matchedGenJetsNumber->Fill(matchedGenJets->size(),weight);
  
  sum = XYZTLorentzVector(0,0,0,0);
  for(size_t i = 0; i < muons->size(); i++ ){
    const Candidate & p = (*muons)[i];
    sum = sum + p.p4();
-   muonsPt->Fill(p.pt());
-   muonsEta->Fill(p.eta());
-   muonsEta->Fill(p.eta());
-   muonsPhi->Fill(p.phi()); 
+   muonsPt->Fill(p.pt(),weight);
+   muonsEta->Fill(p.eta(),weight);
+   muonsEta->Fill(p.eta(),weight);
+   muonsPhi->Fill(p.phi(),weight); 
  } 
- totalMuonsPt->Fill(sum.pt());
- totalMuonsMass->Fill(sum.mass());  
- totalMuonsEta->Fill(sum.eta());
- totalMuonsPhi->Fill(sum.phi());
+ totalMuonsPt->Fill(sum.pt(),weight);
+ totalMuonsMass->Fill(sum.mass(),weight);  
+ totalMuonsEta->Fill(sum.eta(),weight);
+ totalMuonsPhi->Fill(sum.phi(),weight);
   
    
  sum = XYZTLorentzVector(0,0,0,0);
  for(size_t i = 0; i < zMC->size(); i++ ){
    const Candidate & p = (*zMC)[i];
    sum = sum + p.p4();
-   zMCMass->Fill(p.mass());
-   zMCPt->Fill(p.pt());
-   zMCY->Fill(p.y());
-   zMCPhi->Fill(p.phi());
-   zMCPhi->Fill(p.eta());
+   zMCMass->Fill(p.mass(),weight);
+   zMCPt->Fill(p.pt(),weight);
+   zMCY->Fill(p.y(),weight);
+   zMCPhi->Fill(p.phi(),weight);
+   zMCPhi->Fill(p.eta(),weight);
  }
 
  for(size_t i = 0; i < z->size(); i++ ){
    const Candidate & p = (*z)[i];
    sum = sum + p.p4();
-   zMass->Fill(p.mass());
-   zPt->Fill(p.pt());
-   zY->Fill(p.y());
-   zPhi->Fill(p.phi());
-   zPhi->Fill(p.eta());
+   zMass->Fill(p.mass(),weight);
+   zPt->Fill(p.pt(),weight);
+   zY->Fill(p.y(),weight);
+   zPhi->Fill(p.phi(),weight);
+   zPhi->Fill(p.eta(),weight);
  }
                                                                                                                                                              
 
