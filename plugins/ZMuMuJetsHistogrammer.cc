@@ -308,7 +308,7 @@ void zMuMuJetsHistogrammer::analyze( const Event& evt, const EventSetup& evtstp)
    zPt->Fill(p.pt(),weight);
    zY->Fill(p.y(),weight);
    zPhi->Fill(p.phi(),weight);
-   zPhi->Fill(p.eta(),weight);
+   zEta->Fill(p.eta(),weight);
  }
                                                                                                                                                              
 
