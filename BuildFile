@@ -1,0 +1,8 @@
+<use name=RecoCaloTools/Selectors>
+<use name=DataFormats/EgammaCandidates>
+<use name=JetMETCorrections/Objects>
+<use name=HLTrigger/HLTcore>
+<flags EDM_PLUGIN=1>
+<export>
+   <lib name=ElectroWeakAnalysisVPlusJets>
+</export>
