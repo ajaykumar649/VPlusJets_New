@@ -37,6 +37,7 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/JetTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/VtoMuonTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/MCTreeFiller.h"
 
 //
@@ -73,6 +74,7 @@ namespace ewk
     std::auto_ptr<ewk::JetTreeFiller> PFJetFiller; 
     std::auto_ptr<ewk::JetTreeFiller> JPTJetFiller;
     std::auto_ptr<ewk::VtoElectronTreeFiller> recoBosonFiller;
+    std::auto_ptr<ewk::VtoMuonTreeFiller> recoBosonMuFiller;
     std::auto_ptr<ewk::MCTreeFiller> genBosonFiller;
 
     // private data members

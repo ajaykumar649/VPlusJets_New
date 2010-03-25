@@ -36,10 +36,10 @@ namespace ewk {
 
     TriggerMatcher(const edm::ParameterSet iConfig ) {
       // get appropriate trigger object names / labels
-      const edm::InputTag dSummaryObj( "hltTriggerSummaryAOD","","HLT" );
+      const edm::InputTag dSummaryObj( "hltTriggerSummaryAOD","","HLT8E29" );
       triggerSummaryLabel_ = 
 	iConfig.getUntrackedParameter<edm::InputTag>("triggerSummaryLabel",dSummaryObj); 
-      const edm::InputTag dHLTTag("HLT_Ele15_LW_L1R", "","HLT");
+      const edm::InputTag dHLTTag("HLT_Mu9", "","HLT8E29");
       hltTag_ = iConfig.getUntrackedParameter<edm::InputTag>("hltTag",dHLTTag);
     }
     

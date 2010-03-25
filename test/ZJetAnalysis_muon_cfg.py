@@ -10,7 +10,7 @@ process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 
 #   Z-->ee Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.ZeeCollections_cfi")
-
+process.load("ElectroWeakAnalysis.VPlusJets.ZmmCollections_cfi")
 #  Jet Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.CaloJetCollections_cfi")
 process.load("ElectroWeakAnalysis.VPlusJets.CorrectedCaloJetCollections_cfi")
@@ -33,7 +33,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 #'/store/mc/Summer09/ZeeJet_Pt80to120/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0001/FC26E6E8-9A9C-DE11-AE71-001D0967D288.root',
-        '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3_7TeV_TrackingParticles-v1/0017/FC43F604-30A0-DE11-BA47-001A64789E3C.root',
+        '/store/mc/Summer09/Zmumu/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0020/A62142E5-CCBD-DE11-8A94-003048917FAE.root',
+#      '/store/mc/Summer09/Zee/GEN-SIM-RECO/MC_31X_V3_7TeV_TrackingParticles-v1/0017/FC43F604-30A0-DE11-BA47-001A64789E3C.root',
 #'/store/mc/Summer09/ZeeJet_Pt80to120/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0001/F2000DF7-179D-DE11-A812-001D0967DAB7.root'
 ) )
 
@@ -68,16 +69,16 @@ process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
       cms.InputTag("sc5JPTJetsClean"),
       cms.InputTag("ak5JPTJetsClean"),
       ),                              
-    srcVectorBoson = cms.InputTag("bestZee"),
+    srcVectorBoson = cms.InputTag("bestZmm"),
     VBosonType     = cms.string('Z'),
-    LeptonType     = cms.string('electron'),                          
+    LeptonType     = cms.string('muon'),                          
     runningOverMC = cms.untracked.bool(True),
     srcFlavorByValue = cms.VInputTag(
       cms.InputTag("ic5tagJet"),
       cms.InputTag("sc5tagJet"),
       cms.InputTag("ak5tagJet"),
       ),                    
-    HistOutFile = cms.string('Zee.root'),
+    HistOutFile = cms.string('Zmm.root'),
     TreeName    = cms.string('ZJet')                          
 )
 
@@ -109,7 +110,7 @@ process.ak5CaloJets = cms.EDFilter("CaloJetSelector",
 process.p = cms.Path( process.genParticles * process.ak5CaloJets * 
                       process.CaloJetPath * process.CorJetPath *
                       process.GenJetPath * process.PFJetPath *
-                      process.JPTJetPath * process.ZPath *
+                      process.JPTJetPath * process.ZPathMu *
                       process.TagJetPath * process.VpusJets
                       )
 

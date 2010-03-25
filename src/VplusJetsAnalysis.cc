@@ -39,8 +39,8 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   GenJetFiller ( new JetTreeFiller("GenJetFiller", myTree, "Gen", iConfig) ),
   PFJetFiller (  new JetTreeFiller("PFJetFiller", myTree, "PF", iConfig) ),
   JPTJetFiller ( new JetTreeFiller("JPTJetFiller", myTree, "JPT", iConfig) ),
-  recoBosonFiller( new VtoElectronTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) ),
-  // recoBosonFiller( new VtoMuonTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) ),
+//  recoBosonFiller( new VtoElectronTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) ),
+  recoBosonMuFiller( new VtoMuonTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) ),
   genBosonFiller( new MCTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) )
 
 {
@@ -138,7 +138,9 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   /**  Store reconstructed vector boson information */
-  recoBosonFiller->fill(iEvent);
+//recoBosonFiller->fill(iEvent);
+  recoBosonMuFiller->fill(iEvent);
+
 
   /**  Store generated vector boson information */
   if( runningOverMC_ ) genBosonFiller->fill(iEvent);
