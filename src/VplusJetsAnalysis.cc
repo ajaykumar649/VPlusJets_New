@@ -158,7 +158,12 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if(! hltConfig_.init( iEvent, hltPath_.process(), changed) )
     edm::LogError("TriggerMatcher") << "Error! Can't initialize HLTConfigProvider ";
 
-  // maybe they changed the interface again -- disabling trigger matching for now
+  // Kalanand Mishra: March 24, 2010.
+  // Up to default CMSSW_3_5_2, HLTrigge/HLTcore -- HLTConfigProvider::init(...) 
+  // worked fine. But afterwards they have been making lot of changes and 
+  // maybe they changed the interface again. I am  disabling trigger matching for now.
+  // If you want to do trigger-matching, then cvs co -r CMSSW_3_5_2 HLTrigge/HLTcore. 
+
   changed = true; 
 
   if(!changed) {
