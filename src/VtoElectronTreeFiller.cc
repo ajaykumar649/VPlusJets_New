@@ -18,21 +18,10 @@
  *****************************************************************************/
 
 // CMS includes
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"  
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
-#include "TMath.h" 
-
-// Monte Carlo stuff
-#include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
-#include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
-#include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
-
-
+#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
 
@@ -45,12 +34,15 @@ ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree,
   // ********** Vector boson ********** //
   if(  iConfig.existsAs<edm::InputTag>("srcVectorBoson") )
     mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
-  else std::cout << "***Error:" << name << " Collection not specified !" << std::endl;
+  else std::cout << "***Error:" << name << 
+    " Collection not specified !" << std::endl;
 
   tree_     = tree;
   name_     = name;
   Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
-  if( !(tree==0) ) SetBranches();
+  LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
+
+  if( !(tree==0) && LeptonType_=="electron") SetBranches();
 
 }
 
@@ -275,8 +267,14 @@ void ewk::VtoElectronTreeFiller::init()
 
 
 
-void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
+void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, 
+				      edm::InputTag& filterName, 
+				      bool changed)
 {
+
+  // protection
+  if( (tree_==0) || !(LeptonType_=="electron") )  return;
+
   // first initialize to the default values
   init();
 
@@ -303,26 +301,44 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
   V_Et = Vboson->et();
 
   // now iterate over the daughters  
+  if(Vboson->numberOfDaughters()<2 ) {
+    throw cms::Exception( "***Error: V boson has < 2 daughters !\n");
+    return;  // if no electron found, then return
+  } 
+
+  // get the two daughters
+  reco::CandidateBaseRef m0 = Vboson->daughter(0)->masterClone();
+  reco::CandidateBaseRef m1 = Vboson->daughter(1)->masterClone();
+
+  const reco::GsfElectron* e1=NULL;
+  const reco::GsfElectron* e2=NULL;
+  const std::type_info & type0 = typeid(*m0);
+  const std::type_info & type1 = typeid(*m1);
+
+  if( type0 == typeid(reco::GsfElectron) ) 
+    e1 = dynamic_cast<const reco::GsfElectron *>( &*m0 ); 
+  if( type1 == typeid(reco::GsfElectron) )
+    e2 = dynamic_cast<const reco::GsfElectron *>( &*m1 ); 
+
+  if(0==e1 && 0==e2) {
+    throw cms::Exception("***Error: couldn't" 
+			 " do dynamic cast of vector boson daughters !\n");
+    return;  // if no electron found, then return
+  } 
+
   const reco::GsfElectron* ele1=NULL;
   const reco::GsfElectron* ele2=NULL;
-
   // if Z--> e+e- then ele1 = e+, ele2 = e-
   if(Vtype_=="Z") {
-    const reco::GsfElectron* e1  
-      = dynamic_cast<const reco::GsfElectron*>( Vboson->daughter(0) );
-    const reco::GsfElectron* e2
-      = dynamic_cast<const reco::GsfElectron*>( Vboson->daughter(1) );
-    if(!(e1==NULL && e2==NULL) ) {
-      if(e1->charge() > 0) { ele1 = e1; ele2 = e2; }
-      std::cout << "charge1 = " << e1->charge() << ", charge2 = " << e2->charge() << std::endl;
-    }
+    if(e1->charge() > 0) {  ele1 = e1;   ele2 = e2; }
+    else { ele1 = e2;  ele2 = e1; }
   }
-  else if(Vtype_=="W") 
-    ele1  = dynamic_cast<const reco::GsfElectron*>( Vboson->daughter(0) );
-  else {
-    std::cout << "***Error:" << "Something wrong in Obj collection !" << std::endl;
-    return;  // if no electron found, then return
+  // if W--> enu then ele1 = e, ele2 = NULL 
+  if(Vtype_=="W") {
+    if( abs(e1->charge())==1 ) ele1  = e1;
+    else if( abs(e2->charge())==1 ) ele1  = e2;
   }
+
 
   ////////// electron #1 quantities //////////////
   if( !(ele1 == NULL) ) {
@@ -365,7 +381,8 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
     e1Et             = e1Pt;	  
     e1_SigmaEtaEta   = ele1->sigmaEtaEta();
     e1_SigmaIetaIeta = ele1->sigmaIetaIeta();
-    e1_trigger = trigMatcher->CheckTriggerMatch( iEvent, e1Eta, e1Phi);
+    if(!changed)  e1_trigger 
+      = trigMatcher->CheckTriggerMatch( iEvent, filterName, e1Eta, e1Phi);
   }
 
   ////////// electron #2 quantities //////////////
@@ -376,9 +393,9 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
     e2Vz              = ele2->vz();
     e2Y               = ele2->rapidity();
     /// isolation 
-    e1_trackiso       = ele2->dr04TkSumPt();
-    e1_ecaliso        = ele2->dr04EcalRecHitSumEt();
-    e1_hcaliso        = ele2->dr04HcalTowerSumEt();
+    e2_trackiso       = ele2->dr04TkSumPt();
+    e2_ecaliso        = ele2->dr04EcalRecHitSumEt();
+    e2_hcaliso        = ele2->dr04HcalTowerSumEt();
     e2Classification  = ele2->classification();
     e2_EoverPout = ele2->eSeedClusterOverPout();
     e2_EoverPin  = ele2->eSuperClusterOverP();
@@ -409,7 +426,8 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
     e2Et             = e2Pt;	 
     e2_SigmaEtaEta   = ele2->sigmaEtaEta();
     e2_SigmaIetaIeta = ele2->sigmaIetaIeta();
-    e2_trigger = trigMatcher->CheckTriggerMatch( iEvent, e2Eta, e2Phi );   
+    if(!changed)  e2_trigger 
+      = trigMatcher->CheckTriggerMatch( iEvent, filterName, e2Eta, e2Phi );   
   } 
 
 }

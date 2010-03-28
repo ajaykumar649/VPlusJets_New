@@ -21,12 +21,10 @@
 
 // user include files
 #include "ElectroWeakAnalysis/VPlusJets/interface/VplusJetsAnalysis.h" 
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
-
 
 
 ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
@@ -39,33 +37,55 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   GenJetFiller ( new JetTreeFiller("GenJetFiller", myTree, "Gen", iConfig) ),
   PFJetFiller (  new JetTreeFiller("PFJetFiller", myTree, "PF", iConfig) ),
   JPTJetFiller ( new JetTreeFiller("JPTJetFiller", myTree, "JPT", iConfig) ),
-//  recoBosonFiller( new VtoElectronTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) ),
-  recoBosonMuFiller( new VtoMuonTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) ),
-  genBosonFiller( new MCTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) )
-
+  recoBosonFillerE( new VtoElectronTreeFiller( iConfig.getParameter<std::string>("VBosonType").c_str(), 
+					       myTree, iConfig) ),
+  recoBosonFillerMu( new VtoMuonTreeFiller( iConfig.getParameter<std::string>("VBosonType").c_str(), 
+					    myTree, iConfig) ),
+  genBosonFiller( new MCTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), 
+				   myTree, iConfig) )
 {
   // Are we running over Monte Carlo ?
   runningOverMC_=iConfig.getUntrackedParameter< bool >("runningOverMC",true);
-  
+  LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
+  VBosonType_ = iConfig.getParameter<std::string>("VBosonType");
+  hltPath_ = iConfig.getParameter<edm::InputTag>("hltTag");
+  triggerSummaryLabel_ = 
+    iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"); 
 }
 
-
+ 
 
 ewk::VplusJetsAnalysis::~VplusJetsAnalysis() {}
 
 
+void ewk::VplusJetsAnalysis::beginJob() {
 
-void ewk::VplusJetsAnalysis::beginJob()
-{
   // Declare all the branches of the tree
   declareTreeBranches();
 }
 
 
 
+void ewk::VplusJetsAnalysis::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
+{
+
+  // Initialize HLT config provider !!!!!
+  changed = false; 
+  if(! hltConfig_.init( run, iSetup, hltPath_.process(), changed) )
+    edm::LogError("TriggerMatcher") << "Error! Can't initialize HLTConfigProvider ";
+
+  // maybe they changed the interface again -- disabling trigger matching for now
+  changed = true; 
+}
+
+
+
+
+
+
 // ------------ method called to produce the data  ------------
 void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent, 
-				const edm::EventSetup& iSetup) {
+				     const edm::EventSetup& iSetup) {
 
   // write event information
   run   = 0;
@@ -138,9 +158,34 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   /**  Store reconstructed vector boson information */
-//recoBosonFiller->fill(iEvent);
-  recoBosonMuFiller->fill(iEvent);
+  // ------------ trigger objects 
+  edm::Handle<trigger::TriggerEvent> triggerObj;
+  iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
+  if(!triggerObj.isValid()) { 
+    edm::LogInfo("TriggerEvent") << " objects not found"; 
+  }
+  
+  // find the filter index
+  edm::InputTag filterTag;
 
+  if(!changed) {
+    std::vector<std::string> filters = hltConfig_.moduleLabels( hltPath_.label() );
+
+    // loop over all trigger filters associated with this path
+    for(std::vector<std::string>::iterator filter =
+	  filters.begin(); filter!= filters.end(); ++filter ) {
+       
+      edm::InputTag testTag(*filter,"", hltPath_.process() );       
+      int testindex = triggerObj->filterIndex(testTag);
+      if ( !(testindex >= triggerObj->sizeFilters()) ) 
+	filterTag=testTag;
+    } 
+  }
+
+  // now store  boson information
+  recoBosonFillerE->fill(iEvent, filterTag, changed);
+  recoBosonFillerMu->fill(iEvent, filterTag, changed);
+  
 
   /**  Store generated vector boson information */
   if( runningOverMC_ ) genBosonFiller->fill(iEvent);

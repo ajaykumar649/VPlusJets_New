@@ -32,6 +32,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h" 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -50,9 +53,9 @@ namespace ewk
     explicit VplusJetsAnalysis(const edm::ParameterSet&);
     ~VplusJetsAnalysis();
 
-    virtual void analyze(const edm::Event&, 
-			 const edm::EventSetup& iSetup);
-    virtual void beginJob() ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup& iSetup);
+    virtual void beginJob();
+    virtual void beginRun( const edm::Run &run, const edm::EventSetup &evtSetup);
     virtual void endJob() ;
     virtual void declareTreeBranches();
 
@@ -66,6 +69,13 @@ namespace ewk
     TFile*  hOutputFile ;
     TTree*  myTree;
     bool runningOverMC_;
+    std::string VBosonType_;
+    std::string LeptonType_;
+    edm::InputTag hltPath_;
+    HLTConfigProvider hltConfig_;
+    edm::InputTag  triggerSummaryLabel_;
+    bool changed;
+
 
     /// The objects that actually computes variables and fill the tree 
     std::auto_ptr<ewk::JetTreeFiller> CaloJetFiller;
@@ -73,8 +83,8 @@ namespace ewk
     std::auto_ptr<ewk::JetTreeFiller> GenJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> PFJetFiller; 
     std::auto_ptr<ewk::JetTreeFiller> JPTJetFiller;
-    std::auto_ptr<ewk::VtoElectronTreeFiller> recoBosonFiller;
-    std::auto_ptr<ewk::VtoMuonTreeFiller> recoBosonMuFiller;
+    std::auto_ptr<ewk::VtoElectronTreeFiller> recoBosonFillerE;
+    std::auto_ptr<ewk::VtoMuonTreeFiller> recoBosonFillerMu;
     std::auto_ptr<ewk::MCTreeFiller> genBosonFiller;
 
     // private data members

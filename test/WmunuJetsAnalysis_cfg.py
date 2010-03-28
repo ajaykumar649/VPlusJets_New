@@ -8,8 +8,8 @@ process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 
 
 
-#   W-->enu Collection ##########
-process.load("ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi")
+#   W-->munu Collection ##########
+process.load("ElectroWeakAnalysis.VPlusJets.WmunuCollections_cfi")
 
 #  Jet Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.CaloJetCollections_cfi")
@@ -32,9 +32,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-'/store/mc/Summer09/WJets-sherpa/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0070/FCF6ED10-A1F0-DE11-BFDE-00304865C466.root',
-       '/store/mc/Summer09/WJets-sherpa/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0070/FC2B24E6-97F0-DE11-BB81-00304865C360.root',
-       '/store/mc/Summer09/WJets-sherpa/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0070/FAB26D7B-4DF0-DE11-9401-003048CB860C.root') )
+'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0004/544F6FC2-A52B-DF11-8C2F-0018F3D09706.root',
+'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0004/40E547FE-2C2C-DF11-84B4-0026189438FE.root',
+'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0003/6A3D9E72-A42B-DF11-94EA-00304867BFB2.root',
+'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0003/1E608FCE-A32B-DF11-BC7B-001731A2876F.root',
+'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0003/0674C1E0-A42B-DF11-A01C-001A92811716.root') )
 
 
 process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
@@ -63,17 +65,17 @@ process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
       cms.InputTag("sc5JPTJetsClean"),
       cms.InputTag("ak5JPTJetsClean"),
       ),                              
-    srcVectorBoson = cms.InputTag("bestWenu"),
+    srcVectorBoson = cms.InputTag("bestWmunu"),
     VBosonType     = cms.string('W'),
-    LeptonType     = cms.string('electron'),                          
+    LeptonType     = cms.string('muon'),                          
     runningOverMC = cms.untracked.bool(False),
     srcFlavorByValue = cms.VInputTag(
       cms.InputTag("ic5tagJet"),
       cms.InputTag("sc5tagJet"),
       cms.InputTag("ak5tagJet"),
-      ),
+      ),   
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
-    hltTag = cms.InputTag("HLT_Ele15_LW_L1R", "","HLT"),
+    hltTag = cms.InputTag("HLT_Mu9", "","HLT"),                   
     HistOutFile = cms.string('demo.root'),
     TreeName    = cms.string('WJet')                          
 )

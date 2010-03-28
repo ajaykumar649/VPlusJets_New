@@ -40,19 +40,20 @@ namespace ewk {
     /// specify the name of the TTree, and the configuration for it
     VtoElectronTreeFiller(const char *name, TTree* tree, 
 			  const edm::ParameterSet iConfig );
-
+    
     /// default constructor
     VtoElectronTreeFiller() {};
-
-
+    
+    
     /// Destructor, does nothing 
-      ~VtoElectronTreeFiller() {};
-
-
+    ~VtoElectronTreeFiller() {};
+    
+    
     /// To be called once per event to fill the values for jets
-    void fill(const edm::Event &iEvent);
-
-
+    void fill(const edm::Event &iEvent, edm::InputTag& filterName, 
+	      bool changed);
+    
+    
   protected:
 
     /// To be called once per event, to initialize variable values to default
@@ -66,6 +67,7 @@ namespace ewk {
     TTree* tree_;
     const char *  name_;
     std::string Vtype_;
+    std::string LeptonType_;
     edm::InputTag mInputBoson;
 
 

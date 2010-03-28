@@ -36,17 +36,13 @@ namespace ewk {
 
     TriggerMatcher(const edm::ParameterSet iConfig ) {
       // get appropriate trigger object names / labels
-      const edm::InputTag dSummaryObj( "hltTriggerSummaryAOD","","HLT8E29" );
       triggerSummaryLabel_ = 
-	iConfig.getUntrackedParameter<edm::InputTag>("triggerSummaryLabel",dSummaryObj); 
-      const edm::InputTag dHLTTag("HLT_Mu9", "","HLT8E29");
-      hltTag_ = iConfig.getUntrackedParameter<edm::InputTag>("hltTag",dHLTTag);
+	iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"); 
+      hltTag_ = iConfig.getParameter<edm::InputTag>("hltTag");
     }
-    
-
-    /// default constructor
-    TriggerMatcher() {};
-
+            
+      /// default constructor
+      TriggerMatcher() {};
 
     /// Destructor, does nothing 
     ~TriggerMatcher() {};
@@ -55,14 +51,13 @@ namespace ewk {
   protected:
     edm::InputTag  triggerSummaryLabel_;
     edm::InputTag  hltTag_;
-    HLTConfigProvider hltConfig_;
-
 
   public:
 
     /// To be called once per event / candidate
-    bool CheckTriggerMatch( const edm::Event& ev, double eta, double phi) {
-
+    bool CheckTriggerMatch( const edm::Event& ev, edm::InputTag& filterName, 
+			    double eta, double phi ) 
+    {
       // ------------ trigger objects 
       edm::Handle<trigger::TriggerEvent> triggerObj;
       ev.getByLabel(triggerSummaryLabel_,triggerObj); 
@@ -70,27 +65,7 @@ namespace ewk {
 	edm::LogInfo("TriggerEvent") << " objects not found"; 
       }
 
-      edm::InputTag filterTag;
-      bool changed = false;
-      if(! hltConfig_.init(ev, hltTag_.process(), changed) ){
-	edm::LogError("TriggerMatcher") << "Error! Can't initialize HLTConfigProvider ";
-	return false;
-      }
-
-
-      std::vector<std::string> filters = hltConfig_.moduleLabels( hltTag_.label() );
-
-      // loop over all trigger filters associated with this path
-      for(std::vector<std::string>::iterator filter =
-	    filters.begin(); filter!= filters.end(); ++filter ) {
-       
-	edm::InputTag testTag(*filter,"", hltTag_.process() );       
-	int testindex = triggerObj->filterIndex(testTag);
-	if ( !(testindex >= triggerObj->sizeFilters()) ) 
-	  filterTag=testTag;
-      }
-     
-      int trigindex = triggerObj->filterIndex( filterTag );
+      int trigindex = triggerObj->filterIndex( filterName );
       if ( trigindex >= triggerObj->sizeFilters() ) return false; 
 
       const trigger::Keys & l1k = triggerObj->filterKeys( trigindex );
@@ -104,7 +79,6 @@ namespace ewk {
 	result = reco::deltaR( eta, phi, toc[*ki].eta(),toc[*ki].phi() ) < 0.3; 
 	if( result) break;             
       }
-  
       return result;
     }
   };

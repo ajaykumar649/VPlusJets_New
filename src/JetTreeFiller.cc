@@ -414,11 +414,12 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	  PFChargedMultiplicity[ic][ij] = pfjet.chargedMultiplicity();
 	  PFNeutralMultiplicity[ic][ij] = pfjet.neutralMultiplicity();
 	  PFMuonMultiplicity[ic][ij] = pfjet.muonMultiplicity();  
-	}
+	}// close PF jets loop
 
-      }
-    } // close PF jets loop
-    NumJets[ic]++;
+	NumJets[ic]++;
+      }// close jets iteration loop
+    } // close isValid loop
+
   } // Close JetAlgo loop
 
   //FillBranches();
