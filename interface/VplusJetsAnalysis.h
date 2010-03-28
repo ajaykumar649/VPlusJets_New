@@ -55,7 +55,6 @@ namespace ewk
 
     virtual void analyze(const edm::Event&, const edm::EventSetup& iSetup);
     virtual void beginJob();
-    virtual void beginRun( const edm::Run &run, const edm::EventSetup &evtSetup);
     virtual void endJob() ;
     virtual void declareTreeBranches();
 

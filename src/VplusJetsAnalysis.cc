@@ -66,20 +66,6 @@ void ewk::VplusJetsAnalysis::beginJob() {
 
 
 
-void ewk::VplusJetsAnalysis::beginRun(const edm::Run &run, const edm::EventSetup& iSetup)
-{
-
-  // Initialize HLT config provider !!!!!
-  changed = false; 
-  if(! hltConfig_.init( run, iSetup, hltPath_.process(), changed) )
-    edm::LogError("TriggerMatcher") << "Error! Can't initialize HLTConfigProvider ";
-
-  // maybe they changed the interface again -- disabling trigger matching for now
-  changed = true; 
-}
-
-
-
 
 
 
@@ -167,6 +153,13 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   
   // find the filter index
   edm::InputTag filterTag;
+  // Initialize HLT config provider !!!!!
+  changed = false; 
+  if(! hltConfig_.init( iEvent, hltPath_.process(), changed) )
+    edm::LogError("TriggerMatcher") << "Error! Can't initialize HLTConfigProvider ";
+
+  // maybe they changed the interface again -- disabling trigger matching for now
+  changed = true; 
 
   if(!changed) {
     std::vector<std::string> filters = hltConfig_.moduleLabels( hltPath_.label() );
