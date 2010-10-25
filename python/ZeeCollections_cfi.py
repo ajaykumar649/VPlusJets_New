@@ -7,7 +7,7 @@ selectElectrons = cms.EDFilter("GsfElectronSelector",
 
 
 
-ZToEE = cms.EDFilter("NamedCandViewShallowCloneCombiner",
+ZToEE = cms.EDProducer("NamedCandViewShallowCloneCombiner",
     cut = cms.string('60 < mass < 120'),
     name = cms.string('ZToEE'),
     roles = cms.vstring('electron1', 

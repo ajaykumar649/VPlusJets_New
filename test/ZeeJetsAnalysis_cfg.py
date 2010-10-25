@@ -32,49 +32,55 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-'/store/mc/Summer09/ZeeJet_Pt80to120/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0001/FC26E6E8-9A9C-DE11-AE71-001D0967D288.root',
-'/store/mc/Summer09/ZeeJet_Pt80to120/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0001/F2000DF7-179D-DE11-A812-001D0967DAB7.root') )
+
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/E82FBD2C-21C9-DF11-B7FB-0022649E7902.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/749FFE35-3AC9-DF11-A44A-001F29C4C3FE.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/72167F8D-24C9-DF11-9AB1-0017A4770C3C.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/062E5179-24C9-DF11-98FC-001F29C4C3BA.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FCFF5A75-B1C8-DF11-BEF6-0017A4770C2C.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/F2604CB0-B5C8-DF11-A2C0-001E0BE922E2.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/EE6077BF-B1C8-DF11-8AD9-001F296A527C.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/D6FF2C65-B6C8-DF11-B219-00237DA13F9E.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/D4016737-AFC8-DF11-95C7-1CC1DE0590E8.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/C81E5552-B3C8-DF11-81F6-001F29C4C3FE.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/C035330C-B2C8-DF11-A52D-0017A4770038.root',
+       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/B29141A3-AFC8-DF11-81E8-1CC1DE0500F0.root',  
+) )
 
 
-process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
-    srcGen  = cms.VInputTag( 
-       cms.InputTag("ic5GenJetsClean"),
-       cms.InputTag("sc5GenJetsClean"),
-       cms.InputTag("ak5GenJetsClean"),
-       ),
+process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
+    runningOverMC = cms.untracked.bool(False),                                  
+##     srcGen  = cms.VInputTag( 
+##        cms.InputTag("ic5GenJetsClean"),
+##        cms.InputTag("kt4GenJetsClean"),
+##        cms.InputTag("ak5GenJetsClean"),
+##        ),
+##     srcFlavorByValue = cms.VInputTag(
+##       cms.InputTag("ic5tagJet"),
+##       cms.InputTag("kt4tagJet"),
+##       cms.InputTag("ak5tagJet"),
+##       ),                                  
     srcCaloCor = cms.VInputTag(
        cms.InputTag("ic5CaloJetsCorClean"),
-       cms.InputTag("sc5CaloJetsCorClean"),
+       cms.InputTag("kt4CaloJetsCorClean"),
        cms.InputTag("ak5CaloJetsCorClean"),
        ),
     srcCalo = cms.VInputTag(
       cms.InputTag("ic5CaloJetsClean"),
-      cms.InputTag("sc5CaloJetsClean"),
+      cms.InputTag("kt4CaloJetsClean"),
       cms.InputTag("ak5CaloJetsClean"),
-      ),
-##  srcPFJets =cms.untracked.VInputTag(
-##    cms.InputTag("L2L3CorJetIC5PF"),
-##    cms.InputTag("L2L3CorJetAKT5PF"),
-##    ),                              
+      ),                      
     srcPFJets =cms.VInputTag(
       cms.InputTag("ic5PFJetsClean"),
-      cms.InputTag("sc5PFJetsClean"),
+      cms.InputTag("kt4PFJetsClean"),
       cms.InputTag("ak5PFJetsClean"),
       ),
     srcJPTJets =cms.VInputTag(
-      cms.InputTag("ic5JPTJetsClean"),
-      cms.InputTag("sc5JPTJetsClean"),
       cms.InputTag("ak5JPTJetsClean"),
       ),                              
     srcVectorBoson = cms.InputTag("bestZee"),
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('electron'),                          
-    runningOverMC = cms.untracked.bool(True),
-    srcFlavorByValue = cms.VInputTag(
-      cms.InputTag("ic5tagJet"),
-      cms.InputTag("sc5tagJet"),
-      cms.InputTag("ak5tagJet"),
-      ),
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
     hltTag = cms.InputTag("HLT_Ele15_LW_L1R", "","HLT"),
     HistOutFile = cms.string('demo.root'),
@@ -82,10 +88,10 @@ process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
 )
 
 
-process.ak5CaloJets = cms.EDFilter("CaloJetSelector",   
-    src = cms.InputTag("antikt5CaloJets"),
-    cut = cms.string('pt > 0.0')
-)
+## process.ak5CaloJets = cms.EDFilter("CaloJetSelector",   
+##     src = cms.InputTag("antikt5CaloJets"),
+##     cut = cms.string('pt > 0.0')
+## )
 
 
 ### work around for the time being: need to change antikt5 => ak5
@@ -106,11 +112,12 @@ process.ak5CaloJets = cms.EDFilter("CaloJetSelector",
 
 
 
-process.p = cms.Path( process.genParticles * process.ak5CaloJets * 
+process.p = cms.Path( #process.genParticles *
+                      #process.GenJetPath * process.TagJetPath * 
                       process.CaloJetPath * process.CorJetPath *
-                      process.GenJetPath * process.PFJetPath *
+                      process.PFJetPath *
                       process.JPTJetPath * process.ZPath *
-                      process.TagJetPath * process.VpusJets
+                      process.VpusJets
                       )
 
 

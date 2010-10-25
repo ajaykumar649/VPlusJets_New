@@ -7,7 +7,7 @@ selectElectrons = cms.EDFilter("GsfElectronSelector",
 
 
 
-WToEnu = cms.EDFilter("NamedCandViewShallowCloneCombiner",
+WToEnu = cms.EDProducer("NamedCandViewShallowCloneCombiner",
     cut = cms.string("et>0"),
     checkCharge = cms.bool(False),
     name = cms.string('WToEnu'),

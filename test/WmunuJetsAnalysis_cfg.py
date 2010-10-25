@@ -32,48 +32,48 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0004/544F6FC2-A52B-DF11-8C2F-0018F3D09706.root',
-'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0004/40E547FE-2C2C-DF11-84B4-0026189438FE.root',
-'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0003/6A3D9E72-A42B-DF11-94EA-00304867BFB2.root',
-'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0003/1E608FCE-A32B-DF11-BC7B-001731A2876F.root',
-'/store/relval/CMSSW_3_5_4/RelValWM/GEN-SIM-RECO/START3X_V24-v1/0003/0674C1E0-A42B-DF11-A01C-001A92811716.root') )
+
+       '/store/relval/CMSSW_3_8_5/RelValWM/GEN-SIM-RECO/START38_V12-v1/0041/70AB981F-D2D2-DF11-A733-002618943870.root',
+       '/store/relval/CMSSW_3_8_5/RelValWM/GEN-SIM-RECO/START38_V12-v1/0040/74F4115C-E9D1-DF11-B69D-00304867929E.root',
+       '/store/relval/CMSSW_3_8_5/RelValWM/GEN-SIM-RECO/START38_V12-v1/0040/626A5615-23D2-DF11-898F-003048678D52.root',
+       '/store/relval/CMSSW_3_8_5/RelValWM/GEN-SIM-RECO/START38_V12-v1/0039/DAC9D739-E7D1-DF11-8F0B-003048678BAE.root',
+       '/store/relval/CMSSW_3_8_5/RelValWM/GEN-SIM-RECO/START38_V12-v1/0039/4EA99A1B-E5D1-DF11-9DCF-0018F3D09630.root') )
 
 
-process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
-    srcGen  = cms.VInputTag( 
-       cms.InputTag("ic5GenJetsClean"),
-       cms.InputTag("sc5GenJetsClean"),
-       cms.InputTag("ak5GenJetsClean"),
-       ),
+process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
+    runningOverMC = cms.untracked.bool(False),                            
+##     srcGen  = cms.VInputTag( 
+##        cms.InputTag("ic5GenJetsClean"),
+##        cms.InputTag("kt4GenJetsClean"),
+##        cms.InputTag("ak5GenJetsClean"),
+##        ),
+##     srcFlavorByValue = cms.VInputTag(
+##       cms.InputTag("ic5tagJet"),
+##       cms.InputTag("kt4tagJet"),
+##       cms.InputTag("ak5tagJet"),
+##       ),   
+                                  
     srcCaloCor = cms.VInputTag(
        cms.InputTag("ic5CaloJetsCorClean"),
-       cms.InputTag("sc5CaloJetsCorClean"),
+       cms.InputTag("kt4CaloJetsCorClean"),
        cms.InputTag("ak5CaloJetsCorClean"),
        ),
     srcCalo = cms.VInputTag(
       cms.InputTag("ic5CaloJetsClean"),
-      cms.InputTag("sc5CaloJetsClean"),
+      cms.InputTag("kt4CaloJetsClean"),
       cms.InputTag("ak5CaloJetsClean"),
       ),                              
     srcPFJets =cms.VInputTag(
       cms.InputTag("ic5PFJetsClean"),
-      cms.InputTag("sc5PFJetsClean"),
+      cms.InputTag("kt4PFJetsClean"),
       cms.InputTag("ak5PFJetsClean"),
       ),
     srcJPTJets =cms.VInputTag(
-      cms.InputTag("ic5JPTJetsClean"),
-      cms.InputTag("sc5JPTJetsClean"),
       cms.InputTag("ak5JPTJetsClean"),
       ),                              
     srcVectorBoson = cms.InputTag("bestWmunu"),
     VBosonType     = cms.string('W'),
     LeptonType     = cms.string('muon'),                          
-    runningOverMC = cms.untracked.bool(False),
-    srcFlavorByValue = cms.VInputTag(
-      cms.InputTag("ic5tagJet"),
-      cms.InputTag("sc5tagJet"),
-      cms.InputTag("ak5tagJet"),
-      ),   
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
     hltTag = cms.InputTag("HLT_Mu9", "","HLT"),                   
     HistOutFile = cms.string('demo.root'),
@@ -81,35 +81,14 @@ process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
 )
 
 
-process.ak5CaloJets = cms.EDFilter("CaloJetSelector",   
-    src = cms.InputTag("antikt5CaloJets"),
-    cut = cms.string('pt > 0.0')
-)
 
 
-### work around for the time being: need to change antikt5 => ak5
-## process.antikt5CaloJets = cms.EDFilter("CaloJetSelector",   
-##     src = cms.InputTag("ak5CaloJets"),
-##     cut = cms.string("")
-## )
-
-## process.antikt5GenJets = cms.EDFilter("GenJetSelector",   
-##     src = cms.InputTag("ak5GenJets"),
-##     cut = cms.string("")
-## )
-
-## process.antikt5PFJets = cms.EDFilter("PtMinPFJetSelector",   
-##     src = cms.InputTag("ak5PFJets"),
-##     ptMin = cms.double(0)
-## )
-
-
-
-process.p = cms.Path( process.ak5CaloJets * 
+process.p = cms.Path( #process.genParticles *
+                      #process.GenJetPath * process.TagJetPath * 
                       process.CaloJetPath * process.CorJetPath *
-                      process.GenJetPath * process.PFJetPath *
+                      process.PFJetPath *
                       process.JPTJetPath * process.WPath *
-                      process.TagJetPath * process.VpusJets
+                      process.VpusJets
                       )
 
 

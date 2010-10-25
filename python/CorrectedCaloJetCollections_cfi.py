@@ -1,97 +1,51 @@
 import FWCore.ParameterSet.Config as cms
-from JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_cff import *
+from JetMETCorrections.Configuration.DefaultJEC_cff import *
 
-ic5CaloJetsCor = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("L2L3CorJetIC5Calo"),
+ak5CaloL2Relative.useCondDB = False
+ak5CaloL3Absolute.useCondDB = False
+ak5CaloResidual.useCondDB = False
+
+ic5CaloL2Relative.useCondDB = False
+ic5CaloL3Absolute.useCondDB = False
+ic5CaloResidual.useCondDB = False
+
+kt4CaloL2Relative.useCondDB = False
+kt4CaloL3Absolute.useCondDB = False
+kt4CaloResidual.useCondDB = False
+
+kt6CaloL2Relative.useCondDB = False
+kt6CaloL3Absolute.useCondDB = False
+kt6CaloResidual.useCondDB = False
+
+
+#####################
+ic5CaloJetsCorClean = cms.EDProducer("JetViewCleaner",
+    srcJets = cms.InputTag("ic5CaloJetsL2L3"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
 
 
-ic5CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("ic5CaloJetsCor"),
+#####################
+kt4CaloJetsCorClean = cms.EDProducer("JetViewCleaner",
+    srcJets = cms.InputTag("kt4CaloJetsL2L3"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
 
 #####################
-sc5CaloJetsCor = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("L2L3CorJetSC5Calo"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-
-sc5CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("sc5CaloJetsCor"),
+kt6CaloJetsCorClean = cms.EDProducer("JetViewCleaner",
+    srcJets = cms.InputTag("kt6CaloJetsL2L3"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
 
 #####################
-
-sc7CaloJetsCor = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("L2L3CorJetSC7Calo"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-sc7CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("sc7CaloJetsCor"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-#####################
-
-kt4CaloJetsCor = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("L2L3CorJetKT4Calo"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-
-kt4CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("kt4CaloJetsCor"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-#####################
-
-kt6CaloJetsCor = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("L2L3CorJetKT6Calo"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-kt6CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("kt6CaloJetsCor"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-#####################
-
-ak5CaloJetsCor = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("L2L3CorJetAK5Calo"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-ak5CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("ak5CaloJetsCor"),
+ak5CaloJetsCorClean = cms.EDProducer("JetViewCleaner",
+    srcJets = cms.InputTag("ak5CaloJetsL2L3"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
@@ -99,20 +53,9 @@ ak5CaloJetsCorClean = cms.EDFilter("JetViewCleaner",
 
 ##########################################
 ##########################################
-
-## CorJetPath = cms.Sequence(
-##     L2L3CorJetIC5Calo * ic5CaloJetsCor * ic5CaloJetsCorClean +
-##     L2L3CorJetSC5Calo * sc5CaloJetsCor * sc5CaloJetsCorClean +
-##     L2L3CorJetSC7Calo * sc7CaloJetsCor * sc7CaloJetsCorClean +
-##     L2L3CorJetKT4Calo * kt4CaloJetsCor * kt4CaloJetsCorClean +
-##     L2L3CorJetKT6Calo * kt6CaloJetsCor * kt6CaloJetsCorClean +
-##     L2L3CorJetAK5Calo * ak5CaloJetsCor * ak5CaloJetsCorClean
-##     )
-
-
 CorJetPath = cms.Sequence(
-    L2L3CorJetIC5Calo * ic5CaloJetsCor * ic5CaloJetsCorClean +
-    L2L3CorJetSC5Calo * sc5CaloJetsCor * sc5CaloJetsCorClean +
-    L2L3CorJetAK5Calo * ak5CaloJetsCor * ak5CaloJetsCorClean
+    ic5CaloJetsL2L3 * ic5CaloJetsCorClean +
+    kt4CaloJetsL2L3 * kt4CaloJetsCorClean +
+    ak5CaloJetsL2L3 * ak5CaloJetsCorClean
     )
 

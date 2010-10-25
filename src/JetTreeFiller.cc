@@ -62,7 +62,7 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
   else if( jetType=="JPT" && iConfig.existsAs<std::vector<edm::InputTag> >("srcJPTJets") )
     mInputJets 
       = iConfig.getParameter<std::vector<edm::InputTag> >("srcJPTJets"); 
-  else std::cout << "***Error:" << jetType << " Jet Type or Collection not specified !" 
+  else std::cout << "***Attention:" << jetType << " Jet Type or Collection not specified !" 
 		 << std::endl;
 
 

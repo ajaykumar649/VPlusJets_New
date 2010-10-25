@@ -33,10 +33,10 @@ ewk::MCTreeFiller::MCTreeFiller(const char *name, TTree* tree,
   name_     = name;
   Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
   ptype_    = iConfig.getParameter<std::string>("LeptonType");
+  runningOverMC_=iConfig.getUntrackedParameter< bool >("runningOverMC",true);
   pdgIdDau_ = 11;
   if(ptype_=="muon") pdgIdDau_ = 13; 
-  if( !(tree==0) ) SetBranches();
-
+  if( !(tree==0) && runningOverMC_) SetBranches();
 }
 
 
@@ -169,6 +169,9 @@ void ewk::MCTreeFiller::init()
 
 void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
 {
+  // protection
+  if( !runningOverMC_) return;
+
   // first initialize to the default values
   init();
 

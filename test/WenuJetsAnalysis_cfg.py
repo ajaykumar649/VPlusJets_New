@@ -32,46 +32,52 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-'/store/mc/Summer09/WJets-sherpa/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0070/FCF6ED10-A1F0-DE11-BFDE-00304865C466.root',
-       '/store/mc/Summer09/WJets-sherpa/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0070/FC2B24E6-97F0-DE11-BB81-00304865C360.root',
-       '/store/mc/Summer09/WJets-sherpa/GEN-SIM-RECO/MC_31X_V3_7TeV-v1/0070/FAB26D7B-4DF0-DE11-9401-003048CB860C.root') )
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/FEFE3E46-CB7B-DF11-8488-0018F3D09678.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/FEA6BEE7-CA7B-DF11-BEB0-00304867BED8.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/FCE7711D-CB7B-DF11-B469-003048678C26.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/FAA0922C-6C7B-DF11-82E6-00304867BFC6.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/FA24AFE0-EE7B-DF11-BDB3-001A92971ACE.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/F8D11B16-297C-DF11-B3EE-002618943950.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/F8B3D8F4-287C-DF11-904A-00261894383B.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/F8854F8C-C67B-DF11-AE1C-002618943899.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/F876C53E-CB7B-DF11-A402-00304867BF18.root',
+       '/store/mc/Summer10/WJets_7TeV-madgraph-tauola/GEN-SIM-RECO/START36_V9_S09-v1/0046/F842A696-C67B-DF11-87B4-0026189438F6.root',
+       ) )
 
 
-process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
-    srcGen  = cms.VInputTag( 
-       cms.InputTag("ic5GenJetsClean"),
-       cms.InputTag("sc5GenJetsClean"),
-       cms.InputTag("ak5GenJetsClean"),
-       ),
+process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
+    runningOverMC = cms.untracked.bool(False),                                
+##     srcGen  = cms.VInputTag( 
+##        cms.InputTag("ic5GenJetsClean"),
+##        cms.InputTag("kt4GenJetsClean"),
+##        cms.InputTag("ak5GenJetsClean"),
+##        ),
+##     srcFlavorByValue = cms.VInputTag(
+##       cms.InputTag("ic5tagJet"),
+##       cms.InputTag("kt4tagJet"),
+##       cms.InputTag("ak5tagJet"),
+##       ),                                                                
     srcCaloCor = cms.VInputTag(
        cms.InputTag("ic5CaloJetsCorClean"),
-       cms.InputTag("sc5CaloJetsCorClean"),
+       cms.InputTag("kt4CaloJetsCorClean"),
        cms.InputTag("ak5CaloJetsCorClean"),
        ),
     srcCalo = cms.VInputTag(
       cms.InputTag("ic5CaloJetsClean"),
-      cms.InputTag("sc5CaloJetsClean"),
+      cms.InputTag("kt4CaloJetsClean"),
       cms.InputTag("ak5CaloJetsClean"),
       ),                              
     srcPFJets =cms.VInputTag(
       cms.InputTag("ic5PFJetsClean"),
-      cms.InputTag("sc5PFJetsClean"),
+      cms.InputTag("kt4PFJetsClean"),
       cms.InputTag("ak5PFJetsClean"),
       ),
     srcJPTJets =cms.VInputTag(
-      cms.InputTag("ic5JPTJetsClean"),
-      cms.InputTag("sc5JPTJetsClean"),
       cms.InputTag("ak5JPTJetsClean"),
       ),                              
     srcVectorBoson = cms.InputTag("bestWenu"),
     VBosonType     = cms.string('W'),
     LeptonType     = cms.string('electron'),                          
-    runningOverMC = cms.untracked.bool(False),
-    srcFlavorByValue = cms.VInputTag(
-      cms.InputTag("ic5tagJet"),
-      cms.InputTag("sc5tagJet"),
-      cms.InputTag("ak5tagJet"),
-      ),
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
     hltTag = cms.InputTag("HLT_Ele15_LW_L1R", "","HLT"),
     HistOutFile = cms.string('demo.root'),
@@ -79,31 +85,9 @@ process.VpusJets = cms.EDFilter("VplusJetsAnalysis",
 )
 
 
-process.ak5CaloJets = cms.EDFilter("CaloJetSelector",   
-    src = cms.InputTag("antikt5CaloJets"),
-    cut = cms.string('pt > 0.0')
-)
 
 
-### work around for the time being: need to change antikt5 => ak5
-## process.antikt5CaloJets = cms.EDFilter("CaloJetSelector",   
-##     src = cms.InputTag("ak5CaloJets"),
-##     cut = cms.string("")
-## )
-
-## process.antikt5GenJets = cms.EDFilter("GenJetSelector",   
-##     src = cms.InputTag("ak5GenJets"),
-##     cut = cms.string("")
-## )
-
-## process.antikt5PFJets = cms.EDFilter("PtMinPFJetSelector",   
-##     src = cms.InputTag("ak5PFJets"),
-##     ptMin = cms.double(0)
-## )
-
-
-
-process.p = cms.Path( process.ak5CaloJets * 
+process.p = cms.Path( #process.genParticles * 
                       process.CaloJetPath * process.CorJetPath *
                       process.GenJetPath * process.PFJetPath *
                       process.JPTJetPath * process.WPath *

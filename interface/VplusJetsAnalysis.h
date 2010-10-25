@@ -57,6 +57,7 @@ namespace ewk
     virtual void beginJob();
     virtual void endJob() ;
     virtual void declareTreeBranches();
+    virtual void beginRun(edm::Run& iRun, edm::EventSetup const& iSetup);
 
 
   private:

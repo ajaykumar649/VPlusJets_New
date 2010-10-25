@@ -40,6 +40,8 @@ ewk::VtoMuonTreeFiller::VtoMuonTreeFiller(const char *name, TTree* tree,
   tree_     = tree;
   name_     = name;
   Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
+  LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
+
   if( !(tree==0) && LeptonType_=="muon") SetBranches();
 
 }

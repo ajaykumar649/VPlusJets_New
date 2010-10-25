@@ -66,7 +66,7 @@ namespace ewk {
     std::string ptype_;
     int pdgIdDau_;
     edm::InputTag mInputBoson;
-
+    bool runningOverMC_;
 
   private:
     // private data members

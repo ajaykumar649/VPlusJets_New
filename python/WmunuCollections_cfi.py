@@ -7,7 +7,7 @@ selectMuons = cms.EDFilter("MuonSelector",
 
 
 
-WToMunu = cms.EDFilter("NamedCandViewShallowCloneCombiner",
+WToMunu = cms.EDProducer("NamedCandViewShallowCloneCombiner",
     cut = cms.string("et>0"),
     checkCharge = cms.bool(False),
     name = cms.string('WToMunu'),

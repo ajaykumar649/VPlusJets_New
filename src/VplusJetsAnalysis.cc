@@ -67,6 +67,18 @@ void ewk::VplusJetsAnalysis::beginJob() {
 
 
 
+// ---- method called once each job just before starting event loop  ---
+void ewk::VplusJetsAnalysis::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup){
+
+  // Initialize HLT config provider !!!!!
+  if(!hltConfig_.init(iRun,iSetup,hltPath_.process(),changed) ){
+    edm::LogError("TriggerCandProducer") << 
+      "Error! Can't initialize HLTConfigProvider";
+    throw cms::Exception("HLTConfigProvider::init() returned non 0");
+  }
+}
+
+
 
 
 // ------------ method called to produce the data  ------------
@@ -151,21 +163,11 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     edm::LogInfo("TriggerEvent") << " objects not found"; 
   }
   
+
+
+
   // find the filter index
   edm::InputTag filterTag;
-  // Initialize HLT config provider !!!!!
-  changed = false; 
-  if(! hltConfig_.init( iEvent, hltPath_.process(), changed) )
-    edm::LogError("TriggerMatcher") << "Error! Can't initialize HLTConfigProvider ";
-
-  // Kalanand Mishra: March 24, 2010.
-  // Up to default CMSSW_3_5_2, HLTrigge/HLTcore -- HLTConfigProvider::init(...) 
-  // worked fine. But afterwards they have been making lot of changes and 
-  // maybe they changed the interface again. I am  disabling trigger matching for now.
-  // If you want to do trigger-matching, then cvs co -r CMSSW_3_5_2 HLTrigge/HLTcore. 
-
-  changed = true; 
-
   if(!changed) {
     std::vector<std::string> filters = hltConfig_.moduleLabels( hltPath_.label() );
 

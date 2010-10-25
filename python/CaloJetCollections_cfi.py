@@ -1,48 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
-ic5CaloJetsClean = cms.EDFilter("JetViewCleaner",
+ic5CaloJetsClean = cms.EDProducer("JetViewCleaner",
     srcJets = cms.InputTag("iterativeCone5CaloJets"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
 
-
-sc5CaloJetsClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("sisCone5CaloJets"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-sc7CaloJetsClean = cms.EDFilter("JetViewCleaner",
-    srcJets = cms.InputTag("sisCone7CaloJets"),
-    module_label = cms.string(""),
-    srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
-    deltaRMin = cms.double(0.3)
-)
-
-
-kt4CaloJetsClean = cms.EDFilter("JetViewCleaner",
+kt4CaloJetsClean = cms.EDProducer("JetViewCleaner",
     srcJets = cms.InputTag("kt4CaloJets"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
 
-kt6CaloJetsClean = cms.EDFilter("JetViewCleaner",
+kt6CaloJetsClean = cms.EDProducer("JetViewCleaner",
     srcJets = cms.InputTag("kt6CaloJets"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
 
-ak5CaloJetsClean = cms.EDFilter("JetViewCleaner",
+ak5CaloJetsClean = cms.EDProducer("JetViewCleaner",
     srcJets = cms.InputTag("ak5CaloJets"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("gsfElectrons")),
     deltaRMin = cms.double(0.3)
 )
+
 
 ############################################
 
@@ -50,5 +35,5 @@ ak5CaloJetsClean = cms.EDFilter("JetViewCleaner",
 ##                            sc7CaloJetsClean + kt4CaloJetsClean +
 ##                            kt6CaloJetsClean + ak5CaloJetsClean)
 
-CaloJetPath = cms.Sequence(ic5CaloJetsClean + sc5CaloJetsClean +
+CaloJetPath = cms.Sequence(ic5CaloJetsClean + kt4CaloJetsClean +
                            ak5CaloJetsClean)
