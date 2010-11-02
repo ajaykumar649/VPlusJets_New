@@ -69,6 +69,7 @@ namespace ewk {
     std::string Vtype_;
     std::string LeptonType_;
     edm::InputTag mInputBoson;
+    bool runningOverMC_;
 
 
     /// The object for trigger matching
@@ -96,12 +97,14 @@ namespace ewk {
     int e1Charge;
     int e2Classification;
     int e2Charge;
+    int e1_missingHits;
+    int e2_missingHits;
 
-    bool ise1Loose;
-    bool ise1Tight;
+    bool ise1WP95;
+    bool ise1WP80;
     bool e1_trigger;
-    bool ise2Loose;
-    bool ise2Tight;
+    bool ise2WP95;
+    bool ise2WP80;
     bool e2_trigger;
 
     float e1px;
@@ -123,6 +126,15 @@ namespace ewk {
     float e1_sc_x;
     float e1_sc_y;
     float e1_sc_z;
+    float e1_sc_Theta;
+    float e1_sc_Eta;    
+    float e1_sc_Phi;
+    float e1_sc_E;
+    float e1_sc_px;
+    float e1_sc_py;
+    float e1_sc_pz;
+    float e1_sc_Pt;
+    float e1_sc_Et;	  
     float e1_EoverPout;
     float e1_EoverPin;
     float e1_numberOfBrems;
@@ -137,7 +149,11 @@ namespace ewk {
     float e1_E9overE25;
     float e1_SigmaEtaEta;
     float e1_SigmaIetaIeta;
-	  
+    float e1_escale;
+    float e1_dist;
+    float e1_dcot;
+    float e1_convradius;
+  
     ///////////////////
 
     float e2px;
@@ -159,6 +175,15 @@ namespace ewk {
     float e2_sc_x;
     float e2_sc_y;
     float e2_sc_z;
+    float e2_sc_Theta;
+    float e2_sc_Eta;    
+    float e2_sc_Phi;
+    float e2_sc_E;
+    float e2_sc_px;
+    float e2_sc_py;
+    float e2_sc_pz;
+    float e2_sc_Pt;
+    float e2_sc_Et;	  
     float e2_EoverPout;
     float e2_EoverPin;
     float e2_numberOfBrems;
@@ -172,7 +197,11 @@ namespace ewk {
     float e2_HoverE;	  	  	 	  
     float e2_E9overE25;
     float e2_SigmaEtaEta;
-    float e2_SigmaIetaIeta;	  
+    float e2_SigmaIetaIeta;
+    float e2_escale;
+    float e2_dist;
+    float e2_dcot;
+    float e2_convradius;
   };
 
 } //namespace

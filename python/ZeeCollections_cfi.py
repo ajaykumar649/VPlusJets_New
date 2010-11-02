@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 selectElectrons = cms.EDFilter("GsfElectronSelector",
     src = cms.InputTag("gsfElectrons"),                               
-    cut = cms.string('((abs( caloPosition.eta ) < 1.4442) | (1.560 < abs( caloPosition.eta ) < 2.5)) &  (( caloEnergy * sin( caloPosition.theta ) ) > 20.0)')
+    cut = cms.string("ecalDrivenSeed"
+                     " && (abs(superCluster.eta)<2.5) && !(1.4442<abs(superCluster.eta)<1.566)"
+                     " && (ecalEnergy*sin(superClusterPosition.theta)>15.0)")
 )
 
 
@@ -10,8 +12,7 @@ selectElectrons = cms.EDFilter("GsfElectronSelector",
 ZToEE = cms.EDProducer("NamedCandViewShallowCloneCombiner",
     cut = cms.string('60 < mass < 120'),
     name = cms.string('ZToEE'),
-    roles = cms.vstring('electron1', 
-        'electron2'),
+    roles = cms.vstring('electron1', 'electron2'),
     decay = cms.string('selectElectrons@+ selectElectrons@-')
 )
 

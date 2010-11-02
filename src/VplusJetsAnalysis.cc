@@ -23,8 +23,13 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/VplusJetsAnalysis.h" 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 
 
 ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
@@ -34,6 +39,10 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   CaloJetFiller (  new JetTreeFiller("CaloJetFiller", myTree, "Calo", iConfig) ),
   CorrectedCaloJetFiller (  new JetTreeFiller("CorrectedCaloJetFiller", 
 					      myTree, "Cor", iConfig) ),
+  CorrectedPFJetFiller (  new JetTreeFiller("CorrectedPFJetFiller", 
+					      myTree, "PFCor", iConfig) ),
+  CorrectedJPTJetFiller (  new JetTreeFiller("CorrectedJPTJetFiller", 
+					      myTree, "JPTCor", iConfig) ),
   GenJetFiller ( new JetTreeFiller("GenJetFiller", myTree, "Gen", iConfig) ),
   PFJetFiller (  new JetTreeFiller("PFJetFiller", myTree, "PF", iConfig) ),
   JPTJetFiller ( new JetTreeFiller("JPTJetFiller", myTree, "JPT", iConfig) ),
@@ -46,6 +55,8 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
 {
   // Are we running over Monte Carlo ?
   runningOverMC_=iConfig.getUntrackedParameter< bool >("runningOverMC",true);
+  if(  iConfig.existsAs<edm::InputTag>("srcVectorBoson") )
+    mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
   LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
   VBosonType_ = iConfig.getParameter<std::string>("VBosonType");
   hltPath_ = iConfig.getParameter<edm::InputTag>("hltTag");
@@ -62,20 +73,6 @@ void ewk::VplusJetsAnalysis::beginJob() {
 
   // Declare all the branches of the tree
   declareTreeBranches();
-}
-
-
-
-
-// ---- method called once each job just before starting event loop  ---
-void ewk::VplusJetsAnalysis::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup){
-
-  // Initialize HLT config provider !!!!!
-  if(!hltConfig_.init(iRun,iSetup,hltPath_.process(),changed) ){
-    edm::LogError("TriggerCandProducer") << 
-      "Error! Can't initialize HLTConfigProvider";
-    throw cms::Exception("HLTConfigProvider::init() returned non 0");
-  }
 }
 
 
@@ -118,28 +115,55 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     }
 
 
+  //////////// Beam spot //////////////
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel("offlineBeamSpot", beamSpot);
+  mBSx = beamSpot->position().X();
+  mBSy = beamSpot->position().Y();
+  mBSz = beamSpot->position().Z();
 
-  ////////////// MET //////
+
+  ////////////// CaloMET information //////
   edm::Handle<CaloMETCollection> met;
   iEvent.getByLabel("met",met);
   if (met->size() == 0) {
     mMET   = -1.0;
     mSumET = -1.0;
+    mMETSign  = -1.0;
   }
   else {
     mMET   = (*met)[0].et();
     mSumET = (*met)[0].sumEt();
+    mMETSign   = (*met)[0].significance();
   }
 
-  edm::Handle<CaloMETCollection> metNoHF;
-  iEvent.getByLabel("metNoHF",metNoHF);
-  if (metNoHF->size() == 0) {
-    mMETnoHF   = -1.0;
-    mSumETnoHF = -1.0;
+
+  /////// TcMET information /////
+  edm::Handle<reco::METCollection> tcmet;
+  iEvent.getByLabel("tcMet", tcmet);
+  if (tcmet->size() == 0) {
+    mtcMET   = -1;
+    mtcSumET = -1;
+    mtcMETSign = -1;
   }
   else {
-    mMETnoHF   = (*metNoHF)[0].et();
-    mSumETnoHF = (*metNoHF)[0].sumEt();
+    mtcMET   = (*tcmet)[0].et();
+    mtcSumET = (*tcmet)[0].sumEt();
+    mtcMETSign = (*tcmet)[0].significance();
+  }
+
+  /////// PfMET information /////
+  edm::Handle<reco::PFMETCollection> pfmet;
+  iEvent.getByLabel("pfMet", pfmet);
+  if (pfmet->size() == 0) {
+    mpfMET   = -1;
+    mpfSumET = -1;
+    mpfMETSign = -1;
+  }
+  else {
+    mpfMET   = (*pfmet)[0].et();
+    mpfSumET = (*pfmet)[0].sumEt();
+    mpfMETSign = (*pfmet)[0].significance();
   }
 
 
@@ -148,11 +172,18 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   // fill jet branches
+  edm::Handle<reco::CandidateView> boson;
+  iEvent.getByLabel( mInputBoson, boson);
+  if( boson->size()<1 ) return; // Nothing to fill
+
+
   CaloJetFiller->fill(iEvent);
   CorrectedCaloJetFiller->fill(iEvent);
   GenJetFiller->fill(iEvent);
   PFJetFiller->fill(iEvent);
   JPTJetFiller->fill(iEvent);
+  CorrectedPFJetFiller->fill(iEvent);
+  CorrectedJPTJetFiller->fill(iEvent);
 
 
   /**  Store reconstructed vector boson information */
@@ -163,6 +194,13 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     edm::LogInfo("TriggerEvent") << " objects not found"; 
   }
   
+
+
+ // HLT config does not change within runs!
+  changed = false;
+  // Initialize HLT config provider !!!!!
+  if( !(hltConfig_.init(iEvent.getRun(),iSetup,hltPath_.process(),changed)) )
+    throw cms::Exception("HLTConfigProvider::init() returned non 0");
 
 
 
@@ -181,6 +219,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 	filterTag=testTag;
     } 
   }
+
 
   // now store  boson information
   recoBosonFillerE->fill(iEvent, filterTag, changed);
@@ -224,10 +263,18 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_PVx",    mPVx,   "event_PVx[20]/F"); 
   myTree->Branch("event_PVy",    mPVy,   "event_PVy[20]/F"); 
   myTree->Branch("event_PVz",    mPVz,   "event_PVz[20]/F"); 
-  myTree->Branch("event_met",    &mMET,  "event_met/F"); 
-  myTree->Branch("event_sumet",  &mSumET,"event_sumet/F"); 
-  myTree->Branch("event_metnoHF",    &mMETnoHF,  "event_metnoHF/F"); 
-  myTree->Branch("event_sumetnoHF",  &mSumETnoHF,"event_sumetnoHF/F"); 
+  myTree->Branch("event_met_calomet",    &mMET,  "event_met_calomet/F"); 
+  myTree->Branch("event_met_calosumet",  &mSumET,"event_met_calosumet/F"); 
+  myTree->Branch("event_met_calometsignificance", &mMETSign,  "event_met_calometsignificance/F"); 
+  myTree->Branch("event_met_tcmet",    &mtcMET,  "event_met_tcmet/F"); 
+  myTree->Branch("event_met_tcsumet",  &mtcSumET,"event_met_tcsumet/F"); 
+  myTree->Branch("event_met_tcmetsignificance", &mtcMETSign,  "event_met_tcmetsignificance/F"); 
+  myTree->Branch("event_met_pfmet",    &mpfMET,  "event_met_pfmet/F"); 
+  myTree->Branch("event_met_pfsumet",  &mpfSumET,"event_met_pfsumet/F"); 
+  myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
+  myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"mBSx/F");
+  myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"mBSy/F");
+  myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"mBSz/F");
 }
 
 

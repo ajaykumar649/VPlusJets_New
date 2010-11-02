@@ -26,9 +26,12 @@
 #include <iostream>
 #include <vector>
 #include "TTree.h" 
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
+
 
 
 /** Monte Carlo Jet flavor classification.
@@ -62,6 +65,7 @@ namespace ewk {
 
     /// To be called once per event to fill the values for jets
     void fill(const edm::Event &iEvent);
+    void fill_jet_ID_struct();
 
     static const int NUM_ALGO_MAX = 6;
     static const int NUM_JET_MAX = 6;
@@ -82,8 +86,11 @@ namespace ewk {
     std::vector< edm::InputTag > mInputJets;
     edm::InputTag mInputBoson;
     std::vector< edm::InputTag >  sourceByValue;
-    mutable std::vector<std::string> bnames;
     // 'mutable' because we will fill it from a 'const' method
+    mutable std::vector<std::string> bnames;
+    // JetID helper
+    reco::helper::JetIDHelper jet_ID_helper_;
+    reco::JetID jet_ID_struct_;
 
     bool doJetFlavorIdentification;
 
@@ -93,6 +100,9 @@ namespace ewk {
     
     int NumJetAlgo;
     int NumJets[NUM_ALGO_MAX]; 
+    int passingLoose[NUM_ALGO_MAX][NUM_JET_MAX];
+    int passingMedium[NUM_ALGO_MAX][NUM_JET_MAX];
+    int passingTight[NUM_ALGO_MAX][NUM_JET_MAX];
     float Et[NUM_ALGO_MAX][NUM_JET_MAX];
     float Pt[NUM_ALGO_MAX][NUM_JET_MAX];
     float Eta[NUM_ALGO_MAX][NUM_JET_MAX];

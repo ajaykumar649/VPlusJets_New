@@ -53,11 +53,10 @@ namespace ewk
     explicit VplusJetsAnalysis(const edm::ParameterSet&);
     ~VplusJetsAnalysis();
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup& iSetup);
     virtual void beginJob();
-    virtual void endJob() ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup& iSetup);
     virtual void declareTreeBranches();
-    virtual void beginRun(edm::Run& iRun, edm::EventSetup const& iSetup);
+    virtual void endJob() ;
 
 
   private:
@@ -72,6 +71,7 @@ namespace ewk
     std::string VBosonType_;
     std::string LeptonType_;
     edm::InputTag hltPath_;
+    edm::InputTag mInputBoson;
     HLTConfigProvider hltConfig_;
     edm::InputTag  triggerSummaryLabel_;
     bool changed;
@@ -80,6 +80,8 @@ namespace ewk
     /// The objects that actually computes variables and fill the tree 
     std::auto_ptr<ewk::JetTreeFiller> CaloJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedCaloJetFiller;
+    std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFiller;
+    std::auto_ptr<ewk::JetTreeFiller> CorrectedJPTJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> GenJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> PFJetFiller; 
     std::auto_ptr<ewk::JetTreeFiller> JPTJetFiller;
@@ -96,10 +98,18 @@ namespace ewk
     float mPVx[20];
     float mPVy[20];
     float mPVz[20];
+    float mBSx;
+    float mBSy;
+    float mBSz;
     float mMET;
     float mSumET;
-    float mMETnoHF;
-    float mSumETnoHF;
+    float mMETSign;
+    float mtcMET;
+    float mtcSumET;
+    float mtcMETSign;
+    float mpfMET;
+    float mpfSumET;
+    float mpfMETSign;
   };
 }
 #endif
