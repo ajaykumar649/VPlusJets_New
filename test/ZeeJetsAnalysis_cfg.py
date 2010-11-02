@@ -97,21 +97,13 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
       ),
     srcJPTJets =cms.VInputTag(
       cms.InputTag("ak5JPTJetsClean"),
-      ),
-    JetIDParams = cms.PSet(
-       useRecHits = cms.bool(True),
-       hbheRecHitsColl = cms.InputTag("hbhereco"),
-       hoRecHitsColl   = cms.InputTag("horeco"),
-       hfRecHitsColl   = cms.InputTag("hfreco"),
-       ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-       eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-     ),                          
+      ),  
     srcVectorBoson = cms.InputTag("bestZee"),
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('electron'),                          
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
     #hltTag = cms.InputTag("HLT_Ele15_LW_L1R", "","HLT"),
-    hltTag = cms.InputTag("HLT_Ele17_SW_TightEleId_L1R", "","HLT"),                    
+    hltTag = cms.InputTag("HLT_Ele17_SW_TightEleId_L1R", "","HLT"), 
     HistOutFile = cms.string('demo.root'),
     TreeName    = cms.string('ZJet')                          
 )

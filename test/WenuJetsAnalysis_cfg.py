@@ -12,13 +12,7 @@ process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi")
 
 #  Jet Collection ##########
-process.load("ElectroWeakAnalysis.VPlusJets.CaloJetCollections_cfi")
-process.load("ElectroWeakAnalysis.VPlusJets.CorrectedCaloJetCollections_cfi")
-process.load("ElectroWeakAnalysis.VPlusJets.GenJetCollections_cfi")
-process.load("ElectroWeakAnalysis.VPlusJets.PFJetCollections_cfi")
-process.load("ElectroWeakAnalysis.VPlusJets.JPTJetCollections_cfi")
-process.load("ElectroWeakAnalysis.VPlusJets.TagJetCollections_cfi")
-
+process.load("ElectroWeakAnalysis.VPlusJets.JetCollections_cfi")
 
 
 #
