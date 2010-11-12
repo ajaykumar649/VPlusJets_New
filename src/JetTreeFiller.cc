@@ -31,6 +31,8 @@
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/MatchedPartons.h"
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
 
 // Header file
@@ -110,27 +112,33 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
 void ewk::JetTreeFiller::SetBranches()
 {
   // Declare jet branches
-  std::string abrname = "Num" + jetType_ + "JetAlgo";
+  std::string abrname = "nnum" + jetType_ + "JetAlgo";
   tree_->Branch( abrname.c_str(), &NumJetAlgo, (abrname +"/I").c_str() );
-  abrname = "Num" + jetType_ + "Jets";
+  abrname = "num" + jetType_ + "Jets";
   tree_->Branch( abrname.c_str(), &(NumJets[0]), (abrname +"[6]/I").c_str() );
+  abrname = "num" + jetType_ + "JetBTags";
+  tree_->Branch( abrname.c_str(), &(numBTags[0]),(abrname +"[6]/I").c_str() );
+
   if(doJetFlavorIdentification) 
-    SetBranch( &(Flavor[0][0]), "Jet" + jetType_ + "Flavor");
-  SetBranch( &(Et[0][0]), "Jet" + jetType_ + "Et");
-  SetBranch( &(Pt[0][0]), "Jet" + jetType_ + "Pt");
-  SetBranch( &(Eta[0][0]), "Jet" + jetType_ + "Eta");
-  SetBranch( &(Phi[0][0]), "Jet" + jetType_ + "Phi");
-  SetBranch( &(Theta[0][0]), "Jet" + jetType_ + "Theta");
-  SetBranch( &(Px[0][0]), "Jet" + jetType_ + "Px");
-  SetBranch( &(Py[0][0]), "Jet" + jetType_ + "Py");
-  SetBranch( &(Pz[0][0]), "Jet" + jetType_ + "Pz");
-  SetBranch( &(E[0][0]), "Jet" + jetType_ + "E");
-  SetBranch( &(Y[0][0]), "Jet" + jetType_ + "Y");
-  SetBranch( &(VjetMass[0][0]), "VplusLead" + jetType_ + "JetMass");
-  SetBranch( &(Dphi[0][0]), "Jet" + jetType_ + "Dphi");
-  SetBranch( &(Deta[0][0]), "VplusLead" + jetType_ + "Deta");
-  SetBranch( &(DR[0][0]), "VplusLead" + jetType_ + "DR");
-  SetBranch( &(Response[0][0]), "Jet" + jetType_ + "Response");
+    SetBranch( &(Flavor[0][0]), "Jet" + jetType_ + "_Flavor");
+  SetBranch( &(Et[0][0]), "Jet" + jetType_ + "_Et");
+  SetBranch( &(Pt[0][0]), "Jet" + jetType_ + "_Pt");
+  SetBranch( &(Eta[0][0]), "Jet" + jetType_ + "_Eta");
+  SetBranch( &(Phi[0][0]), "Jet" + jetType_ + "_Phi");
+  SetBranch( &(Theta[0][0]), "Jet" + jetType_ + "_Theta");
+  SetBranch( &(Px[0][0]), "Jet" + jetType_ + "_Px");
+  SetBranch( &(Py[0][0]), "Jet" + jetType_ + "_Py");
+  SetBranch( &(Pz[0][0]), "Jet" + jetType_ + "_Pz");
+  SetBranch( &(E[0][0]), "Jet" + jetType_ + "_E");
+  SetBranch( &(Y[0][0]), "Jet" + jetType_ + "_Y");
+  SetBranch( &(VjetMass[0][0]), "VplusLead" + jetType_ + "_JetMass");
+  SetBranch( &(Dphi[0][0]), "Jet" + jetType_ + "_Dphi");
+  SetBranch( &(Deta[0][0]), "VplusLead" + jetType_ + "_Deta");
+  SetBranch( &(DR[0][0]), "VplusLead" + jetType_ + "_DR");
+  SetBranch( &(Response[0][0]), "Jet" + jetType_ + "_Response");
+  SetBranch( &(bDiscriminator[0][0]), "Jet" + jetType_ + "_bDiscriminator");
+  SetBranch( &(secVertexMass[0][0]), "Jet" + jetType_ + "_secVertexMass");
+
 
   if( jetType_ == "Calo" || jetType_ == "PF" || jetType_ == "JPT") {
     SetBranch( &(passingLoose[0][0]), "Jet" + jetType_ + "_passingLooseId");
@@ -142,76 +150,76 @@ void ewk::JetTreeFiller::SetBranches()
       jetType_ == "JPT" || jetType_ == "JPTCor") {
 
     /** Returns the maximum energy deposited in ECAL towers*/
-    SetBranch( &(MaxEInEmTowers[0][0]), "Jet" + jetType_ + "MaxEInEmTowers");
+    SetBranch( &(MaxEInEmTowers[0][0]), "Jet" + jetType_ + "_MaxEInEmTowers");
     /** Returns the maximum energy deposited in HCAL towers*/
-    SetBranch( &(MaxEInHadTowers[0][0]), "Jet" + jetType_ + "MaxEInHadTowers");
+    SetBranch( &(MaxEInHadTowers[0][0]), "Jet" + jetType_ + "_MaxEInHadTowers");
     /** Returns the jet hadronic energy fraction*/
-    SetBranch( &(EnergyFractionHadronic[0][0]), "Jet" + jetType_ + "EnergyFractionHadronic");
+    SetBranch( &(EnergyFractionHadronic[0][0]), "Jet" + jetType_ + "_EnergyFractionHadronic");
     /** Returns the jet electromagnetic energy fraction*/
-    SetBranch( &(EmEnergyFraction[0][0]), "Jet" + jetType_ + "EmEnergyFraction");
+    SetBranch( &(EmEnergyFraction[0][0]), "Jet" + jetType_ + "_EmEnergyFraction");
     /** Returns the jet hadronic energy in HB*/ 
-    SetBranch( &(HadEnergyInHB[0][0]), "Jet" + jetType_ + "HadEnergyInHB");
+    SetBranch( &(HadEnergyInHB[0][0]), "Jet" + jetType_ + "_HadEnergyInHB");
     /** Returns the jet hadronic energy in HO*/
-    SetBranch( &(HadEnergyInHO[0][0]), "Jet" + jetType_ + "HadEnergyInHO");
+    SetBranch( &(HadEnergyInHO[0][0]), "Jet" + jetType_ + "_HadEnergyInHO");
     /** Returns the jet hadronic energy in HE*/
-    SetBranch( &(HadEnergyInHE[0][0]), "Jet" + jetType_ + "HadEnergyInHE");
+    SetBranch( &(HadEnergyInHE[0][0]), "Jet" + jetType_ + "_HadEnergyInHE");
     /** Returns the jet hadronic energy in HF*/
-    SetBranch( &(HadEnergyInHF[0][0]), "Jet" + jetType_ + "HadEnergyInHF");
+    SetBranch( &(HadEnergyInHF[0][0]), "Jet" + jetType_ + "_HadEnergyInHF");
     /** Returns the jet electromagnetic energy in EB*/
-    SetBranch( &(EmEnergyInEB[0][0]), "Jet" + jetType_ + "EmEnergyInEB");
+    SetBranch( &(EmEnergyInEB[0][0]), "Jet" + jetType_ + "_EmEnergyInEB");
     /** Returns the jet electromagnetic energy in EE*/
-    SetBranch( &(EmEnergyInEE[0][0]), "Jet" + jetType_ + "EmEnergyInEE");
+    SetBranch( &(EmEnergyInEE[0][0]), "Jet" + jetType_ + "_EmEnergyInEE");
     /** Returns the jet electromagnetic energy extracted from HF*/
-    SetBranch( &(EmEnergyInHF[0][0]), "Jet" + jetType_ + "EmEnergyInHF");
+    SetBranch( &(EmEnergyInHF[0][0]), "Jet" + jetType_ + "_EmEnergyInHF");
     /** Returns area of contributing towers */
-    SetBranch( &(TowersArea[0][0]), "Jet" + jetType_ + "TowersArea");
+    SetBranch( &(TowersArea[0][0]), "Jet" + jetType_ + "_TowersArea");
     /** Number of constituents carrying a 90% of the total Jet energy*/
-    SetBranch( &(N90[0][0]), "Jet" + jetType_ + "N90");
+    SetBranch( &(N90[0][0]), "Jet" + jetType_ + "_N90");
     /** Number of constituents carrying a 60% of the total Jet energy*/
-    SetBranch( &(N60[0][0]), "Jet" + jetType_ + "N60");
+    SetBranch( &(N60[0][0]), "Jet" + jetType_ + "_N60");
   }
   /////////////////////////////////////////////////////////////////////////
 
   if( jetType_ == "Gen") {
     /** Returns energy of electromagnetic particles*/
-    SetBranch( &(GenEmEnergy[0][0]), "JetGenEmEnergy");
+    SetBranch( &(GenEmEnergy[0][0]), "Jet" + jetType_ + "_EmEnergy");
     /** Returns energy of hadronic particles*/
-    SetBranch( &(GenHadEnergy[0][0]), "JetGenHadEnergy");
+    SetBranch( &(GenHadEnergy[0][0]), "Jet" + jetType_ + "_HadEnergy");
     /** Returns invisible energy*/
-    SetBranch( &(GenInvisibleEnergy[0][0]), "JetGenInvisibleEnergy");
+    SetBranch( &(GenInvisibleEnergy[0][0]), "Jet" + jetType_ + "_InvisibleEnergy");
     /** Returns other energy (undecayed Sigmas etc.)*/
-    SetBranch( &(GenAuxiliaryEnergy[0][0]), "JetGenAuxiliaryEnergy");
+    SetBranch( &(GenAuxiliaryEnergy[0][0]), "Jet" + jetType_ + "_AuxiliaryEnergy");
   }
 
   /////////////////////////////////////////////////////////////////////////
 
   if( jetType_ == "PF" || jetType_ == "PFCor") {
     /// chargedHadronEnergy 
-    SetBranch( &(PFChargedHadronEnergy[0][0]), "JetPFChargedHadronEnergy");
+    SetBranch( &(PFChargedHadronEnergy[0][0]), "Jet" + jetType_ + "_ChargedHadronEnergy");
     ///  chargedHadronEnergyFraction
-    SetBranch( &(PFChargedHadronEnergyFraction[0][0]), "JetPFChargedHadronEnergyFraction");
+    SetBranch( &(PFChargedHadronEnergyFraction[0][0]), "Jet" + jetType_ + "_ChargedHadronEnergyFraction");
     /// neutralHadronEnergy
-    SetBranch( &(PFNeutralHadronEnergy[0][0]), "JetPFNeutralHadronEnergy");
+    SetBranch( &(PFNeutralHadronEnergy[0][0]), "Jet" + jetType_ + "_NeutralHadronEnergy");
     /// neutralHadronEnergyFraction
-    SetBranch( &(PFNeutralHadronEnergyFraction[0][0]), "JetPFNeutralHadronEnergyFraction");
+    SetBranch( &(PFNeutralHadronEnergyFraction[0][0]), "Jet" + jetType_ + "_NeutralHadronEnergyFraction");
     /// chargedEmEnergy
-    SetBranch( &(PFChargedEmEnergy[0][0]), "JetPFChargedEmEnergy");
+    SetBranch( &(PFChargedEmEnergy[0][0]), "Jet" + jetType_ + "_PFChargedEmEnergy");
     /// chargedEmEnergyFraction
-    SetBranch( &(PFChargedEmEnergyFraction[0][0]), "JetPFChargedEmEnergyFraction");
+    SetBranch( &(PFChargedEmEnergyFraction[0][0]), "Jet" + jetType_ + "_ChargedEmEnergyFraction");
     /// chargedMuEnergy
-    SetBranch( &(PFChargedMuEnergy[0][0]), "JetPFChargedMuEnergy");
+    SetBranch( &(PFChargedMuEnergy[0][0]), "Jet" + jetType_ + "_ChargedMuEnergy");
     /// chargedMuEnergyFraction
-    SetBranch( &(PFChargedMuEnergyFraction[0][0]), "JetPFChargedMuEnergyFraction");
+    SetBranch( &(PFChargedMuEnergyFraction[0][0]), "Jet" + jetType_ + "_ChargedMuEnergyFraction");
     /// neutralEmEnergy
-    SetBranch( &(PFNeutralEmEnergy[0][0]), "JetPFNeutralEmEnergy");
+    SetBranch( &(PFNeutralEmEnergy[0][0]), "Jet" + jetType_ + "_NeutralEmEnergy");
     /// neutralEmEnergyFraction
-    SetBranch( &(PFNeutralEmEnergyFraction[0][0]), "JetPFNeutralEmEnergyFraction");
+    SetBranch( &(PFNeutralEmEnergyFraction[0][0]), "Jet" + jetType_ + "_NeutralEmEnergyFraction");
     /// chargedMultiplicity
-    SetBranch( &(PFChargedMultiplicity[0][0]), "JetPFChargedMultiplicity");
+    SetBranch( &(PFChargedMultiplicity[0][0]), "Jet" + jetType_ + "_ChargedMultiplicity");
     /// neutralMultiplicity
-    SetBranch( &(PFNeutralMultiplicity[0][0]), "JetPFNeutralMultiplicity");
+    SetBranch( &(PFNeutralMultiplicity[0][0]), "Jet" + jetType_ + "_NeutralMultiplicity");
     /// muonMultiplicity
-    SetBranch( &(PFMuonMultiplicity[0][0]), "JetPFMuonMultiplicity");
+    SetBranch( &(PFMuonMultiplicity[0][0]), "Jet" + jetType_ + "_MuonMultiplicity");
   }
 }
 
@@ -262,6 +270,8 @@ void ewk::JetTreeFiller::init()
 
   for (int i =0; i< NUM_ALGO_MAX; ++i) {
     NumJets[i] = 0; 
+    numBTags[i] = 0;
+
     for (int j =0; j< NUM_JET_MAX; ++j) {
 
       Et[i][j] = -1.0;
@@ -297,6 +307,8 @@ void ewk::JetTreeFiller::init()
       passingLoose[i][j]=0;
       passingMedium[i][j]=0;
       passingTight[i][j]=0;
+      bDiscriminator[i][j] = -1.0;
+      secVertexMass[i][j] = -1.0;
 
       GenEmEnergy[i][j] = -1.0;
       GenHadEnergy[i][j] = -1.0;
@@ -344,6 +356,18 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   JetIDSelectionFunctor jet_ID_tight( JetIDSelectionFunctor::PURE09, 
 				      JetIDSelectionFunctor::TIGHT );
 
+
+
+  // Get b tag information
+  edm::Handle<reco::JetTagCollection> bTagHandle;
+  iEvent.getByLabel("simpleSecondaryVertexBJetTags", bTagHandle);
+  const reco::JetTagCollection & bTags = *(bTagHandle.product());
+
+  edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos;
+  iEvent.getByLabel("secondaryVertexTagInfos", svTagInfos);
+
+  double dist = 100000.0;
+
   // start main loop
   for (size_t ic = 0;  ic <  (unsigned int) NumJetAlgo; ic++) {
 
@@ -351,8 +375,8 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
     if(!jets.isValid()) break; 
     if(jets->size() < 1) break;
     NumJets[ic] = 0;
-
-    /****************    Jet Flavor    ***************/
+    numBTags[ic] = 0;
+    /****************    MC Jet Flavor    ***************/
     edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue; 
     if(doJetFlavorIdentification) {
       iEvent.getByLabel (sourceByValue[ic], theTagByValue );   
@@ -393,12 +417,62 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	      jfm != theTagByValue->end(); jfm ++ ) {
 	  edm::RefToBase<reco::Jet> aJet  = (*jfm).first;   
 	  const reco::JetFlavour aFlav = (*jfm).second;
-	  double dist = radius(aJet->eta(), aJet->phi(), 
-			       (*jet).eta(), (*jet).phi());
+	  dist = radius(aJet->eta(), aJet->phi(), 
+			(*jet).eta(), (*jet).phi());
 	  if( dist < 0.0001 ) flavor = abs(aFlav.getFlavour()); 
 	}
 	Flavor[ic][ij] = flavor;
       }
+
+      // Loop over jets and study b tag info.
+      double closestDistance = 100000.0;
+      unsigned int closestIndex = 10000;
+
+      for (unsigned int i = 0; i != bTags.size(); ++i) {
+	  edm::RefToBase<reco::Jet> aJet  = bTags[i].first;   
+	  dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	  if( dist < closestDistance ) { 
+	    closestDistance = dist;
+	    closestIndex = i;
+	  }
+      }
+      // compute B-tag discriminator
+      bDiscriminator[ic][ij] = -1.0;
+      secVertexMass[ic][ij] = -1.0;
+
+      if( closestDistance<0.3 && closestIndex<bTags.size() ) {
+	bDiscriminator[ic][ij] = bTags[closestIndex].second;
+	const reco::SecondaryVertexTagInfo svTagInfo 
+	  = (*svTagInfos)[closestIndex];
+	if (  svTagInfo.nVertices() > 0  && 
+	      bDiscriminator[ic][ij]>-1.0) {
+	  if(bDiscriminator[ic][ij]>2.02) numBTags[ic] ++;
+
+	  ///////////////////////////
+	  // Calculate SecVtx Mass //
+	  ///////////////////////////
+	  ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > sumVec;
+	  reco::CompositeCandidate vertexCand;
+	  reco::Vertex::trackRef_iterator 
+	    kEndTracks = svTagInfo.secondaryVertex(0).tracks_end();
+	  for (reco::Vertex::trackRef_iterator trackIter = 
+		 svTagInfo.secondaryVertex(0).tracks_begin(); 
+	       trackIter != kEndTracks; 
+	       ++trackIter ) 
+	    {
+	      const double kPionMass = 0.13957018;
+	      ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > vec;
+	      vec.SetPx( (*trackIter)->px() );
+	      vec.SetPy( (*trackIter)->py() );
+	      vec.SetPz( (*trackIter)->pz() );
+	      vec.SetM (kPionMass);
+	      sumVec += vec;
+	    } // for trackIter
+	  secVertexMass[ic][ij] = sumVec.M();
+	} // endif svTagInfo.nVertices condition
+      }// endif closestDistance condition				      
+
+
       // CaloJet specific quantities
       const std::type_info & type = typeid(*jet);
       if ( type == typeid(reco::CaloJet) ) {

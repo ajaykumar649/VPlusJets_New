@@ -67,8 +67,8 @@ namespace ewk {
     void fill(const edm::Event &iEvent);
     void fill_jet_ID_struct();
 
-    static const int NUM_ALGO_MAX = 6;
-    static const int NUM_JET_MAX = 6;
+    static const int NUM_ALGO_MAX = 3;
+    static const int NUM_JET_MAX = 10;
 
   protected:
 
@@ -133,6 +133,10 @@ namespace ewk {
     float Deta[NUM_ALGO_MAX][NUM_JET_MAX];
     float DR[NUM_ALGO_MAX][NUM_JET_MAX];
     float Response[NUM_ALGO_MAX][NUM_JET_MAX];
+    float bDiscriminator[NUM_ALGO_MAX][NUM_JET_MAX];
+    float secVertexMass[NUM_ALGO_MAX][NUM_JET_MAX];
+    int numBTags[NUM_ALGO_MAX];
+
 
     float GenEmEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
     float GenHadEnergy[NUM_ALGO_MAX][NUM_JET_MAX];

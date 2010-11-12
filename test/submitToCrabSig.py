@@ -3,39 +3,46 @@ import string, re
 from time import gmtime, localtime, strftime
 
 
-channels  = ["Summer09-7TeV-ZeeJets-Pt_0_15",
-            "Summer09-7TeV-ZeeJets-Pt_15_20",
-            "Summer09-7TeV-ZeeJets-Pt_20_30",
-            "Summer09-7TeV-ZeeJets-Pt_30_50",
-            "Summer09-7TeV-ZeeJets-Pt_50_80",
-            "Summer09-7TeV-ZeeJets-Pt_80_120",
-            "Summer09-7TeV-ZeeJets-Pt_120_170",
-            "Summer09-7TeV-ZeeJets-Pt_170_230",
-            "Summer09-7TeV-ZeeJets-Pt_230_300",
-            "Summer09-7TeV-ZeeJets-Pt_300_Inf"]
+channels  = ["HLT_Photon10_L1R",
+            "HLT_Photon15_Cleaned_L1R",
+            "HLT_Ele15_SW_CaloEleId_L1R",
+            "HLT_Ele17_SW_CaloEleId_L1R",
+            "HLT_Ele17_SW_TightEleId_L1R",
+            "HLT_Ele17_SW_TighterEleIdIsol_L1R_v2",
+            "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"]
 
-dataset  = ["/ZeeJet_Pt0to15/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt15to20/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt20to30/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt30to50/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt50to80/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt80to120/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt120to170/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt170to230/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt230to300/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO",
-           "/ZeeJet_Pt300toInf/Summer09-MC_31X_V3_7TeV-v1/GEN-SIM-RECO"]
+dataset  = ["/EG/Run2010A-Sep17ReReco_v2/RECO",
+           "/EG/Run2010A-Sep17ReReco_v2/RECO",
+           "/EG/Run2010A-Sep17ReReco_v2/RECO",
+           "/Electron/Run2010B-PromptReco-v2/RECO",
+           "/Electron/Run2010B-PromptReco-v2/RECO",
+           "/Electron/Run2010B-PromptReco-v2/RECO",
+           "/Electron/Run2010B-PromptReco-v2/RECO"
+            ]
 
+RunRange = ["132440-137028", #~0.1/pb
+            "138564-140401", #~0.2/pb
+            "141956-144114", #~3/pb
+            "146428-147116", #~7/pb
+            "147196-148058", #
+            "148819-149064", #
+            "149181-149442"  #
+            ]
+
+JSON = "Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON.txt"
 condor  = [1,1,1,1,1,1,1,1,1,1]
 
-MyResilientArea = "/kalanand/ZeeJet_Summer09_7TeV"
+MyResilientArea = "/kalanand/ZeeJet_Data2010"
 
 
-def changeMainConfigFile(outfile):
-    fin  = open("ZJetAnalysis_cfg.py")
-    pset_cfg      = "py_" + outfile + ".py"
-    outfile_root  = "Summer09_7TeV_" + outfile + ".root"
+def changeMainConfigFile(trigpath):
+    fin  = open("ZeeJetsAnalysis_cfg.py")
+    pset_cfg      = "py_" + trigpath + ".py"
+    outfile_root  = "ZeeJets_" + trigpath + ".root"
     fout = open(pset_cfg,"w")
     for line in fin.readlines():
+        if  line.find("HLT_Ele17_SW_TightEleId_L1R")!=-1:
+            line=line.replace("HLT_Ele17_SW_TightEleId_L1R",trigpath)       
         if  line.find("demo.root")!=-1:
             line=line.replace("demo.root",outfile_root)
         fout.write(line)
@@ -46,11 +53,14 @@ def changeCrabTemplateFile(outfile, index):
     fin  = open("crabTemplate.cfg")
     pset_cfg      = "py_" + outfile + ".py"
     pset_crab     = "crabjob_" + outfile + ".cfg"
-    outfile_root  = "Summer09_7TeV_" + outfile + ".root"
+    outfile_root  = "ZeeJets_" + outfile + ".root"
     fout = open(pset_crab,"w")
     for line in fin.readlines():
         if  line.find("mydataset")!=-1:
             line=line.replace("mydataset",dataset[index])
+            fout.write("\n")
+            fout.write("runselection="+RunRange[index]+"\n")
+            fout.write("lumi_mask="+JSON+"\n")
         if line.find("myanalysis")!=-1:
             line=line.replace("myanalysis",pset_cfg)    
         if  line.find("myrootfile")!=-1:

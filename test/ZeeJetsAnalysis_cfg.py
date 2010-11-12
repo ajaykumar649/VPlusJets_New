@@ -5,7 +5,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
-
+process.load("RecoBTag.Configuration.RecoBTag_cff")
 
 #   Z-->ee Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.ZeeCollections_cfi")
@@ -13,10 +13,16 @@ process.load("ElectroWeakAnalysis.VPlusJets.ZeeCollections_cfi")
 #  Jet Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.JetCollections_cfi")
 
+############################################
+isMC = False
+HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
+OutputFileName = "demo.root"
+numEventsToRun = -1
+############################################
 
-#
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(numEventsToRun)
 )
 
 process.MessageLogger.destinations = ['cout', 'cerr']
@@ -60,18 +66,28 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 ) )
 
 
+
+if isMC:
+    mcCommonStuff = cms.PSet(
+        runningOverMC = cms.untracked.bool(isMC),                                  
+        srcGen  = cms.VInputTag( 
+        cms.InputTag("iterativeCone5GenJets"),
+        cms.InputTag("kt4GenJets"),
+        cms.InputTag("ak5GenJets"),
+        ),
+        srcFlavorByValue = cms.VInputTag(
+        cms.InputTag("ic5tagJet"),
+        cms.InputTag("kt4tagJet"),
+        cms.InputTag("ak5tagJet"),
+        ),                  
+        )
+else:
+    mcCommonStuff = cms.PSet(
+        runningOverMC = cms.untracked.bool(False)
+        )
+    
 process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
-    runningOverMC = cms.untracked.bool(False),                                  
-##     srcGen  = cms.VInputTag( 
-##        cms.InputTag("iterativeCone5GenJets"),
-##        cms.InputTag("kt4GenJets"),
-##        cms.InputTag("ak5GenJets"),
-##        ),
-##     srcFlavorByValue = cms.VInputTag(
-##       cms.InputTag("ic5tagJet"),
-##       cms.InputTag("kt4tagJet"),
-##       cms.InputTag("ak5tagJet"),
-##       ),                                  
+    mcCommonStuff,
     srcCaloCor = cms.VInputTag(
        cms.InputTag("ic5CaloJetsCorClean"),
        cms.InputTag("kt4CaloJetsCorClean"),
@@ -102,39 +118,18 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('electron'),                          
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
-    #hltTag = cms.InputTag("HLT_Ele15_LW_L1R", "","HLT"),
-    hltTag = cms.InputTag("HLT_Ele17_SW_TightEleId_L1R", "","HLT"), 
-    HistOutFile = cms.string('demo.root'),
+    hltTag = cms.InputTag(HLTPath, "","HLT"), 
+    HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('ZJet')                          
 )
 
 
-## process.ak5CaloJets = cms.EDFilter("CaloJetSelector",   
-##     src = cms.InputTag("antikt5CaloJets"),
-##     cut = cms.string('pt > 0.0')
-## )
-
-
-### work around for the time being: need to change antikt5 => ak5
-## process.antikt5CaloJets = cms.EDFilter("CaloJetSelector",   
-##     src = cms.InputTag("ak5CaloJets"),
-##     cut = cms.string("")
-## )
-
-## process.antikt5GenJets = cms.EDFilter("GenJetSelector",   
-##     src = cms.InputTag("ak5GenJets"),
-##     cut = cms.string("")
-## )
-
-## process.antikt5PFJets = cms.EDFilter("PtMinPFJetSelector",   
-##     src = cms.InputTag("ak5PFJets"),
-##     ptMin = cms.double(0)
-## )
 
 
 
 process.p = cms.Path( #process.genParticles *
-                      #process.GenJetPath * process.TagJetPath * 
+                      #process.GenJetPath * process.TagJetPath *
+                      process.simpleSecondaryVertexBJetTags *
                       process.CaloJetPath * process.CorJetPath *
                       process.PFJetPath * process.CorPFJetPath *
                       process.JPTJetPath * process.ZPath *
