@@ -1,5 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+mcFlag = False
+
+
+print "################### Reading Jet Collections ##################"
+print "isMC = ",
+if mcFlag:
+    print "Yup"
+else:
+    print "Nope"
+print "##############################################################"
+
 ################# Good Electrons 
 goodElectrons = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag("gsfElectrons"),
@@ -76,43 +87,36 @@ CaloJetPath = cms.Sequence(goodElectrons +
 
 ##################### Corrected CaloJets
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
+if mcFlag:
+    ic5CaloJetsCor = ic5CaloJetsL2L3.clone()
+    kt4CaloJetsCor = kt4CaloJetsL2L3.clone()
+    kt6CaloJetsCor = kt6CaloJetsL2L3.clone()
+    ak5CaloJetsCor = ak5CaloJetsL2L3.clone()
+else:
+    ic5CaloJetsCor = ic5CaloJetsL2L3Residual.clone()
+    kt4CaloJetsCor = kt4CaloJetsL2L3Residual.clone()
+    kt6CaloJetsCor = kt6CaloJetsL2L3Residual.clone()
+    ak5CaloJetsCor = ak5CaloJetsL2L3Residual.clone()
+    
 
-ak5CaloL2Relative.useCondDB = False
-ak5CaloL3Absolute.useCondDB = False
-ak5CaloResidual.useCondDB = False
-
-ic5CaloL2Relative.useCondDB = False
-ic5CaloL3Absolute.useCondDB = False
-ic5CaloResidual.useCondDB = False
-
-kt4CaloL2Relative.useCondDB = False
-kt4CaloL3Absolute.useCondDB = False
-kt4CaloResidual.useCondDB = False
-
-kt6CaloL2Relative.useCondDB = False
-kt6CaloL3Absolute.useCondDB = False
-kt6CaloResidual.useCondDB = False
-
-#####################
-ic5CaloJetsCor = ic5CaloJetsL2L3Residual.clone()
 ic5CaloJetsCor.src = "ic5CaloJetsClean"
 ic5CaloJetsCorClean = cms.EDFilter("CaloJetSelector",  
     src = cms.InputTag("ic5CaloJetsCor"),
     cut = cms.string('pt > 20.0')
 )
-kt4CaloJetsCor = kt4CaloJetsL2L3Residual.clone()
+
 kt4CaloJetsCor.src = "kt4CaloJetsClean"
 kt4CaloJetsCorClean = cms.EDFilter("CaloJetSelector",  
     src = cms.InputTag("kt4CaloJetsCor"),
     cut = cms.string('pt > 20.0')
 )
-kt6CaloJetsCor = kt6CaloJetsL2L3Residual.clone()
+
 kt6CaloJetsCor.src = "kt6CaloJetsClean"
 kt6CaloJetsCorClean = cms.EDFilter("CaloJetSelector",  
     src = cms.InputTag("kt6CaloJetsCor"),
     cut = cms.string('pt > 20.0')
 )
-ak5CaloJetsCor = ak5CaloJetsL2L3Residual.clone()
+
 ak5CaloJetsCor.src = "ak5CaloJetsClean"
 ak5CaloJetsCorClean = cms.EDFilter("CaloJetSelector",  
     src = cms.InputTag("ak5CaloJetsCor"),
@@ -122,9 +126,21 @@ ak5CaloJetsCorClean = cms.EDFilter("CaloJetSelector",
 CorJetPath = cms.Sequence(
     goodElectrons +
     goodMuons +
-    ic5CaloJetsL2L3Residual * ic5CaloJetsClean *  ic5CaloJetsCor * ic5CaloJetsCorClean +
-    kt4CaloJetsL2L3Residual * kt4CaloJetsClean * kt4CaloJetsCor * kt4CaloJetsCorClean +
-    ak5CaloJetsL2L3Residual * ak5CaloJetsClean * ak5CaloJetsCor * ak5CaloJetsCorClean
+    ic5CaloJetsL2L3 +    
+    ic5CaloJetsL2L3Residual +
+    ic5CaloJetsClean +
+    ic5CaloJetsCor +
+    ic5CaloJetsCorClean +    
+    kt4CaloJetsL2L3 +    
+    kt4CaloJetsL2L3Residual +
+    kt4CaloJetsClean +
+    kt4CaloJetsCor +
+    kt4CaloJetsCorClean +    
+    ak5CaloJetsL2L3 +    
+    ak5CaloJetsL2L3Residual +
+    ak5CaloJetsClean +
+    ak5CaloJetsCor +
+    ak5CaloJetsCorClean
     )
 ##########################################################################
 ##########################################################################
@@ -174,42 +190,33 @@ PFJetPath = cms.Sequence(
     ak5PFJetsClean
     )
 ##################### Corrected PFJets
-ak5PFL2Relative.useCondDB = False
-ak5PFL3Absolute.useCondDB = False
-ak5PFResidual.useCondDB = False
+if mcFlag:
+    ic5PFJetsCor = ic5PFJetsL2L3.clone()
+    kt4PFJetsCor = kt4PFJetsL2L3.clone()
+    kt6PFJetsCor = kt6PFJetsL2L3.clone()
+    ak5PFJetsCor = ak5PFJetsL2L3.clone()
+else:
+    ic5PFJetsCor = ic5PFJetsL2L3Residual.clone()
+    kt4PFJetsCor = kt4PFJetsL2L3Residual.clone()
+    kt6PFJetsCor = kt6PFJetsL2L3Residual.clone()
+    ak5PFJetsCor = ak5PFJetsL2L3Residual.clone()
+    
 
-ic5PFL2Relative.useCondDB = False
-ic5PFL3Absolute.useCondDB = False
-ic5PFResidual.useCondDB = False
-
-kt4PFL2Relative.useCondDB = False
-kt4PFL3Absolute.useCondDB = False
-kt4PFResidual.useCondDB = False
-
-kt6PFL2Relative.useCondDB = False
-kt6PFL3Absolute.useCondDB = False
-kt6PFResidual.useCondDB = False
-
-#####################
-ic5PFJetsCor = ic5PFJetsL2L3Residual.clone()
 ic5PFJetsCor.src = "ic5PFJetsClean"
 ic5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",  
     src = cms.InputTag("ic5PFJetsCor"),
     ptMin = cms.double(20.0)
 )
-kt4PFJetsCor = kt4PFJetsL2L3Residual.clone()
 kt4PFJetsCor.src = "kt4PFJetsClean"
 kt4PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",  
     src = cms.InputTag("kt4PFJetsCor"),
     ptMin = cms.double(20.0)
 )
-kt6PFJetsCor = kt6PFJetsL2L3Residual.clone()
 kt6PFJetsCor.src = "kt6PFJetsClean"
 kt6PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",  
     src = cms.InputTag("kt6PFJetsCor"),
     ptMin = cms.double(20.0)
 )
-ak5PFJetsCor = ak5PFJetsL2L3Residual.clone()
 ak5PFJetsCor.src = "ak5PFJetsClean"
 ak5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",  
     src = cms.InputTag("ak5PFJetsCor"),
@@ -219,20 +226,26 @@ ak5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",
 CorPFJetPath = cms.Sequence(
     goodElectrons +
     goodMuons +
-    ic5PFJetsL2L3Residual * ic5PFJetsClean * ic5PFJetsCor * ic5PFJetsCorClean +
-    kt4PFJetsL2L3Residual * kt4PFJetsClean * kt4PFJetsCor * kt4PFJetsCorClean +
-    ak5PFJetsL2L3Residual * ak5PFJetsClean * ak5PFJetsCor * ak5PFJetsCorClean
+    ic5PFJetsL2L3 +    
+    ic5PFJetsL2L3Residual +
+    ic5PFJetsClean +
+    ic5PFJetsCor +
+    ic5PFJetsCorClean +    
+    kt4PFJetsL2L3 +    
+    kt4PFJetsL2L3Residual +
+    kt4PFJetsClean +
+    kt4PFJetsCor +
+    kt4PFJetsCorClean +    
+    ak5PFJetsL2L3 +    
+    ak5PFJetsL2L3Residual +
+    ak5PFJetsClean +
+    ak5PFJetsCor +
+    ak5PFJetsCorClean
     )
 ##########################################################################
 ##########################################################################
-
 ##################### Cleaned JPTJets
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
-
-ak5JPTL2Relative.useCondDB = False
-ak5JPTL3Absolute.useCondDB = False
-ak5JPTResidual.useCondDB = False
-
 ak5JPTJetsClean = cms.EDProducer("JPTJetCleaner",
     srcJets = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     module_label = cms.string(""),
@@ -243,19 +256,26 @@ ak5JPTJetsClean = cms.EDProducer("JPTJetCleaner",
     deltaRMin = cms.double(0.3)
 )
 ##################### Corrected JPTJets
-ak5JPTJetsCor = ak5JPTJetsL2L3Residual.clone()
+if mcFlag:
+    ak5JPTJetsCor = ak5JPTJetsL2L3.clone()    
+else:
+    ak5JPTJetsCor = ak5JPTJetsL2L3Residual.clone()
+    
 ak5JPTJetsCor.src = "ak5JPTJetsClean"
 ak5JPTJetsCorClean = ak5JPTJetsCor.clone()
-## ak5JPTJetsCorClean = cms.EDFilter("CaloJetSelector",  
-##     src = cms.InputTag("ak5JPTJetsCor"),
-##     cut = cms.string('pt > 20.0')    
-## )
+ak5JPTJetsCorClean = cms.EDFilter("JPTJetSelector",
+    src = cms.InputTag("ak5JPTJetsCor"),
+    cut = cms.string('pt > 20.0')    
+)
 ##########################################
 JPTJetPath = cms.Sequence(
     goodElectrons +
     goodMuons +
     ak5JPTJetsClean +
-    ak5JPTJetsL2L3Residual * ak5JPTJetsCor * ak5JPTJetsCorClean
+    ak5JPTJetsL2L3 +
+    ak5JPTJetsL2L3Residual +
+    ak5JPTJetsCor +
+    ak5JPTJetsCorClean
     )
 ##########################################################################
 #############  Jets in Monte Carlo  #############
@@ -263,7 +283,7 @@ JPTJetPath = cms.Sequence(
 # ak5GenJets are NOT there: First load the needed modules
 from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.JetProducers.ak5GenJets_cfi import *
-GenJetPath = cms.Sequence( genParticlesForJets * ak5GenJets )
+GenJetPath = cms.Sequence( genParticlesForJets + ak5GenJets )
 
 
 ##################### Tag jets: Needed for MC flavor matching

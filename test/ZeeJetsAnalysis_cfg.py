@@ -1,4 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+import pprint
+isMC = False
+## ############################################
+## def set_mcFlag():
+##     global  isMC   # Needed to modify global copy of isMC
+##     isMC = False
+## ############################################    
+   
 
 process = cms.Process("demo")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -7,23 +15,34 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("RecoBTag.Configuration.RecoBTag_cff")
 
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+############################################
+if isMC:
+    HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
+    HLTProcessName = "REDIGI38X"
+    process.GlobalTag.globaltag = 'MC_38Y_V14::All' 
+else:
+    HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
+    HLTProcessName = "HLT"
+    process.GlobalTag.globaltag = 'GR_R_38X_V15::All'
+OutputFileName = "demo.root"
+numEventsToRun = -1
+############################################
+
+
+
 #   Z-->ee Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.ZeeCollections_cfi")
 
 #  Jet Collection ##########
 process.load("ElectroWeakAnalysis.VPlusJets.JetCollections_cfi")
 
-############################################
-isMC = False
-if isMC:
-    HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
-    HLTProcessName = "REDIGI38X"
-else:
-    HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
-    HLTProcessName = "HLT"
-OutputFileName = "demo.root"
-numEventsToRun = -1
-############################################
+
+#process.isMC = cms.untracked.bool (True)
+
+
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -113,7 +132,7 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('electron'),                          
     triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","", HLTProcessName),
-    hlTriggerResults = cms.untracked.InputTag( "hlTriggerResults","", HLTProcessName),                          
+    hlTriggerResults = cms.untracked.InputTag( "hlTriggerResults","", HLTProcessName),   
     hltTag = cms.InputTag(HLTPath, "", HLTProcessName), 
     HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('ZJet')                          

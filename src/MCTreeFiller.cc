@@ -19,6 +19,8 @@
 
 // CMS includes
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "TMath.h" 
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/MCTreeFiller.h"

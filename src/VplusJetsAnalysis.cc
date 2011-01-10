@@ -124,7 +124,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   ////////////// CaloMET information //////
-  edm::Handle<CaloMETCollection> met;
+  edm::Handle<reco::CaloMETCollection> met;
   iEvent.getByLabel("met",met);
   if (met->size() == 0) {
     mMET   = -1.0;
