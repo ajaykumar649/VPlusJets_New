@@ -15,7 +15,12 @@ process.load("ElectroWeakAnalysis.VPlusJets.JetCollections_cfi")
 
 ############################################
 isMC = False
-HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
+if isMC:
+    HLTPath = "HLT_Ele17_SW_LooseEleId_L1R"
+    HLTProcessName = "REDIGI38X"
+else:
+    HLTPath = "HLT_Ele17_SW_TightEleId_L1R"
+    HLTProcessName = "HLT"
 OutputFileName = "demo.root"
 numEventsToRun = -1
 ############################################
@@ -71,8 +76,6 @@ if isMC:
     mcCommonStuff = cms.PSet(
         runningOverMC = cms.untracked.bool(isMC),                                  
         srcGen  = cms.VInputTag( 
-        cms.InputTag("iterativeCone5GenJets"),
-        cms.InputTag("kt4GenJets"),
         cms.InputTag("ak5GenJets"),
         ),
         srcFlavorByValue = cms.VInputTag(
@@ -89,26 +92,18 @@ else:
 process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     mcCommonStuff,
     srcCaloCor = cms.VInputTag(
-       cms.InputTag("ic5CaloJetsCorClean"),
-       cms.InputTag("kt4CaloJetsCorClean"),
        cms.InputTag("ak5CaloJetsCorClean"),
        ),
     srcPFCor = cms.VInputTag(
-       cms.InputTag("ic5PFJetsCorClean"),
-       cms.InputTag("kt4PFJetsCorClean"),
        cms.InputTag("ak5PFJetsCorClean"),
        ),
     srcJPTCor = cms.VInputTag(
        cms.InputTag("ak5JPTJetsCorClean"),
        ),                                  
     srcCalo = cms.VInputTag(
-      cms.InputTag("ic5CaloJetsClean"),
-      cms.InputTag("kt4CaloJetsClean"),
       cms.InputTag("ak5CaloJetsClean"),
       ),                      
     srcPFJets =cms.VInputTag(
-      cms.InputTag("ic5PFJetsClean"),
-      cms.InputTag("kt4PFJetsClean"),
       cms.InputTag("ak5PFJetsClean"),
       ),
     srcJPTJets =cms.VInputTag(
@@ -117,8 +112,9 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcVectorBoson = cms.InputTag("bestZee"),
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('electron'),                          
-    triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
-    hltTag = cms.InputTag(HLTPath, "","HLT"), 
+    triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","", HLTProcessName),
+    hlTriggerResults = cms.untracked.InputTag( "hlTriggerResults","", HLTProcessName),                          
+    hltTag = cms.InputTag(HLTPath, "", HLTProcessName), 
     HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('ZJet')                          
 )
@@ -126,17 +122,22 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
 
 
 
-
-process.p = cms.Path( #process.genParticles *
-                      #process.GenJetPath * process.TagJetPath *
-                      process.simpleSecondaryVertexBJetTags *
-                      process.CaloJetPath * process.CorJetPath *
-                      process.PFJetPath * process.CorPFJetPath *
-                      process.JPTJetPath * process.ZPath *
-                      process.VpusJets
-                      )
-
-
+if isMC:
+    process.p = cms.Path( process.genParticles *
+        process.GenJetPath * process.TagJetPath *
+        process.simpleSecondaryVertexBJetTags *
+        process.CaloJetPath * process.CorJetPath *
+        process.PFJetPath * process.CorPFJetPath *
+        process.JPTJetPath * process.ZPath *
+        process.VpusJets
+        )
+else:
+    process.p = cms.Path( process.simpleSecondaryVertexBJetTags *
+        process.CaloJetPath * process.CorJetPath *
+        process.PFJetPath * process.CorPFJetPath *
+        process.JPTJetPath * process.ZPath *
+        process.VpusJets
+        )
 
 
 

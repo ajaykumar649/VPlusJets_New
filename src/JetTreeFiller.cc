@@ -131,7 +131,7 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( &(Pz[0][0]), "Jet" + jetType_ + "_Pz");
   SetBranch( &(E[0][0]), "Jet" + jetType_ + "_E");
   SetBranch( &(Y[0][0]), "Jet" + jetType_ + "_Y");
-  SetBranch( &(VjetMass[0][0]), "VplusLead" + jetType_ + "_JetMass");
+  SetBranch( &(VjetMass[0][0]), "VplusLead" + jetType_ + "Jet_Mass");
   SetBranch( &(Dphi[0][0]), "Jet" + jetType_ + "_Dphi");
   SetBranch( &(Deta[0][0]), "VplusLead" + jetType_ + "_Deta");
   SetBranch( &(DR[0][0]), "VplusLead" + jetType_ + "_DR");
@@ -347,7 +347,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   if( boson->size()<1 ) return; // Nothing to fill
   
   const reco::Candidate *Vboson = &((*boson)[0]); 
-  edm::Handle<edm::View<reco::Jet> > jets;
+  edm::Handle<edm::View<reco::Jet> > jets[NUM_ALGO_MAX];
 
 
   // Calo/JPT jet ID
@@ -362,53 +362,60 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   edm::Handle<reco::JetTagCollection> bTagHandle;
   iEvent.getByLabel("simpleSecondaryVertexBJetTags", bTagHandle);
   const reco::JetTagCollection & bTags = *(bTagHandle.product());
-
+  
   edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos;
   iEvent.getByLabel("secondaryVertexTagInfos", svTagInfos);
-
+  
+  
+  
+  
+  size_t iJet = 0;
   double dist = 100000.0;
-
+  
   // start main loop
-  for (size_t ic = 0;  ic <  (unsigned int) NumJetAlgo; ic++) {
+  for (size_t iAlgo = 0;  iAlgo <  (unsigned int) NumJetAlgo; iAlgo++) {
 
-    iEvent.getByLabel( mInputJets[ic], jets); 
-    if(!jets.isValid()) break; 
-    if(jets->size() < 1) break;
-    NumJets[ic] = 0;
-    numBTags[ic] = 0;
+
+    iEvent.getByLabel( mInputJets[iAlgo], jets[iAlgo] ); 
+    if(!jets[iAlgo].isValid()) break; 
+    if(jets[iAlgo]->size() < 1) break;
+    NumJets[iAlgo] = 0;
+    numBTags[iAlgo] = 0;
+
+
     /****************    MC Jet Flavor    ***************/
     edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue; 
-    if(doJetFlavorIdentification) {
-      iEvent.getByLabel (sourceByValue[ic], theTagByValue );   
-    }   
-    /****************    Jet Flavor    ***************/
+    if(doJetFlavorIdentification) 
+      iEvent.getByLabel (sourceByValue[iAlgo], theTagByValue );   
  
-    int ij = 0;
-    for (edm::View<reco::Jet>::const_iterator jet = jets->begin (); 
-	 jet != jets->end (); ++jet, ++ij) {
-      if( !(ij < NUM_JET_MAX) ) continue; 
 
-      Et[ic][ij] = (*jet).et();
-      Pt[ic][ij] = (*jet).pt();
-      Eta[ic][ij] = (*jet).eta();
-      Phi[ic][ij] = (*jet).phi();
-      Theta[ic][ij] = (*jet).theta();
-      Px[ic][ij] = (*jet).px();
-      Py[ic][ij] = (*jet).py();
-      Pz[ic][ij] = (*jet).pz();
-      E[ic][ij]  = (*jet).energy();
-      Y[ic][ij]  = (*jet).rapidity();
-      Dphi[ic][ij] = dPhi( (*jet).phi(), Vboson->phi() );
-      Deta[ic][ij] = fabs( (*jet).eta() - Vboson->eta() );
-      DR[ic][ij] = radius( (*jet).eta(), (*jet).phi(), 
+
+    iJet = 0;
+    edm::View<reco::Jet>::const_iterator jet, endpjets = jets[iAlgo]->end(); 
+    for (jet = jets[iAlgo]->begin();  jet != endpjets;  ++jet, ++iJet) {
+
+      if( !(iJet< (unsigned int) NUM_JET_MAX) ) break;
+      Et[iAlgo][iJet] = (*jet).et();
+      Pt[iAlgo][iJet] = (*jet).pt();
+      Eta[iAlgo][iJet] = (*jet).eta();
+      Phi[iAlgo][iJet] = (*jet).phi();
+      Theta[iAlgo][iJet] = (*jet).theta();
+      Px[iAlgo][iJet] = (*jet).px();
+      Py[iAlgo][iJet] = (*jet).py();
+      Pz[iAlgo][iJet] = (*jet).pz();
+      E[iAlgo][iJet]  = (*jet).energy();
+      Y[iAlgo][iJet]  = (*jet).rapidity();
+      Dphi[iAlgo][iJet] = dPhi( (*jet).phi(), Vboson->phi() );
+      Deta[iAlgo][iJet] = fabs( (*jet).eta() - Vboson->eta() );
+      DR[iAlgo][iJet] = radius( (*jet).eta(), (*jet).phi(), 
 			   Vboson->eta(), Vboson->phi());
-      Response[ic][ij] = 10.0;
+      Response[iAlgo][iJet] = 10.0;
       float vpt = Vboson->pt();
-      if( vpt>0.0 ) Response[ic][ij] = (*jet).pt() / vpt;
+      if( vpt>0.0 ) Response[iAlgo][iJet] = (*jet).pt() / vpt;
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > qstar 
 	= (*jet).p4() + Vboson->p4();
-      VjetMass[ic][ij] = qstar.M();
+      VjetMass[iAlgo][iJet] = qstar.M();
 
       if(doJetFlavorIdentification) {
 	int flavor = -1;
@@ -421,7 +428,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 			(*jet).eta(), (*jet).phi());
 	  if( dist < 0.0001 ) flavor = abs(aFlav.getFlavour()); 
 	}
-	Flavor[ic][ij] = flavor;
+	Flavor[iAlgo][iJet] = flavor;
       }
 
       // Loop over jets and study b tag info.
@@ -437,16 +444,16 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	  }
       }
       // compute B-tag discriminator
-      bDiscriminator[ic][ij] = -1.0;
-      secVertexMass[ic][ij] = -1.0;
+      bDiscriminator[iAlgo][iJet] = -1.0;
+      secVertexMass[iAlgo][iJet] = -1.0;
 
       if( closestDistance<0.3 && closestIndex<bTags.size() ) {
-	bDiscriminator[ic][ij] = bTags[closestIndex].second;
+	bDiscriminator[iAlgo][iJet] = bTags[closestIndex].second;
 	const reco::SecondaryVertexTagInfo svTagInfo 
 	  = (*svTagInfos)[closestIndex];
 	if (  svTagInfo.nVertices() > 0  && 
-	      bDiscriminator[ic][ij]>-1.0) {
-	  if(bDiscriminator[ic][ij]>2.02) numBTags[ic] ++;
+	      bDiscriminator[iAlgo][iJet]>-1.0) {
+	  if(bDiscriminator[iAlgo][iJet]>2.02) numBTags[iAlgo] ++;
 
 	  ///////////////////////////
 	  // Calculate SecVtx Mass //
@@ -468,7 +475,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	      vec.SetM (kPionMass);
 	      sumVec += vec;
 	    } // for trackIter
-	  secVertexMass[ic][ij] = sumVec.M();
+	  secVertexMass[iAlgo][iJet] = sumVec.M();
 	} // endif svTagInfo.nVertices condition
       }// endif closestDistance condition				      
 
@@ -478,70 +485,70 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       if ( type == typeid(reco::CaloJet) ) {
 	const reco::CaloJet calojet = static_cast<const reco::CaloJet &>(*jet);
 
-	MaxEInEmTowers[ic][ij] = calojet.maxEInEmTowers();
-	MaxEInHadTowers[ic][ij] = calojet.maxEInHadTowers();
-	EnergyFractionHadronic[ic][ij] 
+	MaxEInEmTowers[iAlgo][iJet] = calojet.maxEInEmTowers();
+	MaxEInHadTowers[iAlgo][iJet] = calojet.maxEInHadTowers();
+	EnergyFractionHadronic[iAlgo][iJet] 
 	  = calojet.energyFractionHadronic();
-	EmEnergyFraction[ic][ij] 
+	EmEnergyFraction[iAlgo][iJet] 
 	  = calojet.emEnergyFraction();
-	HadEnergyInHB[ic][ij] = calojet.hadEnergyInHB();
-	HadEnergyInHO[ic][ij] = calojet.hadEnergyInHO();
-	HadEnergyInHE[ic][ij] = calojet.hadEnergyInHE();
-	HadEnergyInHF[ic][ij] = calojet.hadEnergyInHF();
-	EmEnergyInEB[ic][ij] = calojet.emEnergyInEB();
-	EmEnergyInEE[ic][ij] = calojet.emEnergyInEE();
-	EmEnergyInHF[ic][ij] = calojet.emEnergyInHF();
-	TowersArea[ic][ij] = calojet.towersArea();
-	N90[ic][ij] = calojet.n90();
-	N60[ic][ij] = calojet.n60(); 
+	HadEnergyInHB[iAlgo][iJet] = calojet.hadEnergyInHB();
+	HadEnergyInHO[iAlgo][iJet] = calojet.hadEnergyInHO();
+	HadEnergyInHE[iAlgo][iJet] = calojet.hadEnergyInHE();
+	HadEnergyInHF[iAlgo][iJet] = calojet.hadEnergyInHF();
+	EmEnergyInEB[iAlgo][iJet] = calojet.emEnergyInEB();
+	EmEnergyInEE[iAlgo][iJet] = calojet.emEnergyInEE();
+	EmEnergyInHF[iAlgo][iJet] = calojet.emEnergyInHF();
+	TowersArea[iAlgo][iJet] = calojet.towersArea();
+	N90[iAlgo][iJet] = calojet.n90();
+	N60[iAlgo][iJet] = calojet.n60(); 
 
 	//calculate the Calo jetID
-	passingLoose[ic][ij]=0;
-	passingMedium[ic][ij]=0;
-	passingTight[ic][ij]=0;
+	passingLoose[iAlgo][iJet]=0;
+	passingMedium[iAlgo][iJet]=0;
+	passingTight[iAlgo][iJet]=0;
 	if( (jetType_ == "Calo") || (jetType_ == "JPT") ) {
 	  jet_ID_helper_.calculate( iEvent, calojet );
 	  fill_jet_ID_struct();
-	  passingLoose[ic][ij]  = jet_ID_loose( calojet, jet_ID_struct_ ); 
-	  passingMedium[ic][ij] = jet_ID_loose( calojet, jet_ID_struct_ ); 
-	  passingTight[ic][ij]  = jet_ID_tight( calojet, jet_ID_struct_ ); 
+	  passingLoose[iAlgo][iJet]  = jet_ID_loose( calojet, jet_ID_struct_ ); 
+	  passingMedium[iAlgo][iJet] = jet_ID_loose( calojet, jet_ID_struct_ ); 
+	  passingTight[iAlgo][iJet]  = jet_ID_tight( calojet, jet_ID_struct_ ); 
 	}
       }
       if ( type == typeid(reco::GenJet) ) {
 	// GenJet specific quantities
 	reco::GenJet genjet = static_cast<const reco::GenJet &>(*jet);
-	GenEmEnergy[ic][ij] = genjet.emEnergy();
-	GenHadEnergy[ic][ij] = genjet.hadEnergy();
-	GenInvisibleEnergy[ic][ij] = genjet.invisibleEnergy();
-	GenAuxiliaryEnergy[ic][ij] = genjet.auxiliaryEnergy();	  
+	GenEmEnergy[iAlgo][iJet] = genjet.emEnergy();
+	GenHadEnergy[iAlgo][iJet] = genjet.hadEnergy();
+	GenInvisibleEnergy[iAlgo][iJet] = genjet.invisibleEnergy();
+	GenAuxiliaryEnergy[iAlgo][iJet] = genjet.auxiliaryEnergy();	  
       }
       if ( type == typeid(reco::PFJet) ) {
 	// PFJet specific quantities
 	reco::PFJet pfjet = static_cast<const reco::PFJet &>(*jet);
-	PFChargedHadronEnergy[ic][ij] = pfjet.chargedHadronEnergy();
-	PFChargedHadronEnergyFraction[ic][ij] = 
+	PFChargedHadronEnergy[iAlgo][iJet] = pfjet.chargedHadronEnergy();
+	PFChargedHadronEnergyFraction[iAlgo][iJet] = 
 	  pfjet.chargedHadronEnergyFraction ();
-	PFNeutralHadronEnergy[ic][ij] = pfjet.neutralHadronEnergy();
-	PFNeutralHadronEnergyFraction[ic][ij] = 
+	PFNeutralHadronEnergy[iAlgo][iJet] = pfjet.neutralHadronEnergy();
+	PFNeutralHadronEnergyFraction[iAlgo][iJet] = 
 	  pfjet.neutralHadronEnergyFraction ();
-	PFChargedEmEnergy[ic][ij] = pfjet.chargedEmEnergy ();
-	PFChargedEmEnergyFraction[ic][ij] = 
+	PFChargedEmEnergy[iAlgo][iJet] = pfjet.chargedEmEnergy ();
+	PFChargedEmEnergyFraction[iAlgo][iJet] = 
 	  pfjet.chargedEmEnergyFraction ();
-	PFChargedMuEnergy[ic][ij] = pfjet.chargedMuEnergy ();
-	PFChargedMuEnergyFraction[ic][ij] = 
+	PFChargedMuEnergy[iAlgo][iJet] = pfjet.chargedMuEnergy ();
+	PFChargedMuEnergyFraction[iAlgo][iJet] = 
 	  pfjet.chargedMuEnergyFraction ();
-	PFNeutralEmEnergy[ic][ij] = pfjet.neutralEmEnergy ();
-	PFNeutralEmEnergyFraction[ic][ij] = 
+	PFNeutralEmEnergy[iAlgo][iJet] = pfjet.neutralEmEnergy ();
+	PFNeutralEmEnergyFraction[iAlgo][iJet] = 
 	  pfjet.neutralEmEnergyFraction ();
-	PFChargedMultiplicity[ic][ij] = pfjet.chargedMultiplicity();
-	PFNeutralMultiplicity[ic][ij] = pfjet.neutralMultiplicity();
-	PFMuonMultiplicity[ic][ij] = pfjet.muonMultiplicity();
+	PFChargedMultiplicity[iAlgo][iJet] = pfjet.chargedMultiplicity();
+	PFNeutralMultiplicity[iAlgo][iJet] = pfjet.neutralMultiplicity();
+	PFMuonMultiplicity[iAlgo][iJet] = pfjet.muonMultiplicity();
 
 	//calculate the PF jetID
 	bool ThisIsClean=true;
-	passingLoose[ic][ij]=0;
-	passingMedium[ic][ij]=0;
-	passingTight[ic][ij]=0;
+	passingLoose[iAlgo][iJet]=0;
+	passingMedium[iAlgo][iJet]=0;
+	passingTight[iAlgo][iJet]=0;
 
 	//apply following only if |eta|<2.4: CHF>0, CEMF<0.99, chargedMultiplicity>0   
 	if(( pfjet.chargedHadronEnergy()/ pfjet.energy())<= 0.0  
@@ -554,17 +561,18 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	if( pfjet.nConstituents() <=1 ) ThisIsClean=false;
 
 	if(ThisIsClean && (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.99 
-	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.99) passingLoose[ic][ij]=1;
+	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.99) passingLoose[iAlgo][iJet]=1;
 
 	if(ThisIsClean && (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.95 
-	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.95) passingMedium[ic][ij]=1;
+	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.95) passingMedium[iAlgo][iJet]=1;
 
 	if(ThisIsClean && (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.90 
-	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.90) passingTight[ic][ij]=1;
+	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.90) passingTight[iAlgo][iJet]=1;
 	
       }// close PF jets loop
 
-      NumJets[ic] = NumJets[ic] + 1;
+      NumJets[iAlgo] = NumJets[iAlgo] + 1;
+
     }// close jets iteration loop
 
   } // Close JetAlgo loop

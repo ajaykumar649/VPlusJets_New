@@ -3,46 +3,46 @@ import string, re
 from time import gmtime, localtime, strftime
 
 
-channels  = ["HLT_Photon10_L1R",
-            "HLT_Photon15_Cleaned_L1R",
-            "HLT_Ele15_SW_CaloEleId_L1R",
-            "HLT_Ele17_SW_CaloEleId_L1R",
-            "HLT_Ele17_SW_TightEleId_L1R",
-            "HLT_Ele17_SW_TighterEleIdIsol_L1R_v2",
-            "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"]
+channels  = ["Pt_0to15",
+            "Pt_15to20",
+            "Pt_20to30",
+            "Pt_30to50",
+            "Pt_50to80",
+            "Pt_80to120",
+            "Pt_120to170",
+            "Pt_170to230",
+            "Pt_230to300",
+            "Pt_300_Inf"
+             ]
 
-dataset  = ["/EG/Run2010A-Sep17ReReco_v2/RECO",
-           "/EG/Run2010A-Sep17ReReco_v2/RECO",
-           "/EG/Run2010A-Sep17ReReco_v2/RECO",
-           "/Electron/Run2010B-PromptReco-v2/RECO",
-           "/Electron/Run2010B-PromptReco-v2/RECO",
-           "/Electron/Run2010B-PromptReco-v2/RECO",
-           "/Electron/Run2010B-PromptReco-v2/RECO"
+
+dataset  = ["/ZJetToEE_Pt_0to15_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_15to20_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_20to30_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_30to50_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_50to80_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_80to120_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_170to230_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_230to300_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO",
+           "/ZJetToEE_Pt_300_TuneZ2_7TeV_pythia6/Fall10-START38_V12-v1/GEN-SIM-RECO"       
             ]
 
-RunRange = ["132440-137028", #~0.1/pb
-            "138564-140401", #~0.2/pb
-            "141956-144114", #~3/pb
-            "146428-147116", #~7/pb
-            "147196-148058", #
-            "148819-149064", #
-            "149181-149442"  #
-            ]
 
-JSON = "Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON.txt"
+
 condor  = [1,1,1,1,1,1,1,1,1,1]
 
-MyResilientArea = "/kalanand/ZeeJet_Data2010"
+MyResilientArea = "/kalanand/ZeeJet_MC_Fall2010"
 
 
-def changeMainConfigFile(trigpath):
+def changeMainConfigFile(channel):
     fin  = open("ZeeJetsAnalysis_cfg.py")
-    pset_cfg      = "py_" + trigpath + ".py"
-    outfile_root  = "ZeeJets_" + trigpath + ".root"
+    pset_cfg      = "py_" + channel + ".py"
+    outfile_root  = "ZeeJets_" + channel + ".root"
     fout = open(pset_cfg,"w")
     for line in fin.readlines():
-        if  line.find("HLT_Ele17_SW_TightEleId_L1R")!=-1:
-            line=line.replace("HLT_Ele17_SW_TightEleId_L1R",trigpath)       
+        if  line.find("isMC")!=-1:
+            line=line.replace("False", "True")
         if  line.find("demo.root")!=-1:
             line=line.replace("demo.root",outfile_root)
         fout.write(line)
@@ -58,9 +58,10 @@ def changeCrabTemplateFile(outfile, index):
     for line in fin.readlines():
         if  line.find("mydataset")!=-1:
             line=line.replace("mydataset",dataset[index])
-            fout.write("\n")
-            fout.write("runselection="+RunRange[index]+"\n")
-            fout.write("lumi_mask="+JSON+"\n")
+        if  line.find("total_number_of_lumis")!=-1:
+            line=line.replace("total_number_of_lumis","total_number_of_events")
+        if  line.find("lumis_per_job")!=-1:
+            line=line.replace("lumis_per_job = 200","events_per_job = 100000")            
         if line.find("myanalysis")!=-1:
             line=line.replace("myanalysis",pset_cfg)    
         if  line.find("myrootfile")!=-1:

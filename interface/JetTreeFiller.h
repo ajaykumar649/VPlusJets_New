@@ -67,8 +67,8 @@ namespace ewk {
     void fill(const edm::Event &iEvent);
     void fill_jet_ID_struct();
 
-    static const int NUM_ALGO_MAX = 3;
-    static const int NUM_JET_MAX = 10;
+    static const int NUM_ALGO_MAX = 1;
+    static const int NUM_JET_MAX = 6;
 
   protected:
 
