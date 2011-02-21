@@ -29,9 +29,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-// Trigger matcher
-#include "ElectroWeakAnalysis/VPlusJets/interface/TriggerMatcher.h"
-
 
 namespace ewk {
 
@@ -50,8 +47,7 @@ namespace ewk {
     
     
     /// To be called once per event to fill the values for jets
-    void fill(const edm::Event &iEvent, edm::InputTag& filterName, 
-	      bool changed);
+    void fill(const edm::Event &iEvent);
     
     
   protected:
@@ -69,17 +65,13 @@ namespace ewk {
     std::string Vtype_;
     std::string LeptonType_;
     edm::InputTag mInputBoson;
-    bool runningOverMC_;
 
-
-    /// The object for trigger matching
-    std::auto_ptr<TriggerMatcher> trigMatcher;
-    
 
   private:
     // private data members
     
     float V_mass;
+    float V_mt;
     float V_px;
     float V_py;
     float V_pz;
@@ -102,10 +94,8 @@ namespace ewk {
 
     bool ise1WP95;
     bool ise1WP80;
-    bool e1_trigger;
     bool ise2WP95;
     bool ise2WP80;
-    bool e2_trigger;
 
     float e1px;
     float e1py;

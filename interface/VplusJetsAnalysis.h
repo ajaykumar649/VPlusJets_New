@@ -32,8 +32,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h" 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -70,11 +68,7 @@ namespace ewk
     bool runningOverMC_;
     std::string VBosonType_;
     std::string LeptonType_;
-    edm::InputTag hltPath_;
     edm::InputTag mInputBoson;
-    HLTConfigProvider hltConfig_;
-    edm::InputTag  triggerSummaryLabel_;
-    bool changed;
 
 
     /// The objects that actually computes variables and fill the tree 
@@ -104,12 +98,15 @@ namespace ewk
     float mMET;
     float mSumET;
     float mMETSign;
+    float mMETPhi;
     float mtcMET;
     float mtcSumET;
     float mtcMETSign;
+    float mtcMETPhi;
     float mpfMET;
     float mpfSumET;
     float mpfMETSign;
+    float mpfMETPhi;
   };
 }
 #endif

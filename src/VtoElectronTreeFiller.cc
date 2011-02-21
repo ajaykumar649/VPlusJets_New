@@ -23,17 +23,14 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
 
-const float ebScale = 1.0;
-const float eeScale = 1.0;
-
 
 ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree, 
-							const edm::ParameterSet iConfig):
-  trigMatcher( new TriggerMatcher (iConfig) )
+							const edm::ParameterSet iConfig)
 {
 
   // ********** Vector boson ********** //
@@ -48,9 +45,6 @@ ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree,
   LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
 
   if( !(tree==0) && LeptonType_=="electron") SetBranches();
-
-  // Are we running over Monte Carlo ?
-  runningOverMC_=iConfig.getUntrackedParameter< bool >("runningOverMC",true);
 }
 
 
@@ -64,7 +58,8 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   std::string lept2 = "eminus";
   if( !(Vtype_=="Z") ) lept1 = "electron";
 
-  SetBranch( &V_mass,        "mass");
+  SetBranch( &V_mass,      "mass");
+  SetBranch( &V_mt,        "mt");
   SetBranch( &V_px,        "px");
   SetBranch( &V_py,        "py");
   SetBranch( &V_pz,        "pz");
@@ -96,21 +91,18 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &e1_hcaliso,       lept1+"_hcaliso" );
   SetBranch( &e1_ecaliso,       lept1+"_ecaliso" );
   SetBranch( &e1Classification, lept1+"_classification" );
-  SetBranch( &ise1WP95,         lept1+"_isWP95" );
-  SetBranch( &ise1WP80,         lept1+"_isWP80" );
-  SetBranch( &e1_trigger,       lept1+"_trigger" );
   SetBranch( &e1_sc_x,          lept1+"_sc_x" );
   SetBranch( &e1_sc_y,          lept1+"_sc_y" );
   SetBranch( &e1_sc_z,          lept1+"_sc_z" );
-  SetBranch( &e1_sc_Theta,      lept1+"_e1_sc_Theta" );
-  SetBranch( &e1_sc_Eta,        lept1+"_e1_sc_Eta" );
-  SetBranch( &e1_sc_Phi,        lept1+"_e1_sc_Phi" );
-  SetBranch( &e1_sc_E,          lept1+"_e1_sc_E" );
-  SetBranch( &e1_sc_px,         lept1+"_e1_sc_px" );
-  SetBranch( &e1_sc_py,         lept1+"_e1_sc_py" );
-  SetBranch( &e1_sc_pz,         lept1+"_e1_sc_pz" );
-  SetBranch( &e1_sc_Pt,         lept1+"_e1_sc_Pt" );
-  SetBranch( &e1_sc_Et,         lept1+"_e1_sc_Et" );	  
+  SetBranch( &e1_sc_Theta,      lept1+"_sc_Theta" );
+  SetBranch( &e1_sc_Eta,        lept1+"_sc_Eta" );
+  SetBranch( &e1_sc_Phi,        lept1+"_sc_Phi" );
+  SetBranch( &e1_sc_E,          lept1+"_sc_E" );
+  SetBranch( &e1_sc_px,         lept1+"_sc_px" );
+  SetBranch( &e1_sc_py,         lept1+"_sc_py" );
+  SetBranch( &e1_sc_pz,         lept1+"_sc_pz" );
+  SetBranch( &e1_sc_Pt,         lept1+"_sc_Pt" );
+  SetBranch( &e1_sc_Et,         lept1+"_sc_Et" );	  
   SetBranch( &e1_EoverPout,     lept1+"_eoverp_out" );
   SetBranch( &e1_EoverPin,      lept1+"_eoverp_in" );
   SetBranch( &e1_numberOfBrems, lept1+"_numbrem" );
@@ -125,11 +117,13 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &e1_E9overE25,     lept1+"_e9e25" );
   SetBranch( &e1_SigmaEtaEta,   lept1+"_sigmaetaeta" );
   SetBranch( &e1_SigmaIetaIeta, lept1+"_sigmaietaieta" );
-  SetBranch( &e1_escale,        lept1+"_escale" );
   SetBranch( &e1_missingHits,   lept1+"_missingHits" );	  
   SetBranch( &e1_dist,          lept1+"_dist" );
   SetBranch( &e1_dcot,          lept1+"_dcot" );
   SetBranch( &e1_convradius,    lept1+"_convradius" );
+  SetBranch( &ise1WP95,         lept1+"_isWP95" );
+  SetBranch( &ise1WP80,         lept1+"_isWP80" );
+
 
   ////////////////////////////////////////////////////////
   if(Vtype_=="Z") {	  
@@ -151,21 +145,18 @@ void ewk::VtoElectronTreeFiller::SetBranches()
     SetBranch( &e2_hcaliso,       lept2+"_hcaliso" );
     SetBranch( &e2_ecaliso,       lept2+"_ecaliso");
     SetBranch( &e2Classification, lept2+"_classification" );
-    SetBranch( &ise2WP95,         lept2+"_isWP95" );
-    SetBranch( &ise2WP80,         lept2+"_isWP80" );
-    SetBranch( &e2_trigger,       lept2+"_trigger" );
     SetBranch( &e2_sc_x,          lept2+"_sc_x" );
     SetBranch( &e2_sc_y,          lept2+"_sc_y" );
     SetBranch( &e2_sc_z,          lept2+"_sc_z" );
-    SetBranch( &e2_sc_Theta,      lept2+"_e2_sc_Theta" );
-    SetBranch( &e2_sc_Eta,        lept2+"_e2_sc_Eta" );
-    SetBranch( &e2_sc_Phi,        lept2+"_e2_sc_Phi" );
-    SetBranch( &e2_sc_E,          lept2+"_e2_sc_E" );
-    SetBranch( &e2_sc_px,         lept2+"_e2_sc_px" );
-    SetBranch( &e2_sc_py,         lept2+"_e2_sc_py" );
-    SetBranch( &e2_sc_pz,         lept2+"_e2_sc_pz" );
-    SetBranch( &e2_sc_Pt,         lept2+"_e2_sc_Pt" );
-    SetBranch( &e2_sc_Et,         lept2+"_e2_sc_Et" );	  
+    SetBranch( &e2_sc_Theta,      lept2+"_sc_Theta" );
+    SetBranch( &e2_sc_Eta,        lept2+"_sc_Eta" );
+    SetBranch( &e2_sc_Phi,        lept2+"_sc_Phi" );
+    SetBranch( &e2_sc_E,          lept2+"_sc_E" );
+    SetBranch( &e2_sc_px,         lept2+"_sc_px" );
+    SetBranch( &e2_sc_py,         lept2+"_sc_py" );
+    SetBranch( &e2_sc_pz,         lept2+"_sc_pz" );
+    SetBranch( &e2_sc_Pt,         lept2+"_sc_Pt" );
+    SetBranch( &e2_sc_Et,         lept2+"_sc_Et" );	  
     SetBranch( &e2_EoverPout,     lept2+"_eoverp_out" );
     SetBranch( &e2_EoverPin,      lept2+"_eoverp_in" );
     SetBranch( &e2_numberOfBrems, lept2+"_numbrem" );
@@ -180,11 +171,13 @@ void ewk::VtoElectronTreeFiller::SetBranches()
     SetBranch( &e2_E9overE25,     lept2+"_e9e25" );
     SetBranch( &e2_SigmaEtaEta,   lept2+"_sigmaetaeta" );
     SetBranch( &e2_SigmaIetaIeta, lept2+"_sigmaietaieta" );
-    SetBranch( &e2_escale,        lept2+"_escale" );
     SetBranch( &e2_missingHits,   lept2+"_missingHits" );
     SetBranch( &e2_dist,          lept2+"_dist" );
     SetBranch( &e2_dcot,          lept2+"_dcot" );
     SetBranch( &e2_convradius,    lept2+"_convradius" );
+    SetBranch( &ise2WP95,         lept2+"_isWP95" );
+    SetBranch( &ise2WP80,         lept2+"_isWP80" );
+
   }	  
 }
 /////////////////////////////////////////////////////////////////////////
@@ -197,7 +190,8 @@ void ewk::VtoElectronTreeFiller::SetBranches()
 void ewk::VtoElectronTreeFiller::init()   
 {
   // initialize private data members
-  V_mass                  = -1.;
+  V_mass                = -1.;
+  V_mt                  = -1.;
   V_px                  = -99999.;
   V_py                  = -99999.;
   V_pz                  = -99999.;
@@ -211,10 +205,8 @@ void ewk::VtoElectronTreeFiller::init()
   V_Vz                  = -10.;
   V_Y                   = -10.;
 
-  e1_trigger         = false;
   ise1WP95          = false;
   ise1WP80          = false;
-  e2_trigger        = false;
   ise2WP95          = false;
   ise2WP80          = false;
 
@@ -263,7 +255,6 @@ void ewk::VtoElectronTreeFiller::init()
   e1_E9overE25       = -10.;
   e1_SigmaEtaEta     = -1.;
   e1_SigmaIetaIeta   = -1.;	  
-  e1_escale          = 1.0;
   e1_missingHits     = 100;
   e1_dist            = -10.;
   e1_dcot            = -10.;
@@ -309,7 +300,6 @@ void ewk::VtoElectronTreeFiller::init()
   e2_E9overE25       = -10.;
   e2_SigmaEtaEta     = -1.;
   e2_SigmaIetaIeta     = -1.;	  
-  e2_escale          = 1.0;
   e2_missingHits     = 100;
   e2_dist            = -10.;
   e2_dcot            = -10.;
@@ -332,9 +322,7 @@ void ewk::VtoElectronTreeFiller::init()
 
 
 
-void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, 
-				      edm::InputTag& filterName, 
-				      bool changed)
+void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
 {
   // protection
   if( (tree_==0) || !(LeptonType_=="electron") )  return;
@@ -351,6 +339,8 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
 
   ////////// Vector boson quantities //////////////
   V_mass = Vboson->mass();
+  V_mt = sqrt(2.0*Vboson->daughter(0)->pt()*Vboson->daughter(1)->pt()*
+	      (1.0-cos(Vboson->daughter(0)->phi()-Vboson->daughter(1)->phi())));
   V_Eta = Vboson->eta();   
   V_Phi = Vboson->phi();
   V_Vx = Vboson->vx();
@@ -390,6 +380,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
     return;  // if no electron found, then return
   } 
 
+
   const reco::GsfElectron* ele1=NULL;
   const reco::GsfElectron* ele2=NULL;
   // if Z--> e+e- then ele1 = e+, ele2 = e-
@@ -403,18 +394,9 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
     else if( abs(e2->charge())==1 ) ele1  = e2;
   }
 
-  // prepare to compute conversion rejection variables 
-  ConversionFinder convFinder;
-  edm::Handle<reco::TrackCollection> tracks_h;
-  iEvent.getByLabel("generalTracks", tracks_h );
-
 
   ////////// electron #1 quantities //////////////
   if( !(ele1 == NULL) ) {
-    if( !runningOverMC_ ) {
-      if( ele1->isEB() ) e1_escale = ebScale;
-      if( ele1->isEE() ) e1_escale = eeScale;
-    }
     e1Charge           = ele1-> charge();
     e1Vx               = ele1->vx();
     e1Vy               = ele1->vy();
@@ -465,10 +447,9 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
     e1_SigmaEtaEta   = ele1->sigmaEtaEta();
     e1_SigmaIetaIeta = ele1->sigmaIetaIeta();
     e1_missingHits   = ele1->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-    ConversionInfo convInfo = convFinder.getConversionInfo(*ele1, tracks_h, 3.8);
-    e1_dist          = convInfo.dist();
-    e1_dcot          = convInfo.dcot();
-    e1_convradius    = convInfo.radiusOfConversion();
+    e1_dist          = ele1->convDist();
+    e1_dcot          = ele1->convDcot();
+    e1_convradius    = ele1->convRadius();
 
     if( ele1->isEB() ) {
       ise1WP95      = (e1_missingHits<=1) && (e1_trackiso/e1Et<0.15) && (e1_ecaliso/e1Et<2.0) 
@@ -489,16 +470,10 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
 	&& (fabs(e1_DeltaEtaIn)<0.01) && (e1_HoverE<0.07);
     }
 
-    if(!changed)  e1_trigger 
-      = trigMatcher->CheckTriggerMatch( iEvent, filterName, e1Eta, e1Phi);
   }
 
   ////////// electron #2 quantities //////////////
   if( !(ele2 == NULL) ) {
-    if( !runningOverMC_ ) {
-      if( ele2->isEB() ) e2_escale = ebScale;
-      if( ele2->isEE() ) e2_escale = eeScale;
-    }
     e2Charge          = ele2->charge();
     e2Vx              = ele2->vx();
     e2Vy              = ele2->vy();
@@ -549,10 +524,9 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
     e2_SigmaEtaEta   = ele2->sigmaEtaEta();
     e2_SigmaIetaIeta = ele2->sigmaIetaIeta();
     e2_missingHits   = ele2->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-    ConversionInfo convInfo = convFinder.getConversionInfo(*ele2, tracks_h, 3.8);
-    e2_dist          = convInfo.dist();
-    e2_dcot          = convInfo.dcot();
-    e2_convradius    = convInfo.radiusOfConversion();
+    e2_dist          = ele2->convDist();
+    e2_dcot          = ele2->convDcot();
+    e2_convradius    = ele2->convRadius();
     if( ele2->isEB() ) {
       ise2WP95      = (e2_missingHits<=1) && (e2_trackiso/e2Et<0.15) && (e2_ecaliso/e2Et<2.0) 
 	&& (e2_hcaliso/e2Et<0.12) && (e2_SigmaIetaIeta<0.01) && (fabs(e2_DeltaPhiIn)<0.8) 
@@ -571,9 +545,6 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent,
 	&& (e2_hcaliso/e2Et<0.05) && (e2_SigmaIetaIeta<0.03) && (fabs(e2_DeltaPhiIn)<0.7) 
 	&& (fabs(e2_DeltaEtaIn)<0.01) && (e2_HoverE<0.07);
     }
-
-    if(!changed)  e2_trigger 
-      = trigMatcher->CheckTriggerMatch( iEvent, filterName, e2Eta, e2Phi );   
   } 
 
 }

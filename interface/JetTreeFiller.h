@@ -26,11 +26,10 @@
 #include <iostream>
 #include <vector>
 #include "TTree.h" 
-#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 
 
@@ -65,9 +64,7 @@ namespace ewk {
 
     /// To be called once per event to fill the values for jets
     void fill(const edm::Event &iEvent);
-    void fill_jet_ID_struct();
 
-    static const int NUM_ALGO_MAX = 1;
     static const int NUM_JET_MAX = 6;
 
   protected:
@@ -83,14 +80,11 @@ namespace ewk {
 
     TTree* tree_;
     std::string jetType_;
-    std::vector< edm::InputTag > mInputJets;
+    edm::InputTag mInputJets;
     edm::InputTag mInputBoson;
-    std::vector< edm::InputTag >  sourceByValue;
+    edm::InputTag sourceByValue;
     // 'mutable' because we will fill it from a 'const' method
     mutable std::vector<std::string> bnames;
-    // JetID helper
-    reco::helper::JetIDHelper jet_ID_helper_;
-    reco::JetID jet_ID_struct_;
 
     bool doJetFlavorIdentification;
 
@@ -98,64 +92,61 @@ namespace ewk {
   private:
     // private data members
     
-    int NumJetAlgo;
-    int NumJets[NUM_ALGO_MAX]; 
-    int passingLoose[NUM_ALGO_MAX][NUM_JET_MAX];
-    int passingMedium[NUM_ALGO_MAX][NUM_JET_MAX];
-    int passingTight[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Et[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Pt[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Eta[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Phi[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Theta[NUM_ALGO_MAX][NUM_JET_MAX];
-    float E[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Y[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Px[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Py[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Pz[NUM_ALGO_MAX][NUM_JET_MAX];
-    int   Flavor[NUM_ALGO_MAX][NUM_JET_MAX];
-    float MaxEInEmTowers[NUM_ALGO_MAX][NUM_JET_MAX];
-    float MaxEInHadTowers[NUM_ALGO_MAX][NUM_JET_MAX];
-    float EnergyFractionHadronic[NUM_ALGO_MAX][NUM_JET_MAX];
-    float EmEnergyFraction[NUM_ALGO_MAX][NUM_JET_MAX];
-    float HadEnergyInHB[NUM_ALGO_MAX][NUM_JET_MAX];
-    float HadEnergyInHO[NUM_ALGO_MAX][NUM_JET_MAX];
-    float HadEnergyInHE[NUM_ALGO_MAX][NUM_JET_MAX];
-    float HadEnergyInHF[NUM_ALGO_MAX][NUM_JET_MAX];
-    float EmEnergyInEB[NUM_ALGO_MAX][NUM_JET_MAX];
-    float EmEnergyInEE[NUM_ALGO_MAX][NUM_JET_MAX];
-    float EmEnergyInHF[NUM_ALGO_MAX][NUM_JET_MAX];
-    float TowersArea[NUM_ALGO_MAX][NUM_JET_MAX];
-    float VjetMass[NUM_ALGO_MAX][NUM_JET_MAX];
-    int   N90[NUM_ALGO_MAX][NUM_JET_MAX]; 
-    int   N60[NUM_ALGO_MAX][NUM_JET_MAX];     
-    float Dphi[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Deta[NUM_ALGO_MAX][NUM_JET_MAX];
-    float DR[NUM_ALGO_MAX][NUM_JET_MAX];
-    float Response[NUM_ALGO_MAX][NUM_JET_MAX];
-    float bDiscriminator[NUM_ALGO_MAX][NUM_JET_MAX];
-    float secVertexMass[NUM_ALGO_MAX][NUM_JET_MAX];
-    int numBTags[NUM_ALGO_MAX];
+    int NumJets; 
+    float Et[NUM_JET_MAX];
+    float Pt[NUM_JET_MAX];
+    float Eta[NUM_JET_MAX];
+    float Phi[NUM_JET_MAX];
+    float Theta[NUM_JET_MAX];
+    float E[NUM_JET_MAX];
+    float Y[NUM_JET_MAX];
+    float Px[NUM_JET_MAX];
+    float Py[NUM_JET_MAX];
+    float Pz[NUM_JET_MAX];
+    int   Flavor[NUM_JET_MAX];
+    float MaxEInEmTowers[NUM_JET_MAX];
+    float MaxEInHadTowers[NUM_JET_MAX];
+    float EnergyFractionHadronic[NUM_JET_MAX];
+    float EmEnergyFraction[NUM_JET_MAX];
+    float HadEnergyInHB[NUM_JET_MAX];
+    float HadEnergyInHO[NUM_JET_MAX];
+    float HadEnergyInHE[NUM_JET_MAX];
+    float HadEnergyInHF[NUM_JET_MAX];
+    float EmEnergyInEB[NUM_JET_MAX];
+    float EmEnergyInEE[NUM_JET_MAX];
+    float EmEnergyInHF[NUM_JET_MAX];
+    float TowersArea[NUM_JET_MAX];
+    float VjetMass[NUM_JET_MAX];
+    int   N90[NUM_JET_MAX]; 
+    int   N60[NUM_JET_MAX];     
+    float Dphi[NUM_JET_MAX];
+    float Deta[NUM_JET_MAX];
+    float DR[NUM_JET_MAX];
+    float DphiMET[NUM_JET_MAX];
+    float Response[NUM_JET_MAX];
+    float bDiscriminator[NUM_JET_MAX];
+    float secVertexMass[NUM_JET_MAX];
+    int numBTags;
 
 
-    float GenEmEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float GenHadEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float GenInvisibleEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float GenAuxiliaryEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
+    float GenEmEnergy[NUM_JET_MAX];
+    float GenHadEnergy[NUM_JET_MAX];
+    float GenInvisibleEnergy[NUM_JET_MAX];
+    float GenAuxiliaryEnergy[NUM_JET_MAX];
 
-    float PFChargedHadronEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFChargedHadronEnergyFraction[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFNeutralHadronEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFNeutralHadronEnergyFraction[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFChargedEmEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFChargedEmEnergyFraction[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFChargedMuEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFChargedMuEnergyFraction[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFNeutralEmEnergy[NUM_ALGO_MAX][NUM_JET_MAX];
-    float PFNeutralEmEnergyFraction[NUM_ALGO_MAX][NUM_JET_MAX];
-    int   PFChargedMultiplicity[NUM_ALGO_MAX][NUM_JET_MAX];
-    int   PFNeutralMultiplicity[NUM_ALGO_MAX][NUM_JET_MAX];
-    int   PFMuonMultiplicity[NUM_ALGO_MAX][NUM_JET_MAX];
+    float PFChargedHadronEnergy[NUM_JET_MAX];
+    float PFChargedHadronEnergyFraction[NUM_JET_MAX];
+    float PFNeutralHadronEnergy[NUM_JET_MAX];
+    float PFNeutralHadronEnergyFraction[NUM_JET_MAX];
+    float PFChargedEmEnergy[NUM_JET_MAX];
+    float PFChargedEmEnergyFraction[NUM_JET_MAX];
+    float PFChargedMuEnergy[NUM_JET_MAX];
+    float PFChargedMuEnergyFraction[NUM_JET_MAX];
+    float PFNeutralEmEnergy[NUM_JET_MAX];
+    float PFNeutralEmEnergyFraction[NUM_JET_MAX];
+    int   PFChargedMultiplicity[NUM_JET_MAX];
+    int   PFNeutralMultiplicity[NUM_JET_MAX];
+    int   PFMuonMultiplicity[NUM_JET_MAX];
 
   };
 

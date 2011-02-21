@@ -5,7 +5,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,7 +29,6 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 #include <memory>
 #include <vector>
@@ -52,16 +50,14 @@ public:
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup);
   void endJob();
-  void fill_jet_ID_struct();
+
 
 private:  
   // member data
   edm::InputTag              srcJets_;
   std::vector<edm::InputTag> srcObjects_;
   double                     deltaRMin_;
-  // JetID helper
-  reco::helper::JetIDHelper jet_ID_helper_;
-  reco::JetID jet_ID_struct_;
+
 
   std::string  moduleLabel_;
   int idLevel_;
@@ -93,16 +89,6 @@ JetCleaner<T>::JetCleaner(const edm::ParameterSet& iConfig)
   , nJetsTot_(0)
   , nJetsClean_(0)
 {
-  edm::ParameterSet JetIDParams;
-  JetIDParams.addParameter("useRecHits", true);
-  JetIDParams.addParameter("hbheRecHitsColl", edm::InputTag("hbhereco"));
-  JetIDParams.addParameter("hoRecHitsColl", edm::InputTag("horeco"));
-  JetIDParams.addParameter("hfRecHitsColl", edm::InputTag("hfreco"));
-  JetIDParams.addParameter("ebRecHitsColl", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-  JetIDParams.addParameter("eeRecHitsColl", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
-
-  jet_ID_helper_ = reco::helper::JetIDHelper( JetIDParams );
-
   produces<JetCollection>();
 }
 
@@ -125,13 +111,7 @@ void JetCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
   edm::Handle<reco::JetView> jets;
   iEvent.getByLabel(srcJets_,jets);
 
-  // Calo/JPT jet ID
-  JetIDSelectionFunctor jet_ID_loose( JetIDSelectionFunctor::PURE09, 
-				      JetIDSelectionFunctor::LOOSE );
-  JetIDSelectionFunctor jet_ID_tight( JetIDSelectionFunctor::PURE09, 
-				      JetIDSelectionFunctor::TIGHT );
 
-  
   bool* isClean = new bool[jets->size()];
   for (unsigned int iJet=0;iJet<jets->size();iJet++) isClean[iJet] = true;
   
@@ -153,21 +133,12 @@ void JetCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
     if (isClean[iJet]) {
       
       //calculate the Calo jetID
-      bool passingLoose=false;
-      bool passingMedium=false;
-      bool passingTight=false;
+      bool passedId=false;
       bool ThisIsClean=false;
 
       const std::type_info & type = typeid((*jets)[iJet]); 
-      //calculate the Calo jetID
       if( type == typeid(reco::CaloJet) ) {
-	const reco::CaloJet calojet = static_cast<const reco::CaloJet &>((*jets)[iJet]);
-	jet_ID_helper_.calculate( iEvent, calojet );
-	fill_jet_ID_struct();
-
-	passingLoose  = jet_ID_loose( calojet, jet_ID_struct_ ); 
-	passingMedium = jet_ID_loose( calojet, jet_ID_struct_ ); 
-	passingTight  = jet_ID_tight( calojet, jet_ID_struct_ ); 
+	passedId = true;
       }
       //calculate the PF jetID
       if ( type == typeid(reco::PFJet) ) {
@@ -187,30 +158,15 @@ void JetCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 	if(ThisIsClean && 
 	   (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.99 
 	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.99) 
-	  passingLoose=true;
-	
-	if(ThisIsClean && 
-	   (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.95 
-	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.95) 
-	  passingMedium=true;
-	
-	if(ThisIsClean && 
-	   (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.90 
-	   && (pfjet.neutralEmEnergy()/pfjet.energy())<0.90) 
-	  passingTight=true;
+	  passedId=true;	
       }
       // in case of GenJet apply no jet ID
-      if ( type == typeid(reco::GenJet) ) {
-	passingLoose=true;
-	passingMedium=true;
-	passingTight=true;
-      }
+      if ( type == typeid(reco::GenJet) ) passedId=true;
+
       
       bool isPassing = false;
       if(idLevel_==0) isPassing = true;
-      if(idLevel_==1) isPassing = passingLoose;
-      if(idLevel_==2) isPassing = passingMedium;
-      if(idLevel_==3) isPassing = passingTight;
+      if(idLevel_==1) isPassing = passedId;
 
       const T& goodJet = static_cast<const T&>((*jets)[iJet]);
       double pt = goodJet.pt();
@@ -226,40 +182,6 @@ void JetCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 }
 
 
-
-
-//______________________________________________________________________________
-template<typename T>
-void JetCleaner<T>::fill_jet_ID_struct()
-{
-  reco::JetID& ss = jet_ID_struct_;
-  const reco::helper::JetIDHelper & hh = jet_ID_helper_;
-  ss.fHPD = hh.fHPD();
-  ss.fRBX = hh.fRBX();
-  ss.n90Hits            =  hh.n90Hits();
-  ss.fSubDetector1      =  hh.fSubDetector1();
-  ss.fSubDetector2      =  hh.fSubDetector2();
-  ss.fSubDetector3      =  hh.fSubDetector3();
-  ss.fSubDetector4      =  hh.fSubDetector4();
-  ss.restrictedEMF      =  hh.restrictedEMF();
-  ss.nHCALTowers        =  hh.nHCALTowers();
-  ss.nECALTowers        =  hh.nECALTowers();
-  ss.approximatefHPD    =  hh.approximatefHPD();
-  ss.approximatefRBX    =  hh.approximatefRBX();
-  ss.hitsInN90          =  hh.hitsInN90();    
-
-  ss.fEB     = hh.fEB   ();
-  ss.fEE     = hh.fEE   ();
-  ss.fHB     = hh.fHB   (); 
-  ss.fHE     = hh.fHE   (); 
-  ss.fHO     = hh.fHO   (); 
-  ss.fLong   = hh.fLong ();
-  ss.fShort  = hh.fShort();
-  ss.fLS     = hh.fLSbad();
-  ss.fHFOOT  = hh.fHFOOT();
-
-  ss.numberOfHits2RPC =  ss.numberOfHits3RPC = ss.numberOfHitsRPC = 0;
-}
 
 
 //______________________________________________________________________________

@@ -30,38 +30,45 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   fOutputFileName ( iConfig.getParameter<std::string>("HistOutFile") ),
   hOutputFile ( new TFile( fOutputFileName.c_str(), "RECREATE" ) ), 
   myTree ( new TTree(iConfig.getParameter<std::string>("TreeName").c_str(),"V+jets Tree") ),
-  CaloJetFiller (  new JetTreeFiller("CaloJetFiller", myTree, "Calo", iConfig) ),
-  CorrectedCaloJetFiller (  new JetTreeFiller("CorrectedCaloJetFiller", 
-					      myTree, "Cor", iConfig) ),
-  CorrectedPFJetFiller (  new JetTreeFiller("CorrectedPFJetFiller", 
-					      myTree, "PFCor", iConfig) ),
-  CorrectedJPTJetFiller (  new JetTreeFiller("CorrectedJPTJetFiller", 
-					      myTree, "JPTCor", iConfig) ),
-  GenJetFiller ( new JetTreeFiller("GenJetFiller", myTree, "Gen", iConfig) ),
-  PFJetFiller (  new JetTreeFiller("PFJetFiller", myTree, "PF", iConfig) ),
-  JPTJetFiller ( new JetTreeFiller("JPTJetFiller", myTree, "JPT", iConfig) ),
+  CaloJetFiller (  iConfig.existsAs<edm::InputTag>("srcCalo") ?
+  new JetTreeFiller("CaloJetFiller", myTree, "Calo", iConfig) : 0),
+  CorrectedCaloJetFiller ( iConfig.existsAs<edm::InputTag>("srcCaloCor") ? 
+  new JetTreeFiller("CorrectedCaloJetFiller", myTree, "Cor", iConfig) : 0),
+  CorrectedPFJetFiller ( iConfig.existsAs<edm::InputTag>("srcPFCor") ? 
+  new JetTreeFiller("CorrectedPFJetFiller", myTree, "PFCor", iConfig) : 0),
+  CorrectedJPTJetFiller ( iConfig.existsAs<edm::InputTag>("srcJPTCor") ?  
+  new JetTreeFiller("CorrectedJPTJetFiller", myTree, "JPTCor", iConfig) : 0),
+  GenJetFiller ( (iConfig.existsAs<bool>("runningOverMC") && 
+  iConfig.getParameter<bool>("runningOverMC") && 
+  iConfig.existsAs<edm::InputTag>("srcGen")) ?  
+  new JetTreeFiller("GenJetFiller", myTree, "Gen", iConfig) : 0),
+  PFJetFiller ( iConfig.existsAs<edm::InputTag>("srcPFJets") ?   
+  new JetTreeFiller("PFJetFiller", myTree, "PF", iConfig) : 0),
+  JPTJetFiller ( iConfig.existsAs<edm::InputTag>("srcJPTJets") ?  
+  new JetTreeFiller("JPTJetFiller", myTree, "JPT", iConfig) : 0),
   recoBosonFillerE( new VtoElectronTreeFiller( iConfig.getParameter<std::string>("VBosonType").c_str(), 
 					       myTree, iConfig) ),
   recoBosonFillerMu( new VtoMuonTreeFiller( iConfig.getParameter<std::string>("VBosonType").c_str(), 
 					    myTree, iConfig) ),
-  genBosonFiller( new MCTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), 
-				   myTree, iConfig) )
+  genBosonFiller( (iConfig.existsAs<bool>("runningOverMC") && 
+  iConfig.getParameter<bool>("runningOverMC")) ?
+  new MCTreeFiller(iConfig.getParameter<std::string>("VBosonType").c_str(), myTree, iConfig) : 0)
 {
   // Are we running over Monte Carlo ?
-  runningOverMC_=iConfig.getUntrackedParameter< bool >("runningOverMC",true);
+   if( iConfig.existsAs<bool>("runningOverMC") ) 
+      runningOverMC_=iConfig.getParameter< bool >("runningOverMC");
+   else runningOverMC_= false;
   if(  iConfig.existsAs<edm::InputTag>("srcVectorBoson") )
     mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
   LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
   VBosonType_ = iConfig.getParameter<std::string>("VBosonType");
-  hltPath_ = iConfig.getParameter<edm::InputTag>("hltTag");
-  triggerSummaryLabel_ = 
-    iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"); 
 }
 
  
@@ -106,7 +113,10 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 	mPVy[ind] =   -10000.0;
 	mPVz[ind] =   -10000.0;
 
-      if (!((*recVtxs)[ind].isFake())) {
+    if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4) 
+    && (fabs((*recVtxs)[ind].z())<=24.0) &&  
+    ((*recVtxs)[ind].position().Rho()<=2.0) ) {
+
 	nPV += 1;
 	mPVx[ind] =  (*recVtxs)[ind].x() ;
 	mPVy[ind] =  (*recVtxs)[ind].y() ;
@@ -130,11 +140,13 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     mMET   = -1.0;
     mSumET = -1.0;
     mMETSign  = -1.0;
+    mMETPhi   = -10.0;
   }
   else {
     mMET   = (*met)[0].et();
     mSumET = (*met)[0].sumEt();
     mMETSign   = (*met)[0].significance();
+    mMETPhi   = (*met)[0].phi();
   }
 
 
@@ -145,11 +157,13 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     mtcMET   = -1;
     mtcSumET = -1;
     mtcMETSign = -1;
+    mtcMETPhi   = -10.0;
   }
   else {
     mtcMET   = (*tcmet)[0].et();
     mtcSumET = (*tcmet)[0].sumEt();
     mtcMETSign = (*tcmet)[0].significance();
+    mtcMETPhi   = (*tcmet)[0].phi();
   }
 
   /////// PfMET information /////
@@ -159,11 +173,13 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     mpfMET   = -1;
     mpfSumET = -1;
     mpfMETSign = -1;
+    mpfMETPhi   = -10.0;
   }
   else {
     mpfMET   = (*pfmet)[0].et();
     mpfSumET = (*pfmet)[0].sumEt();
     mpfMETSign = (*pfmet)[0].significance();
+    mpfMETPhi   = (*pfmet)[0].phi();
   }
 
 
@@ -177,57 +193,22 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if( boson->size()<1 ) return; // Nothing to fill
 
 
-  CaloJetFiller->fill(iEvent);
-  CorrectedCaloJetFiller->fill(iEvent);
-  GenJetFiller->fill(iEvent);
-  PFJetFiller->fill(iEvent);
-  JPTJetFiller->fill(iEvent);
-  CorrectedPFJetFiller->fill(iEvent);
-  CorrectedJPTJetFiller->fill(iEvent);
+  if(CaloJetFiller.get()) CaloJetFiller->fill(iEvent);
+  if(CorrectedCaloJetFiller.get()) CorrectedCaloJetFiller->fill(iEvent);
+  if(GenJetFiller.get()) GenJetFiller->fill(iEvent);
+  if(PFJetFiller.get()) PFJetFiller->fill(iEvent);
+  if(JPTJetFiller.get()) JPTJetFiller->fill(iEvent);
+  if(CorrectedPFJetFiller.get()) CorrectedPFJetFiller->fill(iEvent);
+  if(CorrectedJPTJetFiller.get()) CorrectedJPTJetFiller->fill(iEvent);
 
 
   /**  Store reconstructed vector boson information */
-  // ------------ trigger objects 
-  edm::Handle<trigger::TriggerEvent> triggerObj;
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
-  if(!triggerObj.isValid()) { 
-    edm::LogInfo("TriggerEvent") << " objects not found"; 
-  }
-  
-
-
- // HLT config does not change within runs!
-  changed = false;
-  // Initialize HLT config provider !!!!!
-  if( !(hltConfig_.init(iEvent.getRun(),iSetup,hltPath_.process(),changed)) )
-    throw cms::Exception("HLTConfigProvider::init() returned non 0");
-
-
-
-  // find the filter index
-  edm::InputTag filterTag;
-  if(!changed) {
-    std::vector<std::string> filters = hltConfig_.moduleLabels( hltPath_.label() );
-
-    // loop over all trigger filters associated with this path
-    for(std::vector<std::string>::iterator filter =
-	  filters.begin(); filter!= filters.end(); ++filter ) {
-       
-      edm::InputTag testTag(*filter,"", hltPath_.process() );       
-      int testindex = triggerObj->filterIndex(testTag);
-      if ( !(testindex >= triggerObj->sizeFilters()) ) 
-	filterTag=testTag;
-    } 
-  }
-
-
-  // now store  boson information
-  recoBosonFillerE->fill(iEvent, filterTag, changed);
-  recoBosonFillerMu->fill(iEvent, filterTag, changed);
+  recoBosonFillerE->fill(iEvent);
+  recoBosonFillerMu->fill(iEvent);
   
 
   /**  Store generated vector boson information */
-  if( runningOverMC_ ) genBosonFiller->fill(iEvent);
+  if(genBosonFiller.get()) genBosonFiller->fill(iEvent);
   
   myTree->Fill();
 
@@ -266,12 +247,15 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_met_calomet",    &mMET,  "event_met_calomet/F"); 
   myTree->Branch("event_met_calosumet",  &mSumET,"event_met_calosumet/F"); 
   myTree->Branch("event_met_calometsignificance", &mMETSign,  "event_met_calometsignificance/F"); 
+  myTree->Branch("event_met_calometPhi",    &mMETPhi,  "event_met_calometPhi/F"); 
   myTree->Branch("event_met_tcmet",    &mtcMET,  "event_met_tcmet/F"); 
   myTree->Branch("event_met_tcsumet",  &mtcSumET,"event_met_tcsumet/F"); 
   myTree->Branch("event_met_tcmetsignificance", &mtcMETSign,  "event_met_tcmetsignificance/F"); 
+  myTree->Branch("event_met_tcmetPhi",    &mtcMETPhi,  "event_met_tcmetPhi/F"); 
   myTree->Branch("event_met_pfmet",    &mpfMET,  "event_met_pfmet/F"); 
   myTree->Branch("event_met_pfsumet",  &mpfSumET,"event_met_pfsumet/F"); 
   myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
+  myTree->Branch("event_met_pfmetPhi",    &mpfMETPhi,  "event_met_pfmetPhi/F"); 
   myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"mBSx/F");
   myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"mBSy/F");
   myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"mBSz/F");

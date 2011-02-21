@@ -24,11 +24,11 @@
 
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoMuonTreeFiller.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 ewk::VtoMuonTreeFiller::VtoMuonTreeFiller(const char *name, TTree* tree, 
-							const edm::ParameterSet iConfig):
-  trigMatcher( new TriggerMatcher (iConfig) )
+							const edm::ParameterSet iConfig)
 {
 
   // ********** Vector boson ********** //
@@ -89,7 +89,6 @@ void ewk::VtoMuonTreeFiller::SetBranches()
   SetBranch( &mu1_hcaliso,       lept1+"_hcaliso" );
   SetBranch( &mu1_ecaliso,       lept1+"_ecaliso" );
   SetBranch( &mu1Type, lept1+"_type" );
-  SetBranch( &mu1_trigger,       lept1+"_trigger" );
   SetBranch( &mu1_numberOfChambers, lept1+"_numberOfChambers" );
   SetBranch( &mu1_numberOfMatches,  lept1+"_numberOfMatches" );	  
   ////////////////////////////////////////////////////////
@@ -112,7 +111,6 @@ void ewk::VtoMuonTreeFiller::SetBranches()
     SetBranch( &mu2_hcaliso,       lept2+"_hcaliso" );
     SetBranch( &mu2_ecaliso,       lept2+"_ecaliso");
     SetBranch( &mu2Type, lept2+"_type" );
-    SetBranch( &mu2_trigger,       lept2+"_trigger" );
     SetBranch( &mu2_numberOfChambers, lept2+"_numberOfChambers" );
     SetBranch( &mu2_numberOfMatches,  lept2+"_numberOfMatches" );
   }	  
@@ -140,9 +138,6 @@ void ewk::VtoMuonTreeFiller::init()
   V_Vy                  = -10.;
   V_Vz                  = -10.;
   V_Y                   = -10.;
-
-  mu1_trigger         = false;
-  mu2_trigger        = false;
 
   mu1Type   = -1; 
   mu1Charge           = -10;
@@ -199,9 +194,7 @@ void ewk::VtoMuonTreeFiller::init()
 
 
 
-void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent, 
-				  edm::InputTag& filterName, 
-				  bool changed)
+void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
 {
 
   // protection
@@ -295,8 +288,6 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent,
     mu1pz             = muon1->pz();
     mu1Pt             = muon1->pt();
     mu1Et             = muon1->et();	  
-    if( !changed ) mu1_trigger 
-      = trigMatcher->CheckTriggerMatch( iEvent,filterName, mu1Eta, mu1Phi);
   }
 
   ////////// muon #2 quantities //////////////
@@ -323,8 +314,6 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent,
     mu2pz             = muon2->pz();
     mu2Pt             = muon2->pt();
     mu2Et             = muon2->et();	 
-    if( !changed ) mu2_trigger 
-      = trigMatcher->CheckTriggerMatch( iEvent,filterName, mu2Eta, mu2Phi ); 
   } 
 
 }

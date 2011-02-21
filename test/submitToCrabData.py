@@ -2,43 +2,31 @@ import os,sys
 import string, re
 from time import gmtime, localtime, strftime
 
+physMode = "ZeeJets_"
+ConfigFile = "ZeeJetsAnalysis_cfg.py"
 
-channels  = ["HLT_Photon10_L1R",
-            "HLT_Photon15_Cleaned_L1R",
-            "HLT_Ele15_SW_CaloEleId_L1R",
-            "HLT_Ele17_SW_CaloEleId_L1R",
-            "HLT_Ele17_SW_TightEleId_L1R",
-            "HLT_Ele17_SW_TighterEleIdIsol_L1R_v2",
-            "HLT_Ele17_SW_TighterEleIdIsol_L1R_v3"]
+## physMode = "WenuJets_"
+## ConfigFile = "WenuJetsAnalysis_cfg.py"
 
-dataset  = ["/EG/Run2010A-Sep17ReReco_v2/RECO",
-           "/EG/Run2010A-Sep17ReReco_v2/RECO",
-           "/EG/Run2010A-Sep17ReReco_v2/RECO",
-           "/Electron/Run2010B-Nov4ReReco_v1/RECO",
-           "/Electron/Run2010B-Nov4ReReco_v1/RECO",
-           "/Electron/Run2010B-Nov4ReReco_v1/RECO",
-           "/Electron/Run2010B-Nov4ReReco_v1/RECO"
+
+channels  = ["EG",
+            "Electron"]
+
+dataset  = ["/EG/Run2010A-Dec22ReReco_v1/RECO",
+           "/Electron/Run2010B-Dec22ReReco_v1/RECO"
             ]
 
-RunRange = ["132440-137028", #~0.1/pb
-            "138564-140401", #~0.2/pb
-            "141956-144114", #~3/pb
-            "146428-147116", #~7/pb
-            "147196-148058", #
-            "148819-149064", #
-            "149181-149442"  #
-            ]
+RunRange = "132440-149442"
 
-JSON = "Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v2.txt"
-condor  = [1,1,1,1,1,1,1,1,1,1]
-
-MyResilientArea = "/kalanand/ZeeJet_Data2010"
+JSON = "Cert_136033-149442_7TeV_Dec22ReReco_Collisions10_JSON_v3.txt"
+condor  = [1,1]
+MyResilientArea = "/kalanand/" + physMode +"Data2010"
 
 
 def changeMainConfigFile(trigpath):
-    fin  = open("ZeeJetsAnalysis_cfg.py")
+    fin  = open(ConfigFile)
     pset_cfg      = "py_" + trigpath + ".py"
-    outfile_root  = "ZeeJets_" + trigpath + ".root"
+    outfile_root  = physMode + trigpath + ".root"
     fout = open(pset_cfg,"w")
     for line in fin.readlines():
         if  line.find("HLT_Ele17_SW_TightEleId_L1R")!=-1:
@@ -53,13 +41,13 @@ def changeCrabTemplateFile(outfile, index):
     fin  = open("crabTemplate.cfg")
     pset_cfg      = "py_" + outfile + ".py"
     pset_crab     = "crabjob_" + outfile + ".cfg"
-    outfile_root  = "ZeeJets_" + outfile + ".root"
+    outfile_root  = physMode + outfile + ".root"
     fout = open(pset_crab,"w")
     for line in fin.readlines():
         if  line.find("mydataset")!=-1:
             line=line.replace("mydataset",dataset[index])
             fout.write("\n")
-            fout.write("runselection="+RunRange[index]+"\n")
+            fout.write("runselection="+RunRange+"\n")
             fout.write("lumi_mask="+JSON+"\n")
         if line.find("myanalysis")!=-1:
             line=line.replace("myanalysis",pset_cfg)    
