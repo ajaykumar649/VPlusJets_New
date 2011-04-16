@@ -76,7 +76,7 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
 
   //  ********** Jet Flavor identification (MC) ********** //
   doJetFlavorIdentification = false;
-  if( (iConfig.existsAs<bool>("runningOverMC") && 
+  if( (iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC") && 
        iConfig.existsAs<edm::InputTag>("srcFlavorByValue") )) {
     sourceByValue = iConfig.getParameter<edm::InputTag> ("srcFlavorByValue");
     doJetFlavorIdentification = true;
@@ -110,6 +110,19 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( Pz, "Jet" + jetType_ + "_Pz");
   SetBranch( E, "Jet" + jetType_ + "_E");
   SetBranch( Y, "Jet" + jetType_ + "_Y");
+  SetBranch( Mass, "Jet" + jetType_ + "_Mass");
+
+  /// eta-eta second moment, ET weighted
+  SetBranch( etaetaMoment, "Jet" + jetType_ + "_etaetaMoment");
+  /// phi-phi second moment, ET weighted
+  SetBranch( phiphiMoment, "Jet" + jetType_ + "_phiphiMoment");
+  /// eta-phi second moment, ET weighted
+  SetBranch( etaphiMoment, "Jet" + jetType_ + "_etaphiMoment");
+  /// maximum distance from jet to constituent
+  SetBranch( maxDistance, "Jet" + jetType_ + "_maxDistance");
+  /// # of constituents
+  SetBranch( nConstituents, "Jet" + jetType_ + "_nConstituents");
+
   SetBranch( VjetMass, "Vplus" + jetType_ + "Jet_Mass");
   SetBranch( Dphi, "Jet" + jetType_ + "_dphiBoson");
   SetBranch( Deta, "Jet" + jetType_ + "_detaBoson");
@@ -118,6 +131,12 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( Response, "Jet" + jetType_ + "_Response");
   SetBranch( bDiscriminator, "Jet" + jetType_ + "_bDiscriminator");
   SetBranch( secVertexMass, "Jet" + jetType_ + "_secVertexMass");
+  SetBranch( Dphi2, "Jet" + jetType_ + "_dphiBoson2");
+  SetBranch( Deta2, "Jet" + jetType_ + "_detaBoson2");
+  SetBranch( DR2, "Jet" + jetType_ + "_dRBoson2");
+  SetBranch( VjetMass2, "Vplus" + jetType_ + "Jet_Mass2");
+  SetBranch( Response2, "Jet" + jetType_ + "_Response2");
+
 
   if( jetType_ == "Calo" || jetType_ == "Cor" || 
       jetType_ == "JPT" || jetType_ == "JPTCor") {
@@ -172,7 +191,50 @@ void ewk::JetTreeFiller::SetBranches()
     SetBranch( PFNeutralMultiplicity, "Jet" + jetType_ + "_NeutralMultiplicity");
     /// muonMultiplicity
     SetBranch( PFMuonMultiplicity, "Jet" + jetType_ + "_MuonMultiplicity");
+    /// photonEnergy 
+    SetBranch( PFPhotonEnergy, "Jet" + jetType_ + "_PhotonEnergy");
+    /// photonEnergyFraction 
+    SetBranch( PFPhotonEnergyFraction, "Jet" + jetType_ + "_PhotonEnergyFraction");
+    /// electronEnergy 
+    SetBranch( PFElectronEnergy, "Jet" + jetType_ + "_ElectronEnergy"); 
+    /// electronEnergyFraction 
+    SetBranch( PFElectronEnergyFraction, "Jet" + jetType_ + "_ElectronEnergyFraction");
+    /// muonEnergy 
+    SetBranch( PFMuonEnergy, "Jet" + jetType_ + "_MuonEnergy"); 
+    /// muonEnergyFraction 
+    SetBranch( PFMuonEnergyFraction, "Jet" + jetType_ + "_MuonEnergyFraction");
+  /// HFHadronEnergy  
+    SetBranch( PFHFHadronEnergy, "Jet" + jetType_ + "_HFHadronEnergy");
+  /// HFHadronEnergyFraction 
+    SetBranch( PFHFHadronEnergyFraction, "Jet" + jetType_ + "_HFHadronEnergyFraction");
+  /// HFEMEnergy  
+    SetBranch( PFHFEMEnergy, "Jet" + jetType_ + "_HFEMEnergy");
+  /// HFEMEnergyFraction 
+    SetBranch( PFHFEMEnergyFraction, "Jet" + jetType_ + "_HFEMEnergyFraction");
+  /// chargedHadronMultiplicity 
+    SetBranch( PFChargedHadronMultiplicity, "Jet" + jetType_ + "_ChargedHadronMultiplicity");
+  /// neutralHadronMultiplicity 
+    SetBranch( PFNeutralHadronMultiplicity, "Jet" + jetType_ + "_NeutralHadronMultiplicity");
+  /// photonMultiplicity 
+    SetBranch( PFPhotonMultiplicity, "Jet" + jetType_ + "_PhotonMultiplicity");
+  /// electronMultiplicity 
+    SetBranch( PFElectronMultiplicity, "Jet" + jetType_ + "_ElectronMultiplicity");
+  /// HFHadronMultiplicity 
+    SetBranch( PFHFHadronMultiplicity, "Jet" + jetType_ + "_HFHadronMultiplicity");
+  /// HFEMMultiplicity 
+    SetBranch( PFHFEMMultiplicity, "Jet" + jetType_ + "_HFEMMultiplicity");
   }
+  
+  SetBranch( &V2jMass, "MassV2j_" + jetType_);
+  SetBranch( &V3jMass, "MassV3j_" + jetType_);
+  SetBranch( &V4jMass, "MassV4j_" + jetType_);
+  SetBranch( &V5jMass, "MassV5j_" + jetType_);
+  SetBranch( &V6jMass, "MassV6j_" + jetType_);
+  SetBranch( &c2jMass, "Mass2j_" + jetType_);
+  SetBranch( &c3jMass, "Mass3j_" + jetType_);
+  SetBranch( &c4jMass, "Mass4j_" + jetType_);
+  SetBranch( &c5jMass, "Mass5j_" + jetType_);
+  SetBranch( &c6jMass, "Mass6j_" + jetType_);
 }
 
 
@@ -230,10 +292,16 @@ void ewk::JetTreeFiller::init()
       Theta[j] = -10.0;
       E[j] = -1.0;
       Y[j] = -10.0;
+      etaetaMoment[j]  = -10.0;  
+      phiphiMoment[j]  = -10.0;      
+      etaphiMoment[j]  = -10.0;      
+      maxDistance[j]  = -10.0;
+      nConstituents[j]  = 10;
       Px[j] = -999999.9;
       Py[j] = -999999.9;
       Pz[j] = -999999.9;
       Flavor[j] = -1;
+      Mass[j] = -1.0;
       MaxEInEmTowers[j] = -1.0;
       MaxEInHadTowers[j] = -1.0;
       EnergyFractionHadronic[j] = -1.0;
@@ -257,6 +325,12 @@ void ewk::JetTreeFiller::init()
       bDiscriminator[j] = -1.0;
       secVertexMass[j] = -1.0;
 
+      VjetMass2[j] = -1.0;
+      DR2[j] = -10.0;
+      Dphi2[j] = -10.0;
+      Deta2[j] = -10.0;
+      Response2[j] = -1.0;
+
       GenEmEnergy[j] = -1.0;
       GenHadEnergy[j] = -1.0;
       GenInvisibleEnergy[j] = -1.0;
@@ -275,8 +349,35 @@ void ewk::JetTreeFiller::init()
       PFChargedMultiplicity[j] = -1;
       PFNeutralMultiplicity[j] = -1;
       PFMuonMultiplicity[j] = -1;
+      PFPhotonEnergy[j] = -1.0;
+      PFPhotonEnergyFraction[j] = -1.0;
+      PFElectronEnergy[j] = -1.0;
+      PFElectronEnergyFraction[j] = -1.0;
+      PFMuonEnergy[j] = -1.0;
+      PFMuonEnergyFraction[j] = -1.0;
+      PFHFHadronEnergy[j] = -1.0;
+      PFHFHadronEnergyFraction[j] = -1.0;
+      PFHFEMEnergy[j] = -1.0;
+      PFHFEMEnergyFraction[j] = -1.0;	 
+      PFChargedHadronMultiplicity[j] = -1;
+      PFNeutralHadronMultiplicity[j] = -1;
+      PFPhotonMultiplicity[j] = -1;
+      PFElectronMultiplicity[j] = -1;
+      PFHFHadronMultiplicity[j] = -1;
+      PFHFEMMultiplicity[j] = -1;
    }
    // initialization done
+
+   V2jMass = -1.0;
+   V3jMass = -1.0;
+   V4jMass = -1.0;
+   V5jMass = -1.0;
+   V6jMass = -1.0;
+   c2jMass = -1.0;
+   c3jMass = -1.0;
+   c4jMass = -1.0;
+   c5jMass = -1.0;
+   c6jMass = -1.0;
 }
 
 
@@ -289,9 +390,16 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 
    edm::Handle<reco::CandidateView> boson;
    iEvent.getByLabel( mInputBoson, boson);
-   if( boson->size()<1 ) return; // Nothing to fill
+   const int nBoson = boson->size();
+   if( nBoson<1 ) return; // Nothing to fill
   
    const reco::Candidate *Vboson = &((*boson)[0]); 
+
+   // in case when we have two candidates for the W boson in the event
+   const reco::Candidate *Vboson2(0);
+   if( nBoson==2) Vboson2  = &((*boson)[1]);
+
+
    edm::Handle<edm::View<reco::Jet> > jets;
    iEvent.getByLabel( mInputJets, jets ); 
 
@@ -336,10 +444,17 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       Pz[iJet] = (*jet).pz();
       E[iJet]  = (*jet).energy();
       Y[iJet]  = (*jet).rapidity();
+      Mass[iJet] = (*jet).mass();
+      etaetaMoment[iJet]  = (*jet).etaetaMoment();  
+      phiphiMoment[iJet]  = (*jet).phiphiMoment();      
+      etaphiMoment[iJet]  = (*jet).etaphiMoment();      
+      maxDistance[iJet]  = (*jet).maxDistance();
+      nConstituents[iJet]  = (*jet).nConstituents();
+
       Dphi[iJet] = dPhi( (*jet).phi(), Vboson->phi() );
       Deta[iJet] = fabs( (*jet).eta() - Vboson->eta() );
       DR[iJet] = radius( (*jet).eta(), (*jet).phi(), 
-      Vboson->eta(), Vboson->phi());
+			 Vboson->eta(), Vboson->phi());
       DphiMET[iJet] = dPhi( (*jet).phi(), (*pfmet)[0].phi() );
 
       Response[iJet] = 10.0;
@@ -349,6 +464,20 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > qstar 
          = (*jet).p4() + Vboson->p4();
       VjetMass[iJet] = qstar.M();
+
+
+      if( nBoson==2) {
+	DR2[iJet] = radius( (*jet).eta(), (*jet).phi(), 
+			    Vboson2->eta(), Vboson2->phi());
+	Dphi2[iJet] = dPhi( (*jet).phi(), Vboson2->phi() );
+	Deta2[iJet] = fabs( (*jet).eta() - Vboson2->eta() );
+	Response2[iJet] = 10.0;
+	vpt = Vboson2->pt();
+	if( vpt>0.0 ) Response2[iJet] = (*jet).pt() / vpt;	
+	qstar = (*jet).p4() + Vboson2->p4();
+	VjetMass2[iJet] = qstar.M();	
+      }
+
 
       if(doJetFlavorIdentification) {
          int flavor = -1;
@@ -386,7 +515,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
             = (*svTagInfos)[closestIndex];
          if (  svTagInfo.nVertices() > 0  && 
          bDiscriminator[iJet]>-1.0) {
-            if(bDiscriminator[iJet]>2.02) numBTags ++;
+            if(bDiscriminator[iJet]>1.74) numBTags ++;
 
             ///////////////////////////
             // Calculate SecVtx Mass //
@@ -464,10 +593,86 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
          PFChargedMultiplicity[iJet] = pfjet.chargedMultiplicity();
          PFNeutralMultiplicity[iJet] = pfjet.neutralMultiplicity();
          PFMuonMultiplicity[iJet] = pfjet.muonMultiplicity();
+	 PFPhotonEnergy[iJet] = pfjet.photonEnergy();
+	 PFPhotonEnergyFraction[iJet] = pfjet.photonEnergyFraction();
+	 PFElectronEnergy[iJet] = pfjet.electronEnergy();
+	 PFElectronEnergyFraction[iJet] = pfjet.electronEnergyFraction();
+	 PFMuonEnergy[iJet] = pfjet.muonEnergy();
+	 PFMuonEnergyFraction[iJet] = pfjet.muonEnergyFraction();
+	 PFHFHadronEnergy[iJet] = pfjet.HFHadronEnergy();
+	 PFHFHadronEnergyFraction[iJet] = pfjet.HFHadronEnergyFraction();
+	 PFHFEMEnergy[iJet] = pfjet.HFEMEnergy();
+	 PFHFEMEnergyFraction[iJet] = pfjet.HFEMEnergyFraction();	 
+	 PFChargedHadronMultiplicity[iJet] = pfjet.chargedHadronMultiplicity();
+	 PFNeutralHadronMultiplicity[iJet] = pfjet.neutralHadronMultiplicity();
+	 PFPhotonMultiplicity[iJet] = pfjet.photonMultiplicity();
+	 PFElectronMultiplicity[iJet] = pfjet.electronMultiplicity();
+	 PFHFHadronMultiplicity[iJet] = pfjet.HFHadronMultiplicity();
+	 PFHFEMMultiplicity[iJet] = pfjet.HFEMMultiplicity();
       }// close PF jets loop
    }// close jets iteration loop
 
    NumJets = iJet;
+
+
+
+
+   // Now compute all the invariant masses
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > Vj;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V2j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V3j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V4j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V5j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V6j;
+
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c2j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c3j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c4j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c5j;
+   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c6j;
+
+   if( NumJets>1 ) { 
+     V2j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4();
+     V2jMass =  V2j.M();
+     c2j =  (*jets)[0].p4() + (*jets)[1].p4();
+     c2jMass =  c2j.M();
+   }
+
+   if( NumJets>2 ) {
+     V3j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
+     (*jets)[2].p4();
+     V3jMass =  V3j.M();
+     c3j =  (*jets)[0].p4() + (*jets)[1].p4() + (*jets)[2].p4();
+     c3jMass =  c3j.M();
+   }
+
+   if( NumJets>3 ) { 
+     V4j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
+       (*jets)[2].p4() + (*jets)[3].p4();
+     V4jMass =  V4j.M();
+     c4j =  (*jets)[0].p4() + (*jets)[1].p4() + 
+       (*jets)[2].p4() + (*jets)[3].p4();
+     c4jMass =  c4j.M();
+   }
+
+   if( NumJets>4 ) { 
+     V5j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
+     (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4();
+     V5jMass =  V5j.M();
+     c5j =  (*jets)[0].p4() + (*jets)[1].p4() + 
+       (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4();
+     c5jMass =  c5j.M();
+   }
+
+   if( NumJets>5 ) { 
+     V6j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
+     (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4() + (*jets)[5].p4();
+     V6jMass =  V6j.M();
+     c6j =  (*jets)[0].p4() + (*jets)[1].p4() + 
+     (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4() + (*jets)[5].p4();
+     c6jMass =  c6j.M();
+   }
+
    //FillBranches();
 }
 

@@ -1,7 +1,21 @@
+void AddVariableToTree() {
+  AddVariableToTree("ZeeJets_Pt_0to15.root");
+  AddVariableToTree("ZeeJets_Pt_15to20.root");
+  AddVariableToTree("ZeeJets_Pt_20to30.root");
+  AddVariableToTree("ZeeJets_Pt_30to50.root");
+  AddVariableToTree("ZeeJets_Pt_50to80.root");
+  AddVariableToTree("ZeeJets_Pt_80to120.root");
+  AddVariableToTree("ZeeJets_Pt_120to170.root");
+  AddVariableToTree("ZeeJets_Pt_170to230.root");
+  AddVariableToTree("ZeeJets_Pt_230to300.root");
+  AddVariableToTree("ZeeJets_Pt_300_Inf.root");
+}
+
+
 void AddVariableToTree(char* inFile)
 {
   const char* treeName = "ZJet";
-  const int lumi = 35.0;
+  const int lumi = 36.0;
 
   unsigned int index=100;
   const int nMAX = 10;

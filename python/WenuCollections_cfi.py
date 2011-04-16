@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+#WP70 electrons
 selectElectrons = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag( "gsfElectrons" ),
     cut = cms.string(
@@ -8,17 +9,17 @@ selectElectrons = cms.EDFilter("GsfElectronRefSelector",
     " && (ecalEnergy*sin(superClusterPosition.theta)>20.0)"
     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
     " && ((isEB"
-    " && ( dr03TkSumPt/p4.Pt <0.09 && dr03EcalRecHitSumEt/p4.Pt < 0.08 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
+    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
     " && (sigmaIetaIeta<0.01)"
-    " && ( -0.6<deltaPhiSuperClusterTrackAtVtx<0.6 )"
-    " && ( -0.006<deltaEtaSuperClusterTrackAtVtx<0.006 )"
-    " && (hadronicOverEm<0.04)"
+    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
+    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && (hadronicOverEm<0.025)"
     ")"
     " || (isEE"
-    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.05 && dr03HcalTowerSumEt/p4.Pt  < 0.025 )"
+    " && ( dr03TkSumPt/p4.Pt <0.025 && dr03EcalRecHitSumEt/p4.Pt < 0.025 && dr03HcalTowerSumEt/p4.Pt  < 0.02 )"
     " && (sigmaIetaIeta<0.03)"
-    " && ( -0.04<deltaPhiSuperClusterTrackAtVtx<0.04 )"
-    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && ( -0.02<deltaPhiSuperClusterTrackAtVtx<0.02 )"
+    " && ( -0.005<deltaEtaSuperClusterTrackAtVtx<0.005 )"
     " && (hadronicOverEm<0.025) "
     "))"
     )
@@ -28,22 +29,28 @@ selectElectrons = cms.EDFilter("GsfElectronRefSelector",
 
 
 
-
-
 WToEnu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("selectElectrons pfMet"),
 ## Note: the 'mt()' method doesn't compute the transverse mass correctly, so we have to do it by hand.
-    cut = cms.string('daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>40'),
+    cut = cms.string('daughter(0).pt >25 && daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>40'),
     checkCharge = cms.bool(False),
 )
 
-bestWenu = cms.EDFilter("LargestPtCandViewSelector",
-    maxNumber = cms.uint32(1),
-    src = cms.InputTag("WToEnu")
+
+
+
+
+WenuCounter = cms.EDFilter("PATCandViewCountFilter",
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(2),
+    src = cms.InputTag("WToEnu")                     
 )
 
 
-
+bestWToEnu =cms.EDFilter("LargestPtCandViewSelector",
+    maxNumber = cms.uint32(10),
+    src = cms.InputTag("WToEnu")                 
+)
 
 
 ##  Define Z->ee candidate selection for veto ######
@@ -80,10 +87,9 @@ Zee = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 ZeeLargestPt = cms.EDFilter("LargestPtCandViewSelector",
-    maxNumber = cms.uint32(1),
+    maxNumber = cms.uint32(10),
     src = cms.InputTag("Zee"),
-    filter = cms.bool(True),
-    minN    = cms.int32(1)                          
+    filter = cms.bool(True)                      
 )
 
 
@@ -91,7 +97,7 @@ ZeeLargestPt = cms.EDFilter("LargestPtCandViewSelector",
 
 
 
-WSequence = cms.Sequence(selectElectrons+WToEnu+bestWenu)
+WSequence = cms.Sequence(selectElectrons*WToEnu*WenuCounter*bestWToEnu)
 ZvetoSequence = cms.Sequence( WP95Electrons* Zee * ~ZeeLargestPt)
 
 

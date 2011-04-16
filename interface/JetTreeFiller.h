@@ -100,6 +100,13 @@ namespace ewk {
     float Theta[NUM_JET_MAX];
     float E[NUM_JET_MAX];
     float Y[NUM_JET_MAX];
+    float Mass[NUM_JET_MAX];
+    float etaetaMoment[NUM_JET_MAX];  
+    float phiphiMoment[NUM_JET_MAX];      
+    float etaphiMoment[NUM_JET_MAX];      
+    float maxDistance[NUM_JET_MAX];
+    float nConstituents[NUM_JET_MAX];
+
     float Px[NUM_JET_MAX];
     float Py[NUM_JET_MAX];
     float Pz[NUM_JET_MAX];
@@ -127,6 +134,11 @@ namespace ewk {
     float bDiscriminator[NUM_JET_MAX];
     float secVertexMass[NUM_JET_MAX];
     int numBTags;
+    float VjetMass2[NUM_JET_MAX];
+    float DR2[NUM_JET_MAX];
+    float Dphi2[NUM_JET_MAX];
+    float Deta2[NUM_JET_MAX];
+    float Response2[NUM_JET_MAX];
 
 
     float GenEmEnergy[NUM_JET_MAX];
@@ -147,7 +159,33 @@ namespace ewk {
     int   PFChargedMultiplicity[NUM_JET_MAX];
     int   PFNeutralMultiplicity[NUM_JET_MAX];
     int   PFMuonMultiplicity[NUM_JET_MAX];
+    float PFPhotonEnergy[NUM_JET_MAX];
+    float PFPhotonEnergyFraction[NUM_JET_MAX];
+    float PFElectronEnergy[NUM_JET_MAX];
+    float PFElectronEnergyFraction[NUM_JET_MAX];
+    float PFMuonEnergy[NUM_JET_MAX];
+    float PFMuonEnergyFraction[NUM_JET_MAX];
+    float PFHFHadronEnergy[NUM_JET_MAX];
+    float PFHFHadronEnergyFraction[NUM_JET_MAX];
+    float PFHFEMEnergy[NUM_JET_MAX];
+    float PFHFEMEnergyFraction[NUM_JET_MAX];	 
+    int   PFChargedHadronMultiplicity[NUM_JET_MAX];
+    int   PFNeutralHadronMultiplicity[NUM_JET_MAX];
+    int   PFPhotonMultiplicity[NUM_JET_MAX];
+    int   PFElectronMultiplicity[NUM_JET_MAX];
+    int   PFHFHadronMultiplicity[NUM_JET_MAX];
+    int   PFHFEMMultiplicity[NUM_JET_MAX];    
 
+    float V2jMass;
+    float V3jMass;
+    float V4jMass;
+    float V5jMass;
+    float V6jMass;
+    float c2jMass;
+    float c3jMass;
+    float c4jMass;
+    float c5jMass;
+    float c6jMass;
   };
 
 } //namespace

@@ -108,12 +108,12 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
   for(unsigned int ind=0;ind<recVtxs->size();ind++) 
     {
-      if(nPV>20) continue;
+      if(nPV>100) continue;
 	mPVx[ind] =   -10000.0;
 	mPVy[ind] =   -10000.0;
 	mPVz[ind] =   -10000.0;
 
-    if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>4) 
+    if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>=4) 
     && (fabs((*recVtxs)[ind].z())<=24.0) &&  
     ((*recVtxs)[ind].position().Rho()<=2.0) ) {
 
@@ -186,11 +186,11 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
 
-
   // fill jet branches
   edm::Handle<reco::CandidateView> boson;
   iEvent.getByLabel( mInputBoson, boson);
-  if( boson->size()<1 ) return; // Nothing to fill
+  mNVB = boson->size();
+  if( mNVB<1 ) return; // Nothing to fill
 
 
   if(CaloJetFiller.get()) CaloJetFiller->fill(iEvent);
@@ -203,7 +203,9 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   /**  Store reconstructed vector boson information */
-  recoBosonFillerE->fill(iEvent);
+  recoBosonFillerE->fill(iEvent, 0);
+  if(mNVB==2) recoBosonFillerE->fill(iEvent, 1);
+
   recoBosonFillerMu->fill(iEvent);
   
 
@@ -241,9 +243,9 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_lumi",   &lumi,  "event_lumi/I"); 
   myTree->Branch("event_bunch",  &bunch, "event_bunch/I"); 
   myTree->Branch("event_nPV",    &nPV,   "event_nPV/I"); 
-  myTree->Branch("event_PVx",    mPVx,   "event_PVx[20]/F"); 
-  myTree->Branch("event_PVy",    mPVy,   "event_PVy[20]/F"); 
-  myTree->Branch("event_PVz",    mPVz,   "event_PVz[20]/F"); 
+  myTree->Branch("event_PVx",    mPVx,   "event_PVx[100]/F"); 
+  myTree->Branch("event_PVy",    mPVy,   "event_PVy[100]/F"); 
+  myTree->Branch("event_PVz",    mPVz,   "event_PVz[100]/F"); 
   myTree->Branch("event_met_calomet",    &mMET,  "event_met_calomet/F"); 
   myTree->Branch("event_met_calosumet",  &mSumET,"event_met_calosumet/F"); 
   myTree->Branch("event_met_calometsignificance", &mMETSign,  "event_met_calometsignificance/F"); 
@@ -256,10 +258,11 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_met_pfsumet",  &mpfSumET,"event_met_pfsumet/F"); 
   myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
   myTree->Branch("event_met_pfmetPhi",    &mpfMETPhi,  "event_met_pfmetPhi/F"); 
-  myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"mBSx/F");
-  myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"mBSy/F");
-  myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"mBSz/F");
-}
+  myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"event_BeamSpot_x/F");
+  myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"event_BeamSpot_y/F");
+  myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"event_BeamSpot_z/F");
+  myTree->Branch(("num"+VBosonType_).c_str(),&mNVB              ,("num"+VBosonType_+"/I").c_str());
+}  
 
 
 

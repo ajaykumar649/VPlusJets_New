@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-mcFlag = False
+mcFlag = True
                  
 
 print "################### Reading Jet Collections ##################"
@@ -82,7 +82,7 @@ else:
 ic5CaloJetsCor.src = "ic5CaloJetsClean"
 ic5CaloJetsCorClean = cms.EDFilter("CaloJetSelector",  
     src = cms.InputTag("ic5CaloJetsCor"),
-    cut = cms.string('pt > 20')
+    cut = cms.string('pt > 0')
 )
 
 kt4CaloJetsCor.src = "kt4CaloJetsClean"
@@ -163,7 +163,7 @@ else:
 ic5PFJetsCor.src = "ic5PFJetsClean"
 ic5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",  
     src = cms.InputTag("ic5PFJetsCor"),
-    ptMin = cms.double(20)
+    ptMin = cms.double(0)
 )
 kt4PFJetsCor.src = "kt4PFJetsClean"
 kt4PFJetsCorClean = ic5PFJetsCorClean.clone()
@@ -221,7 +221,7 @@ ak5JPTJetsCor.src = "ak5JPTJetsClean"
 ak5JPTJetsCorClean = ak5JPTJetsCor.clone()
 ak5JPTJetsCorClean = cms.EDFilter("JPTJetSelector",
     src = cms.InputTag("ak5JPTJetsCor"),
-    cut = cms.string('pt > 20')    
+    cut = cms.string('pt > 0')    
 )
 ##########################################
 JPTJetPath = cms.Sequence(

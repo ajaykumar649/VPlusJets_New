@@ -89,6 +89,7 @@ namespace ewk
     int lumi; 
     int bunch; 
     int nPV; 
+    int mNVB;
     float mPVx[20];
     float mPVy[20];
     float mPVz[20];

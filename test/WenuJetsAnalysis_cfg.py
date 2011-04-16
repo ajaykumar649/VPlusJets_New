@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = False
+isMC = True
 
 process = cms.Process("demo")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -74,7 +74,7 @@ process.RequireTwoJets = cms.EDFilter("PATCandViewCountFilter",
 
 process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
     srcPFCor = cms.InputTag("ak5PFJetsCorClean"), 
-    srcVectorBoson = cms.InputTag("bestWenu"),
+    srcVectorBoson = cms.InputTag("bestWToEnu"),
     VBosonType     = cms.string('W'),
     LeptonType     = cms.string('electron'),                          
     HistOutFile = cms.string( OutputFileName ),

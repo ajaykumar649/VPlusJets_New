@@ -19,7 +19,8 @@
 
 #ifndef ElectroWeakAnalysis_VPlusJets_VtoElectronTreeFiller_h
 #define ElectroWeakAnalysis_VPlusJets_VtoElectronTreeFiller_h
-
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include <memory>
 #include <string>
 #include <iostream>
@@ -47,8 +48,8 @@ namespace ewk {
     
     
     /// To be called once per event to fill the values for jets
-    void fill(const edm::Event &iEvent);
-    
+    void fill(const edm::Event &iEvent, int vecBosonIndex);
+
     
   protected:
 
@@ -59,6 +60,8 @@ namespace ewk {
     void SetBranch( float* x, std::string name );
     void SetBranch( int* x, std::string name );
     void SetBranch( bool* x, std::string name );
+    bool isTightElectron(const edm::Event& iEvent, const reco::GsfElectron& ele);
+    bool isLooseElectron(const edm::Event& iEvent, const reco::GsfElectron& ele);
 
     TTree* tree_;
     const char *  name_;
@@ -69,6 +72,9 @@ namespace ewk {
 
   private:
     // private data members
+
+    int nLooseElectron;
+    int nTightElectron;
     
     float V_mass;
     float V_mt;
@@ -84,6 +90,8 @@ namespace ewk {
     float V_Vy;
     float V_Vz;
     float V_Y;
+    float V_pzNu1;
+    float V_pzNu2;
 
     int e1Classification; 
     int e1Charge;

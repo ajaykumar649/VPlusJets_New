@@ -2,11 +2,11 @@ import os,sys
 import string, re
 from time import gmtime, localtime, strftime
 
-physMode = "ZeeJets_"
-ConfigFile = "ZeeJetsAnalysis_cfg.py"
+## physMode = "ZeeJets_"
+## ConfigFile = "ZeeJetsAnalysis_cfg.py"
 
-## physMode = "WenuJets_"
-## ConfigFile = "WenuJetsAnalysis_cfg.py"
+physMode = "WenuJets_"
+ConfigFile = "WenuJetsAnalysis_cfg.py"
 
 
 channels  = ["EG",

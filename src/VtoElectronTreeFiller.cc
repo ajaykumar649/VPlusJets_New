@@ -18,15 +18,18 @@
  *****************************************************************************/
 
 // CMS includes
-#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 
 
 ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree, 
@@ -72,6 +75,12 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &V_Vy,        "vy");
   SetBranch( &V_Vz,        "vz");
   SetBranch( &V_Y,         "y");
+  SetBranch( &nTightElectron, "numTightElectrons");
+  SetBranch( &nLooseElectron, "numLooseElectrons");
+  if(Vtype_=="W") {
+    SetBranch( &V_pzNu1,     "pzNu1");
+    SetBranch( &V_pzNu2,     "pzNu2");
+  }
   ///////////////////////////////////////////////
   SetBranch( &e1px,             lept1+"_px" );
   SetBranch( &e1py,             lept1+"_py" );
@@ -190,6 +199,8 @@ void ewk::VtoElectronTreeFiller::SetBranches()
 void ewk::VtoElectronTreeFiller::init()   
 {
   // initialize private data members
+  nLooseElectron = 0;
+  nTightElectron = 0;
   V_mass                = -1.;
   V_mt                  = -1.;
   V_px                  = -99999.;
@@ -204,6 +215,8 @@ void ewk::VtoElectronTreeFiller::init()
   V_Vy                  = -10.;
   V_Vz                  = -10.;
   V_Y                   = -10.;
+  V_pzNu1               = -10000.0;
+  V_pzNu2               = -10000.0;
 
   ise1WP95          = false;
   ise1WP80          = false;
@@ -322,7 +335,7 @@ void ewk::VtoElectronTreeFiller::init()
 
 
 
-void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
+void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonIndex)
 {
   // protection
   if( (tree_==0) || !(LeptonType_=="electron") )  return;
@@ -334,7 +347,28 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
   iEvent.getByLabel( mInputBoson, boson);
   if( boson->size()<1 ) return; // Nothing to fill
   
-  const reco::Candidate *Vboson = &((*boson)[0]); 
+
+  edm::Handle<reco::PFMETCollection> pfmet;
+  iEvent.getByLabel("pfMet", pfmet);
+
+
+
+
+
+  nTightElectron = 0;
+  nLooseElectron = 0;
+
+  // Loop over electrons for loose/tight counting
+ edm::Handle<reco::GsfElectronCollection> electrons;
+ iEvent.getByLabel("gsfElectrons", electrons);
+ for(reco::GsfElectronCollection::const_iterator 
+       elec = electrons->begin(); elec != electrons->end();++elec) {
+   if( isTightElectron( iEvent, *elec) ) nTightElectron++;
+   if( isLooseElectron( iEvent, *elec) ) nLooseElectron++;
+ }
+
+
+  const reco::Candidate *Vboson = &((*boson)[vecBosonIndex]); 
   if( Vboson == 0) return;
 
   ////////// Vector boson quantities //////////////
@@ -392,6 +426,17 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
   if(Vtype_=="W") {
     if( abs(e1->charge())==1 ) ele1  = e1;
     else if( abs(e2->charge())==1 ) ele1  = e2;
+
+
+  // estimate Pz of neutrino
+  TLorentzVector p4MET((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+  TLorentzVector p4lepton(ele1->px(), ele1->py(), ele1->pz(), ele1->energy());
+  METzCalculator metz;
+  metz.SetMET(p4MET);
+  metz.SetLepton(p4lepton);
+  if (LeptonType_=="electron") metz.SetLeptonType("electron");
+  V_pzNu1 = metz.Calculate();
+  V_pzNu2 = metz.getOther();
   }
 
 
@@ -547,6 +592,87 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent)
     }
   } 
 
+}
+
+
+
+
+
+// WP80: but only track iso, and cut on impact parameter |d0|
+bool ewk::VtoElectronTreeFiller::isTightElectron(const edm::Event& iEvent, const reco::GsfElectron& ele) 
+{
+  float pt = ele.pt();
+  float eta = fabs(ele.superCluster()->eta());  
+
+  if( pt<20.0 )  return false;
+  if( eta > 1.4442 && eta < 1.5660) return false;
+  if ( eta > 2.5 ) return false;
+
+
+  int missingHits   = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
+  float dist          = fabs(ele.convDist());
+  float dcot          = fabs(ele.convDcot());
+
+  if( !(missingHits==0) )  return false;
+  if( dist<0.02 && dcot<0.02) return false;
+
+
+  float trackiso      = ele.dr03TkSumPt()/pt;
+  float sigmaIetaIeta = ele.sigmaIetaIeta();
+  float deltaEta      = ele.deltaEtaSuperClusterTrackAtVtx();
+  float deltaPhi      = ele.deltaPhiSuperClusterTrackAtVtx();
+  float HoverE        = ele.hadronicOverEm();	  
+  bool isEB = ele.isEB();
+  bool isEE = ele.isEE();
+
+
+  bool isWP80Id    = (trackiso<0.1) && 
+    ((isEB && sigmaIetaIeta<0.01 && deltaPhi<0.06 && deltaEta<0.004 && HoverE<0.04) || 
+     (isEE && sigmaIetaIeta<0.03 && deltaPhi<0.03 && deltaEta<0.007 && HoverE<0.025)); 
+
+
+  //////////// Beam spot //////////////
+  edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel("offlineBeamSpot", beamSpot);
+  double dz = fabs( ele.gsfTrack()->dxy( beamSpot->position() ) );
+
+
+  if( !(isWP80Id && dz<0.02) )  return false;
+
+  return true;
+}
+
+
+
+
+
+// WP95: but only track iso
+bool ewk::VtoElectronTreeFiller::isLooseElectron(const edm::Event& iEvent, const reco::GsfElectron& ele) 
+{
+  float pt = ele.pt();
+  float eta = fabs(ele.superCluster()->eta());  
+
+  if( pt<20.0 )  return false;
+  if( eta > 1.4442 && eta < 1.5660) return false;
+  if ( eta > 2.5 ) return false;
+
+
+  float trackiso      = ele.dr03TkSumPt()/pt;
+  float sigmaIetaIeta = ele.sigmaIetaIeta();
+  float deltaEta      = ele.deltaEtaSuperClusterTrackAtVtx();
+  float deltaPhi      = ele.deltaPhiSuperClusterTrackAtVtx();
+  float HoverE        = ele.hadronicOverEm();	  
+  bool isEB = ele.isEB();
+  bool isEE = ele.isEE();
+
+
+  bool isWP95Id    = (trackiso<0.2) && 
+    ((isEB && sigmaIetaIeta<0.01 && deltaPhi<0.8 && deltaEta<0.007 && HoverE<0.15) || 
+     (isEE && sigmaIetaIeta<0.03 && deltaPhi<0.7 && deltaEta<0.010 && HoverE<0.07)); 
+
+  if( !(isWP95Id) )  return false;
+
+  return true;
 }
 
 
