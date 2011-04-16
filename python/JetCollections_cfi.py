@@ -163,7 +163,7 @@ else:
 ic5PFJetsCor.src = "ic5PFJetsClean"
 ic5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",  
     src = cms.InputTag("ic5PFJetsCor"),
-    ptMin = cms.double(0)
+    ptMin = cms.double(20.0)
 )
 kt4PFJetsCor.src = "kt4PFJetsClean"
 kt4PFJetsCorClean = ic5PFJetsCorClean.clone()
