@@ -37,7 +37,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 
@@ -62,19 +62,8 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
        '/store/mc/Spring11/GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0024/EAA84FDA-C752-E011-9119-0030487E52A5.root',
        '/store/mc/Spring11/GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0024/64F298DB-DC52-E011-B579-0030487F9367.root',
        '/store/mc/Spring11/GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0024/5CF7BEDB-DC52-E011-8612-0030487F933D.root',
-       '/store/mc/Spring11/GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0024/527222CB-DC52-E011-A990-0030487FA625.root'
-    
-##       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/ACDEDA3C-B7D3-DF11-A7A1-0030487C6A66.root',
-##       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/223CD93D-B7D3-DF11-885E-0030487CD7B4.root',
-##       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/EAB3E588-B6D3-DF11-8BDC-0030487A3232.root',
-##       '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/453/AA0C5537-B7D3-DF11-9194-0030487CD7C6.root',
-##        '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/FE9CF7A8-5A2D-E011-9775-0030486790B0.root',
-##               '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/F2EDDFEA-592D-E011-97B7-0030486791F2.root',
-##               '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/F0ECB760-5A2D-E011-8CF0-002618943811.root',
-##               '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/E8927780-5A2D-E011-AEB1-00304867BEE4.root',
-##               '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/E0D2C67B-5A2D-E011-BA9A-002618943833.root',
-       
-       ) )
+       '/store/mc/Spring11/GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0024/527222CB-DC52-E011-A990-0030487FA625.root')
+)
 
 
 
@@ -147,32 +136,6 @@ process.ak5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",
     ptMin = cms.double(20.)
 )
 ##
-
-process.RequireTwoJets = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(2),
-    maxNumber = cms.uint32(100),
-    src = cms.InputTag("ak5PFJetsCorClean"),                      
-)
-# ak5GenJets are NOT there: First load the needed modules
-## from RecoJets.Configuration.GenJetParticles_cff import *
-## from RecoJets.JetProducers.ak5GenJets_cfi import *
-process.load("RecoJets.Configuration.GenJetParticles_cff")
-process.load("RecoJets.JetProducers.ak5GenJets_cfi")
-##################### Tag jets: Needed for MC flavor matching
-process.myPartons = cms.EDProducer("PartonSelector",
-    src = cms.InputTag("genParticles"),
-    withLeptons = cms.bool(False)
-)
-process.ak5flavourByRef = cms.EDProducer("JetPartonMatcher",
-    jets = cms.InputTag("ak5PFJets"),
-    coneSizeToAssociate = cms.double(0.3),
-    partons = cms.InputTag("myPartons")
-)
-
-process.ak5tagJet = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference = cms.InputTag("ak5flavourByRef"),
-    physicsDefinition = cms.bool(False)
-)
 ####################################
 ############################################
 #  V+jets Collection ##########
@@ -184,15 +147,12 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     LeptonType     = cms.string('electron'),                          
     HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('WJet'),
-    runningOverMC = cms.bool(False),			
-    #srcGen  = cms.InputTag("ak5GenJets"),
-    #srcFlavorByValue = cms.InputTag("ak5tagJet"),                           
+    runningOverMC = cms.bool(False) # diable jet-parton matching                         
 )
 
 
 
 process.myseq = cms.Sequence(
-    #process.genParticles *
     process.impactParameterTagInfos * 
     process.secondaryVertexTagInfos *
     process.selectElectrons *
@@ -205,22 +165,8 @@ process.myseq = cms.Sequence(
     process.ak5PFJetsLooseId * 
     process.ak5PFJetsCor *
     process.ak5PFJetsCorClean *
-    process.RequireTwoJets *
-    #process.genParticlesForJets *
-    #process.ak5GenJets *
-    #process.myPartons *
-    #process.ak5flavourByRef *
-    #process.ak5tagJet *
     process.VpusJets
     )
-#if not isMC:
-    #process.myseq.remove ( process.genParticles)
-    #process.myseq.remove ( process.genParticlesForJets)
-    #process.myseq.remove ( process.ak5GenJets)    
-    #process.myseq.remove ( process.myPartons)
-    #process.myseq.remove ( process.ak5flavourByRef)
-    #process.myseq.remove ( process.ak5tagJet)
-    
 
 process.p = cms.Path( process.myseq )
 
