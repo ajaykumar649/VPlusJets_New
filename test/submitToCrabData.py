@@ -9,18 +9,19 @@ physMode = "WenuJets_"
 ConfigFile = "WenuJetsAnalysis_cfg.py"
 
 
-channels  = ["EG",
-            "Electron"]
+channels  = ["Prompt-V1",
+            "Prompt-V2"]
 
-dataset  = ["/EG/Run2010A-Dec22ReReco_v1/RECO",
-           "/Electron/Run2010B-Dec22ReReco_v1/RECO"
+dataset  = ["/SingleElectron/Run2011A-PromptReco-v1/AOD",
+           "/SingleElectron/Run2011A-PromptReco-v2/AOD"
             ]
 
-RunRange = "132440-149442"
 
-JSON = "Cert_136033-149442_7TeV_Dec22ReReco_Collisions10_JSON_v3.txt"
-condor  = [1,1]
-MyResilientArea = "/kalanand/" + physMode +"Data2010"
+RunRange = "160404-162917"
+
+JSON = "Cert_160404-162917_7TeV_PromptReco_Collisions11_JSON_merged.txt"
+condor  = [1,0]
+MyResilientArea = "/kalanand/" + physMode +"Data2011"
 
 
 def changeMainConfigFile(trigpath):
