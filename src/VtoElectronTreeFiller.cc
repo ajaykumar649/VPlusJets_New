@@ -32,6 +32,7 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 
 
+
 ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree, 
 							const edm::ParameterSet iConfig)
 {
@@ -132,7 +133,7 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &e1_convradius,    lept1+"_convradius" );
   SetBranch( &ise1WP95,         lept1+"_isWP95" );
   SetBranch( &ise1WP80,         lept1+"_isWP80" );
-
+  SetBranch( &ise1WP70,         lept1+"_isWP70" );
 
   ////////////////////////////////////////////////////////
   if(Vtype_=="Z") {	  
@@ -186,7 +187,7 @@ void ewk::VtoElectronTreeFiller::SetBranches()
     SetBranch( &e2_convradius,    lept2+"_convradius" );
     SetBranch( &ise2WP95,         lept2+"_isWP95" );
     SetBranch( &ise2WP80,         lept2+"_isWP80" );
-
+    SetBranch( &ise2WP70,         lept2+"_isWP70" );
   }	  
 }
 /////////////////////////////////////////////////////////////////////////
@@ -220,14 +221,15 @@ void ewk::VtoElectronTreeFiller::init()
 
   ise1WP95          = false;
   ise1WP80          = false;
+  ise1WP70          = false;
   ise2WP95          = false;
   ise2WP80          = false;
+  ise2WP70          = false;
 
   e1Classification   = -1; 
   e1Charge           = -10;
   e2Classification  = -1;
   e2Charge          = -10;
-
 
   e1px               = -99999.;
   e1py               = -99999.;
@@ -427,19 +429,18 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     if( abs(e1->charge())==1 ) ele1  = e1;
     else if( abs(e2->charge())==1 ) ele1  = e2;
 
-
-  // estimate Pz of neutrino
-  TLorentzVector p4MET((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
-  TLorentzVector p4lepton(ele1->px(), ele1->py(), ele1->pz(), ele1->energy());
-  METzCalculator metz;
-  metz.SetMET(p4MET);
-  metz.SetLepton(p4lepton);
-  if (LeptonType_=="electron") metz.SetLeptonType("electron");
-  V_pzNu1 = metz.Calculate();
-  V_pzNu2 = metz.getOther();
+    // estimate Pz of neutrino
+    TLorentzVector p4MET((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+    TLorentzVector p4lepton(ele1->px(), ele1->py(), ele1->pz(), ele1->energy());
+    METzCalculator metz;
+    metz.SetMET(p4MET);
+    metz.SetLepton(p4lepton);
+    if (LeptonType_=="electron") metz.SetLeptonType("electron");
+    V_pzNu1 = metz.Calculate();
+    V_pzNu2 = metz.getOther();
   }
 
-
+	  
   ////////// electron #1 quantities //////////////
   if( !(ele1 == NULL) ) {
     e1Charge           = ele1-> charge();
@@ -455,7 +456,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     e1py               = ele1->py();
     e1pz               = ele1->pz();
     e1Pt               = ele1->pt();
-    e1Et               = ele1->et();	  
+    e1Et               = ele1->et();
 
     /// isolation 
     e1_trackiso       = ele1->dr03TkSumPt();
@@ -504,6 +505,10 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
 	&& (e1_trackiso/e1Et<0.09) && (e1_ecaliso/e1Et<0.07) 
 	&& (e1_hcaliso/e1Et<0.1) && (e1_SigmaIetaIeta<0.01) && (fabs(e1_DeltaPhiIn)<0.06) 
 	&& (fabs(e1_DeltaEtaIn)<0.004) && (e1_HoverE<0.04);
+      ise1WP70      = (e1_missingHits==0) && (fabs(e1_dist)>0.02 || fabs(e1_dcot)>0.02) 
+	&& (e1_trackiso/e1Et<0.05) && (e1_ecaliso/e1Et<0.06) 
+	&& (e1_hcaliso/e1Et<0.03) && (e1_SigmaIetaIeta<0.01) && (fabs(e1_DeltaPhiIn)<0.03) 
+	&& (fabs(e1_DeltaEtaIn)<0.004) && (e1_HoverE<0.025);
     }
     if( ele1->isEE() ) {
       ise1WP95      = (e1_missingHits<=1) && (e1_trackiso/e1Et<0.08) && (e1_ecaliso/e1Et<0.06) 
@@ -513,6 +518,10 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
 	&& (e1_trackiso/e1Et<0.08) && (e1_ecaliso/e1Et<0.06) 
 	&& (e1_hcaliso/e1Et<0.05) && (e1_SigmaIetaIeta<0.03) && (fabs(e1_DeltaPhiIn)<0.7) 
 	&& (fabs(e1_DeltaEtaIn)<0.01) && (e1_HoverE<0.07);
+      ise1WP70      = (e1_missingHits==0)  && (fabs(e1_dist)>0.02 || fabs(e1_dcot)>0.02)  
+	&& (e1_trackiso/e1Et<0.025) && (e1_ecaliso/e1Et<0.025) 
+	&& (e1_hcaliso/e1Et<0.02) && (e1_SigmaIetaIeta<0.03) && (fabs(e1_DeltaPhiIn)<0.02) 
+	&& (fabs(e1_DeltaEtaIn)<0.005) && (e1_HoverE<0.025);
     }
 
   }
@@ -580,6 +589,10 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
 	&& (e2_trackiso/e2Et<0.09) && (e2_ecaliso/e2Et<0.07) 
 	&& (e2_hcaliso/e2Et<0.1) && (e2_SigmaIetaIeta<0.01) && (fabs(e2_DeltaPhiIn)<0.06) 
 	&& (fabs(e2_DeltaEtaIn)<0.004) && (e2_HoverE<0.04);
+      ise2WP70      = (e2_missingHits==0) && (fabs(e2_dist)>0.02 || fabs(e2_dcot)>0.02) 
+	&& (e2_trackiso/e2Et<0.05) && (e2_ecaliso/e2Et<0.06) 
+	&& (e2_hcaliso/e2Et<0.03) && (e2_SigmaIetaIeta<0.01) && (fabs(e2_DeltaPhiIn)<0.03) 
+	&& (fabs(e2_DeltaEtaIn)<0.004) && (e2_HoverE<0.025);
     }
     if( ele2->isEE() ) {
       ise2WP95      = (e2_missingHits<=1) && (e2_trackiso/e2Et<0.08) && (e2_ecaliso/e2Et<0.06) 
@@ -589,6 +602,10 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
 	&& (e2_trackiso/e2Et<0.08) && (e2_ecaliso/e2Et<0.06) 
 	&& (e2_hcaliso/e2Et<0.05) && (e2_SigmaIetaIeta<0.03) && (fabs(e2_DeltaPhiIn)<0.7) 
 	&& (fabs(e2_DeltaEtaIn)<0.01) && (e2_HoverE<0.07);
+      ise2WP70      = (e2_missingHits==0)  && (fabs(e2_dist)>0.02 || fabs(e2_dcot)>0.02)  
+	&& (e2_trackiso/e2Et<0.025) && (e2_ecaliso/e2Et<0.025) 
+	&& (e2_hcaliso/e2Et<0.02) && (e2_SigmaIetaIeta<0.03) && (fabs(e2_DeltaPhiIn)<0.02) 
+	&& (fabs(e2_DeltaEtaIn)<0.005) && (e2_HoverE<0.025);
     }
   } 
 

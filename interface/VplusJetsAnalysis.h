@@ -69,6 +69,7 @@ namespace ewk
     std::string VBosonType_;
     std::string LeptonType_;
     edm::InputTag mInputBoson;
+    edm::InputTag mPrimaryVertex;
 
 
     /// The objects that actually computes variables and fill the tree 
@@ -90,9 +91,9 @@ namespace ewk
     int bunch; 
     int nPV; 
     int mNVB;
-    float mPVx[20];
-    float mPVy[20];
-    float mPVz[20];
+    float mPVx[30];
+    float mPVy[30];
+    float mPVz[30];
     float mBSx;
     float mBSy;
     float mBSz;
@@ -108,6 +109,8 @@ namespace ewk
     float mpfSumET;
     float mpfMETSign;
     float mpfMETPhi;
+    float fastJetRho;
+    float lepIsoRho;
   };
 }
 #endif

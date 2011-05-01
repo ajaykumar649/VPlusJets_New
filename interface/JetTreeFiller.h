@@ -80,6 +80,8 @@ namespace ewk {
 
     TTree* tree_;
     std::string jetType_;
+    std::string Vtype_;
+    std::string LeptonType_;
     edm::InputTag mInputJets;
     edm::InputTag mInputBoson;
     edm::InputTag sourceByValue;
@@ -105,7 +107,8 @@ namespace ewk {
     float phiphiMoment[NUM_JET_MAX];      
     float etaphiMoment[NUM_JET_MAX];      
     float maxDistance[NUM_JET_MAX];
-    float nConstituents[NUM_JET_MAX];
+    int   nConstituents[NUM_JET_MAX];
+    float Area[NUM_JET_MAX];
 
     float Px[NUM_JET_MAX];
     float Py[NUM_JET_MAX];
@@ -186,6 +189,17 @@ namespace ewk {
     float c4jMass;
     float c5jMass;
     float c6jMass;
+
+    float V2jCosJacksonAngle;
+    float c2jCosJacksonAngle;
+    float V3jCosJacksonAngle;
+    float c3jCosJacksonAngle12;
+    float c3jCosJacksonAngle23;
+    float c3jCosJacksonAngle31;
+
+    float cosphiDecayPlane; 
+    float cosThetaLnu; 
+    float cosThetaJJ;
   };
 
 } //namespace

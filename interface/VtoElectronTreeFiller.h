@@ -102,8 +102,10 @@ namespace ewk {
 
     bool ise1WP95;
     bool ise1WP80;
+    bool ise1WP70;
     bool ise2WP95;
     bool ise2WP80;
+    bool ise2WP70;
 
     float e1px;
     float e1py;

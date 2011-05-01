@@ -12,15 +12,15 @@ ConfigFile = "WenuJetsAnalysis_cfg.py"
 channels  = ["Prompt-V1",
             "Prompt-V2"]
 
-dataset  = ["/SingleElectron/Run2011A-PromptReco-v1/AOD",
+dataset  = ["/SingleElectron/Run2011A-Apr22ReReco-v3/AOD",
            "/SingleElectron/Run2011A-PromptReco-v2/AOD"
             ]
 
+   
+RunRange = ["160329-163334", "163335-163759"]
 
-RunRange = "160404-162917"
-
-JSON = "Cert_160404-162917_7TeV_PromptReco_Collisions11_JSON_merged.txt"
-condor  = [1,0]
+JSON = "json_DCSONLY.txt_160404-163759"
+condor  = [1,1]
 MyResilientArea = "/kalanand/" + physMode +"Data2011"
 
 
@@ -48,7 +48,7 @@ def changeCrabTemplateFile(outfile, index):
         if  line.find("mydataset")!=-1:
             line=line.replace("mydataset",dataset[index])
             fout.write("\n")
-            fout.write("runselection="+RunRange+"\n")
+            fout.write("runselection="+RunRange[index]+"\n")
             fout.write("lumi_mask="+JSON+"\n")
         if line.find("myanalysis")!=-1:
             line=line.replace("myanalysis",pset_cfg)    

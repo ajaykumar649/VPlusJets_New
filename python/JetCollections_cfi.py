@@ -11,31 +11,10 @@ else:
     print "Nope"
 print "##############################################################"
 
-################# Good Electrons 
-goodElectrons = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag("gsfElectrons"),
-    cut = cms.string("(abs(superCluster.eta)<2.5) && et>20"
-                     " && !(1.4442<abs(superCluster.eta)<1.566)"
-                     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits ==0)"
-                     " && (dr03TkSumPt + max(0., dr03EcalRecHitSumEt - 1.) + dr03HcalTowerSumEt)/(p4.Pt) < 0.2 )"
-                     " && ((isEB"
-                     " && ( (sigmaIetaIeta<0.01)"
-                     " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
-                     " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-                     ")"
-                     " || (isEE"
-                     " && ( (sigmaIetaIeta<0.03)"
-                     " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )"
-                     " && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
-                     "))"
-                     )    
-)
-################# Good Muons
-goodMuons = cms.EDFilter("MuonRefSelector",
-    src = cms.InputTag("muons"),                               
-    cut = cms.string("isGlobalMuon && isTrackerMuon && pt>20 && abs(eta)<2.4"
-    " && abs(innerTrack().dxy)<1.0 && (isolationR03().sumPt)/(p4.Pt)<0.2")        
-)
+from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseElectrons
+from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseMuons
+
+##########################################################################
 ##################### Clean CaloJets
 ic5CaloJetsClean = cms.EDProducer("CaloJetCleaner",
     srcJets = cms.InputTag("iterativeCone5CaloJets"),
@@ -43,7 +22,7 @@ ic5CaloJetsClean = cms.EDProducer("CaloJetCleaner",
     idLevel = cms.int32(0),
     etaMax  =  cms.double(-2.4),
     ptMin   =  cms.double(0.0),                    
-    srcObjects = cms.VInputTag(cms.InputTag("goodElectrons"),cms.InputTag("goodMuons")),
+    srcObjects = cms.VInputTag(cms.InputTag("looseElectrons"),cms.InputTag("looseMuons")),
     deltaRMin = cms.double(0.3)
 )
 kt4CaloJetsClean = ic5CaloJetsClean.clone()
@@ -55,8 +34,8 @@ kt6CaloJetsClean.srcJets = cms.InputTag("kt6CaloJets")
 ak5CaloJetsClean = ic5CaloJetsClean.clone()
 ak5CaloJetsClean.srcJets = cms.InputTag("ak5CaloJets")
 ############################################
-CaloJetPath = cms.Sequence(goodElectrons +
-                           goodMuons +
+CaloJetPath = cms.Sequence(looseElectrons +
+                           looseMuons +
 ##                            ic5CaloJetsClean +
 ##                            kt4CaloJetsClean +
                            ak5CaloJetsClean)
@@ -96,8 +75,8 @@ ak5CaloJetsCorClean = ic5CaloJetsCorClean.clone()
 ak5CaloJetsCorClean.src = cms.InputTag("ak5CaloJetsCor")
 ##########################################
 CorJetPath = cms.Sequence(
-    goodElectrons +
-    goodMuons +
+    looseElectrons +
+    looseMuons +
 ##     ic5CaloJetsL2L3 +    
 ##     ic5CaloJetsL2L3Residual +
 ##     ic5CaloJetsClean +
@@ -117,7 +96,6 @@ CorJetPath = cms.Sequence(
 if mcFlag:
     CorJetPath.remove (ak5CaloJetsL2L3Residual )
 ##########################################################################
-##########################################################################
 ##################### Clean PFJets
 ic5PFJetsClean = cms.EDProducer("PFJetCleaner",
     srcJets = cms.InputTag("iterativeCone5PFJets"),
@@ -125,7 +103,7 @@ ic5PFJetsClean = cms.EDProducer("PFJetCleaner",
     idLevel = cms.int32(1),
     etaMax  =  cms.double(2.4),
     ptMin   =  cms.double(0.0),                                 
-    srcObjects = cms.VInputTag(cms.InputTag("goodElectrons"),cms.InputTag("goodMuons")),
+    srcObjects = cms.VInputTag(cms.InputTag("looseElectrons"),cms.InputTag("looseMuons")),
     deltaRMin = cms.double(0.3)
 )
 kt4PFJetsClean = ic5PFJetsClean.clone()
@@ -134,32 +112,63 @@ kt4PFJetsClean.srcJets = cms.InputTag("kt4PFJets")
 kt6PFJetsClean = ic5PFJetsClean.clone()
 kt6PFJetsClean.srcJets = cms.InputTag("kt6PFJets")
 
+
+##-------------------- Import the Jet RECO modules -----------------------
+##-------------------- Turn-on the FastJet density calculation -----------------------
+from RecoJets.JetProducers.kt4PFJets_cfi import *
+kt6PFJets = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+kt6PFJets.Rho_EtaMax = cms.double(4.5)
+
+# to compute FastJet rho to correct isolation (note: EtaMax restricted to 2.5)
+kt6PFJetsForIsolation = kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+kt6PFJetsForIsolation.Rho_EtaMax = cms.double(2.5)
+
+##--------- Turn-on the FastJet jet area calculation for your favorite algorithm ----
+from RecoJets.JetProducers.ak5PFJets_cfi import *
+ak5PFJets.Rho_EtaMax = cms.double(4.5)
+ak5PFJets.doAreaFastjet = True
+##########################################################################
+##-------- Remove electrons and muons from jet collection ----------------------
+
 ak5PFJetsClean = ic5PFJetsClean.clone()
 ak5PFJetsClean.srcJets = cms.InputTag("ak5PFJets")
 
+##-------- Apply JetId ----------------------
 ak5PFJetsLooseId = cms.EDFilter("PFJetSelector",
     src     = cms.InputTag( "ak5PFJetsClean" ),                                     
-    cut = cms.string("neutralHadronEnergyFraction<0.99 && neutralEmEnergyFraction<0.99 && chargedMultiplicity>0 && nConstituents>1 && chargedHadronEnergyFraction>0.0 && chargedEmEnergyFraction<0.99")
+    cut = cms.string(
+    "neutralHadronEnergyFraction<0.99"
+    " && neutralEmEnergyFraction<0.99"
+    " && chargedMultiplicity>0"
+    " && nConstituents>1"
+    " && chargedHadronEnergyFraction>0.0"
+    " && chargedEmEnergyFraction<0.99"
+    )
 )
 ############################################
 PFJetPath = cms.Sequence(
-    goodElectrons +
-    goodMuons +
+    looseElectrons +
+    looseMuons +
 ##     ic5PFJetsClean +
 ##     kt4PFJetsClean +
-    ak5PFJetsClean + ak5PFJetsLooseId
+    kt6PFJets +
+    kt6PFJetsForIsolation +
+    ak5PFJets +
+    ak5PFJetsClean +
+    ak5PFJetsLooseId 
     )
 ##################### Corrected PFJets
-if mcFlag:
-    ic5PFJetsCor = ic5PFJetsL1FastL2L3.clone()
-    kt4PFJetsCor = kt4PFJetsL1FastL2L3.clone()
-    kt6PFJetsCor = kt6PFJetsL1FastL2L3.clone()
-    ak5PFJetsCor = ak5PFJetsL1FastL2L3.clone()
-else:
-    ic5PFJetsCor = ic5PFJetsL1FastL2L3Residual.clone()
-    kt4PFJetsCor = kt4PFJetsL1FastL2L3Residual.clone()
-    kt6PFJetsCor = kt6PFJetsL1FastL2L3Residual.clone()
-    ak5PFJetsCor = ak5PFJetsL1FastL2L3Residual.clone()
+ak5PFL1Fastjet.srcRho = cms.InputTag('kt6PFJets', 'rho')
+#if mcFlag:
+ic5PFJetsCor = ic5PFJetsL1FastL2L3.clone()
+kt4PFJetsCor = kt4PFJetsL1FastL2L3.clone()
+kt6PFJetsCor = kt6PFJetsL1FastL2L3.clone()
+ak5PFJetsCor = ak5PFJetsL1FastL2L3.clone()
+## else:
+##     ic5PFJetsCor = ic5PFJetsL1FastL2L3Residual.clone()
+##     kt4PFJetsCor = kt4PFJetsL1FastL2L3Residual.clone()
+##     kt6PFJetsCor = kt6PFJetsL1FastL2L3Residual.clone()
+##     ak5PFJetsCor = ak5PFJetsL1FastL2L3Residual.clone()
     
 
 ic5PFJetsCor.src = "ic5PFJetsClean"
@@ -179,9 +188,17 @@ ak5PFJetsCor.src = "ak5PFJetsLooseId"
 ak5PFJetsCorClean = ic5PFJetsCorClean.clone()
 ak5PFJetsCorClean.src = cms.InputTag("ak5PFJetsCor")
 ##########################################
+## Filter to require at least two jets in the event
+RequireTwoJets = cms.EDFilter("PATCandViewCountFilter",
+    minNumber = cms.uint32(2),
+    maxNumber = cms.uint32(100),
+    src = cms.InputTag("ak5PFJetsCorClean"),                      
+)
+
 CorPFJetPath = cms.Sequence(
-    goodElectrons +
-    goodMuons +
+    looseElectrons +
+    looseMuons + 
+    ak5PFJetsClean +
 ##     ic5PFJetsL2L3 +    
 ##     ic5PFJetsL2L3Residual +
 ##     ic5PFJetsClean +
@@ -191,15 +208,16 @@ CorPFJetPath = cms.Sequence(
 ##     kt4PFJetsL2L3Residual +
 ##     kt4PFJetsClean +
 ##     kt4PFJetsCor +
-##     kt4PFJetsCorClean +    
+##     kt4PFJetsCorClean +
+    ak5PFJetsL2L3 +
     ak5PFJetsL1FastL2L3 +    
-    ak5PFJetsL1FastL2L3Residual +
-    ak5PFJetsClean +
+##     ak5PFJetsL1FastL2L3Residual +
     ak5PFJetsCor +
-    ak5PFJetsCorClean
+    ak5PFJetsCorClean +
+    RequireTwoJets
     )
-if mcFlag:
-    CorPFJetPath.remove( ak5PFJetsL1FastL2L3Residual )
+## if mcFlag:
+##     CorPFJetPath.remove( ak5PFJetsL1FastL2L3Residual )
 ##########################################################################
 ##########################################################################
 ##################### Cleaned JPTJets
@@ -210,7 +228,7 @@ ak5JPTJetsClean = cms.EDProducer("JPTJetCleaner",
     idLevel = cms.int32(0),
     etaMax  =  cms.double(2.4),
     ptMin   =  cms.double(0.0),
-    srcObjects = cms.VInputTag(cms.InputTag("goodElectrons"),cms.InputTag("goodMuons")),
+    srcObjects = cms.VInputTag(cms.InputTag("looseElectrons"),cms.InputTag("looseMuons")),
     deltaRMin = cms.double(0.3)
 )
 ##################### Corrected JPTJets
@@ -227,8 +245,8 @@ ak5JPTJetsCorClean = cms.EDFilter("JPTJetSelector",
 )
 ##########################################
 JPTJetPath = cms.Sequence(
-    goodElectrons +
-    goodMuons +
+    looseElectrons +
+    looseMuons +
     ak5JPTJetsClean +
     ak5JPTJetsL2L3 +
     ak5JPTJetsL2L3Residual +

@@ -69,6 +69,9 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
     mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
   LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
   VBosonType_ = iConfig.getParameter<std::string>("VBosonType");
+  if(  iConfig.existsAs<edm::InputTag>("srcPrimaryVertex") )
+    mPrimaryVertex = iConfig.getParameter<edm::InputTag>("srcPrimaryVertex"); 
+  else mPrimaryVertex =  edm::InputTag("offlinePrimaryVertices");
 }
 
  
@@ -105,10 +108,10 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
   // primary/secondary vertices
   edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel("offlinePrimaryVertices",recVtxs);
+  iEvent.getByLabel( mPrimaryVertex, recVtxs);
   for(unsigned int ind=0;ind<recVtxs->size();ind++) 
     {
-      if(nPV>100) continue;
+      if(nPV>30) continue;
 	mPVx[ind] =   -10000.0;
 	mPVy[ind] =   -10000.0;
 	mPVz[ind] =   -10000.0;
@@ -183,6 +186,22 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   }
 
 
+  /////// Pileup density "rho" in the event from fastJet pileup calculation /////
+  edm::Handle<double> rho;
+  const edm::InputTag eventrho("kt6PFJets", "rho");
+  iEvent.getByLabel(eventrho,rho);
+  if( *rho == *rho) fastJetRho = *rho;
+  else  fastJetRho =  -999999.9;
+
+
+
+  /////// Pileup density "rho" for lepton isolation subtraction /////
+  edm::Handle<double> rhoLepIso;
+  const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
+  iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
+  if( *rhoLepIso == *rhoLepIso) lepIsoRho = *rhoLepIso;
+  else  lepIsoRho =  -999999.9;
+
 
 
 
@@ -207,7 +226,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if(mNVB==2) recoBosonFillerE->fill(iEvent, 1);
 
   recoBosonFillerMu->fill(iEvent);
-  
+
 
   /**  Store generated vector boson information */
   if(genBosonFiller.get()) genBosonFiller->fill(iEvent);
@@ -243,9 +262,9 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_lumi",   &lumi,  "event_lumi/I"); 
   myTree->Branch("event_bunch",  &bunch, "event_bunch/I"); 
   myTree->Branch("event_nPV",    &nPV,   "event_nPV/I"); 
-  myTree->Branch("event_PVx",    mPVx,   "event_PVx[100]/F"); 
-  myTree->Branch("event_PVy",    mPVy,   "event_PVy[100]/F"); 
-  myTree->Branch("event_PVz",    mPVz,   "event_PVz[100]/F"); 
+  myTree->Branch("event_PVx",    mPVx,   "event_PVx[30]/F"); 
+  myTree->Branch("event_PVy",    mPVy,   "event_PVy[30]/F"); 
+  myTree->Branch("event_PVz",    mPVz,   "event_PVz[30]/F"); 
   myTree->Branch("event_met_calomet",    &mMET,  "event_met_calomet/F"); 
   myTree->Branch("event_met_calosumet",  &mSumET,"event_met_calosumet/F"); 
   myTree->Branch("event_met_calometsignificance", &mMETSign,  "event_met_calometsignificance/F"); 
@@ -258,10 +277,12 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_met_pfsumet",  &mpfSumET,"event_met_pfsumet/F"); 
   myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
   myTree->Branch("event_met_pfmetPhi",    &mpfMETPhi,  "event_met_pfmetPhi/F"); 
+  myTree->Branch("event_fastJetRho",      &fastJetRho, "event_fastJetRho/F"); 
+  myTree->Branch("event_RhoForLeptonIsolation",  &lepIsoRho, "event_RhoForLeptonIsolation/F"); 
   myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"event_BeamSpot_x/F");
   myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"event_BeamSpot_y/F");
   myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"event_BeamSpot_z/F");
-  myTree->Branch(("num"+VBosonType_).c_str(),&mNVB              ,("num"+VBosonType_+"/I").c_str());
+  myTree->Branch(("num"+VBosonType_).c_str(),&mNVB ,("num"+VBosonType_+"/I").c_str());
 }  
 
 

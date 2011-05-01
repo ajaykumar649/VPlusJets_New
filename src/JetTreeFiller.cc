@@ -26,6 +26,7 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "TMath.h" 
+#include <TLorentzVector.h>
 #include "JetMETCorrections/MCJet/plugins/JetUtilMC.h" // needed for dPhi,dR
 
 // Monte Carlo stuff
@@ -39,6 +40,8 @@
 
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/JetTreeFiller.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/AngularVars.h"
 
 
 ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree, 
@@ -85,6 +88,10 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
   tree_     = tree;
   jetType_ = jetType;
 
+  Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
+  LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
+
+
   if( !(tree==0) ) SetBranches();
 }
 
@@ -122,6 +129,8 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( maxDistance, "Jet" + jetType_ + "_maxDistance");
   /// # of constituents
   SetBranch( nConstituents, "Jet" + jetType_ + "_nConstituents");
+  /// Area of the jet
+  SetBranch( Area, "Jet" + jetType_ + "_Area");
 
   SetBranch( VjetMass, "Vplus" + jetType_ + "Jet_Mass");
   SetBranch( Dphi, "Jet" + jetType_ + "_dphiBoson");
@@ -235,6 +244,16 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( &c4jMass, "Mass4j_" + jetType_);
   SetBranch( &c5jMass, "Mass5j_" + jetType_);
   SetBranch( &c6jMass, "Mass6j_" + jetType_);
+
+  SetBranch( &V2jCosJacksonAngle, "cosJacksonAngleV2j_" + jetType_);
+  SetBranch( &c2jCosJacksonAngle, "cosJacksonAngle2j_" + jetType_);
+  SetBranch( &V3jCosJacksonAngle, "cosJacksonAngleV3j_" + jetType_);
+  SetBranch( &c3jCosJacksonAngle12, "cosJacksonAngle3j12_" + jetType_);
+  SetBranch( &c3jCosJacksonAngle23, "cosJacksonAngle3j23_" + jetType_);
+  SetBranch( &c3jCosJacksonAngle31, "cosJacksonAngle3j31_" + jetType_);
+  SetBranch( &cosphiDecayPlane, "cosphiDecayPlane_" + jetType_); 
+  SetBranch( &cosThetaLnu, "cosThetaLnu_" + jetType_); 
+  SetBranch( &cosThetaJJ, "cosThetaJJ_" + jetType_);
 }
 
 
@@ -296,12 +315,14 @@ void ewk::JetTreeFiller::init()
       phiphiMoment[j]  = -10.0;      
       etaphiMoment[j]  = -10.0;      
       maxDistance[j]  = -10.0;
-      nConstituents[j]  = 10;
+      nConstituents[j]  = -1;
       Px[j] = -999999.9;
       Py[j] = -999999.9;
       Pz[j] = -999999.9;
       Flavor[j] = -1;
       Mass[j] = -1.0;
+      Area[j] = -10.;
+
       MaxEInEmTowers[j] = -1.0;
       MaxEInHadTowers[j] = -1.0;
       EnergyFractionHadronic[j] = -1.0;
@@ -378,6 +399,17 @@ void ewk::JetTreeFiller::init()
    c4jMass = -1.0;
    c5jMass = -1.0;
    c6jMass = -1.0;
+
+   V2jCosJacksonAngle = -10.0;
+   c2jCosJacksonAngle = -10.0;
+   V3jCosJacksonAngle = -10.0;
+   c3jCosJacksonAngle12 = -10.0;
+   c3jCosJacksonAngle23 = -10.0;
+   c3jCosJacksonAngle31 = -10.0;
+
+   cosphiDecayPlane = 10.0; 
+   cosThetaLnu = 10.0; 
+   cosThetaJJ = 10.0;
 }
 
 
@@ -417,8 +449,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   
    edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos;
    iEvent.getByLabel("secondaryVertexTagInfos", svTagInfos);
-  
-  
+
    size_t iJet = 0;
    double dist = 100000.0;
    NumJets = 0;
@@ -445,6 +476,8 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       E[iJet]  = (*jet).energy();
       Y[iJet]  = (*jet).rapidity();
       Mass[iJet] = (*jet).mass();
+      Area[iJet] = (*jet).jetArea();
+
       etaetaMoment[iJet]  = (*jet).etaetaMoment();  
       phiphiMoment[iJet]  = (*jet).phiphiMoment();      
       etaphiMoment[iJet]  = (*jet).etaphiMoment();      
@@ -612,7 +645,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       }// close PF jets loop
    }// close jets iteration loop
 
-   NumJets = iJet;
+   NumJets = (int) iJet;
 
 
 
@@ -631,22 +664,48 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c5j;
    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c6j;
 
+
+   // 4-vectors for the first four jets
+   TLorentzVector p4j1;
+   TLorentzVector p4j2;
+   TLorentzVector p4j3;
+   TLorentzVector p4j4;
+   TLorentzVector p4V ( Vboson->px(), Vboson->py(), Vboson->pz(), Vboson->energy() );
+
+
+
    if( NumJets>1 ) { 
+     p4j1.SetPxPyPzE( Px[0], Py[0], Pz[0], E[0] );
+     p4j2.SetPxPyPzE( Px[1], Py[1], Pz[1], E[1] );
+
      V2j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4();
      V2jMass =  V2j.M();
+     TLorentzVector tempp4( V2j.px(), V2j.py(), V2j.pz(), V2j.energy() );
+     V2jCosJacksonAngle = JacksonAngle( p4V, tempp4);
      c2j =  (*jets)[0].p4() + (*jets)[1].p4();
      c2jMass =  c2j.M();
+
+     c2jCosJacksonAngle = JacksonAngle( p4j1, p4j2);
    }
 
    if( NumJets>2 ) {
+     p4j3.SetPxPyPzE( Px[2], Py[2], Pz[2], E[2] );
+
      V3j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
      (*jets)[2].p4();
      V3jMass =  V3j.M();
+     TLorentzVector tempp4( V3j.px(), V3j.py(), V3j.pz(), V3j.energy() );
+     V3jCosJacksonAngle = JacksonAngle( p4V, tempp4);
      c3j =  (*jets)[0].p4() + (*jets)[1].p4() + (*jets)[2].p4();
      c3jMass =  c3j.M();
+     c3jCosJacksonAngle12 = JacksonAngle( p4j1,  p4j2 );
+     c3jCosJacksonAngle23 = JacksonAngle( p4j2,  p4j3 );
+     c3jCosJacksonAngle31 = JacksonAngle( p4j3,  p4j1 );
    }
 
    if( NumJets>3 ) { 
+     p4j4.SetPxPyPzE( Px[3], Py[3], Pz[3], E[3] );
+
      V4j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
        (*jets)[2].p4() + (*jets)[3].p4();
      V4jMass =  V4j.M();
@@ -672,6 +731,52 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
      (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4() + (*jets)[5].p4();
      c6jMass =  c6j.M();
    }
+
+
+   // get the two daughters of vector boson
+   const reco::Candidate* m0 = Vboson->daughter(0);
+   const reco::Candidate* m1 = Vboson->daughter(1);
+
+   TLorentzVector p4lepton1;
+   TLorentzVector p4lepton2;
+   TLorentzVector p4MET;
+   TLorentzVector p4lepton;
+   METzCalculator* metz = new METzCalculator();
+   if (LeptonType_=="electron") metz->SetLeptonType("electron");
+   double nupz;
+
+
+   // Compute pz if one of the lepton is neutrino
+   if( m0->isElectron() || m0->isMuon() ) 
+     p4lepton1.SetPxPyPzE(m0->px(), m0->py(), m0->pz(), m0->energy());
+   else {
+     p4MET.SetPxPyPzE((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+     p4lepton.SetPxPyPzE(m1->px(), m1->py(), m1->pz(), m1->energy());
+     metz->SetMET(p4MET);
+     metz->SetLepton(p4lepton);
+     nupz = metz->Calculate();
+     p4lepton1.SetPxPyPzE( m0->px(), m0->py(), nupz, m0->energy() );
+   }
+
+   if( m1->isElectron() || m1->isMuon() ) 
+     p4lepton2.SetPxPyPzE(m1->px(), m1->py(), m1->pz(), m1->energy());
+   else {
+     p4MET.SetPxPyPzE((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+     p4lepton.SetPxPyPzE(m0->px(), m0->py(), m0->pz(), m0->energy());
+     metz->SetMET(p4MET);
+     metz->SetLepton(p4lepton);
+     nupz = metz->Calculate();
+     p4lepton2.SetPxPyPzE( m1->px(), m1->py(), nupz, m1->energy() );
+   }
+
+   delete metz;
+
+   // Angle between the decay planes of two W
+   float cosphiDecayPlane, cosThetaLnu, cosThetaJJ; 
+   if( NumJets>1 )
+     dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, p4j1, p4j2, cosphiDecayPlane, cosThetaLnu, cosThetaJJ);
+ 
+ 
 
    //FillBranches();
 }

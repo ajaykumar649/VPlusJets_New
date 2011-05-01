@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #WP80 electrons, only track iso, remove H/E cut
-
-process.tightElectrons = cms.EDFilter("GsfElectronRefSelector",
+tightElectrons = cms.EDFilter("GsfElectronRefSelector",
     src = cms.InputTag( "gsfElectrons" ),
     cut = cms.string(
     "(ecalDrivenSeed==1) && (abs(superCluster.eta)<2.5)"
@@ -84,12 +83,17 @@ looseElectronFilter = cms.EDFilter("PATCandViewCountFilter",
 
 ##  Define loose muon selection for veto ######
 looseMuons = cms.EDFilter("MuonRefSelector",
-    src = cms.InputTag("muons"),                               
-    cut = cms.string("isGlobalMuon && isTrackerMuon && abs(eta)<2.4"
-    " && abs(innerTrack().dxy)<1.0 && (isolationR03().sumPt)/(p4.Pt)<0.2")        
+    src = cms.InputTag("muons"),
+    cut = cms.string("pt>20 && isGlobalMuon && isTrackerMuon && abs(eta)<2.4"
+                     " && globalTrack().normalizedChi2<10"
+                     " && globalTrack().hitPattern().numberOfValidTrackerHits>10"
+                     " && globalTrack().hitPattern().numberOfValidMuonHits>0"
+                     " && globalTrack().hitPattern().numberOfValidPixelHits>0"
+                     " && numberOfMatches>1"
+                     " && (isolationR03().sumPt)/(p4.Pt)< 0.3")     
 )
 
-muonFilter cms.EDFilter("PATCandViewCountFilter",
+looseMuonFilter = cms.EDFilter("PATCandViewCountFilter",
     minNumber = cms.uint32(0),
     maxNumber = cms.uint32(0),
     src = cms.InputTag("looseMuons")                     
@@ -104,7 +108,7 @@ WSequence = cms.Sequence(tightElectrons *
 VetoSequence = cms.Sequence( looseElectrons *
                              looseElectronFilter *
                              looseMuons *
-                             muonFilter
+                             looseMuonFilter
                              )
 
 WPath = cms.Sequence(WSequence*VetoSequence)
