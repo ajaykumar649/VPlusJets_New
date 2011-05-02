@@ -3,8 +3,35 @@ import string, re
 from time import gmtime, localtime, strftime
 
 
-physMode = "VH_"
-ConfigFile = "WenuJetsAnalysis_cfg.py"
+##------ Please set ONLY one of the four flags to True -------
+runningOverWENU = True
+runningOverWMUNU = False
+runningOverZEE = False
+runningOverZMUMU = False
+
+
+physMode = "WmunuJets_"
+ConfigFile = "WmunuJetsAnalysis_cfg.py"
+
+## ------------------------------------------
+if runningOverWMUNU:
+    physMode = "WmunuJets_"
+    ConfigFile = "WmunuJetsAnalysis_cfg.py"
+
+
+if runningOverZMUMU: 
+    physMode = "ZmumuJets_"
+    ConfigFile = "ZmumuJetsAnalysis_cfg.py"
+
+if runningOverWENU:   
+    physMode = "WenuJets_"
+    ConfigFile = "WenuJetsAnalysis_cfg.py"
+
+if runningOverZEE: 
+    physMode = "ZeeJets_"
+    ConfigFile = "ZeeJetsAnalysis_cfg.py"
+ ## ------------------------------------------   
+
 
 
 channels  = [
@@ -12,62 +39,51 @@ channels  = [
     "WWtoAnything",
     "WZtoAnything",    
     "TTToLNu2Q2B",            
-    "WH_WToLNu_HToBB_M-115",
-    "WH_WToLNu_HToBB_M-120",
-    "WH_WToLNu_HToBB_M-125", 
-    "WH_WToLNu_HToBB_M-130",
-    "WH_WToLNu_HToBB_M-135",
-##             "WH_ZH_TTH_HToZZTo2L2Q_M-140",
-##             "WH_ZH_TTH_HToZZTo2L2Q_M-150",
-##             "WH_ZH_TTH_HToZZTo2L2Q_M-160",
-##             "WH_ZH_TTH_HToZZTo2L2Q_M-170",
-##             "WH_ZH_TTH_HToZZTo2L2Q_M-180",
-##             "WH_ZH_TTH_HToZZTo2L2Q_M-190",
-##             "WH_ZH_TTH_HToWW_M-120",
-##             "WH_ZH_TTH_HToWW_M-130",
-##             "WH_ZH_TTH_HToWW_M-140",
-##             "WH_ZH_TTH_HToWW_M-150",
-##             "WH_ZH_TTH_HToWW_M-160",
-##             "WH_ZH_TTH_HToWW_M-170",
-##             "WH_ZH_TTH_HToWW_M-180",
-##             "WH_ZH_TTH_HToWW_M-190",
+    "WWToLNuQQ_M-120",
+    "WWToLNuQQ_M-130",
+    "WWToLNuQQ_M-140", 
+    "WWToLNuQQ_M-150",
+    "WWToLNuQQ_M-160",
+    "WWToLNuQQ_M-170",
+    "WWToLNuQQ_M-180",
+    "WWToLNuQQ_M-190",
+    "WWToLNuQQ_M-200",
+    "WWToLNuQQ_M-250",    
+    "WWToLNuQQ_M-300",
+    "WWToLNuQQ_M-350",
+    "WWToLNuQQ_M-400",
+    "WWToLNuQQ_M-450",
+    "WWToLNuQQ_M-500",
+    "WWToLNuQQ_M-550",
+    "WWToLNuQQ_M-600"    
              ]
 
 dataset  = [
-    "/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Winter10-E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/AODSIM",
-    "/WWtoAnything_TuneZ2_7TeV-pythia6-tauola/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-    "/WZtoAnything_TuneZ2_7TeV-pythia6-tauola/Winter10-E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/AODSIM",    
-    #"/TTToLNu2Q2B_7TeV-powheg-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM"
-    "/TTToLNu2Q2B_7TeV-powheg-pythia6/Fall10-E7TeV_ProbDist_2010Data_BX156_START38_V12-v1/GEN-SIM-RECO",            
-    "/WH_WToLNu_HToBB_M-115_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-    "/WH_WToLNu_HToBB_M-120_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-    "/WH_WToLNu_HToBB_M-125_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM", 
-    "/WH_WToLNu_HToBB_M-130_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-    "/WH_WToLNu_HToBB_M-135_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-            
-##             "/ZH_ZToNuNu_HToBB_M-115_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM ",
-##             "/ZH_ZToNuNu_HToBB_M-120_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/ZH_ZToNuNu_HToBB_M-125_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/ZH_ZToNuNu_HToBB_M-130_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/ZH_ZToNuNu_HToBB_M-135_7TeV-powheg-herwigpp/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM", 
-##            "/WH_ZH_TTH_HToZZTo2L2Q_M-140_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##            "/WH_ZH_TTH_HToZZTo2L2Q_M-150_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##            "/WH_ZH_TTH_HToZZTo2L2Q_M-160_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##            "/WH_ZH_TTH_HToZZTo2L2Q_M-170_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##            "/WH_ZH_TTH_HToZZTo2L2Q_M-180_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##            "/WH_ZH_TTH_HToZZTo2L2Q_M-190_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-120_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-130_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-140_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-150_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-160_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-170_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-180_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
-##             "/WH_ZH_TTH_HToWW_M-190_7TeV-pythia6/Winter10-E7TeV_ProbDist_2010Data_BX156_START39_V8-v1/AODSIM",
+    "/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM",    
+    "/WWtoAnything_TuneZ2_7TeV-pythia6-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM",    
+    "/WZtoAnything_TuneZ2_7TeV-pythia6-tauola/Spring11-PU_S1_START311_V1G1-v1/AODSIM",    
+    "/TTToLNu2Q2B_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-120_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-130_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-140_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-150_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM ",   
+     "/GluGluToHToWWToLNuQQ_M-160_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-170_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-180_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-190_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",    
+     "/GluGluToHToWWToLNuQQ_M-200_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-250_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-300_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-350_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM ",   
+     "/GluGluToHToWWToLNuQQ_M-400_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-450_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",   
+     "/GluGluToHToWWToLNuQQ_M-500_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
+     "/GluGluToHToWWToLNuQQ_M-550_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",   
+     "/GluGluToHToWWToLNuQQ_M-600_7TeV-powheg-pythia6/Spring11-PU_S1_START311_V1G1-v1/AODSIM",
             ]
 
 
-condor  = [1,0,0,0,1,1,1,1,1]
+condor  = [1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 MyResilientArea = "/kalanand/" + physMode +"MC"
 
 

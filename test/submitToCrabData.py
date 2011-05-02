@@ -2,19 +2,54 @@ import os,sys
 import string, re
 from time import gmtime, localtime, strftime
 
-## physMode = "ZeeJets_"
-## ConfigFile = "ZeeJetsAnalysis_cfg.py"
+##------ Please set ONLY one of the four flags to True -------
+runningOverWENU = False
+runningOverWMUNU = True
+runningOverZEE = False
+runningOverZMUMU = False
 
-physMode = "WenuJets_"
-ConfigFile = "WenuJetsAnalysis_cfg.py"
 
+
+
+physMode = "WmunuJets_"
+ConfigFile = "WmunuJetsAnalysis_cfg.py"
+dataset  = ["/SingleMu/Run2011A-PromptReco-v1/AOD",
+           "/SingleMu/Run2011A-PromptReco-v2/AOD"
+            ]
+
+## ------------------------------------------
+if runningOverWMUNU:
+    physMode = "WmunuJets_"
+    ConfigFile = "WmunuJetsAnalysis_cfg.py"
+    dataset  = ["/SingleMu/Run2011A-PromptReco-v1/AOD",
+                "/SingleMu/Run2011A-PromptReco-v2/AOD"
+                ]
+
+
+if runningOverZMUMU: 
+    physMode = "ZmumuJets_"
+    ConfigFile = "ZmumuJetsAnalysis_cfg.py"
+    dataset  = ["/SingleMu/Run2011A-PromptReco-v1/AOD",
+                "/SingleMu/Run2011A-PromptReco-v2/AOD"
+                ]
+
+if runningOverWENU:   
+    physMode = "WenuJets_"
+    ConfigFile = "WenuJetsAnalysis_cfg.py"
+    dataset  = ["/SingleElectron/Run2011A-Apr22ReReco-v3/AOD",
+                "/SingleElectron/Run2011A-PromptReco-v2/AOD"
+                ]
+
+if runningOverZEE: 
+    physMode = "ZeeJets_"
+    ConfigFile = "ZeeJetsAnalysis_cfg.py"
+    dataset  = ["/SingleElectron/Run2011A-Apr22ReReco-v3/AOD",
+                "/SingleElectron/Run2011A-PromptReco-v2/AOD"
+                ]
+ ## ------------------------------------------   
 
 channels  = ["Prompt-V1",
             "Prompt-V2"]
-
-dataset  = ["/SingleElectron/Run2011A-Apr22ReReco-v3/AOD",
-           "/SingleElectron/Run2011A-PromptReco-v2/AOD"
-            ]
 
    
 RunRange = ["160329-163334", "163335-163759"]
@@ -29,9 +64,7 @@ def changeMainConfigFile(trigpath):
     pset_cfg      = "py_" + trigpath + ".py"
     outfile_root  = physMode + trigpath + ".root"
     fout = open(pset_cfg,"w")
-    for line in fin.readlines():
-        if  line.find("HLT_Ele17_SW_TightEleId_L1R")!=-1:
-            line=line.replace("HLT_Ele17_SW_TightEleId_L1R",trigpath)       
+    for line in fin.readlines(): 
         if  line.find("demo.root")!=-1:
             line=line.replace("demo.root",outfile_root)
         fout.write(line)
