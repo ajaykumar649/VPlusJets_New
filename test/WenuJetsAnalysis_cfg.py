@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = False
+isMC = True
 
 process = cms.Process("demo")
 
@@ -87,13 +87,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/90646AF9-F957-E011-B0DB-003048F118C4.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/749B54BD-E557-E011-AC27-000423D33970.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/5A366F5F-7959-E011-AB12-0030487C8E02.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/0EF76BBA-0858-E011-AE3A-003048F118C6.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/024D65F9-F957-E011-8C5D-003048F024FE.root',
+##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/90646AF9-F957-E011-B0DB-003048F118C4.root',
+##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/749B54BD-E557-E011-AC27-000423D33970.root',
+##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/5A366F5F-7959-E011-AB12-0030487C8E02.root',
+##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/0EF76BBA-0858-E011-AE3A-003048F118C6.root',
+##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/024D65F9-F957-E011-8C5D-003048F024FE.root',
 
-##        '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/FE9CF7A8-5A2D-E011-9775-0030486790B0.root',
+       '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/FE9CF7A8-5A2D-E011-9775-0030486790B0.root',
        
        ) )
 
@@ -133,8 +133,10 @@ process.myseq = cms.Sequence(
     process.TrackVtxPath * 
     process.HLTEle *
     process.WPath *
+    process.GenJetPath *
     process.impactParameterTagInfos * 
     process.secondaryVertexTagInfos *
+    process.TagJetPath *
     process.PFJetPath *
     process.CorPFJetPath
     )
@@ -153,10 +155,7 @@ else:
 ##process.myseq.remove ( process.RequireTwoJets)  
     
 
-process.p = cms.Path( process.myseq  *
-                      process.RequireTwoJets *
-                      process.VpusJets
-                      )
+process.p = cms.Path( process.myseq  * process.VpusJets )
 
 
 

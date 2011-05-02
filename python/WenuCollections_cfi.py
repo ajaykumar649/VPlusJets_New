@@ -36,14 +36,6 @@ WToEnu = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 
-
-WenuCounter = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(1),
-    maxNumber = cms.uint32(2),
-    src = cms.InputTag("WToEnu")                     
-)
-
-
 bestWToEnu =cms.EDFilter("LargestPtCandViewSelector",
     maxNumber = cms.uint32(10),
     src = cms.InputTag("WToEnu")                 
@@ -102,7 +94,6 @@ looseMuonFilter = cms.EDFilter("PATCandViewCountFilter",
 
 WSequence = cms.Sequence(tightElectrons *
                          WToEnu *
-                         WenuCounter *
                          bestWToEnu
                          )
 VetoSequence = cms.Sequence( looseElectrons *

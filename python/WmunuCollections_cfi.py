@@ -30,12 +30,6 @@ WToMunu = cms.EDProducer("CandViewShallowCloneCombiner",
 
 
 
-WmunuCounter = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(1),
-    maxNumber = cms.uint32(2),
-    src = cms.InputTag("WToMunu")                     
-)
-
 bestWmunu = cms.EDFilter("LargestPtCandViewSelector",
     maxNumber = cms.uint32(10),
     src = cms.InputTag("WToMunu")
@@ -58,7 +52,6 @@ muonFilter = cms.EDFilter("PATCandViewCountFilter",
 
 WSequence = cms.Sequence(tightMuons *
                          WToMunu *
-                         WmunuCounter *
                          bestWmunu
                          )
 

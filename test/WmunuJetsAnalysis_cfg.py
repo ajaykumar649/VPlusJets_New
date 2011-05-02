@@ -104,7 +104,7 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 ##-------- Muon events of interest --------
 process.HLTMu =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring("HLT_Mu15_vv*", "HLT_Mu24_v*"),
+     HLTPaths = cms.vstring("HLT_Mu15_v*", "HLT_Mu24_v*"),
      eventSetupPathsKey = cms.string(''),
      andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
      throw = cms.bool(False) # throw exception on unknown path names
@@ -133,8 +133,10 @@ process.myseq = cms.Sequence(
     process.TrackVtxPath * 
     process.HLTMu *
     process.WPath *
+    process.GenJetPath *
     process.impactParameterTagInfos * 
     process.secondaryVertexTagInfos *
+    process.TagJetPath *
     process.PFJetPath *
     process.CorPFJetPath
     )
@@ -142,7 +144,7 @@ process.myseq = cms.Sequence(
 
 if isMC:
     process.myseq.remove ( process.noscraping)
-    process.myseq.remove ( process.HLTEle)
+    process.myseq.remove ( process.HLTMu)
 else:
     process.myseq.remove ( process.genParticles)
     process.myseq.remove ( process.GenJetPath)
@@ -154,8 +156,5 @@ else:
     
 
 
-process.p = cms.Path( process.myseq  *
-                      process.RequireTwoJets *
-                      process.VpusJets
-                      )
+process.p = cms.Path( process.myseq  * process.VpusJets)
 
