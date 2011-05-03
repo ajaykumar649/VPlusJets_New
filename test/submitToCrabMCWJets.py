@@ -4,8 +4,8 @@ from time import gmtime, localtime, strftime
 
 
 ##------ Please set ONLY one of the four flags to True -------
-runningOverWENU = True
-runningOverWMUNU = False
+runningOverWENU = False
+runningOverWMUNU = True
 runningOverZEE = False
 runningOverZMUMU = False
 

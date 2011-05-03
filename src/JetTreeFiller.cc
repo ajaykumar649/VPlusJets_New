@@ -102,8 +102,8 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
 void ewk::JetTreeFiller::SetBranches()
 {
   // Declare jet branches
-  SetBranch( &NumJets, "num" + jetType_ + "Jets");
-  SetBranch( &numBTags, "num" + jetType_ + "JetBTags");
+  SetBranchSingle( &NumJets, "num" + jetType_ + "Jets");
+  SetBranchSingle( &numBTags, "num" + jetType_ + "JetBTags");
 
   if(doJetFlavorIdentification) 
      SetBranch( Flavor, "Jet" + jetType_ + "_Flavor");
@@ -234,26 +234,28 @@ void ewk::JetTreeFiller::SetBranches()
     SetBranch( PFHFEMMultiplicity, "Jet" + jetType_ + "_HFEMMultiplicity");
   }
   
-  SetBranch( &V2jMass, "MassV2j_" + jetType_);
-  SetBranch( &V3jMass, "MassV3j_" + jetType_);
-  SetBranch( &V4jMass, "MassV4j_" + jetType_);
-  SetBranch( &V5jMass, "MassV5j_" + jetType_);
-  SetBranch( &V6jMass, "MassV6j_" + jetType_);
-  SetBranch( &c2jMass, "Mass2j_" + jetType_);
-  SetBranch( &c3jMass, "Mass3j_" + jetType_);
-  SetBranch( &c4jMass, "Mass4j_" + jetType_);
-  SetBranch( &c5jMass, "Mass5j_" + jetType_);
-  SetBranch( &c6jMass, "Mass6j_" + jetType_);
+  SetBranchSingle( &V2jMass,  "MassV2j_" + jetType_);
+  SetBranchSingle( &V3jMass, "MassV3j_" + jetType_);
+  SetBranchSingle( &V4jMass, "MassV4j_" + jetType_);
+  SetBranchSingle( &V5jMass, "MassV5j_" + jetType_);
+  SetBranchSingle( &V6jMass, "MassV6j_" + jetType_);
+  SetBranchSingle( &c2jMass, "Mass2j_" + jetType_);
+  SetBranchSingle( &c3jMass, "Mass3j_" + jetType_);
+  SetBranchSingle( &c4jMass, "Mass4j_" + jetType_);
+  SetBranchSingle( &c5jMass, "Mass5j_" + jetType_);
+  SetBranchSingle( &c6jMass, "Mass6j_" + jetType_);
 
-  SetBranch( &V2jCosJacksonAngle, "cosJacksonAngleV2j_" + jetType_);
-  SetBranch( &c2jCosJacksonAngle, "cosJacksonAngle2j_" + jetType_);
-  SetBranch( &V3jCosJacksonAngle, "cosJacksonAngleV3j_" + jetType_);
-  SetBranch( &c3jCosJacksonAngle12, "cosJacksonAngle3j12_" + jetType_);
-  SetBranch( &c3jCosJacksonAngle23, "cosJacksonAngle3j23_" + jetType_);
-  SetBranch( &c3jCosJacksonAngle31, "cosJacksonAngle3j31_" + jetType_);
-  SetBranch( &cosphiDecayPlane, "cosphiDecayPlane_" + jetType_); 
-  SetBranch( &cosThetaLnu, "cosThetaLnu_" + jetType_); 
-  SetBranch( &cosThetaJJ, "cosThetaJJ_" + jetType_);
+
+  SetBranchSingle( &V2jCosJacksonAngle, "cosJacksonAngleV2j_" + jetType_);
+  SetBranchSingle( &c2jCosJacksonAngle, "cosJacksonAngle2j_" + jetType_);
+  SetBranchSingle( &V3jCosJacksonAngle, "cosJacksonAngleV3j_" + jetType_);
+  SetBranchSingle( &c3jCosJacksonAngle12, "cosJacksonAngle3j12_" + jetType_);
+  SetBranchSingle( &c3jCosJacksonAngle23, "cosJacksonAngle3j23_" + jetType_);
+  SetBranchSingle( &c3jCosJacksonAngle31, "cosJacksonAngle3j31_" + jetType_);
+  SetBranchSingle( &cosphiDecayPlane, "cosphiDecayPlane_" + jetType_); 
+  SetBranchSingle( &cosThetaLnu, "cosThetaLnu_" + jetType_); 
+  SetBranchSingle( &cosThetaJJ, "cosThetaJJ_" + jetType_);
+
 }
 
 
@@ -261,6 +263,20 @@ void ewk::JetTreeFiller::SetBranches()
 /////// Helper for above function ////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
+
+void ewk::JetTreeFiller::SetBranchSingle( float* x, std::string name)
+{
+  tree_->Branch( name.c_str(), x, ( name+"/F").c_str() );
+  bnames.push_back( name );
+}
+
+void ewk::JetTreeFiller::SetBranchSingle( int* x, std::string name)
+{
+  tree_->Branch( name.c_str(), x, ( name+"/I").c_str() );
+  bnames.push_back( name );
+}
+
+
 
 void ewk::JetTreeFiller::SetBranch( float* x, std::string name)
 {
@@ -650,88 +666,6 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 
 
 
-   // Now compute all the invariant masses
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > Vj;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V2j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V3j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V4j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V5j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > V6j;
-
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c2j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c3j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c4j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c5j;
-   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > c6j;
-
-
-   // 4-vectors for the first four jets
-   TLorentzVector p4j1;
-   TLorentzVector p4j2;
-   TLorentzVector p4j3;
-   TLorentzVector p4j4;
-   TLorentzVector p4V ( Vboson->px(), Vboson->py(), Vboson->pz(), Vboson->energy() );
-
-
-
-   if( NumJets>1 ) { 
-     p4j1.SetPxPyPzE( Px[0], Py[0], Pz[0], E[0] );
-     p4j2.SetPxPyPzE( Px[1], Py[1], Pz[1], E[1] );
-
-     V2j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4();
-     V2jMass =  V2j.M();
-     TLorentzVector tempp4( V2j.px(), V2j.py(), V2j.pz(), V2j.energy() );
-     V2jCosJacksonAngle = JacksonAngle( p4V, tempp4);
-     c2j =  (*jets)[0].p4() + (*jets)[1].p4();
-     c2jMass =  c2j.M();
-
-     c2jCosJacksonAngle = JacksonAngle( p4j1, p4j2);
-   }
-
-   if( NumJets>2 ) {
-     p4j3.SetPxPyPzE( Px[2], Py[2], Pz[2], E[2] );
-
-     V3j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
-     (*jets)[2].p4();
-     V3jMass =  V3j.M();
-     TLorentzVector tempp4( V3j.px(), V3j.py(), V3j.pz(), V3j.energy() );
-     V3jCosJacksonAngle = JacksonAngle( p4V, tempp4);
-     c3j =  (*jets)[0].p4() + (*jets)[1].p4() + (*jets)[2].p4();
-     c3jMass =  c3j.M();
-     c3jCosJacksonAngle12 = JacksonAngle( p4j1,  p4j2 );
-     c3jCosJacksonAngle23 = JacksonAngle( p4j2,  p4j3 );
-     c3jCosJacksonAngle31 = JacksonAngle( p4j3,  p4j1 );
-   }
-
-   if( NumJets>3 ) { 
-     p4j4.SetPxPyPzE( Px[3], Py[3], Pz[3], E[3] );
-
-     V4j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
-       (*jets)[2].p4() + (*jets)[3].p4();
-     V4jMass =  V4j.M();
-     c4j =  (*jets)[0].p4() + (*jets)[1].p4() + 
-       (*jets)[2].p4() + (*jets)[3].p4();
-     c4jMass =  c4j.M();
-   }
-
-   if( NumJets>4 ) { 
-     V5j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
-     (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4();
-     V5jMass =  V5j.M();
-     c5j =  (*jets)[0].p4() + (*jets)[1].p4() + 
-       (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4();
-     c5jMass =  c5j.M();
-   }
-
-   if( NumJets>5 ) { 
-     V6j =  Vboson->p4() + (*jets)[0].p4() + (*jets)[1].p4() + 
-     (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4() + (*jets)[5].p4();
-     V6jMass =  V6j.M();
-     c6j =  (*jets)[0].p4() + (*jets)[1].p4() + 
-     (*jets)[2].p4() + (*jets)[3].p4() + (*jets)[4].p4() + (*jets)[5].p4();
-     c6jMass =  c6j.M();
-   }
-
 
    // get the two daughters of vector boson
    const reco::Candidate* m0 = Vboson->daughter(0);
@@ -770,6 +704,88 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    }
 
    delete metz;
+
+
+
+
+   // Now compute all the invariant masses
+   TLorentzVector Vj;
+   TLorentzVector V2j;
+   TLorentzVector V3j;
+   TLorentzVector V4j;
+   TLorentzVector V5j;
+   TLorentzVector V6j;
+
+   TLorentzVector c2j;
+   TLorentzVector c3j;
+   TLorentzVector c4j;
+   TLorentzVector c5j;
+   TLorentzVector c6j;
+
+
+   // 4-vectors for the first four jets
+   TLorentzVector p4j1;
+   TLorentzVector p4j2;
+   TLorentzVector p4j3;
+   TLorentzVector p4j4;
+   TLorentzVector p4j5;
+   TLorentzVector p4j6;
+   TLorentzVector p4V = p4lepton1 + p4lepton2;
+
+
+   if( NumJets>1 ) { 
+     p4j1.SetPxPyPzE( Px[0], Py[0], Pz[0], E[0] );
+     p4j2.SetPxPyPzE( Px[1], Py[1], Pz[1], E[1] );
+     c2j =  p4j1 + p4j2;
+     c2jMass =  c2j.M();
+     V2j =  p4V + c2j;
+     V2jMass =  V2j.M();
+     V2jCosJacksonAngle = JacksonAngle( p4V, V2j);
+     c2jCosJacksonAngle = JacksonAngle( p4j1, p4j2);
+   }
+
+   if( NumJets>2 ) {
+     p4j3.SetPxPyPzE( Px[2], Py[2], Pz[2], E[2] );
+     c3j =  p4j1 + p4j2 + p4j3;
+     c3jMass =  c3j.M();
+     V3j =  p4V + c3j;
+     V3jMass =  V3j.M();
+     V3jCosJacksonAngle = JacksonAngle( p4V, V3j);
+     c3jCosJacksonAngle12 = JacksonAngle( p4j1,  p4j2 );
+     c3jCosJacksonAngle23 = JacksonAngle( p4j2,  p4j3 );
+     c3jCosJacksonAngle31 = JacksonAngle( p4j3,  p4j1 );
+   }
+
+   if( NumJets>3 ) { 
+     p4j4.SetPxPyPzE( Px[3], Py[3], Pz[3], E[3] );
+     c4j =  p4j1 + p4j2 + p4j3 + p4j4;
+     c4jMass =  c4j.M();
+     V4j =  p4V + c4j;
+     V4jMass =  V4j.M();
+
+   }
+
+   if( NumJets>4 ) { 
+     p4j5.SetPxPyPzE( Px[4], Py[4], Pz[4], E[4] );
+     c5j =  p4j1 + p4j2 + p4j3 + p4j4 + p4j5;
+     c5jMass =  c5j.M();
+     V5j =  p4V + c5j;
+     V5jMass =  V5j.M();
+
+   }
+
+   if( NumJets>5 ) { 
+     p4j6.SetPxPyPzE( Px[5], Py[5], Pz[5], E[5] );
+
+     c6j =  p4j1 + p4j2 + p4j3 + p4j4 + p4j5 + p4j6;
+     c6jMass =  c6j.M();
+     V6j =  p4V + c6j;
+     V6jMass =  V6j.M();
+
+   }
+
+
+
 
    // Angle between the decay planes of two W
    float cosphiDecayPlane, cosThetaLnu, cosThetaJJ; 

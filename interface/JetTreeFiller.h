@@ -65,7 +65,7 @@ namespace ewk {
     /// To be called once per event to fill the values for jets
     void fill(const edm::Event &iEvent);
 
-    static const int NUM_JET_MAX = 6;
+    static const int NUM_JET_MAX = 10;
 
   protected:
 
@@ -75,6 +75,9 @@ namespace ewk {
     void SetBranches(); 
     void SetBranch( float* x, std::string name);
     void SetBranch( int* x, std::string name);
+    void SetBranchSingle( float* x, std::string name);
+    void SetBranchSingle( int* x, std::string name);
+
     void FillBranches() const;
     void init();
 

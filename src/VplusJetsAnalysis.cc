@@ -112,21 +112,20 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   for(unsigned int ind=0;ind<recVtxs->size();ind++) 
     {
       if(nPV>30) continue;
-	mPVx[ind] =   -10000.0;
-	mPVy[ind] =   -10000.0;
-	mPVz[ind] =   -10000.0;
+      mPVx[nPV] =   -10000.0;
+      mPVy[nPV] =   -10000.0;
+      mPVz[nPV] =   -10000.0;
 
-    if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>=4) 
-    && (fabs((*recVtxs)[ind].z())<=24.0) &&  
-    ((*recVtxs)[ind].position().Rho()<=2.0) ) {
+      if (!((*recVtxs)[ind].isFake()) && ((*recVtxs)[ind].ndof()>=4) 
+	  && (fabs((*recVtxs)[ind].z())<=24.0) &&  
+	  ((*recVtxs)[ind].position().Rho()<=2.0) ) {
 
+	mPVx[nPV] =  (*recVtxs)[ind].x() ;
+	mPVy[nPV] =  (*recVtxs)[ind].y() ;
+	mPVz[nPV] =  (*recVtxs)[ind].z() ;
 	nPV += 1;
-	mPVx[ind] =  (*recVtxs)[ind].x() ;
-	mPVy[ind] =  (*recVtxs)[ind].y() ;
-	mPVz[ind] =  (*recVtxs)[ind].z() ;
       }
     }
-
 
   //////////// Beam spot //////////////
   edm::Handle<reco::BeamSpot> beamSpot;

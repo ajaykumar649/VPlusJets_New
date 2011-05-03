@@ -76,13 +76,8 @@ looseElectronFilter = cms.EDFilter("PATCandViewCountFilter",
 ##  Define loose muon selection for veto ######
 looseMuons = cms.EDFilter("MuonRefSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("pt>20 && isGlobalMuon && isTrackerMuon && abs(eta)<2.4"
-                     " && globalTrack().normalizedChi2<10"
-                     " && globalTrack().hitPattern().numberOfValidTrackerHits>10"
-                     " && globalTrack().hitPattern().numberOfValidMuonHits>0"
-                     " && globalTrack().hitPattern().numberOfValidPixelHits>0"
-                     " && numberOfMatches>1"
-                     " && (isolationR03().sumPt)/(p4.Pt)< 0.3")     
+    cut = cms.string("pt>10 && isGlobalMuon && isTrackerMuon && abs(eta)<2.5"
+                     " && (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt< 0.3")     
 )
 
 looseMuonFilter = cms.EDFilter("PATCandViewCountFilter",
