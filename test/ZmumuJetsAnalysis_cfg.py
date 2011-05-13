@@ -1,23 +1,86 @@
+
 import FWCore.ParameterSet.Config as cms
+isMC = False
 
 process = cms.Process("demo")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+
+##---------  Load standard Reco modules ------------
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+
+
+
+##----- this config frament brings you the generator information ----
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
+process.load("Configuration.StandardSequences.Generator_cff")
+
+
+##----- Detector geometry : some of these needed for b-tag -------
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
+process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
+
+
+##----- B-tags --------------
+process.load("RecoBTag.Configuration.RecoBTag_cff")
+
+
+##----- Global tag: conditions database ------------
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 
-#   Z-->mumu Collection ##########
+############################################
+if not isMC:
+    process.GlobalTag.globaltag = 'GR_R_311_V2::All'
+else:
+    process.GlobalTag.globaltag = 'START311_V2A::All'
+
+OutputFileName = "demo.root"
+numEventsToRun = -1
+############################################
+
+############################################
+########################################################################################
+########################################################################################
+## Temporary conditions database for 2011 data until JEC goes into global tag
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.jec = cms.ESSource("PoolDBESSource",
+      DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+        ),
+      timetype = cms.string('runnumber'),
+      toGet = cms.VPSet(
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V0_AK5PF'),
+            label  = cms.untracked.string('AK5PF')
+            )
+      ),
+## here you add as many jet types as you need (AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo)
+      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS')
+)
+process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+########################################################################################
+########################################################################################
+
+##---------  Z-->mumu Collection ------------
 process.load("ElectroWeakAnalysis.VPlusJets.ZmumuCollections_cfi")
 
-#  Jet Collection ##########
+##---------  Jet Collection ----------------
 process.load("ElectroWeakAnalysis.VPlusJets.JetCollections_cfi")
 
-
+##---------  Vertex and track Collections -----------
+process.load("ElectroWeakAnalysis.VPlusJets.TrackCollections_cfi")
 #
+
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(numEventsToRun)
 )
 
 process.MessageLogger.destinations = ['cout', 'cerr']
@@ -26,66 +89,74 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/AAA0E19F-38C9-DF11-AF32-002481ACF3B0.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/26814776-3BC9-DF11-8807-0017A4770808.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/062A828A-2CC9-DF11-B3F6-00237DA13F9E.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FAF27C05-BEC8-DF11-8E72-001E0B486164.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/F826E92C-C1C8-DF11-8CD9-00237DA15CE6.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/E4F9FD66-B8C8-DF11-B522-0025B3E01FC2.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/CE878A66-BEC8-DF11-A762-00237DA28240.root',
-       '/store/mc/Fall10/ZJetToMuMu_Pt_170to230_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/AE096133-B9C8-DF11-AE08-0017A477040C.root',    
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F8AEC745-DF57-E011-8D23-001D09F290BF.root',
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F625BE01-E057-E011-892F-003048D2C108.root',
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EEFD6397-E357-E011-978D-001D09F2A465.root',
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EE67057F-DC57-E011-866E-001617E30D0A.root',
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EC5B67FF-DF57-E011-8416-003048D2BED6.root',
+       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EA8C6F9E-D757-E011-9CF4-001D09F295A1.root',
 ) )
 
 
+##-------- Muon events of interest --------
+process.HLTMu =cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring("HLT_Mu5_*", "HLT_Mu7_*", "HLT_Mu9_*", "HLT_Mu11_*", "HLT_Mu15_*", "HLT_Mu24_*"),
+     eventSetupPathsKey = cms.string(''),
+     andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
+     throw = cms.bool(False) # throw exception on unknown path names
+ )
+
+
+
+
 process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
-     runningOverMC = cms.untracked.bool(False),                              
-##     srcGen  = cms.VInputTag( 
-##        cms.InputTag("ic5GenJetsClean"),
-##        cms.InputTag("kt4GenJetsClean"),
-##        cms.InputTag("ak5GenJetsClean"),
-##        ),
-##     srcFlavorByValue = cms.VInputTag(
-##       cms.InputTag("ic5tagJet"),
-##       cms.InputTag("kt4tagJet"),
-##       cms.InputTag("ak5tagJet"),
-##       ),                                    
-    srcCaloCor = cms.VInputTag(
-       cms.InputTag("ic5CaloJetsCorClean"),
-       cms.InputTag("kt4CaloJetsCorClean"),
-       cms.InputTag("ak5CaloJetsCorClean"),
-       ),
-    srcCalo = cms.VInputTag(
-      cms.InputTag("ic5CaloJetsClean"),
-      cms.InputTag("kt4CaloJetsClean"),
-      cms.InputTag("ak5CaloJetsClean"),
-      ),                         
-    srcPFJets =cms.VInputTag(
-      cms.InputTag("ic5PFJetsClean"),
-      cms.InputTag("kt4PFJetsClean"),
-      cms.InputTag("ak5PFJetsClean"),
-      ),
-    srcJPTJets =cms.VInputTag(
-      cms.InputTag("ak5JPTJetsClean"),
-      ),                              
+    srcPFCor = cms.InputTag("ak5PFJetsCorClean"),
     srcVectorBoson = cms.InputTag("bestZmumu"),
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('muon'),                          
-    triggerSummaryLabel = cms.InputTag( "hltTriggerSummaryAOD","","HLT" ), 
-    hltTag = cms.InputTag("HLT_Mu11", "","HLT"),                  
-    HistOutFile = cms.string('demo.root'),
+    runningOverMC = cms.untracked.bool(isMC),                                  
+    srcGen  = cms.InputTag("ak5GenJets"),
+    srcFlavorByValue = cms.InputTag("ak5tagJet"),
+    srcPrimaryVertex = cms.InputTag("primaryVertex"),                                    
+    HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('ZJet')                          
 )
 
 
 
 
-process.p = cms.Path( #process.genParticles *
-                      #process.GenJetPath * process.TagJetPath * 
-                      process.CaloJetPath * process.CorJetPath *
-                      process.PFJetPath *
-                      process.JPTJetPath * process.ZPath *
-                      process.VpusJets
-                      )
+process.myseq = cms.Sequence(
+    process.TrackVtxPath *     
+    process.HLTMu *
+    process.ZPath *    
+    process.GenJetPath *
+    process.impactParameterTagInfos * 
+    process.secondaryVertexTagInfos *
+    process.TagJetPath *
+    process.PFJetPath *
+    process.CorPFJetPath 
+    )
+
+
+if isMC:
+    process.myseq.remove ( process.noscraping)
+    process.myseq.remove ( process.HLTMu)
+else:
+    process.myseq.remove ( process.genParticles)
+    process.myseq.remove ( process.GenJetPath)
+    process.myseq.remove ( process.TagJetPath)
+
+
+##---- if do not want to require >= 2 jets then disable that filter ---
+process.myseq.remove ( process.RequireTwoJets)  
+
+
+process.p = cms.Path( process.myseq * process.VpusJets)
+
+
+
+
 
 
 

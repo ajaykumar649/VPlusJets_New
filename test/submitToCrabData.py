@@ -3,8 +3,8 @@ import string, re
 from time import gmtime, localtime, strftime
 
 ##------ Please set ONLY one of the four flags to True -------
-runningOverWENU = False
-runningOverWMUNU = True
+runningOverWENU = True
+runningOverWMUNU = False
 runningOverZEE = False
 runningOverZMUMU = False
 
@@ -52,9 +52,9 @@ channels  = ["Prompt-V1",
             "Prompt-V2"]
 
    
-RunRange = ["160329-163334", "163335-163759"]
+RunRange = ["160329-163334", "163335-163817"]
 
-JSON = "json_DCSONLY.txt_160404-163759"
+JSON = "json_DCSONLY.txt_160404-163817"
 condor  = [1,1]
 MyResilientArea = "/kalanand/" + physMode +"Data2011"
 
@@ -64,7 +64,9 @@ def changeMainConfigFile(trigpath):
     pset_cfg      = "py_" + trigpath + ".py"
     outfile_root  = physMode + trigpath + ".root"
     fout = open(pset_cfg,"w")
-    for line in fin.readlines(): 
+    for line in fin.readlines():
+        if  line.find("isMC = True")!=-1:
+            line=line.replace("isMC = True", "isMC = False")               
         if  line.find("demo.root")!=-1:
             line=line.replace("demo.root",outfile_root)
         fout.write(line)

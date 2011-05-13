@@ -2,12 +2,21 @@ import FWCore.ParameterSet.Config as cms
 isMC = False
 
 process = cms.Process("demo")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
-process.load("RecoBTag.Configuration.RecoBTag_cff")
 
+##---------  Load standard Reco modules ------------
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+
+
+
+##----- this config frament brings you the generator information ----
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
+process.load("Configuration.StandardSequences.Generator_cff")
+
+
+##----- Detector geometry : some of these needed for b-tag -------
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
@@ -15,32 +24,58 @@ process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 
 
-# this config frament brings you the generator information
-process.load("Configuration.StandardSequences.Generator_cff")
+##----- B-tags --------------
+process.load("RecoBTag.Configuration.RecoBTag_cff")
 
 
-process.load('Configuration.StandardSequences.Services_cff')
+##----- Global tag: conditions database ------------
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
+
 ############################################
-if isMC:
-    #process.GlobalTag.globaltag = 'START39_V8::All'
-    process.GlobalTag.globaltag = 'START38_V14::All'
+if not isMC:
+    process.GlobalTag.globaltag = 'GR_R_311_V2::All'
 else:
-    process.GlobalTag.globaltag = 'GR_R_39X_V5::All'
+    process.GlobalTag.globaltag = 'START311_V2A::All'
+
 OutputFileName = "demo.root"
 numEventsToRun = -1
 ############################################
 
+############################################
+########################################################################################
+########################################################################################
+## Temporary conditions database for 2011 data until JEC goes into global tag
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.jec = cms.ESSource("PoolDBESSource",
+      DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+        ),
+      timetype = cms.string('runnumber'),
+      toGet = cms.VPSet(
+      cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string('JetCorrectorParametersCollection_Jec11V0_AK5PF'),
+            label  = cms.untracked.string('AK5PF')
+            )
+      ),
+## here you add as many jet types as you need (AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo)
+      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS')
+)
+process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+########################################################################################
+########################################################################################
 
-
-#   Z-->ee Collection ##########
+##---------  Z-->ee Collection ------------
 process.load("ElectroWeakAnalysis.VPlusJets.ZeeCollections_cfi")
 
-#  Jet Collection ##########
+##---------  Jet Collection ----------------
 process.load("ElectroWeakAnalysis.VPlusJets.JetCollections_cfi")
 
-
+##---------  Vertex and track Collections -----------
+process.load("ElectroWeakAnalysis.VPlusJets.TrackCollections_cfi")
+#
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -53,36 +88,37 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/ACDEDA3C-B7D3-DF11-A7A1-0030487C6A66.root',
-##        '/store/data/Run2010B/Electron/RECO/PromptReco-v2/000/147/454/223CD93D-B7D3-DF11-885E-0030487CD7B4.root',
+       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/90646AF9-F957-E011-B0DB-003048F118C4.root',
+       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/749B54BD-E557-E011-AC27-000423D33970.root',
+       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/5A366F5F-7959-E011-AB12-0030487C8E02.root',
+       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/0EF76BBA-0858-E011-AE3A-003048F118C6.root',
+       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/024D65F9-F957-E011-8C5D-003048F024FE.root',
 
-       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/E82FBD2C-21C9-DF11-B7FB-0022649E7902.root',
-       '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/749FFE35-3AC9-DF11-A44A-001F29C4C3FE.root',
+##        '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/E82FBD2C-21C9-DF11-B7FB-0022649E7902.root',
 ) )
 
 
 
-process.RequireOneJet = cms.EDFilter("PATCandViewCountFilter",
-    minNumber = cms.uint32(1),
-    maxNumber = cms.uint32(100),
-    src = cms.InputTag("ak5PFJetsCorClean"),                      
-)
+##-------- Electron events of interest --------
+process.HLTEle =cms.EDFilter("HLTHighLevel",
+     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+     HLTPaths = cms.vstring("HLT_Ele27_*", "HLT_Ele22_*", "HLT_Ele18_*", "HLT_Ele17_*", "HLT_Ele15_*"),
+     eventSetupPathsKey = cms.string(''),
+     andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
+     throw = cms.bool(False) # throw exception on unknown path names
+ )
 
 
 
 process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
-    srcCaloCor = cms.InputTag("ak5CaloJetsCorClean"),
     srcPFCor = cms.InputTag("ak5PFJetsCorClean"),
-    srcJPTCor = cms.InputTag("ak5JPTJetsCorClean"),
-    srcCalo = cms.InputTag("ak5CaloJetsClean"),
-    srcPFJets = cms.InputTag("ak5PFJetsClean"),
-    srcJPTJets = cms.InputTag("ak5JPTJetsClean"),
     srcVectorBoson = cms.InputTag("bestZee"),
     VBosonType     = cms.string('Z'),
     LeptonType     = cms.string('electron'),                          
     runningOverMC = cms.untracked.bool(isMC),                                  
     srcGen  = cms.InputTag("ak5GenJets"),
     srcFlavorByValue = cms.InputTag("ak5tagJet"),
+    srcPrimaryVertex = cms.InputTag("primaryVertex"),                                    
     HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('ZJet')                          
 )
@@ -90,28 +126,30 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
 
 
 
-
-process.myseq = cms.Sequence( 
+process.myseq = cms.Sequence(
+    process.TrackVtxPath *     
+    process.HLTEle *
+    process.ZPath *    
     process.GenJetPath *
     process.impactParameterTagInfos * 
     process.secondaryVertexTagInfos *
     process.TagJetPath *
-    process.CaloJetPath *
-    process.CorJetPath *
     process.PFJetPath *
-    process.CorPFJetPath *
-    process.JPTJetPath *
-    process.RequireOneJet * 
-    process.ZPath *
-    process.VpusJets
+    process.CorPFJetPath 
     )
 
-if not isMC:
+
+if isMC:
+    process.myseq.remove ( process.noscraping)
+    process.myseq.remove ( process.HLTEle)
+else:
     process.myseq.remove ( process.genParticles)
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 
 
+##---- if do not want to require >= 2 jets then disable that filter ---
+process.myseq.remove ( process.RequireTwoJets)  
 
 
-process.p = cms.Path( process.myseq )
+process.p = cms.Path( process.myseq * process.VpusJets)

@@ -24,8 +24,16 @@
 
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoMuonTreeFiller.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
+#include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 
 ewk::VtoMuonTreeFiller::VtoMuonTreeFiller(const char *name, TTree* tree, 
 							const edm::ParameterSet iConfig)
@@ -58,6 +66,7 @@ void ewk::VtoMuonTreeFiller::SetBranches()
   if( !(Vtype_=="Z") ) lept1 = "muon";
 
   SetBranch( &V_mass,        "mass");
+  SetBranch( &V_mt,        "mt");
   SetBranch( &V_px,        "px");
   SetBranch( &V_py,        "py");
   SetBranch( &V_pz,        "pz");
@@ -70,6 +79,10 @@ void ewk::VtoMuonTreeFiller::SetBranches()
   SetBranch( &V_Vy,        "vy");
   SetBranch( &V_Vz,        "vz");
   SetBranch( &V_Y,         "y");
+  if(Vtype_=="W") {
+    SetBranch( &V_pzNu1,     "pzNu1");
+    SetBranch( &V_pzNu2,     "pzNu2");
+  }
   ///////////////////////////////////////////////
   SetBranch( &mu1px,             lept1+"_px" );
   SetBranch( &mu1py,             lept1+"_py" );
@@ -91,6 +104,10 @@ void ewk::VtoMuonTreeFiller::SetBranches()
   SetBranch( &mu1Type, lept1+"_type" );
   SetBranch( &mu1_numberOfChambers, lept1+"_numberOfChambers" );
   SetBranch( &mu1_numberOfMatches,  lept1+"_numberOfMatches" );	  
+
+  SetBranch( &mu1d0bsp,          lept1+"_d0bsp" );
+  SetBranch( &mu1dz000,          lept1+"_dz000" );
+
   ////////////////////////////////////////////////////////
   if(Vtype_=="Z") {	  
     SetBranch( &mu2px,             lept2+"_px" );
@@ -126,6 +143,7 @@ void ewk::VtoMuonTreeFiller::init()
 {
   // initialize private data members
   V_mass                  = -1.;
+  V_mt                  = -1.;
   V_px                  = -99999.;
   V_py                  = -99999.;
   V_pz                  = -99999.;
@@ -138,6 +156,8 @@ void ewk::VtoMuonTreeFiller::init()
   V_Vy                  = -10.;
   V_Vz                  = -10.;
   V_Y                   = -10.;
+  V_pzNu1               = -10000.0;
+  V_pzNu2               = -10000.0;
 
   mu1Type   = -1; 
   mu1Charge           = -10;
@@ -161,6 +181,8 @@ void ewk::VtoMuonTreeFiller::init()
   mu1_numberOfChambers   = -10.;
   mu1_numberOfMatches    = -1.;
 
+  mu1d0bsp            = -99999.;
+  mu1dz000            = -99999.;
 	  
   mu2px              = -99999.;
   mu2py              = -99999.;
@@ -210,8 +232,13 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
   const reco::Candidate *Vboson = &((*boson)[0]); 
   if( Vboson == 0) return;
 
+  edm::Handle<reco::PFMETCollection> pfmet;
+  iEvent.getByLabel("pfMet", pfmet);
+  
   ////////// Vector boson quantities //////////////
   V_mass = Vboson->mass();
+  V_mt = sqrt(2.0*Vboson->daughter(0)->pt()*Vboson->daughter(1)->pt()*
+	      (1.0-cos(Vboson->daughter(0)->phi()-Vboson->daughter(1)->phi())));
   V_Eta = Vboson->eta();   
   V_Phi = Vboson->phi();
   V_Vx = Vboson->vx();
@@ -261,7 +288,20 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
   // if W--> munu then muon1 = mu, muon2 = NULL 
   if(Vtype_=="W") {
     if( abs(mu1->charge())==1 ) muon1  = mu1;
-    else if( abs(mu2->charge())==1 ) muon1  = muon2;
+    else if( abs(mu2->charge())==1 ) muon1  = mu2;
+
+    if( !(muon1 == NULL) ) {
+      // estimate Pz of neutrino
+      TLorentzVector p4MET((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+      TLorentzVector p4lepton(muon1->px(), muon1->py(), muon1->pz(), muon1->energy());
+      METzCalculator metz;
+      metz.SetMET(p4MET);
+      metz.SetLepton(p4lepton);
+      if (LeptonType_=="electron") metz.SetLeptonType("electron");
+      if (LeptonType_=="muon")     metz.SetLeptonType("muon");
+      V_pzNu1 = metz.Calculate();
+      V_pzNu2 = metz.getOther();
+    }
   }
 
   ////////// muon #1 quantities //////////////
@@ -288,6 +328,12 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
     mu1pz             = muon1->pz();
     mu1Pt             = muon1->pt();
     mu1Et             = muon1->et();	  
+
+    // vertex 
+    edm::Handle<reco::BeamSpot> beamSpot;
+    iEvent.getByLabel("offlineBeamSpot", beamSpot);
+    mu1d0bsp = muon1->innerTrack()->dxy( beamSpot->position() ) ;
+    mu1dz000 = muon1->vertex().z();
   }
 
   ////////// muon #2 quantities //////////////

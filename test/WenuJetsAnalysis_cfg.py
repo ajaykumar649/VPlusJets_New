@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = True
+isMC = False
 
 process = cms.Process("demo")
 

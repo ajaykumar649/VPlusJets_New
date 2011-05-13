@@ -71,6 +71,7 @@ namespace ewk {
     // private data members
     
     float V_mass;
+    float V_mt;
     float V_px;
     float V_py;
     float V_pz;
@@ -83,6 +84,8 @@ namespace ewk {
     float V_Vy;
     float V_Vz;
     float V_Y;
+    float V_pzNu1;
+    float V_pzNu2;
 
     /// muon type - type of the algorithm that reconstructed this muon
     /// multiple algorithms can reconstruct the same muon
@@ -115,6 +118,9 @@ namespace ewk {
     float mu1_trackiso;
     float mu1_hcaliso;
     float mu1_ecaliso;
+    
+    float mu1d0bsp;
+    float mu1dz000;
 
     ///////////////////
     float mu2px;
