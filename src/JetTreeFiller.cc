@@ -689,7 +689,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
      metz->SetMET(p4MET);
      metz->SetLepton(p4lepton);
      nupz = metz->Calculate();
-     p4lepton1.SetPxPyPzE( m0->px(), m0->py(), nupz, m0->energy() );
+     p4lepton1.SetPxPyPzE( m0->px(), m0->py(), nupz, sqrt(m0->px()*m0->px()+m0->py()*m0->py()+nupz*nupz) );
    }
 
    if( m1->isElectron() || m1->isMuon() ) 
@@ -700,7 +700,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
      metz->SetMET(p4MET);
      metz->SetLepton(p4lepton);
      nupz = metz->Calculate();
-     p4lepton2.SetPxPyPzE( m1->px(), m1->py(), nupz, m1->energy() );
+     p4lepton2.SetPxPyPzE( m1->px(), m1->py(), nupz, sqrt(m1->px()*m1->px()+m1->py()*m1->py()+nupz*nupz) );
    }
 
    delete metz;
@@ -788,11 +788,13 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 
 
    // Angle between the decay planes of two W
-   float cosphiDecayPlane, cosThetaLnu, cosThetaJJ; 
+   cosphiDecayPlane = 10.0; 
+   cosThetaLnu = 10.0; 
+   cosThetaJJ = 10.0;
+
    if( NumJets>1 )
      dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, p4j1, p4j2, cosphiDecayPlane, cosThetaLnu, cosThetaJJ);
- 
- 
+
 
    //FillBranches();
 }
