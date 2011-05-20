@@ -33,38 +33,31 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
+## import skeleton process
+from PhysicsTools.PatAlgos.patTemplate_cfg import *
+
+
 
 ############################################
 if not isMC:
-    process.GlobalTag.globaltag = 'GR_R_311_V2::All'
+    process.GlobalTag.globaltag = 'GR_R_41_V0::All'
 else:
-    process.GlobalTag.globaltag = 'START311_V2A::All'
+    process.GlobalTag.globaltag = 'START41_V0::All'
 
 OutputFileName = "demo.root"
 numEventsToRun = -1
 ############################################
+########################################################################################
+########################################################################################
+# Configure to use PF2PAT jets instead of reco::Jets
+from PhysicsTools.PatAlgos.tools.pfTools import *
+usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=False, postfix="")
+process.pfPileUp.Enable = True
+process.pfPileUp.checkClosestZVertex = cms.bool(False)
+process.pfPileUp.Vertices = cms.InputTag('primaryVertex')
+process.pfJets.doAreaFastjet = True
+process.pfJets.doRhoFastjet = False
 
-############################################
-########################################################################################
-########################################################################################
-## Temporary conditions database for 2011 data until JEC goes into global tag
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.jec = cms.ESSource("PoolDBESSource",
-      DBParameters = cms.PSet(
-        messageLevel = cms.untracked.int32(0)
-        ),
-      timetype = cms.string('runnumber'),
-      toGet = cms.VPSet(
-      cms.PSet(
-            record = cms.string('JetCorrectionsRecord'),
-            tag    = cms.string('JetCorrectorParametersCollection_Jec11V0_AK5PF'),
-            label  = cms.untracked.string('AK5PF')
-            )
-      ),
-## here you add as many jet types as you need (AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo)
-      connect = cms.string('frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS')
-)
-process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 ########################################################################################
 ########################################################################################
 
@@ -125,9 +118,15 @@ process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
 
 
 
+# Add the KT6 producer to the sequence
+getattr(process,"patPF2PATSequence").replace(
+    getattr(process,"pfNoElectron"),
+    getattr(process,"pfNoElectron")*process.kt6PFJets )
+
 
 process.myseq = cms.Sequence(
-    process.TrackVtxPath *     
+    process.TrackVtxPath *
+    getattr(process,"patPF2PATSequence") *     
     process.HLTMu *
     process.ZPath *    
     process.GenJetPath *

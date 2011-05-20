@@ -10,6 +10,12 @@ noscraping = cms.EDFilter("FilterOutScraping",
 )
 
 
+##---------HBHE Noise Filter ------
+from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import HBHENoiseFilter
+HBHENoiseFilter.minIsolatedNoiseSumE = cms.double(999999.)
+HBHENoiseFilter.minNumIsolatedNoiseChannels = cms.int32(999999)
+HBHENoiseFilter.minIsolatedNoiseSumEt = cms.double(999999.)
+
 
 ###############################
 ####### DAF PV's     ##########
@@ -60,6 +66,7 @@ primaryVertex = cms.EDFilter("VertexSelector",
 
 TrackVtxPath = cms.Sequence(
     noscraping +
+    HBHENoiseFilter + 
     offlinePrimaryVerticesDAF +
     primaryVertex
 )
