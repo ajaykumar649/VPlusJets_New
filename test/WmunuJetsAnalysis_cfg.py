@@ -157,6 +157,6 @@ else:
 ##process.myseq.remove ( process.RequireTwoJets)  
     
 
-
+process.outpath.remove(process.out)
 process.p = cms.Path( process.myseq  * process.VpusJets)
 

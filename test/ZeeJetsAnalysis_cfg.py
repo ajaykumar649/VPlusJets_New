@@ -151,5 +151,5 @@ else:
 ##---- if do not want to require >= 2 jets then disable that filter ---
 process.myseq.remove ( process.RequireTwoJets)  
 
-
+process.outpath.remove(process.out)
 process.p = cms.Path( process.myseq * process.VpusJets)
