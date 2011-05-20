@@ -27,7 +27,7 @@ tightElectrons = cms.EDFilter("GsfElectronRefSelector",
 WToEnu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("tightElectrons pfMet"),
 ## Note: the 'mt()' method doesn't compute the transverse mass correctly, so we have to do it by hand.
-    cut = cms.string('daughter(0).pt >30 && daughter(1).pt >25  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>40'),                                           
+    cut = cms.string('daughter(0).pt >20 && daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>40'),
     checkCharge = cms.bool(False),
 )
 

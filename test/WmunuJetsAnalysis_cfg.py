@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = False
+isMC = True
 
 process = cms.Process("demo")
 
@@ -46,7 +46,7 @@ else:
     process.GlobalTag.globaltag = 'START41_V0::All'
 
 OutputFileName = "demo.root"
-numEventsToRun = -1
+numEventsToRun = 2000
 ############################################
 ########################################################################################
 ########################################################################################
@@ -85,12 +85,13 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F8AEC745-DF57-E011-8D23-001D09F290BF.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F625BE01-E057-E011-892F-003048D2C108.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EEFD6397-E357-E011-978D-001D09F2A465.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EE67057F-DC57-E011-866E-001617E30D0A.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EC5B67FF-DF57-E011-8416-003048D2BED6.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EA8C6F9E-D757-E011-9CF4-001D09F295A1.root',
+       ##'/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F8AEC745-DF57-E011-8D23-001D09F290BF.root',
+       ##'/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F625BE01-E057-E011-892F-003048D2C108.root',
+       ##'/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EEFD6397-E357-E011-978D-001D09F2A465.root',
+       ##'/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EE67057F-DC57-E011-866E-001617E30D0A.root',
+       ##'/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EC5B67FF-DF57-E011-8416-003048D2BED6.root',
+       ##'/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EA8C6F9E-D757-E011-9CF4-001D09F295A1.root',
+       '/store/mc/Spring11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S1_START311_V1G1-v1/0005/0C01223C-1255-E011-9708-00261894389C.root',
 ) )
 
 
@@ -99,7 +100,7 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 ##-------- Muon events of interest --------
 process.HLTMu =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring("HLT_Mu15_v*", "HLT_Mu24_v*"),
+     HLTPaths = cms.vstring('HLT_Mu9','HLT_Mu11','HLT_Mu13','HLT_Mu15_v*','HLT_Mu17_v*','HLT_Mu24_v*','HLT_Mu30_v*','HLT_IsoMu24_v*'),
      eventSetupPathsKey = cms.string(''),
      andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
      throw = cms.bool(False) # throw exception on unknown path names
