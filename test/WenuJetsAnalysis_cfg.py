@@ -85,11 +85,8 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/5A366F5F-7959-E011-AB12-0030487C8E02.root',
        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/0EF76BBA-0858-E011-AE3A-003048F118C6.root',
        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/024D65F9-F957-E011-8C5D-003048F024FE.root',
-
-##        '/store/mc/Winter10/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/E7TeV_ProbDist_2011Flat_BX156_START39_V8-v1/0062/FE9CF7A8-5A2D-E011-9775-0030486790B0.root',
-       
-       ) )
-
+       ##'/store/mc/Spring11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S1_START311_V1G1-v1/0005/0C01223C-1255-E011-9708-00261894389C.root',
+) )
 
 
 
@@ -155,7 +152,7 @@ else:
 ##process.myseq.remove ( process.RequireTwoJets)  
 
 process.outpath.remove(process.out)
-process.p = cms.Path( process.myseq  * process.VpusJets )
+process.p = cms.Path( process.myseq  * process.VpusJets)
 
 
 
