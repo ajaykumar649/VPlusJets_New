@@ -203,6 +203,15 @@ namespace ewk {
     float cosphiDecayPlane; 
     float cosThetaLnu; 
     float cosThetaJJ;
+  
+    float leadingDeltaTheta;
+    float j1Hel_HiggsCM;
+    float j2Hel_HiggsCM;
+    float l1Hel_HiggsCM;
+    float l2Hel_HiggsCM;
+    float b1Hel_HiggsCM;
+    float b2Hel_HiggsCM;
+
   };
 
 } //namespace

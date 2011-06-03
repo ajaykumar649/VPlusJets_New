@@ -39,9 +39,9 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ############################################
 if not isMC:
-    process.GlobalTag.globaltag = 'GR_R_41_V0::All'
+    process.GlobalTag.globaltag = 'GR_R_42_V12::All'
 else:
-    process.GlobalTag.globaltag = 'START41_V0::All'
+    process.GlobalTag.globaltag = 'START42_V12::All'
 
 OutputFileName = "demo.root"
 numEventsToRun = -1
@@ -50,7 +50,7 @@ numEventsToRun = -1
 ########################################################################################
 # Configure to use PF2PAT jets instead of reco::Jets
 from PhysicsTools.PatAlgos.tools.pfTools import *
-usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=isMC, postfix="")
+usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5chs', runOnMC=isMC, postfix="")
 process.pfPileUp.Enable = True
 process.pfPileUp.checkClosestZVertex = cms.bool(False)
 process.pfPileUp.Vertices = cms.InputTag('primaryVertex')

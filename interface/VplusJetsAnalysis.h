@@ -111,6 +111,12 @@ namespace ewk
     float mpfMETPhi;
     float fastJetRho;
     float lepIsoRho;
+    float genMET;
+    float genSumET;
+    float genMETSign;
+    float genMETPhi;
+
+
   };
 }
 #endif

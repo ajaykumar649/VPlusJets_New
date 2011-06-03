@@ -5,22 +5,12 @@ from time import gmtime, localtime, strftime
 ##------ Please set ONLY one of the four flags to True -------
 physMode   = "WmunuJets_"
 ConfigFile = "WmunuJetsAnalysis_cfg.py"
-dataset    = ["/SingleMu/Run2011A-PromptReco-v1/AOD",
-              "/SingleMu/Run2011A-PromptReco-v2/AOD",
-              "/SingleMu/Run2011A-PromptReco-v2/AOD"
-              ]
-channels   = ["Prompt-V1-1",
-              "Prompt-V2-1",
-              "Prompt-V2-2"]
-RunRange   = ["160329-161312",
-              "162718-163754",
-              "163755-163869"
-              ]
-condor     = [1,
-              1,
-              1]
+dataset    = [ "/SingleMu/Run2011A-May10ReReco-v1/AOD"]
+channels   = ["May10ReReco"]
+RunRange   = ["160404-163869"]
+condor     = [0]
 JSON       = "Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON_MuonPhys.txt"
-MyResilientArea = "/yangf/" +physMode +"CMSSW415-Data2011-May13CTMuonJSON"
+MyResilientArea = "/kalanand/" +physMode +"CMSSW415-Data2011-May13CTMuonJSON"
 ## ------------------------------------------
 
 

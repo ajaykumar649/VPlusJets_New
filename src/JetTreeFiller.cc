@@ -42,7 +42,7 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/JetTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/AngularVars.h"
-
+#include "ElectroWeakAnalysis/VPlusJets/interface/ColorCorrel.h"
 
 ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree, 
 					const std::string jetType,
@@ -158,6 +158,7 @@ void ewk::JetTreeFiller::SetBranches()
     /** Number of constituents carrying a 90% of the total Jet energy*/
     SetBranch( N90, "Jet" + jetType_ + "_N90");
   }
+
   /////////////////////////////////////////////////////////////////////////
 
   if( jetType_ == "Gen") {
@@ -255,6 +256,21 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranchSingle( &cosphiDecayPlane, "cosphiDecayPlane_" + jetType_); 
   SetBranchSingle( &cosThetaLnu, "cosThetaLnu_" + jetType_); 
   SetBranchSingle( &cosThetaJJ, "cosThetaJJ_" + jetType_);
+
+
+  if( jetType_ == "PF" || jetType_ == "PFCor") {
+    /// Color Correlation between W jets ( jets pull )
+    SetBranchSingle( &leadingDeltaTheta, "WJetsPull" + jetType_);
+
+    /// Helicity angles in the Higgs rest frame
+    SetBranchSingle( &j1Hel_HiggsCM, "cosThetaJ1HiggsCM_" + jetType_);
+    SetBranchSingle( &j2Hel_HiggsCM, "cosThetaJ2HiggsCM_" + jetType_);
+    SetBranchSingle( &l1Hel_HiggsCM, "cosThetaL1HiggsCM_" + jetType_);
+    SetBranchSingle( &l2Hel_HiggsCM, "cosThetaL2HiggsCM_" + jetType_);
+    SetBranchSingle( &b1Hel_HiggsCM, "cosThetaV1HiggsCM_" + jetType_);
+    SetBranchSingle( &b2Hel_HiggsCM, "cosThetaV2HiggsCM_" + jetType_);
+
+  }
 
 }
 
@@ -426,6 +442,15 @@ void ewk::JetTreeFiller::init()
    cosphiDecayPlane = 10.0; 
    cosThetaLnu = 10.0; 
    cosThetaJJ = 10.0;
+
+   leadingDeltaTheta = -10.0;
+   j1Hel_HiggsCM = -10.0;;
+   j2Hel_HiggsCM = -10.0;;
+   l1Hel_HiggsCM = -10.0;;
+   l2Hel_HiggsCM = -10.0;;
+   b1Hel_HiggsCM = -10.0;;
+   b2Hel_HiggsCM = -10.0;;
+   
 }
 
 
@@ -434,7 +459,6 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 {
    // first initialize to the default values
    init();
-
 
    edm::Handle<reco::CandidateView> boson;
    iEvent.getByLabel( mInputBoson, boson);
@@ -476,7 +500,11 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue; 
    if(doJetFlavorIdentification) 
       iEvent.getByLabel (sourceByValue, theTagByValue );   
- 
+
+   const reco::Jet *ij1=0;
+   const reco::Jet *ij2=0;
+
+   // Loop over reco jets 
    edm::View<reco::Jet>::const_iterator jet, endpjets = jets->end(); 
    for (jet = jets->begin();  jet != endpjets;  ++jet, ++iJet) {
 
@@ -542,10 +570,10 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
          Flavor[iJet] = flavor;
       }
 
-      // Loop over jets and study b tag info.
+      // study b tag info.
       double closestDistance = 100000.0;
       unsigned int closestIndex = 10000;
-
+      
       for (unsigned int i = 0; i != bTags.size(); ++i) {
          edm::RefToBase<reco::Jet> aJet  = bTags[i].first;   
          dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
@@ -658,6 +686,8 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	 PFElectronMultiplicity[iJet] = pfjet.electronMultiplicity();
 	 PFHFHadronMultiplicity[iJet] = pfjet.HFHadronMultiplicity();
 	 PFHFEMMultiplicity[iJet] = pfjet.HFEMMultiplicity();
+         if ( ij1==0 ) ij1=&(*jet); 
+         if ( ij1>0 && ij2==0 ) ij2=&(*jet);
       }// close PF jets loop
    }// close jets iteration loop
 
@@ -792,10 +822,30 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    cosThetaLnu = 10.0; 
    cosThetaJJ = 10.0;
 
-   if( NumJets>1 )
-     dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, p4j1, p4j2, cosphiDecayPlane, cosThetaLnu, cosThetaJJ);
+   if( NumJets>1 ) dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, p4j1, p4j2, cosphiDecayPlane, cosThetaLnu, cosThetaJJ);
 
+   // Color correlation between two W jets ( jets pull ) 
+   if ( ij1>0 && ij2>0 ) {
+     reco::PFJet pfj1 = static_cast<const reco::PFJet &> (*ij1) ;
+     reco::PFJet pfj2 = static_cast<const reco::PFJet &> (*ij2) ;
+     leadingDeltaTheta = TMath::Abs( getDeltaTheta( &pfj1 , &pfj2) );
+   }   
 
+   // Cos(theta*) or Helicity Angles in Higgs rest frame
+   if( NumJets>1 ){
+     TLorentzVector p4boson1;
+     p4boson1.SetPxPyPzE(Vboson->px(), Vboson->py(), Vboson->pz(), Vboson->energy());
+     TLorentzVector p4boson2 = p4j1 + p4j2;
+     TLorentzVector p4higgs  = p4boson1 + p4boson2;
+     TVector3 higgsBoost = p4higgs.BoostVector();
+
+     j1Hel_HiggsCM = getHelicity( p4j1 , higgsBoost );
+     j2Hel_HiggsCM = getHelicity( p4j2 , higgsBoost );
+     l1Hel_HiggsCM = getHelicity( p4lepton1 , higgsBoost );
+     l2Hel_HiggsCM = getHelicity( p4lepton2 , higgsBoost );
+     b1Hel_HiggsCM = getHelicity( p4boson1 , higgsBoost );
+     b2Hel_HiggsCM = getHelicity( p4boson2 , higgsBoost );
+   }
    //FillBranches();
 }
 

@@ -134,6 +134,8 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &ise1WP95,         lept1+"_isWP95" );
   SetBranch( &ise1WP80,         lept1+"_isWP80" );
   SetBranch( &ise1WP70,         lept1+"_isWP70" );
+  SetBranch( &e1_d0bsp,         lept1+"_d0bsp" );
+  SetBranch( &e1_dz000,         lept1+"_dz000" );
 
   ////////////////////////////////////////////////////////
   if(Vtype_=="Z") {	  
@@ -274,6 +276,8 @@ void ewk::VtoElectronTreeFiller::init()
   e1_dist            = -10.;
   e1_dcot            = -10.;
   e1_convradius      = -10.;
+  e1_d0bsp           = -99999.;
+  e1_dz000           = -99999.;
 
 
   e2px              = -99999.;
@@ -523,6 +527,13 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
 	&& (e1_hcaliso/e1Et<0.02) && (e1_SigmaIetaIeta<0.03) && (fabs(e1_DeltaPhiIn)<0.02) 
 	&& (fabs(e1_DeltaEtaIn)<0.005) && (e1_HoverE<0.025);
     }
+
+  // IP relative to beam spot  & dz relative to vertex
+   edm::Handle<reco::BeamSpot> beamSpot;
+   iEvent.getByLabel("offlineBeamSpot", beamSpot);
+   e1_d0bsp = e1->gsfTrack()->dxy( beamSpot->position() ) ;
+   e1_dz000 = e1->vertex().z();
+
 
   }
 

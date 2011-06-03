@@ -7,7 +7,7 @@
 # cd /pnfs/cms/WAX/resilient/kalanand/WenuJets_Data2011/
 # cd /pnfs/cms/WAX/resilient/kalanand/WenuJets_MC/
 
-cd /pnfs/cms/WAX/11/store/user/yangf/WenuJets_Data2011-DCSMay09/
+cd /pnfs/cms/WAX/11/store/user/kalanand/WenuJets_Data2011-DCSMay09/
 
 ##  `ls ZeeJets_*root`
 ##  `ls WmunuJets_*root`

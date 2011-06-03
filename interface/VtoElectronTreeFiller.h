@@ -153,6 +153,8 @@ namespace ewk {
     float e1_dist;
     float e1_dcot;
     float e1_convradius;
+    float e1_d0bsp;
+    float e1_dz000; 
   
     ///////////////////
 

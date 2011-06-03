@@ -52,7 +52,7 @@ channels   = [
     "WWToLNuQQ_M-600"    
     ]
 condor   = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-MyResilientArea = "/yangf/" + physMode +"CMSSW415-Spring11MC"
+MyResilientArea = "/kalanand/" + physMode +"CMSSW415-Spring11MC"
 
 
 def changeMainConfigFile(trigpath):
