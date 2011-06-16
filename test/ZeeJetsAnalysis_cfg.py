@@ -95,7 +95,7 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 ##-------- Electron events of interest --------
 process.HLTEle =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring("HLT_Ele27_*", "HLT_Ele22_*", "HLT_Ele18_*", "HLT_Ele17_*", "HLT_Ele15_*"),
+     HLTPaths = cms.vstring("HLT_Ele27_*", "HLT_Ele22_*", "HLT_Ele18_*", "HLT_Ele17_*", "HLT_Ele15_*", "HLT_DoubleEle*", "HLT_Ele*_Ele*"),
      eventSetupPathsKey = cms.string(''),
      andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
      throw = cms.bool(False) # throw exception on unknown path names
