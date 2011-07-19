@@ -80,12 +80,22 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F8AEC745-DF57-E011-8D23-001D09F290BF.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F625BE01-E057-E011-892F-003048D2C108.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EEFD6397-E357-E011-978D-001D09F2A465.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EE67057F-DC57-E011-866E-001617E30D0A.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EC5B67FF-DF57-E011-8416-003048D2BED6.root',
+##        '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F8AEC745-DF57-E011-8D23-001D09F290BF.root',
+##        '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F625BE01-E057-E011-892F-003048D2C108.root',
+##        '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EEFD6397-E357-E011-978D-001D09F2A465.root',
+##        '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EE67057F-DC57-E011-866E-001617E30D0A.root',
+##        '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EC5B67FF-DF57-E011-8416-003048D2BED6.root',
        ##'/store/mc/Spring11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S1_START311_V1G1-v1/0005/0C01223C-1255-E011-9708-00261894389C.root',
+
+
+############ Techni-color samples ############################
+       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_5_1_vVp.root',
+       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_4_1_Yg1.root',
+       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_3_1_lo7.root',
+       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_2_1_MfI.root',
+       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_1_1_gPP.root' 
+    
+       
 ) )
 
 
