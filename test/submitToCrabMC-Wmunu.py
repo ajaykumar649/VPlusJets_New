@@ -11,6 +11,7 @@ dataset    = [
     "/WW_TuneZ2_7TeV_pythia6_tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/WZ_TuneZ2_7TeV_pythia6_tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v2/AODSIM",
+    "/TTTo2L2Nu2B_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/GluGluToHToWWToLNuQQ_M-120_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/GluGluToHToWWToLNuQQ_M-130_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/GluGluToHToWWToLNuQQ_M-140_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
@@ -37,11 +38,16 @@ dataset    = [
     "/Tbar_TuneZ2_s-channel_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/Tbar_TuneZ2_t-channel_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/Tbar_TuneZ2_tW-channel-DS_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM"
+    "/T_TuneZ2_s-channel_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
+    "/T_TuneZ2_t-channel_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
+    "/T_TuneZ2_tW-channel-DS_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM"
+
     ]
 channels   = [
     "WJets",
     "WWtoAnything",
-    "WZtoAnything",    
+    "WZtoAnything",
+    "TTJets",
     "TTToLNu2Q2B",            
     "WWToLNuQQ_M-120",
     "WWToLNuQQ_M-130",
@@ -66,11 +72,14 @@ channels   = [
     "WJets_TuneD6T_scaledown"
     "DYJetsToLL",
     "DYToTauTau",
-    "Tbar_schannel",
-    "Tbar_tchannel",
-    "Tbar_twchannel"
+    "Tbar_s-channel",
+    "Tbar_t-channel",
+    "Tbar_tW-channel",
+    "T_s-channel_powheg",
+    "T_t-channel_powheg",
+    "T_tW-channel_powheg"
 ]
-condor   = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+condor   = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 MyResilientArea = "/pratima/" + physMode +"CMSSW423-Summer11MC"
 
 
