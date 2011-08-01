@@ -35,7 +35,11 @@ dataset    = [
     "/WJets_TuneD6T_scaleup_7TeV-madgraph-tauola/Fall10-START38_V12-v1/AODSIM",
     "/WJets_TuneD6T_scaledown_7TeV-madgraph-tauola/Fall10-START38_V12-v1/GEN-SIM-RECO"
     "/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
-    "/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM"
+    "/DYToTauTau_M-20_CT10_TuneZ2_7TeV-powheg-pythia-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
+    "/Tbar_TuneZ2_s-channel_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
+    "/Tbar_TuneZ2_t-channel_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
+    "/Tbar_TuneZ2_tW-channel-DS_7TeV-powheg-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM"
+    
     ]
 channels   = [
     "WJets",
@@ -67,9 +71,12 @@ channels   = [
     "WJets_TuneD6T_scaleup",
     "WJets_TuneD6T_scaledown"
     "DYJetsToLL",
-    "DYToTauTau"
+    "DYToTauTau",
+    "Tbar_schannel",
+    "Tbar_tchannel",
+    "Tbar_twchannel"
 ]
-condor   = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+condor   = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 MyResilientArea = "/pratima/" + physMode +"CMSSW423-Summer11MC"
 
 
