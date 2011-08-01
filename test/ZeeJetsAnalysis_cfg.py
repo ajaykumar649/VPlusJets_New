@@ -104,7 +104,7 @@ process.HLTEle =cms.EDFilter("HLTHighLevel",
 
 
 
-process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis",
+process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcPFCor = cms.InputTag("ak5PFJetsCorClean"),
     srcVectorBoson = cms.InputTag("bestZee"),
     VBosonType     = cms.string('Z'),
@@ -152,4 +152,4 @@ else:
 process.myseq.remove ( process.RequireTwoJets)  
 
 process.outpath.remove(process.out)
-process.p = cms.Path( process.myseq * process.VpusJets)
+process.p = cms.Path( process.myseq * process.VplusJets)

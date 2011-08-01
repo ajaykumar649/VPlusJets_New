@@ -140,7 +140,7 @@ process.ak5PFJetsCorClean = cms.EDFilter("PtMinPFJetSelector",
 ############################################
 #  V+jets Collection ##########
 ############################################
-process.VpusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
+process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
     srcPFCor = cms.InputTag("ak5PFJetsCorClean"), 
     srcVectorBoson = cms.InputTag("bestWToEnu"),
     VBosonType     = cms.string('W'),
@@ -165,7 +165,7 @@ process.myseq = cms.Sequence(
     process.ak5PFJetsLooseId * 
     process.ak5PFJetsCor *
     process.ak5PFJetsCorClean *
-    process.VpusJets
+    process.VplusJets
     )
 
 process.p = cms.Path( process.myseq )
