@@ -19,11 +19,12 @@ void kanamuon::myana(double myflag)
   TChain * myChain;
   // 2011 data
   myflag = -100;
-//   if (myflag == 20111000 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DataAll_GoldenJSON_1p1invfb.root"); 
-//     Init(myChain);Loop( 2011, 1000,          "./RD_WmunuJets_DataAll_GoldenJSON_1p1invfb.root");
-//   }
+
+  if (myflag == 20111000 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DataAll_GoldenJSON_1p1invfb.root"); 
+    Init(myChain);Loop( 2011, 1000,          "./RD_WmunuJets_DataAll_GoldenJSON_1p1invfb.root");
+  }
 
 //   // General Background Samples
 //   if (myflag == 20111001 || myflag == -100){
@@ -82,12 +83,17 @@ void kanamuon::myana(double myflag)
 //     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_QCD_Pt-20_MuEnrichedPt-15.root"); 
 //     Init(myChain);Loop( 2011, 1011,          "./RD_WmunuJets_QCD_Pt-20_MuEnrichedPt-15.root");
 //   }
+//   if (myflag == 20111015 || myflag == -100){
+//     myChain = new TChain("WJet");  
+//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root"); 
+//     Init(myChain);Loop( 2011, 1015,          "./RD_WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root");
+//   }
 
 
-  if (myflag == 20111015 || myflag == -100){
+  if (myflag == 20111016 || myflag == -100){
     myChain = new TChain("WJet");  
-    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root"); 
-    Init(myChain);Loop( 2011, 1015,          "./RD_WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root");
+    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DYToTauTau.root"); 
+    Init(myChain);Loop( 2011, 1016,          "./RD_WmunuJets_DYToTauTau.root");
   }
 
 

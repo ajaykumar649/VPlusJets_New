@@ -40,9 +40,9 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ############################################
 if not isMC:
-    process.GlobalTag.globaltag = 'GR_R_42_V12::All'
+    process.GlobalTag.globaltag = 'GR_R_42_V19::All'
 else:
-    process.GlobalTag.globaltag = 'START42_V12::All'
+    process.GlobalTag.globaltag = 'START42_V13::All'
 
 OutputFileName = "demo.root"
 numEventsToRun = -1
@@ -78,6 +78,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
 
 
@@ -130,8 +131,7 @@ process.myseq = cms.Sequence(
     process.HLTMu *
     process.ZPath *    
     process.GenJetPath *
-    process.impactParameterTagInfos * 
-    process.secondaryVertexTagInfos *
+    process.btagging * 
     process.TagJetPath *
     process.PFJetPath *
     process.CorPFJetPath 

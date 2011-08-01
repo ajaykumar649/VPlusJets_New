@@ -4,12 +4,12 @@ mcFlag = False
                  
 
 print "################### Reading Jet Collections ##################"
-## print "isMC = ",
-## if mcFlag:
-##     print "Yup"
-## else:
-##     print "Nope"
-## print "##############################################################"
+print "isMC = ",
+if mcFlag:
+    print "Yup"
+else:
+    print "Nope"
+print "##############################################################"
 
 from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseElectrons
 from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseMuons
@@ -68,10 +68,10 @@ PFJetPath = cms.Sequence(
 ##################### Corrected PFJets
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 ak5PFL1Fastjet.srcRho = cms.InputTag('kt6PFJets', 'rho')
-#if mcFlag:
-ak5PFJetsCor = ak5PFJetsL1FastL2L3.clone()
-## else:
-##     ak5PFJetsCor = ak5PFJetsL1FastL2L3Residual.clone()
+if mcFlag:
+    ak5PFJetsCor = ak5PFJetsL1FastL2L3.clone()
+else:
+    ak5PFJetsCor = ak5PFJetsL1FastL2L3Residual.clone()
     
 
 ak5PFJetsCor.src = "ak5PFJetsLooseId"
@@ -93,13 +93,13 @@ CorPFJetPath = cms.Sequence(
     ak5PFJetsClean +
     ak5PFJetsL2L3 +
     ak5PFJetsL1FastL2L3 +    
-##     ak5PFJetsL1FastL2L3Residual +
+    ak5PFJetsL1FastL2L3Residual +
     ak5PFJetsCor +
     ak5PFJetsCorClean +
     RequireTwoJets
     )
-## if mcFlag:
-##     CorPFJetPath.remove( ak5PFJetsL1FastL2L3Residual )
+if mcFlag:
+    CorPFJetPath.remove( ak5PFJetsL1FastL2L3Residual )
 ##########################################################################
 #############  Jets in Monte Carlo  #############
 ##########################################################################

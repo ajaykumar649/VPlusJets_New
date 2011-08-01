@@ -57,14 +57,13 @@ const char* PLOTPREFIX = "mLnuJJ";
 //const char* PLOTVAR = "MassV2j_PFCor";
 const char* PLOTVAR = "fit_mlvjj";
 const char* XLABEL = "m_{l#nujj}";
-const double MINRange = 140.0;
-const double MAXRange = 620.0;
-const int BINWIDTH = 20;
-const bool includeHiggs = true;
+const double MINRange = 100.0;
+const double MAXRange = 800.0;
+const int BINWIDTH = 10;
 const bool IncludeTopSingleTop = false;
 
 
-const float IntLUMI = 935.0;
+const float IntLUMI = 1200.0;
 const float keysrho = 3.25;
 const RooKeysPdf::Mirror mirrorOption = RooKeysPdf::NoMirror;
 const double WmassWindowMIN = 65.0;
@@ -72,48 +71,19 @@ const double WmassWindowMAX = 95.0;
 
 
 
-const int mHIGGS = 600;
 const bool truncateFitRange = false;
 const int NBINSFORPDF = (int)((MAXRange-MINRange)/BINWIDTH);
 const bool USEKEYSPDF = false;
 const char* mJJCutFormLvJJFit = "Mass2j_PFCor>65. && Mass2j_PFCor<95.";
-//const char* mJJCutFormLvJJFit = "";
-//const char* mJJCutFormLvJJFit = "Mass2j_PFCor<65.";
-//const char* mJJCutFormLvJJFit = "Mass2j_PFCor>95.";
-//const char* mJJCutFormLvJJFit = "Mass2j_PFCor>95. && Mass2j_PFCor<120.";
-//const char* mJJCutFormLvJJFit = "Mass2j_PFCor>180.";
-//const char* mJJCutFormLvJJFit = "Mass2j_PFCor<65. && Mass2j_PFCor>30.";
-//const char* mJJCutFormLvJJFit = "((Mass2j_PFCor<65.) || ((Mass2j_PFCor>95.)&&(Mass2j_PFCor<120)) || (Mass2j_PFCor>180.))";
 
 const char* jetCut;
 const char* muCut;
 const char* eleCut;
 
-jetCut = "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5 && cosJacksonAngle2j_PFCor>-0.6 && cosJacksonAngle2j_PFCor<0.8 && JetPFCor_Pt[2] < 0.1 &&"
-   "sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>40. && "
-  "abs(JetPFCor_Pt[1]/Mass2j_PFCor-0.5)<0.2 && "
-  "W_mt>40. && JetPFCor_Pt[0]>30."
-  " && JetPFCor_Pt[1]>30. && JetPFCor_Pt[2]<0.1"
-  " && JetPFCor_bDiscriminator[0]<1.19"
-  " && JetPFCor_bDiscriminator[1]<1.19 && fit_status==0";
-// " && fit_status==0 && gdevtt"
-
-
-muCut = "W_muon_pt>25. && abs(W_muon_eta)<2.1 && event_met_pfmet>30."
-  " && (W_muon_trackiso+W_muon_hcaliso+W_muon_ecaliso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_muon_pt<0.1"" && abs(W_muon_d0bsp)<0.02";
-
-eleCut = "W_electron_et>30.&& event_met_pfmet>30."
-   " && (W_electron_trackiso+W_electron_hcaliso+W_electron_ecaliso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_electron_pt<0.05"
-   " && W_electron_isWP80"
-   " && ((abs(W_electron_eta)<1.5 &&"
-   " abs(W_electron_deltaphi_in)<0.03"
-   " && abs(W_electron_deltaeta_in)<0.004)"
-   " || (abs(W_electron_eta)>1.5"
-   " && abs(W_electron_deltaphi_in)<0.02"
-  " && abs(W_electron_deltaeta_in)<0.005))"
-  " && sqrt((W_electron_vx-event_BeamSpot_x)**2+(W_electron_vy-event_BeamSpot_y)**2)<0.02";
-
-
+jetCut = "JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && gdevtt && fit_status==0 && fit_chi2/fit_NDF<10. && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && cosJacksonAngle2j_PFCor<0.8 && cosJacksonAngle2j_PFCor>-0.6";
+// "abs(JetPFCor_Pt[1]/Mass2j_PFCor-0.5)<0.2 && fit_status==0 && gdevtt && fit_chi2<10"
+muCut = "";
+eleCut = "";
 
 
 TCut* jetsSel;
@@ -125,6 +95,8 @@ TCut* ele_selection;
 RooRealVar *mjj_;
 RooRealVar *massShift;
 RooAbsReal *shiftedMass;
+RooRealVar *massShift2;
+RooAbsReal *shiftedMass2;
 RooRealVar *reso_;
 RooRealVar *zero_;
 RooGaussModel *resModel_;
@@ -164,8 +136,25 @@ TCanvas *c2;
 
 using namespace RooFit;
 
+void RooWjj4BodyFitter() {
+   RooWjj4BodyFitter(160, 0, false, 0.0);
+//    RooWjj4BodyFitter(160, 0);
+//    RooWjj4BodyFitter(200, 0);
+//    RooWjj4BodyFitter(250, 0);
+//    RooWjj4BodyFitter(300, 0);
+//    RooWjj4BodyFitter(350, 0);
+//    RooWjj4BodyFitter(400, 0);
+//    RooWjj4BodyFitter(450, 0);
+//    RooWjj4BodyFitter(500, 0);
+//    RooWjj4BodyFitter(550, 0);
+//    RooWjj4BodyFitter(600, 0);
+}  
+
+
+
+
 ///////// --------- channel 0 : combined,  1: mu,    2: ele --------------
-void RooWjj4BodyFitter(int channel=0)
+void RooWjj4BodyFitter(int mHIGGS = 200, int channel=0, bool includeHiggs = true, float alpha = 1.0)
 {
  jetsSel = new TCut (jetCut);
  mu_selection = new TCut ( (*jetsSel) && TCut(muCut) );
@@ -182,8 +171,7 @@ void RooWjj4BodyFitter(int channel=0)
    //RooRealVar Mass = *shiftedMass;
 
 
-   TCut massCut = "";
-   massCut = mJJCutFormLvJJFit;
+   TCut massCut = TCut(mJJCutFormLvJJFit);
 
    *mu_selection = TCut( *mu_selection && massCut);
    *ele_selection = TCut( *ele_selection && massCut);
@@ -191,14 +179,14 @@ void RooWjj4BodyFitter(int channel=0)
  
    gROOT->cd();
    char temp[50];
-   TFile fin("data/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_953invpb.root", "read");
+   TFile fin("data/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_1p1invfb.root", "read");
    TTree* treeTemp = (TTree*) fin.Get("WJet");
    ActivateTreeBranches(*treeTemp);
    gROOT->cd();
    TTree* treemu = treeTemp->CopyTree( *mu_selection);
 
 
-   TFile fin2("data/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_917invpb.root", "read");
+   TFile fin2("data/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_1p1invfb.root", "read");
    TTree* treeTemp2 = (TTree*) fin2.Get("WJet");
    ActivateTreeBranches(*treeTemp2, true);
    gROOT->cd();
@@ -212,7 +200,7 @@ void RooWjj4BodyFitter(int channel=0)
    RooDataSet* data_ele = new RooDataSet("data_ele","data_ele",treeele, Mass);
   
    if(channel == 0) data->append(*data_ele);
-   cout << "Made dataset" << endl;
+   cout << "Made dataset: nEntries = " << data->numEntries() << endl;
 
 
 
@@ -220,19 +208,21 @@ void RooWjj4BodyFitter(int channel=0)
    // ********** Construct signal & bkg shape PDF ********** //
    makeSignalPdf();
    cout << "Made signal pdf" << endl;
-   makeBkgPdf(channel);
-   if(IncludeTopSingleTop)
+   makeBkgPdf(channel, alpha);
+   if(IncludeTopSingleTop) {
      makeTTbarPdf(channel);
+     makeSingleTopPdf(channel);
+   }
    cout << "Made bkg pdf" << endl;
    if(includeHiggs) {
-     makeHiggsPdf(channel);
+      makeHiggsPdf(channel, mHIGGS);
      cout << "Made bkg pdf" << endl;
    }
 
    // Define background yield variables: they are not related to each other  
-   RooRealVar nBkg("nBkg","nBkg",  25000.,     0.0,   500000.);
-   RooRealVar nSig("nSig","nSig",  1000.,      0.0,   5000.);
-   RooRealVar nHiggs("nHiggs","nHiggs", 300.,  100.0,   500.);
+   RooRealVar nBkg("nBkg","nBkg",   5000.,     0.0,   50000.);
+   RooRealVar nSig("nSig","nSig",   713.,      0.0,   5000.);
+   RooRealVar nHiggs("nHiggs","nHiggs", 80.,  0.0,   5000.);
    // fix the top and single top normalization
 //    double NUMTOP = IntLUMI*0.2;
 //    double NUMSINGLETOP = IntLUMI*0.4;
@@ -280,9 +270,16 @@ void RooWjj4BodyFitter(int channel=0)
 
 
 
+//set the precision for the integral of the model here
+//    RooNumIntConfig* cfg = RooAbsReal::defaultIntegratorConfig();
+//    cfg->setEpsAbs(1E-8);
+//    cfg->setEpsRel(1E-8);
+//    totalPdf.setIntegratorConfig(*cfg);
+
+
    Mass.setRange("Range200To250", 200, 250) ;
    Mass.setRange("RangeBelow200", 170, 200) ;
-   Mass.setRange("RangeAbove200", 200, 550) ;
+   Mass.setRange("RangeAbove200", 160, 500) ;
    Mass.setRange("RangeAbove150", MINRange, MAXRange) ;
    Mass.setRange("RangeForPlot", MINRange, MAXRange) ;
    Mass.setRange("RangeDefault", MINRange, MAXRange) ;
@@ -291,15 +288,16 @@ void RooWjj4BodyFitter(int channel=0)
    // ********* Do the Actual Fit ********** //  
    //const char* rangeString = "Range55To250";
    char* rangeString = "RangeDefault";
-   if(truncateFitRange && strcmp(PLOTPREFIX, "mLnuJJ") ==0 ) 
+   if(truncateFitRange) 
       rangeString = "RangeBelow200,RangeAbove250";
    else rangeString = "RangeAbove200";
 
    RooFitResult *fitResult;
-   double nSigConst = 744.; 
-   double nSigConstError = 95.; 
-   // double nBkgConst = 8.84*nSigConst; 
-   double nBkgConst = 5706.; 
+   // double nSigConst = 824;
+   double nSigConst = 668.02;
+   double nSigConstError = 0.08; 
+   //  double nBkgConst = 5368;
+   double nBkgConst = 4399.7;
    double nBkgConstError = 108.; 
 
    if(channel == 1) {
@@ -316,33 +314,53 @@ void RooWjj4BodyFitter(int channel=0)
    }
 
 
-   RooGaussian constNsig("constNsig","",nSig,RooConst(nSigConst),
-			 RooConst(nSigConstError)) ;
-   RooGaussian constNbkg("constNbkg","",nBkg,RooConst(nBkgConst),
-			 RooConst(nBkgConstError)) ;
+//     massShift->setVal(0.0);
+//     massShift->setConstant(true);
+
+   RooGaussian  constNsig("constNsig","", nSig,  RooConst(nSigConst),
+   RooConst(nSigConstError)) ;
+   RooGaussian  constNbkg("constNbkg","",nBkg,RooConst(nBkgConst),
+   RooConst(nBkgConstError)) ;
 
 
-   RooGaussian constJES("constJES","", *massShift, RooConst(0.0),
-   RooConst(0.1)) ;
+   RooGaussian constJES("constJES","", *massShift, RooConst(0.0),RooConst(4.)) ;
+//   RooGaussian constJES2("constJES2","", *massShift2, RooConst(0.0),RooConst(0.1*mHIGGS)) ;
 
 
-     nBkg.setVal(nBkgConst);
-     nBkg.setConstant( kTRUE );
-     nSig.setVal(nSigConst);
-     nSig.setConstant( kTRUE );   
+   nBkg.setVal(nBkgConst);
+   nBkg.setConstant( kTRUE );
 
-     RooCmdArg* argConstrain1;
-     if(!includeHiggs) argConstrain1 = new RooCmdArg(RooFit::ExternalConstraints(constJES));
+   nSig.setVal(nSigConst);
+   nSig.setConstant( kTRUE );
+
+   massShift->setVal(0.0);
+
+/*
+     RooCmdArg* argConstrain0;
+     RooCmdArg* argConstrain1 = 
+        new RooCmdArg(RooFit::ExternalConstraints(constJES));
+     RooCmdArg* argConstrain2;
+
+     if(!includeHiggs) { 
+        argConstrain0 = new RooCmdArg(RooCmdArg::none());
+        //argConstrain2 = new RooCmdArg(RooCmdArg::none());
+        argConstrain2 = new RooCmdArg(RooFit::ExternalConstraints(constNsig));
+     }
      else { 
-       massShift->setVal( 0.0 );
-       massShift->setConstant( kTRUE );
-       argConstrain1 = RooCmdArg::none();
+        argConstrain0 = new RooCmdArg(RooFit::ExternalConstraints(constNbkg));
+        //argConstrain2 = new RooCmdArg(RooFit::ExternalConstraints(constNsig));
+        argConstrain2 = new RooCmdArg(RooCmdArg::none());
+        // argConstrain2 = new RooCmdArg(RooFit::ExternalConstraints(constJES2));
      }
 
      fitResult = totalPdf.fitTo(*data, Save(true), 
-				*argConstrain1,
-				RooFit::Extended(true), 
-				//RooFit::Minos(true), 
+     //*argConstrain0,
+     *argConstrain1,
+     *argConstrain2,
+     //RooFit::Extended(true), 
+     // RooFit::Migrad(true), 
+     RooFit::Minos(false), 
+     RooFit::Hesse(false), 
 				PrintEvalErrors(-1),
 				RooFit::Range(rangeString),
 				Warnings(false) 
@@ -362,6 +380,9 @@ void RooWjj4BodyFitter(int channel=0)
 
 
    fitResult->Print("v");
+
+*/
+
 
    // ********** Make and save Canvas for the plots ********** //
    gROOT->ProcessLine(".L ~kalanand/tdrstyle.C");
@@ -440,7 +461,8 @@ void RooWjj4BodyFitter(int channel=0)
    plotlabel6->SetTextSize(0.03);
    // double singleTopN = 4.6*0.32442 + 63.0 * 0.32442 + 10.6;
    if(!includeHiggs) {
-     sprintf(temp, "Di-boson = %d (fixed)", nSig.getVal());
+      sprintf(temp, "Di-boson = %d (fixed)", nSig.getVal());
+//nSig.getPropagatedError(*fitResult)
      plotlabel4->AddText(temp);
      sprintf(temp, "W + jets = %d (fixed)", nBkg.getVal());
      plotlabel5->AddText(temp);
@@ -448,13 +470,14 @@ void RooWjj4BodyFitter(int channel=0)
      plotlabel5->Draw();
    }
    else {
-      sprintf(temp, "Higgs %d = %.1f #pm %.1f", mHIGGS, nHiggs.getVal(), nHiggs.getPropagatedError(*fitResult));
+      sprintf(temp, "Higgs %d = %.1f #pm %.1f", mHIGGS, nHiggs.getVal(), nHiggs.getError());
+//nHiggs.getPropagatedError(*fitResult)
       plotlabel4->AddText(temp);
       plotlabel4->Draw();
       sprintf(temp, "Di-boson = %d #pm %d", nSig.getVal(), nSig.getPropagatedError(*fitResult));
       plotlabel5->AddText(temp);
       plotlabel5->Draw();
-      sprintf(temp, "W + jets = %d #pm %d", nBkg.getVal(), nBkg.getPropagatedError(*fitResult));
+      sprintf(temp, "W + jets = %d (fixed)", nBkg.getVal(), nBkg.getPropagatedError(*fitResult));
       plotlabel6->AddText(temp);
       plotlabel6->Draw();
    }
@@ -464,6 +487,9 @@ void RooWjj4BodyFitter(int channel=0)
    // TLegend* legend = new TLegend(0.35,0.35,0.55,0.55);
    TLegend* legend = new TLegend(0.65,0.5,0.85,0.7);
    RooHist* datahist = frame1->getHist("h_data");
+   RooCurve* fithist = frame1->getCurve("h_total");
+   fithist->SetLineWidth(3);
+   fithist->SetLineColor(4);
    RooCurve* dibosonhist = frame1->getCurve("h_diboson");
    RooCurve* wjetshist = frame1->getCurve("h_Wjets");
    RooCurve* tophist = frame1->getCurve("h_Top");
@@ -471,6 +497,7 @@ void RooWjj4BodyFitter(int channel=0)
    if(includeHiggs) RooCurve* higgshist = frame1->getCurve("h_higgs");
 
    legend->AddEntry( datahist, "Data", "P");  
+   legend->AddEntry( fithist, "Fit", "L");
    legend->AddEntry( dibosonhist, "Di-boson", "F");
    legend->AddEntry( wjetshist, "W+jets", "L");
    if(IncludeTopSingleTop)
@@ -500,14 +527,15 @@ void RooWjj4BodyFitter(int channel=0)
    if(includeHiggs) cname = cname + TString(temp);
    c1 = new TCanvas(cname,cname,500,500);
    frame1->SetMinimum(0.5);
-   frame1->SetMaximum(20000);
+   frame1->SetMaximum(2000000);
    frame1->Draw("e0");
    plotlabel4->Draw();
    plotlabel5->Draw();
    if(includeHiggs) plotlabel6->Draw();
    cmsPrelim2();
-   TLegend* legend = new TLegend(0.6,0.62,0.85,0.82);
+   TLegend* legend = new TLegend(0.6,0.52,0.85,0.72);
    legend->AddEntry( datahist, "Data", "P");  
+   legend->AddEntry( fithist, "Fit", "L");
    legend->AddEntry( dibosonhist, "Di-boson", "F");
    legend->AddEntry( wjetshist, "W+jets", "L");
    if(IncludeTopSingleTop) 
@@ -673,10 +701,10 @@ void makeSignalPdf() {
 
 
 // ***** Function to return the Higgs Pdf **** //
-void makeHiggsPdf(int channel)
+void makeHiggsPdf(int channel, int mHiggs)
 {  
    char temp[100];
-   sprintf(temp, "data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-%d.root", mHIGGS);
+   sprintf(temp, "data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-%d.root", mHiggs);
    mhfile = new TFile( temp, "read");
    TTree* treeTemp = (TTree*) mhfile->Get("WJet");
    ActivateTreeBranches(*treeTemp);
@@ -689,8 +717,16 @@ void makeHiggsPdf(int channel)
    else {
      TH1* th1H = new TH1D("th1H", "th1H", NBINSFORPDF, MINRange, MAXRange);
      tree->Draw( TString(PLOTVAR)+TString(">>th1H"), *mu_selection, "goff");
-     RooDataHist* rdhH = new RooDataHist("rdhH","", *mjj_, th1H);
-     mHShapePdf_ = new RooHistPdf("mHShapePdf", "", *mjj_, *rdhH);
+
+     massShift2 = new RooRealVar("massShift2","",-1., -10., 10.);
+     shiftedMass2 = new RooFormulaVar("shiftedMass2", "@0+@1", RooArgSet( *mjj_, *massShift2) );
+
+     RooDataHist* rdh = new RooDataHist("rdh","", *mjj_, th1H);
+     mHShapePdf_ = new RooHistPdf("mHShapePdf","",*shiftedMass2, *mjj_,*rdh);
+
+
+ //     RooDataHist* rdhH = new RooDataHist("rdhH","", *mjj_, th1H);
+//      mHShapePdf_ = new RooHistPdf("mHShapePdf", "", *mjj_, *rdhH);
    }
    delete tree;
    delete treeTemp;
@@ -703,24 +739,30 @@ void makeHiggsPdf(int channel)
 
 
 // ***** Function to return the background Pdf **** //
-void makeBkgPdf(int channel)
+void makeBkgPdf(int channel, float alpha=1.0)
 {  
   // W+jets pdf
-  TCut sidebands("((Mass2j_PFCor>95. && Mass2j_PFCor<125.) || (Mass2j_PFCor>35. && Mass2j_PFCor<65.))");
-  //   wjetsShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW423-Summer11MC_WJets.root", "READ");
-  wjetsShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_953invpb.root", "READ");
+   char temp[100];
+   sprintf(temp, "%f*(Mass2j_PFCor>35. && Mass2j_PFCor<65.)", 1.0 );
+   TCut sidebandLo(temp);
+   sprintf(temp, "%f*(Mass2j_PFCor>95. && Mass2j_PFCor<125.)", 1.0+alpha);
+   TCut sidebandHi(temp);
+
+
+//  wjetsShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW423-Summer11MC_WJets.root", "READ");
+  wjetsShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_1p1invfb.root", "READ");
 
    treeTemp = (TTree*) wjetsShape_mu_file->Get("WJet");
    ActivateTreeBranches(*treeTemp);
    gROOT->cd();
-   TTree* tree1 = treeTemp->CopyTree( (*jetsSel) && TCut(muCut) && sidebands);
+   TTree* tree1 = treeTemp->CopyTree( (*jetsSel) && TCut(muCut) );
 
    //    wjetsShape_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_CMSSW423-Summer11MC_WJets.root", "READ");
-   wjetsShape_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_917invpb.root", "READ");
+   wjetsShape_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_1p1invfb.root", "READ");
    treeTemp = (TTree*) wjetsShape_ele_file->Get("WJet");
    ActivateTreeBranches(*treeTemp, true);
    gROOT->cd();
-   TTree* tree2 = treeTemp->CopyTree( (*jetsSel) && TCut(eleCut) && sidebands);
+   TTree* tree2 = treeTemp->CopyTree( (*jetsSel) && TCut(eleCut) );
 
    if(USEKEYSPDF) {
      RooDataSet* rdsb = new RooDataSet("rdsb","", tree1, *mjj_);
@@ -732,86 +774,99 @@ void makeBkgPdf(int channel)
    else {
      TH1* th1wjets = new TH1D("th1wjets", "th1wjets",
    			      NBINSFORPDF,MINRange,MAXRange);
-     if(channel==0 || channel==1) 
-       tree1->Draw(TString(PLOTVAR)+TString(">>th1wjets"), "", "goff");
-     if(channel==0)
-       tree2->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), "", "goff");
-     if(channel==2) 
-       tree2->Draw(TString(PLOTVAR)+TString(">>th1wjets"), "", "goff");
+     if(channel==0 || channel==1) {
+       tree1->Draw(TString(PLOTVAR)+TString(">>th1wjets"), sidebandHi, "goff");
+       tree1->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), sidebandLo, "goff");
+     }
+     if(channel==0) {
+       tree2->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), sidebandHi, "goff");
+       tree2->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), sidebandLo, "goff");
+     }
+     if(channel==2) {
+       tree2->Draw(TString(PLOTVAR)+TString(">>th1wjets"), sidebandHi, "goff");
+       tree2->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), sidebandLo, "goff");
+     }
 
      RooDataHist* rdh = new RooDataHist("rdh","", *mjj_, th1wjets);
      bkgShapePdf_ = new RooHistPdf("bkgShapePdf", "", *mjj_, *rdh);
    }
 
-
-
-   // single top pdf
-   if(IncludeTopSingleTop) {
-     st1_mu_file =  new TFile("data/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-s-channel.root", "READ");
-     treeTemp = (TTree*) st1_mu_file->Get("WJet");
-     ActivateTreeBranches(*treeTemp);
-     gROOT->cd();
-     TTree* tree3 = treeTemp->CopyTree(*mu_selection);
-     if(USEKEYSPDF) {
-       RooDataSet* rds3 = new RooDataSet("rds3","", tree3, *mjj_);
-       stSPdf_ = new RooKeysPdf("stSPdf", "", *mjj_, *rds3, 
-				mirrorOption, keysrho);
-     }
-     else {
-       TH1* th1st1 = new TH1D("th1st1", "th1st1",NBINSFORPDF,MINRange,MAXRange);
-       tree3->Draw( TString(PLOTVAR)+TString(">>th1st1"), *mu_selection, "goff");
-       RooDataHist* rdhst1 = new RooDataHist("rdhst1","", *mjj_, th1st1);
-       stSPdf_ = new RooHistPdf("stSPdf", "", *mjj_, *rdhst1);
-     }
-     delete tree3;
-     delete treeTemp;
-
-
-     st2_mu_file =  new TFile("data/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root", "READ");
-     treeTemp = (TTree*) st2_mu_file->Get("WJet");
-     ActivateTreeBranches(*treeTemp);
-     gROOT->cd();
-     TTree* tree4 = treeTemp->CopyTree(*mu_selection);
-     if(USEKEYSPDF) {
-       RooDataSet* rds4 = new RooDataSet("rds4","", tree4, *mjj_);
-       stTPdf_ = new RooKeysPdf("stTPdf", "", *mjj_, *rds4, 
-				mirrorOption, keysrho);
-     }
-     else {
-       TH1* th1st2 = new TH1D("th1st2", "th1st2",NBINSFORPDF,MINRange,MAXRange);
-       tree4->Draw( TString(PLOTVAR)+TString(">>th1st2"), *mu_selection, "goff");
-       RooDataHist* rdhst2 = new RooDataHist("rdhst2","", *mjj_, th1st2);
-       stTPdf_ = new RooHistPdf("stTPdf", "", *mjj_, *rdhst2);
-     }
-     delete tree4;
-     delete treeTemp;
-
-
-
-     st3_mu_file =  new TFile("data/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root", "READ");
-     treeTemp = (TTree*) st3_mu_file->Get("WJet");
-     ActivateTreeBranches(*treeTemp);
-     gROOT->cd();
-     TTree* tree5 = treeTemp->CopyTree(*mu_selection);
-     if(USEKEYSPDF) {
-       RooDataSet* rds5 = new RooDataSet("rds5","", tree5, *mjj_);
-       stTWPdf_ = new RooKeysPdf("stTWPdf", "", *mjj_, *rds5, 
-				 mirrorOption, keysrho);
-     }
-     else {
-       TH1* th1st3 = new TH1D("th1st3", "th1st3",NBINSFORPDF,MINRange,MAXRange);
-       tree5->Draw( TString(PLOTVAR)+TString(">>th1st3"), *mu_selection, "goff");
-       RooDataHist* rdhst3 = new RooDataHist("rdhst3","", *mjj_, th1st3);
-       stTWPdf_ = new RooHistPdf("stTWPdf", "", *mjj_, *rdhst3);
-     }
-     delete tree5;
-     delete treeTemp;
-   }
-
-
+   delete tree2;
+   delete treeTemp;
 }
 
 
+
+
+
+
+
+// ***** Function to return single top Pdf **** //
+void makeSingleTopPdf(int channel)
+{  
+
+   // single top pdf
+   st1_mu_file =  new TFile("data/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-s-channel.root", "READ");
+   TTree* treeTemp = (TTree*) st1_mu_file->Get("WJet");
+   ActivateTreeBranches(*treeTemp);
+   gROOT->cd();
+   TTree* tree3 = treeTemp->CopyTree(*mu_selection);
+   if(USEKEYSPDF) {
+      RooDataSet* rds3 = new RooDataSet("rds3","", tree3, *mjj_);
+      stSPdf_ = new RooKeysPdf("stSPdf", "", *mjj_, *rds3, 
+      mirrorOption, keysrho);
+   }
+   else {
+      TH1* th1st1 = new TH1D("th1st1", "th1st1",NBINSFORPDF,MINRange,MAXRange);
+      tree3->Draw( TString(PLOTVAR)+TString(">>th1st1"), *mu_selection, "goff");
+      RooDataHist* rdhst1 = new RooDataHist("rdhst1","", *mjj_, th1st1);
+      stSPdf_ = new RooHistPdf("stSPdf", "", *mjj_, *rdhst1);
+   }
+   delete tree3;
+   delete treeTemp;
+
+
+   st2_mu_file =  new TFile("data/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root", "READ");
+   treeTemp = (TTree*) st2_mu_file->Get("WJet");
+   ActivateTreeBranches(*treeTemp);
+   gROOT->cd();
+   TTree* tree4 = treeTemp->CopyTree(*mu_selection);
+   if(USEKEYSPDF) {
+      RooDataSet* rds4 = new RooDataSet("rds4","", tree4, *mjj_);
+      stTPdf_ = new RooKeysPdf("stTPdf", "", *mjj_, *rds4, 
+      mirrorOption, keysrho);
+   }
+   else {
+      TH1* th1st2 = new TH1D("th1st2", "th1st2",NBINSFORPDF,MINRange,MAXRange);
+      tree4->Draw( TString(PLOTVAR)+TString(">>th1st2"), *mu_selection, "goff");
+      RooDataHist* rdhst2 = new RooDataHist("rdhst2","", *mjj_, th1st2);
+      stTPdf_ = new RooHistPdf("stTPdf", "", *mjj_, *rdhst2);
+   }
+   delete tree4;
+   delete treeTemp;
+
+
+
+   st3_mu_file =  new TFile("data/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root", "READ");
+   treeTemp = (TTree*) st3_mu_file->Get("WJet");
+   ActivateTreeBranches(*treeTemp);
+   gROOT->cd();
+   TTree* tree5 = treeTemp->CopyTree(*mu_selection);
+   if(USEKEYSPDF) {
+      RooDataSet* rds5 = new RooDataSet("rds5","", tree5, *mjj_);
+      stTWPdf_ = new RooKeysPdf("stTWPdf", "", *mjj_, *rds5, 
+      mirrorOption, keysrho);
+   }
+   else {
+      TH1* th1st3 = new TH1D("th1st3", "th1st3",NBINSFORPDF,MINRange,MAXRange);
+      tree5->Draw( TString(PLOTVAR)+TString(">>th1st3"), *mu_selection, "goff");
+      RooDataHist* rdhst3 = new RooDataHist("rdhst3","", *mjj_, th1st3);
+      stTWPdf_ = new RooHistPdf("stTWPdf", "", *mjj_, *rdhst3);
+   }
+   delete tree5;
+   delete treeTemp;
+  
+}
 
 
 
@@ -859,7 +914,7 @@ void cmsPrelim()
   latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(31); // align right
-    latex.DrawLatex(0.82,0.7,Form("#int #font[12]{L} dt = %d pb^{-1}", (int) LUMINOSITY));
+    latex.DrawLatex(0.82,0.7,Form("#int #font[12]{L} dt = %.1f fb^{-1}", 0.001*LUMINOSITY));
   }
   latex.SetTextAlign(11); // align left
   latex.DrawLatex(0.18,0.96,"CMS preliminary 2011");
@@ -880,7 +935,7 @@ void cmsPrelim2()
   latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(11); // align left
-    latex.DrawLatex(0.21,0.85,Form("#int #font[12]{L} dt = %d pb^{-1}", (int) LUMINOSITY));
+    latex.DrawLatex(0.21,0.85,Form("#int #font[12]{L} dt = %.1f fb^{-1}", 0.001*LUMINOSITY));
   }
   latex.SetTextAlign(11); // align left
   latex.DrawLatex(0.18,0.96,"CMS preliminary 2011");
@@ -971,6 +1026,7 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false) {
   t.SetBranchStatus("MassV2j_PFCor",    1);
   t.SetBranchStatus("cosJacksonAngle2j_PFCor",    1);
   t.SetBranchStatus("cosJacksonAngleV2j_PFCor",    1);
+
 }
 
 //#endif

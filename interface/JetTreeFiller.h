@@ -32,7 +32,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 
-
 /** Monte Carlo Jet flavor classification.
     if ( Flavour == 1 ) : Down 
     if ( Flavour == 2 ) : Up 
@@ -65,7 +64,7 @@ namespace ewk {
     /// To be called once per event to fill the values for jets
     void fill(const edm::Event &iEvent);
 
-    static const int NUM_JET_MAX = 10;
+    static const int NUM_JET_MAX = 6;
 
   protected:
 
@@ -138,6 +137,13 @@ namespace ewk {
     float DphiMET[NUM_JET_MAX];
     float Response[NUM_JET_MAX];
     float bDiscriminator[NUM_JET_MAX];
+    float bDiscriminatorSSVHE[NUM_JET_MAX];
+    float bDiscriminatorTCHE[NUM_JET_MAX];
+    float bDiscriminatorCSV[NUM_JET_MAX];
+    float bDiscriminatorJP[NUM_JET_MAX];
+    float bDiscriminatorSSVHP[NUM_JET_MAX];
+    float bDiscriminatorTCHP[NUM_JET_MAX];
+
     float secVertexMass[NUM_JET_MAX];
     int numBTags;
     float VjetMass2[NUM_JET_MAX];
@@ -181,6 +187,11 @@ namespace ewk {
     int   PFElectronMultiplicity[NUM_JET_MAX];
     int   PFHFHadronMultiplicity[NUM_JET_MAX];
     int   PFHFEMMultiplicity[NUM_JET_MAX];    
+    float PFsumPtCands[NUM_JET_MAX];
+    float PFsumPt2Cands[NUM_JET_MAX];
+    float PFrmsCands[NUM_JET_MAX];
+    float PFptD[NUM_JET_MAX];
+    float PFqgLikelihood[NUM_JET_MAX];
 
     float V2jMass;
     float V3jMass;

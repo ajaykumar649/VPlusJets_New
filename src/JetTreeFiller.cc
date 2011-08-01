@@ -28,6 +28,8 @@
 #include "TMath.h" 
 #include <TLorentzVector.h>
 #include "JetMETCorrections/MCJet/plugins/JetUtilMC.h" // needed for dPhi,dR
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 // Monte Carlo stuff
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
@@ -36,6 +38,7 @@
 #include "SimDataFormats/JetMatching/interface/JetMatchedPartons.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Header file
@@ -43,6 +46,7 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/AngularVars.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/ColorCorrel.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
 ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree, 
 					const std::string jetType,
@@ -139,6 +143,12 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( DphiMET, "Jet" + jetType_ + "_dphiMET");
   SetBranch( Response, "Jet" + jetType_ + "_Response");
   SetBranch( bDiscriminator, "Jet" + jetType_ + "_bDiscriminator");
+  SetBranch( bDiscriminatorSSVHE, "Jet" + jetType_ + "_bDiscriminatorSSVHE");
+  SetBranch( bDiscriminatorTCHE, "Jet" + jetType_ + "_bDiscriminatorTCHE");
+  SetBranch( bDiscriminatorCSV, "Jet" + jetType_ + "_bDiscriminatorCSV");
+  SetBranch( bDiscriminatorJP, "Jet" + jetType_ + "_bDiscriminatorJP");
+  SetBranch( bDiscriminatorSSVHP, "Jet" + jetType_ + "_bDiscriminatorSSVHP");
+  SetBranch( bDiscriminatorTCHP, "Jet" + jetType_ + "_bDiscriminatorTCHP");
   SetBranch( secVertexMass, "Jet" + jetType_ + "_secVertexMass");
   SetBranch( Dphi2, "Jet" + jetType_ + "_dphiBoson2");
   SetBranch( Deta2, "Jet" + jetType_ + "_detaBoson2");
@@ -213,26 +223,46 @@ void ewk::JetTreeFiller::SetBranches()
     SetBranch( PFMuonEnergy, "Jet" + jetType_ + "_MuonEnergy"); 
     /// muonEnergyFraction 
     SetBranch( PFMuonEnergyFraction, "Jet" + jetType_ + "_MuonEnergyFraction");
-  /// HFHadronEnergy  
+    /// HFHadronEnergy  
     SetBranch( PFHFHadronEnergy, "Jet" + jetType_ + "_HFHadronEnergy");
-  /// HFHadronEnergyFraction 
+    /// HFHadronEnergyFraction 
     SetBranch( PFHFHadronEnergyFraction, "Jet" + jetType_ + "_HFHadronEnergyFraction");
-  /// HFEMEnergy  
+    /// HFEMEnergy  
     SetBranch( PFHFEMEnergy, "Jet" + jetType_ + "_HFEMEnergy");
-  /// HFEMEnergyFraction 
+    /// HFEMEnergyFraction 
     SetBranch( PFHFEMEnergyFraction, "Jet" + jetType_ + "_HFEMEnergyFraction");
-  /// chargedHadronMultiplicity 
+    /// chargedHadronMultiplicity 
     SetBranch( PFChargedHadronMultiplicity, "Jet" + jetType_ + "_ChargedHadronMultiplicity");
-  /// neutralHadronMultiplicity 
+    /// neutralHadronMultiplicity 
     SetBranch( PFNeutralHadronMultiplicity, "Jet" + jetType_ + "_NeutralHadronMultiplicity");
-  /// photonMultiplicity 
+    /// photonMultiplicity 
     SetBranch( PFPhotonMultiplicity, "Jet" + jetType_ + "_PhotonMultiplicity");
-  /// electronMultiplicity 
+    /// electronMultiplicity 
     SetBranch( PFElectronMultiplicity, "Jet" + jetType_ + "_ElectronMultiplicity");
-  /// HFHadronMultiplicity 
+    /// HFHadronMultiplicity 
     SetBranch( PFHFHadronMultiplicity, "Jet" + jetType_ + "_HFHadronMultiplicity");
-  /// HFEMMultiplicity 
+    /// HFEMMultiplicity 
     SetBranch( PFHFEMMultiplicity, "Jet" + jetType_ + "_HFEMMultiplicity");
+    /// Sum pt of all pf constituents
+    SetBranch( PFsumPtCands, "Jet" + jetType_ + "_SumPtCands");
+    /// Sum pt^2 of all pf constituents
+    SetBranch( PFsumPt2Cands, "Jet" + jetType_ + "_SumPt2Cands");
+    /// [Sum pt^2*deltaR(cand, jet)^2] / Sum pt^2 of all pf constituents
+    SetBranch( PFrmsCands, "Jet" + jetType_ + "_rmsCands");
+    /// pt_D variable for QG likelihood:  pt_D = sqrt(Sum_i{pt^2})/ Sum_i{pt), over all PF cands
+    // ------- See for details: CMS AN-2011/215
+    // -- https://indico.cern.ch/getFile.py/access?contribId=3&resId=0&materialId=slides&confId=129897
+    // -- https://indico.cern.ch/getFile.py/access?contribId=1&resId=0&materialId=slides&confId=135378
+    // -- https://indico.cern.ch/getFile.py/access?contribId=0&resId=0&materialId=slides&confId=144396
+    // ------- JetMETCorrections/GammaJet/src/GammaJetAnalyzer.cc
+    // 
+    SetBranch( PFptD, "Jet" + jetType_ + "_PtD");
+    // ---- Quark Gluon Likelihood
+    // ---- first check out: cvs co   UserCode/pandolf/QGLikelihood
+    // ---- then instantiate:  QGLikelihoodCalculator *qglikeli = new QGLikelihoodCalculator();
+    // ---- finally, compute:   float qgLH = qglikeli->computeQGLikelihoodPU(jet_pt, 
+    // -----                         fastjet_rho, chargedMultiplicity, neutralMultiplicity, ptD);
+    SetBranch( PFqgLikelihood, "Jet" + jetType_ + "_QGLikelihood");
   }
   
   SetBranchSingle( &V2jMass,  "MassV2j_" + jetType_);
@@ -376,6 +406,12 @@ void ewk::JetTreeFiller::init()
       DphiMET[j] = -10.0;
       Response[j] = -1.0;
       bDiscriminator[j] = -1.0;
+      bDiscriminatorSSVHE[j] = -1.0;
+      bDiscriminatorTCHE[j] = -1.0;
+      bDiscriminatorCSV[j] = -1.0;
+      bDiscriminatorJP[j] = -1.0;
+      bDiscriminatorSSVHP[j] = -1.0;
+      bDiscriminatorTCHP[j] = -1.0;
       secVertexMass[j] = -1.0;
 
       VjetMass2[j] = -1.0;
@@ -418,6 +454,11 @@ void ewk::JetTreeFiller::init()
       PFElectronMultiplicity[j] = -1;
       PFHFHadronMultiplicity[j] = -1;
       PFHFEMMultiplicity[j] = -1;
+      PFsumPtCands[j]=0.;
+      PFsumPt2Cands[j]=0.;
+      PFrmsCands[j]=0.;
+      PFptD[j] = -1.0;
+      PFqgLikelihood[j] = -1.0;
    }
    // initialization done
 
@@ -483,17 +524,63 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    iEvent.getByLabel("pfMet", pfmet);
 
    // Get b tag information
-   edm::Handle<reco::JetTagCollection> bTagHandle;
-   iEvent.getByLabel("simpleSecondaryVertexHighEffBJetTags", bTagHandle);
-   const reco::JetTagCollection & bTags = *(bTagHandle.product());
+   // ------------- SSV-HE ------------------------
+   edm::Handle<reco::JetTagCollection> bTagHandle1;
+   iEvent.getByLabel("simpleSecondaryVertexHighEffBJetTags", bTagHandle1);
+   const reco::JetTagCollection & bTagsSSVHE = *(bTagHandle1.product());
+
+   // ------------- TC-HE ------------------------
+   edm::Handle<reco::JetTagCollection> bTagHandle2;
+   iEvent.getByLabel("trackCountingHighEffBJetTags", bTagHandle2);
+   const reco::JetTagCollection & bTagsTCHE = *(bTagHandle2.product());
   
+   // ------------- CSV ------------------------
+   edm::Handle<reco::JetTagCollection> bTagHandle3;
+   iEvent.getByLabel("combinedSecondaryVertexBJetTags", bTagHandle3);
+   const reco::JetTagCollection & bTagsCSV = *(bTagHandle3.product());
+  
+   // ------------- JP ------------------------
+   edm::Handle<reco::JetTagCollection> bTagHandle4;
+   iEvent.getByLabel("jetProbabilityBJetTags", bTagHandle4);
+   const reco::JetTagCollection & bTagsJP = *(bTagHandle4.product());
+  
+   // ------------- SSV-HP ------------------------
+   edm::Handle<reco::JetTagCollection> bTagHandle5;
+   iEvent.getByLabel("simpleSecondaryVertexHighPurBJetTags", bTagHandle5);
+   const reco::JetTagCollection & bTagsSSVHP = *(bTagHandle5.product());
+  
+
+   // ------------- TC-HP ------------------------
+   edm::Handle<reco::JetTagCollection> bTagHandle6;
+   iEvent.getByLabel("trackCountingHighPurBJetTags", bTagHandle6);
+   const reco::JetTagCollection & bTagsTCHP = *(bTagHandle6.product());
+  
+
+
    edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos;
    iEvent.getByLabel("secondaryVertexTagInfos", svTagInfos);
+
+
+   // ---- Quark Gluon Likelihood
+   QGLikelihoodCalculator *qglikeli = new QGLikelihoodCalculator();  
 
    size_t iJet = 0;
    double dist = 100000.0;
    NumJets = 0;
    numBTags = 0;
+
+
+   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
+   float fastjet_rho = -999999.9;
+   edm::Handle<double> rho;
+   const edm::InputTag eventrho("kt6PFJets", "rho");
+   iEvent.getByLabel(eventrho,rho);
+   if( *rho == *rho) fastjet_rho = *rho;
+
+   // get PFCandidates
+   edm::Handle<reco::PFCandidateCollection>  PFCandidates;
+   iEvent.getByLabel("particleFlow", PFCandidates);
+
 
 
    /****************    MC Jet Flavor    ***************/
@@ -543,6 +630,8 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       VjetMass[iJet] = qstar.M();
 
 
+
+    // ------- Compute deltaR (jet, vector boson) -----
       if( nBoson==2) {
 	DR2[iJet] = radius( (*jet).eta(), (*jet).phi(), 
 			    Vboson2->eta(), Vboson2->phi());
@@ -571,11 +660,12 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       }
 
       // study b tag info.
+      // ------------- SSV-HE ------------------------
       double closestDistance = 100000.0;
       unsigned int closestIndex = 10000;
       
-      for (unsigned int i = 0; i != bTags.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTags[i].first;   
+      for (unsigned int i = 0; i != bTagsSSVHE.size(); ++i) {
+         edm::RefToBase<reco::Jet> aJet  = bTagsSSVHE[i].first;   
          dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
          if( dist < closestDistance ) { 
             closestDistance = dist;
@@ -584,10 +674,12 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       }
       // compute B-tag discriminator
       bDiscriminator[iJet] = -1.0;
+      bDiscriminatorSSVHE[iJet] = -1.0;
       secVertexMass[iJet] = -1.0;
 
-      if( closestDistance<0.3 && closestIndex<bTags.size() ) {
-         bDiscriminator[iJet] = bTags[closestIndex].second;
+      if( closestDistance<0.3 && closestIndex<bTagsSSVHE.size() ) {
+         bDiscriminator[iJet] = bTagsSSVHE[closestIndex].second;
+         bDiscriminatorSSVHE[iJet] = bTagsSSVHE[closestIndex].second;
          const reco::SecondaryVertexTagInfo svTagInfo 
             = (*svTagInfos)[closestIndex];
          if (  svTagInfo.nVertices() > 0  && 
@@ -617,6 +709,88 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
             secVertexMass[iJet] = sumVec.M();
          } // endif svTagInfo.nVertices condition
       }// endif closestDistance condition				      
+
+
+      // ------------- TC-HE ------------------------
+      bDiscriminatorTCHE[iJet] = -1.0;
+      closestDistance = 100000.0;
+      closestIndex = 10000;
+      
+      for (unsigned int i = 0; i != bTagsTCHE.size(); ++i) {
+         edm::RefToBase<reco::Jet> aJet  = bTagsTCHE[i].first;   
+         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+         if( dist < closestDistance ) { 
+            closestDistance = dist;
+            closestIndex = i;
+         }
+      }
+     if( closestDistance<0.3 && closestIndex<bTagsTCHE.size() )
+         bDiscriminatorTCHE[iJet] = bTagsTCHE[closestIndex].second;
+
+      // ------------- CSV ------------------------
+      bDiscriminatorCSV[iJet] = -1.0;
+      closestDistance = 100000.0;
+      closestIndex = 10000;
+      
+      for (unsigned int i = 0; i != bTagsCSV.size(); ++i) {
+         edm::RefToBase<reco::Jet> aJet  = bTagsCSV[i].first;   
+         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+         if( dist < closestDistance ) { 
+            closestDistance = dist;
+            closestIndex = i;
+         }
+      }
+     if( closestDistance<0.3 && closestIndex<bTagsCSV.size() )
+         bDiscriminatorCSV[iJet] = bTagsCSV[closestIndex].second;
+
+      // ------------- JP ------------------------
+      bDiscriminatorJP[iJet] = -1.0;
+      closestDistance = 100000.0;
+      closestIndex = 10000;
+      
+      for (unsigned int i = 0; i != bTagsJP.size(); ++i) {
+         edm::RefToBase<reco::Jet> aJet  = bTagsJP[i].first;   
+         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+         if( dist < closestDistance ) { 
+            closestDistance = dist;
+            closestIndex = i;
+         }
+      }
+     if( closestDistance<0.3 && closestIndex<bTagsJP.size() )
+         bDiscriminatorJP[iJet] = bTagsJP[closestIndex].second;
+
+      // ------------- SSV-HP ------------------------
+      bDiscriminatorSSVHP[iJet] = -1.0;
+      closestDistance = 100000.0;
+      closestIndex = 10000;
+      
+      for (unsigned int i = 0; i != bTagsSSVHP.size(); ++i) {
+         edm::RefToBase<reco::Jet> aJet  = bTagsSSVHP[i].first;   
+         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+         if( dist < closestDistance ) { 
+            closestDistance = dist;
+            closestIndex = i;
+         }
+      }
+     if( closestDistance<0.3 && closestIndex<bTagsSSVHP.size() )
+         bDiscriminatorSSVHP[iJet] = bTagsSSVHP[closestIndex].second;
+
+      // ------------- TC-HP ------------------------
+      bDiscriminatorTCHP[iJet] = -1.0;
+      closestDistance = 100000.0;
+      closestIndex = 10000;
+      
+      for (unsigned int i = 0; i != bTagsTCHP.size(); ++i) {
+         edm::RefToBase<reco::Jet> aJet  = bTagsTCHP[i].first;   
+         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+         if( dist < closestDistance ) { 
+            closestDistance = dist;
+            closestIndex = i;
+         }
+      }
+     if( closestDistance<0.3 && closestIndex<bTagsTCHP.size() )
+         bDiscriminatorTCHP[iJet] = bTagsTCHP[closestIndex].second;
+
 
 
       // CaloJet specific quantities
@@ -686,6 +860,41 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	 PFElectronMultiplicity[iJet] = pfjet.electronMultiplicity();
 	 PFHFHadronMultiplicity[iJet] = pfjet.HFHadronMultiplicity();
 	 PFHFEMMultiplicity[iJet] = pfjet.HFEMMultiplicity();
+
+
+	 // ------- Compute pt_D and Quark Gluon Likelihood
+	 std::vector<reco::PFCandidatePtr> pfCandidates = pfjet.getPFConstituents();
+	 
+	 float sumPt_cands=0.;
+	 float sumPt2_cands=0.;
+	 float rms_cands=0.;
+	 
+	 for (std::vector<reco::PFCandidatePtr>::const_iterator jt = pfCandidates.begin();
+	      jt != pfCandidates.end(); ++jt) {
+	   
+	   // reco::PFCandidate::ParticleType id = (*jt)->particleId();
+	   // Convert particle momentum to normal TLorentzVector, wrong type :(
+	   math::XYZTLorentzVectorD const& p4t = (*jt)->p4();
+	   TLorentzVector p4(p4t.px(), p4t.py(), p4t.pz(), p4t.energy());
+	   TLorentzVector jetp4;
+	   jetp4.SetPtEtaPhiE(pfjet.pt(), pfjet.eta(), pfjet.phi(), pfjet.energy());
+	   if(p4.Pt()!=0){
+	     sumPt_cands += p4.Pt();
+	     sumPt2_cands += (p4.Pt()*p4.Pt());
+	     float deltaR = jetp4.DeltaR(p4);
+	     rms_cands += (p4.Pt()*p4.Pt()*deltaR*deltaR);
+	   }
+	 }
+	 
+	 PFsumPtCands[iJet]  = sumPt_cands;
+	 PFsumPt2Cands[iJet] = sumPt2_cands;
+	 if(sumPt_cands != 0)  PFptD[iJet] = sqrt( sumPt2_cands )/sumPt_cands;
+	 if(rms_cands  != 0)   PFrmsCands[iJet] = rms_cands/sumPt2_cands;
+
+	 PFqgLikelihood[iJet]= qglikeli->computeQGLikelihoodPU( Pt[iJet], fastjet_rho, 
+								PFChargedMultiplicity[iJet], 
+								PFNeutralMultiplicity[iJet], 
+								PFptD[iJet]);	 
          if ( ij1==0 ) ij1=&(*jet); 
          if ( ij1>0 && ij2==0 ) ij2=&(*jet);
       }// close PF jets loop
@@ -734,7 +943,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    }
 
    delete metz;
-
+   delete qglikeli;
 
 
 
@@ -822,7 +1031,9 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
    cosThetaLnu = 10.0; 
    cosThetaJJ = 10.0;
 
-   if( NumJets>1 ) dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, p4j1, p4j2, cosphiDecayPlane, cosThetaLnu, cosThetaJJ);
+   if( NumJets>1 ) dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, 
+				   p4j1, p4j2, cosphiDecayPlane, 
+				   cosThetaLnu, cosThetaJJ);
 
    // Color correlation between two W jets ( jets pull ) 
    if ( ij1>0 && ij2>0 ) {

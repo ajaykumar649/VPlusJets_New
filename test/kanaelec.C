@@ -101,12 +101,16 @@ void kanaelec::myana(double myflag)
 //     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WenuJets_QCD_Pt-80to170_BCtoE.root"); 
 //     Init(myChain);Loop( 2011, 1014,          "./RD_WenuJets_QCD_Pt-80to170_BCtoE.root");
 //   }
+//   if (myflag == 20111015 || myflag == -100){
+//     myChain = new TChain("WJet");  
+//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WenuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root"); 
+//     Init(myChain);Loop( 2011, 1015,          "./RD_WenuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root");
+//   }
 
-
-  if (myflag == 20111015 || myflag == -100){
+  if (myflag == 20111016 || myflag == -100){
     myChain = new TChain("WJet");  
-    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WenuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root"); 
-    Init(myChain);Loop( 2011, 1015,          "./RD_WenuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root");
+    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WenuJets_DYToTauTau.root"); 
+    Init(myChain);Loop( 2011, 1016,          "./RD_WenuJets_DYToTauTau.root");
   }
 
   
