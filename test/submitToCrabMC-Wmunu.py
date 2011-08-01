@@ -10,7 +10,7 @@ dataset    = [
     "/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/WW_TuneZ2_7TeV_pythia6_tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/WZ_TuneZ2_7TeV_pythia6_tauola/Summer11-PU_S4_START42_V11-v1/AODSIM",
-    "/TTTo2L2Nu2B_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
+    "/TTJets_TuneZ2_7TeV-madgraph-tauola/Summer11-PU_S4_START42_V11-v2/AODSIM",
     "/GluGluToHToWWToLNuQQ_M-120_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/GluGluToHToWWToLNuQQ_M-130_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
     "/GluGluToHToWWToLNuQQ_M-140_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM",
