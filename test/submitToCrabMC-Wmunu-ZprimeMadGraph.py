@@ -6,19 +6,17 @@ from time import gmtime, localtime, strftime
 physMode   = "WmunuJets_"
 ConfigFile = "WmunuJetsAnalysis_cfg.py"
 dataset    = [
-    #"/Zprime_Wjj_4_2_3_SIM/andersj-Zprime_Wjj_4_2_3_AODSIM-f71d043e41acd38c60e3392468355a0e/USER"
-    #"/WHZH_Wjj_4_2_3_SIM/andersj-WHZH_Wjj_4_2_3_AODSIM-f71d043e41acd38c60e3392468355a0e/USER"
+    "/Zprime_Wjj_4_2_3_SIM/andersj-Zprime_Wjj_4_2_3_AODSIM-f71d043e41acd38c60e3392468355a0e/USER"
+    "/WHZH_Wjj_4_2_3_SIM/andersj-WHZH_Wjj_4_2_3_AODSIM-f71d043e41acd38c60e3392468355a0e/USER"
     "/Technicolor_Wjj_4_2_3_SIM/andersj-Technicolor_Wjj_4_2_3_AODSIM-f71d043e41acd38c60e3392468355a0e/USER"    
     ]
 channels   = [
-    #"Zprime_MadGraph_WmunuJJ"
-    #"WH150qq_WmunuJJ"
+    "Zprime_MadGraph_WmunuJJ"
+    "WH150qq_WmunuJJ"
     "Technicolor_Pythia_WmunuJJ"    
     ]
-condor   = [1]
-#MyResilientArea = "/kalanand/" + physMode +"ZprimeMadGraph"
-#MyResilientArea = "/kalanand/" + physMode +"WH150qq"
-MyResilientArea = "/kalanand/" + physMode +"Technicolor"
+condor   = [1,1,1]
+MyResilientArea = "/kalanand/" + physMode +"NewPhysics"
 
 
 def changeMainConfigFile(trigpath):
