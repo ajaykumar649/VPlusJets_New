@@ -5,12 +5,23 @@ from time import gmtime, localtime, strftime
 ##------ Please set ONLY one of the four flags to True -------
 physMode   = "WenuJets_"
 ConfigFile = "WenuJetsAnalysis_cfg.py"
-dataset    = [ "/SingleElectron/Run2011A-May10ReReco-v1/AOD"]
-channels   = ["May10ReReco"]
-RunRange   = ["160404-163869"]
-condor     = [0]
-JSON       = "Cert_160404-163869_7TeV_PromptReco_Collisions11_JSON.txt"
-MyResilientArea = "/kalanand/" +physMode +"CMSSW415-Data2011-May13CTJSON"
+dataset    = ["/EG/Run2010A-Apr21ReReco-v1/AOD"]
+#dataset    = ["/Electron/Run2010B-Apr21ReReco-v1/AOD"]
+#dataset    = ["/SingleElectron/Run2011A-May10ReReco-v1/AOD"]
+#dataset    = ["/SingleElectron/Run2011A-PromptReco-v4/AOD"]
+channels   = ["2010A-ReReco"]
+#channels   = ["2010B-ReReco"]
+#channels   = ["2011-May10ReReco"]
+#channels   = ["PromptReco-v4"]
+RunRange   = ["136033-149442"]
+#RunRange   = ["160431-163869"]
+#RunRange   = ["163870-167913"]
+condor     = [1]
+JSON         ="Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON.txt" 
+#JSON         ="Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON_v2.txt" 
+#JSON         ="Cert_160404-167913_7TeV_PromptReco_Collisions11_JSON.txt" 
+
+MyResilientArea = "/pratima/CMSSW428/" +physMode +"CMSSW428-Data2010A-Apr21Rereco-CTJSON"
 ## ------------------------------------------
 
 
