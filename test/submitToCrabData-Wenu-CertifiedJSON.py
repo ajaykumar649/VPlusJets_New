@@ -5,23 +5,31 @@ from time import gmtime, localtime, strftime
 ##------ Please set ONLY one of the four flags to True -------
 physMode   = "WenuJets_"
 ConfigFile = "WenuJetsAnalysis_cfg.py"
-dataset    = ["/EG/Run2010A-Apr21ReReco-v1/AOD"]
+#dataset    = ["/EG/Run2010A-Apr21ReReco-v1/AOD"]
 #dataset    = ["/Electron/Run2010B-Apr21ReReco-v1/AOD"]
 #dataset    = ["/SingleElectron/Run2011A-May10ReReco-v1/AOD"]
 #dataset    = ["/SingleElectron/Run2011A-PromptReco-v4/AOD"]
-channels   = ["2010A-ReReco"]
+#dataset    = ["/SingleElectron/Run2011A-05Aug2011-v1/AOD"]
+dataset    = ["/SingleElectron/Run2011A-PromptReco-v6/AOD"]
+#channels   = ["2010A-ReReco"]
 #channels   = ["2010B-ReReco"]
 #channels   = ["2011-May10ReReco"]
 #channels   = ["PromptReco-v4"]
-RunRange   = ["136033-149442"]
+#channels   = ["Run2011A-05Aug2011-v1"]
+channels   = ["Run2011A-PromptReco-v6"]
+#RunRange   = ["136033-149442"]
 #RunRange   = ["160431-163869"]
 #RunRange   = ["163870-167913"]
+#RunRange   = ["170249-172619"]
+RunRange   = ["172620-173244"]
 condor     = [1]
-JSON         ="Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON.txt" 
+#JSON         ="Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON.txt" 
 #JSON         ="Cert_160404-163869_7TeV_May10ReReco_Collisions11_JSON_v2.txt" 
 #JSON         ="Cert_160404-167913_7TeV_PromptReco_Collisions11_JSON.txt" 
+#JSON         ="Cert_170249-172619_7TeV_ReReco5Aug_Collisions11_JSON.txt" 
+JSON         ="Cert_160404-173244_7TeV_PromptReco_Collisions11_JSON.txt" 
 
-MyResilientArea = "/pratima/CMSSW428/" +physMode +"CMSSW428-Data2010A-Apr21Rereco-CTJSON"
+MyResilientArea = "/yangf/CMSSW428/" +physMode +"CMSSW428-Run2011A-PromptReco-v6-CTJSON"
 ## ------------------------------------------
 
 

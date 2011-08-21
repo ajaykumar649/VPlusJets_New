@@ -18,171 +18,173 @@ void kanamuon::myana(double myflag)
 {
   TChain * myChain;
   // 2011 data
-  myflag = -100;
+  myflag = 20111000;
 
   if (myflag == 20111000 || myflag == -100){
     myChain = new TChain("WJet");  
-    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DataAll_GoldenJSON_1p1invfb.root"); 
-    Init(myChain);Loop( 2011, 1000,          "./RD_WmunuJets_DataAll_GoldenJSON_1p1invfb.root");
+    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DataAll_GoldenJSON_1p6invfb.root"); 
+    Init(myChain);Loop( 2011, 1000,          "./RD_WmunuJets_DataAll_GoldenJSON_1p6invfb.root");
   }
-
-//   // General Background Samples
-//   if (myflag == 20111001 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW423-Summer11MC_WJets.root"); 
-//     Init(myChain);Loop( 2011, 1001,          "./RD_WmunuJets_CMSSW423-Summer11MC_WJets.root");
-//   }
-//   if (myflag == 20111002 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW423-Summer11MC_TTToLNu2Q2B.root"); 
-//     Init(myChain);Loop( 2011, 1002,          "./RD_WmunuJets_CMSSW423-Summer11MC_TTToLNu2Q2B.root");
-//   }
-//   if (myflag == 20111003 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WZtoAnything.root"); 
-//     Init(myChain);Loop( 2011, 1003,          "./RD_WmunuJets_CMSSW415-Spring11MC_WZtoAnything.root");
-//   }
-//   if (myflag == 20111004 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWtoAnything.root"); 
-//     Init(myChain);Loop( 2011, 1004,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWtoAnything.root");
-//   } 
-//   if (myflag == 20111005 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/Technicolor_CorrectConfig_Wmunujj_50k.root"); 
-//     Init(myChain);Loop( 2011, 1005,          "./RD_Technicolor_CorrectConfig_Wmunujj_50k.root");
-//   }
-//   if (myflag == 20111006 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/Zprime_Wmunujj_50k.root"); 
-//     Init(myChain);Loop( 2011, 1006,          "./RD_Zprime_Wmunujj_50k.root");
-//   }
-//   if (myflag == 20111007 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WH150qq_WmunuJJ_50k.root"); 
-//     Init(myChain);Loop( 2011, 1007,          "./RD_WH150qq_WmunuJJ_50k.root");
-//   }
-//   if (myflag == 20111008 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-s-channel.root"); 
-//     Init(myChain);Loop( 2011, 1008,          "./RD_WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-s-channel.root");
-//   }
-//   if (myflag == 20111009 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root"); 
-//     Init(myChain);Loop( 2011, 1009,          "./RD_WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root");
-//   }
-//   if (myflag == 20111010 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-tw-channel.root"); 
-//     Init(myChain);Loop( 2011, 1010,          "./RD_WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-tw-channel.root");
-//   }
-
-//   if (myflag == 20111011 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_QCD_Pt-20_MuEnrichedPt-15.root"); 
-//     Init(myChain);Loop( 2011, 1011,          "./RD_WmunuJets_QCD_Pt-20_MuEnrichedPt-15.root");
-//   }
-//   if (myflag == 20111015 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root"); 
-//     Init(myChain);Loop( 2011, 1015,          "./RD_WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root");
-//   }
-
-
-  if (myflag == 20111016 || myflag == -100){
+  
+  // General Background Samples
+  if (myflag == 20111001 || myflag == -100){
     myChain = new TChain("WJet");  
-    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DYToTauTau.root"); 
-    Init(myChain);Loop( 2011, 1016,          "./RD_WmunuJets_DYToTauTau.root");
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_QCDMu_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1001,                                   "./RD_mu_QCDMu_CMSSW428.root");
+  }
+  if (myflag == 20111002 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_STopS_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1002,                                   "./RD_mu_STopS_CMSSW428.root");
+  }
+  if (myflag == 20111003 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_STopS_powheg_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1003,                                   "./RD_mu_STopS_powheg_CMSSW428.root");
+  }
+  if (myflag == 20111004 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_STopT_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1004,                                   "./RD_mu_STopT_CMSSW428.root");
+  }
+  if (myflag == 20111005 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_STopT_powheg_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1005,                                   "./RD_mu_STopT_powheg_CMSSW428.root");
+  }
+  if (myflag == 20111006 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_STopTW_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1006,                                   "./RD_mu_STopTW_CMSSW428.root");
+  }
+  if (myflag == 20111007 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_STopTW_powheg_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1007,                                   "./RD_mu_STopTW_powheg_CMSSW428.root");
+  }
+  if (myflag == 20111008 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_TTbar_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1008,                                   "./RD_mu_TTbar_CMSSW428.root");
+  }
+  if (myflag == 20111009 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_TTbar_powheg_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1009,                                   "./RD_mu_TTbar_powheg_CMSSW428.root");
+  }
+  if (myflag == 20111010 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_WpJ_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1010,                                   "./RD_mu_WpJ_CMSSW428.root");
+  }
+  if (myflag == 20111011 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_WW_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1011,                                   "./RD_mu_WW_CMSSW428.root");
+  }
+  if (myflag == 20111012 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_WZ_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1012,                                   "./RD_mu_WZ_CMSSW428.root");
+  }
+  if (myflag == 20111013 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_ZpJ_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1013,                                   "./RD_mu_ZpJ_CMSSW428.root");
+  }
+  if (myflag == 20111014 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_Ztautau_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1014,                                   "./RD_mu_Ztautau_CMSSW428.root");
   }
 
+  // Higgs Signal Samples
+  if (myflag == 20111120 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH120_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1120,                                   "./RD_mu_HWWMH120_CMSSW428.root");
+  }
+  if (myflag == 20111130 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH130_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1130,                                   "./RD_mu_HWWMH130_CMSSW428.root");
+  }
+  if (myflag == 20111140 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH140_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1140,                                   "./RD_mu_HWWMH140_CMSSW428.root");
+  }
+  if (myflag == 20111150 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH150_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1150,                                   "./RD_mu_HWWMH150_CMSSW428.root");
+  }
+  if (myflag == 20111160 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH160_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1160,                                   "./RD_mu_HWWMH160_CMSSW428.root");
+  }
+  if (myflag == 20111170 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH170_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1170,                                   "./RD_mu_HWWMH170_CMSSW428.root");
+  }
+  if (myflag == 20111180 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH180_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1180,                                   "./RD_mu_HWWMH180_CMSSW428.root");
+  }
+  if (myflag == 20111190 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH190_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1190,                                   "./RD_mu_HWWMH190_CMSSW428.root");
+  }
+  if (myflag == 20111200 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH200_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1200,                                   "./RD_mu_HWWMH200_CMSSW428.root");
+  }
+  if (myflag == 20111250 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH250_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1250,                                   "./RD_mu_HWWMH250_CMSSW428.root");
+  }
+  if (myflag == 20111300 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH300_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1300,                                   "./RD_mu_HWWMH300_CMSSW428.root");
+  }
+  if (myflag == 20111350 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH350_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1350,                                   "./RD_mu_HWWMH350_CMSSW428.root");
+  }
+  if (myflag == 20111400 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH400_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1400,                                   "./RD_mu_HWWMH400_CMSSW428.root");
+  }
+  if (myflag == 20111450 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH450_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1450,                                   "./RD_mu_HWWMH450_CMSSW428.root");
+  }
+  if (myflag == 20111500 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH500_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1500,                                   "./RD_mu_HWWMH500_CMSSW428.root");
+  }
+  if (myflag == 20111550 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH550_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1550,                                   "./RD_mu_HWWMH550_CMSSW428.root");
+  }
+  if (myflag == 20111600 || myflag == -100){
+    myChain = new TChain("WJet");  
+    myChain->Add("/uscms_data/d3/ilyao/AnalysisLevelNtuples/VPlusJets/428MC/mu_HWWMH600_CMSSW428.root"); 
+    Init(myChain);Loop( 2011, 1600,                                   "./RD_mu_HWWMH600_CMSSW428.root");
+  }
 
-//   // Higgs Signal Samples
-//   if (myflag == 20111120 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-120.root"); 
-//     Init(myChain);Loop( 2011, 1120,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-120.root");
-//   }
-//   if (myflag == 20111130 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-130.root"); 
-//     Init(myChain);Loop( 2011, 1130,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-130.root");
-//   }
-//   if (myflag == 20111140 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-140.root"); 
-//     Init(myChain);Loop( 2011, 1140,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-140.root");
-//   }
-//   if (myflag == 20111150 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-150.root"); 
-//     Init(myChain);Loop( 2011, 1150,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-150.root");
-//   }
-//   if (myflag == 20111160 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-160.root"); 
-//     Init(myChain);Loop( 2011, 1160,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-160.root");
-//   }
-//   if (myflag == 20111170 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-170.root"); 
-//     Init(myChain);Loop( 2011, 1170,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-170.root");
-//   }
-//   if (myflag == 20111180 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-180.root"); 
-//     Init(myChain);Loop( 2011, 1180,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-180.root");
-//   }
-//   if (myflag == 20111190 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-190.root"); 
-//     Init(myChain);Loop( 2011, 1190,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-190.root");
-//   }
-//   if (myflag == 20111200 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-200.root"); 
-//     Init(myChain);Loop( 2011, 1200,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-200.root");
-//   }
-//   if (myflag == 20111250 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-250.root"); 
-//     Init(myChain);Loop( 2011, 1250,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-250.root");
-//   }
-//   if (myflag == 20111300 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-300.root"); 
-//     Init(myChain);Loop( 2011, 1300,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-300.root");
-//   }
-//   if (myflag == 20111350 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-350.root"); 
-//     Init(myChain);Loop( 2011, 1350,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-350.root");
-//   }
-//   if (myflag == 20111400 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-400.root"); 
-//     Init(myChain);Loop( 2011, 1400,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-400.root");
-//   }
-//   if (myflag == 20111450 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-450.root"); 
-//     Init(myChain);Loop( 2011, 1450,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-450.root");
-//   }
-//   if (myflag == 20111500 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-500.root"); 
-//     Init(myChain);Loop( 2011, 1500,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-500.root");
-//   }
-//   if (myflag == 20111550 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-550.root"); 
-//     Init(myChain);Loop( 2011, 1550,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-550.root");
-//   }
-//   if (myflag == 20111600 || myflag == -100){
-//     myChain = new TChain("WJet");  
-//     myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-600.root"); 
-//     Init(myChain);Loop( 2011, 1600,          "./RD_WmunuJets_CMSSW415-Spring11MC_WWToLNuQQ_M-600.root");
-//   }
 
 
 }
@@ -201,6 +203,8 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
   Float_t fit_bj_px=0,   fit_bj_py =0,   fit_bj_pz=0,   fit_bj_e=0;
   Float_t fit_mlvjj=0,   fit_chi2  =999;  
   Int_t   fit_NDF  =999, fit_status=999, gdevtt   =0;
+  Int_t   evtNJ    =0;   
+  Float_t fit_mlv  =0,   fit_mjj   =0;
 
   TBranch *branch_mu_px = newtree->Branch("fit_mu_px", &fit_mu_px,  "fit_mu_px/F");
   TBranch *branch_mu_py = newtree->Branch("fit_mu_py", &fit_mu_py,  "fit_mu_py/F");
@@ -223,11 +227,13 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
   TBranch *branch_bj_e  = newtree->Branch("fit_bj_e",  &fit_bj_e,   "fit_bj_e/F");
   
   TBranch *branch_mlvjj = newtree->Branch("fit_mlvjj", &fit_mlvjj,  "fit_mlvjj/F");
+  TBranch *branch_mlv   = newtree->Branch("fit_mlv",   &fit_mlv,    "fit_mlv/F");
+  TBranch *branch_mjj   = newtree->Branch("fit_mjj",   &fit_mjj,    "fit_mjj/F");
   TBranch *branch_chi2  = newtree->Branch("fit_chi2",  &fit_chi2,   "fit_chi2/F");
   TBranch *branch_NDF   = newtree->Branch("fit_NDF",   &fit_NDF,    "fit_NDF/I");
   TBranch *branch_status= newtree->Branch("fit_status",&fit_status, "fit_status/I");
   TBranch *branch_gdevtt= newtree->Branch("gdevtt",    &gdevtt,     "gdevtt/I");
-
+  TBranch *branch_evtNJ = newtree->Branch("evtNJ",     &evtNJ,      "evtNJ/I");
 
   Float_t fi2_mu_px=0,   fi2_mu_py =0,   fi2_mu_pz=0,   fi2_mu_e=0;
   Float_t fi2_nv_px=0,   fi2_nv_py =0,   fi2_nv_pz=0,   fi2_nv_e=0;
@@ -235,6 +241,7 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
   Float_t fi2_bj_px=0,   fi2_bj_py =0,   fi2_bj_pz=0,   fi2_bj_e=0;
   Float_t fi2_mlvjj=0,   fi2_chi2  =999;  
   Int_t   fi2_NDF  =999, fi2_status=999;
+  Float_t fi2_mlv  =0,   fi2_mjj   =0;
 
   TBranch *branc2_mu_px = newtree->Branch("fi2_mu_px", &fi2_mu_px,  "fi2_mu_px/F");
   TBranch *branc2_mu_py = newtree->Branch("fi2_mu_py", &fi2_mu_py,  "fi2_mu_py/F");
@@ -257,11 +264,11 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
   TBranch *branc2_bj_e  = newtree->Branch("fi2_bj_e",  &fi2_bj_e,   "fi2_bj_e/F");
   
   TBranch *branc2_mlvjj = newtree->Branch("fi2_mlvjj", &fi2_mlvjj,  "fi2_mlvjj/F");
+  TBranch *branc2_mlv   = newtree->Branch("fi2_mlv",   &fi2_mlv,    "fi2_mlv/F");
+  TBranch *branc2_mjj   = newtree->Branch("fi2_mjj",   &fi2_mjj,    "fi2_mjj/F");
   TBranch *branc2_chi2  = newtree->Branch("fi2_chi2",  &fi2_chi2,   "fi2_chi2/F");
   TBranch *branc2_NDF   = newtree->Branch("fi2_NDF",   &fi2_NDF,    "fi2_NDF/I");
   TBranch *branc2_status= newtree->Branch("fi2_status",&fi2_status, "fi2_status/I");
-
-
 
   // Loop over all events
   Long64_t nbytes = 0, nb = 0;
@@ -282,14 +289,17 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
     fit_aj_px = 0; fit_aj_py = 0; fit_aj_pz = 0;  fit_aj_e  = 0; 
     fit_bj_px = 0; fit_bj_py = 0; fit_bj_pz = 0;  fit_bj_e  = 0; 
     fit_mlvjj = 0; fit_chi2  =999;fit_NDF   =999; fit_status=999;
+    fit_mlv   = 0; fit_mjj   = 0;
 
     gdevtt    = 0;
+    evtNJ     = 0;
 
     fi2_mu_px = 0; fi2_mu_py = 0; fi2_mu_pz = 0;  fi2_mu_e  = 0; 
     fi2_nv_px = 0; fi2_nv_py = 0; fi2_nv_pz = 0;  fi2_nv_e  = 0; 
     fi2_aj_px = 0; fi2_aj_py = 0; fi2_aj_pz = 0;  fi2_aj_e  = 0; 
     fi2_bj_px = 0; fi2_bj_py = 0; fi2_bj_pz = 0;  fi2_bj_e  = 0; 
     fi2_mlvjj = 0; fi2_chi2  =999;fi2_NDF   =999; fi2_status=999;
+    fi2_mlv   = 0; fi2_mjj   = 0;
 
     // Good Event Selection Requirement
     if ( W_mt>40.
@@ -300,43 +310,47 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
 	 && fabs(W_muon_eta)<2.1
 	 && JetPFCor_Pt[0]>30. 
 	 && JetPFCor_Pt[1]>30. 
-	 && JetPFCor_Pt[2]<0.1
-// 	 && JetPFCor_bDiscriminator[0]<1.19 
-// 	 && JetPFCor_bDiscriminator[1]<1.19
+	 //	 && JetPFCor_Pt[2]<0.1
+	 // 	 && JetPFCor_bDiscriminator[0]<1.19 
+	 // 	 && JetPFCor_bDiscriminator[1]<1.19
 	 && fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
 	 && fabs(JetPFCor_dphiMET[0])>0.4
-// 	 && cosJacksonAngle2j_PFCor<0.8 
-// 	 && cosJacksonAngle2j_PFCor>-0.6
-	 && dijetpt > 40.                                 )      {
-      gdevtt = 1;
-      // Do the kinematic fit for all event!!!
-      int Aj = 0, Bj = 1;    TLorentzVector  mup, nvp, ajp, bjp; 
-      mup.SetPtEtaPhiE(W_muon_pt,              W_muon_eta,       W_muon_phi,       W_muon_e               );
-      nvp.SetPxPyPzE(event_met_pfmet * cos(event_met_pfmetPhi), event_met_pfmet * sin(event_met_pfmetPhi), 
-		     W_pzNu1, sqrt(event_met_pfmet*event_met_pfmet + W_pzNu1*W_pzNu1)                     );
-      ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
-      bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
-      
-
-      TLorentzVector fit_mup(0,0,0,0), fit_nvp(0,0,0,0), fit_ajp(0,0,0,0), fit_bjp(0,0,0,0) ; 
-      doKinematicFit( 1, mup, nvp, ajp, bjp,  fit_mup, fit_nvp, fit_ajp, fit_bjp, fit_chi2, fit_NDF, fit_status);
-      fit_mu_px = fit_mup.Px(); fit_mu_py = fit_mup.Py(); fit_mu_pz = fit_mup.Pz(); fit_mu_e = fit_mup.E(); 
-      fit_nv_px = fit_nvp.Px(); fit_nv_py = fit_nvp.Py(); fit_nv_pz = fit_nvp.Pz(); fit_nv_e = fit_nvp.E(); 
-      fit_aj_px = fit_ajp.Px(); fit_aj_py = fit_ajp.Py(); fit_aj_pz = fit_ajp.Pz(); fit_aj_e = fit_ajp.E(); 
-      fit_bj_px = fit_bjp.Px(); fit_bj_py = fit_bjp.Py(); fit_bj_pz = fit_bjp.Pz(); fit_bj_e = fit_bjp.E(); 
-      fit_mlvjj = (fit_mup+fit_nvp+fit_ajp+fit_bjp).M();
-
-
-      TLorentzVector fi2_mup(0,0,0,0), fi2_nvp(0,0,0,0), fi2_ajp(0,0,0,0), fi2_bjp(0,0,0,0) ; 
-      doKinematicFit( 2, mup, nvp, ajp, bjp,  fi2_mup, fi2_nvp, fi2_ajp, fi2_bjp, fi2_chi2, fi2_NDF, fi2_status);
-      fi2_mu_px = fi2_mup.Px(); fi2_mu_py = fi2_mup.Py(); fi2_mu_pz = fi2_mup.Pz(); fi2_mu_e = fi2_mup.E(); 
-      fi2_nv_px = fi2_nvp.Px(); fi2_nv_py = fi2_nvp.Py(); fi2_nv_pz = fi2_nvp.Pz(); fi2_nv_e = fi2_nvp.E(); 
-      fi2_aj_px = fi2_ajp.Px(); fi2_aj_py = fi2_ajp.Py(); fi2_aj_pz = fi2_ajp.Pz(); fi2_aj_e = fi2_ajp.E(); 
-      fi2_bj_px = fi2_bjp.Px(); fi2_bj_py = fi2_bjp.Py(); fi2_bj_pz = fi2_bjp.Pz(); fi2_bj_e = fi2_bjp.E(); 
-      fi2_mlvjj = (fi2_mup+fi2_nvp+fi2_ajp+fi2_bjp).M();
-
-
-    }	 // Only Good event will be performed kinematic fit
+	 //	 && cosJacksonAngle2j_PFCor<0.8 
+	 // 	 && cosJacksonAngle2j_PFCor>-0.6
+	 && dijetpt > 40.)
+      {
+	if ( JetPFCor_Pt[2] < 0.1 )                        {evtNJ = 2; gdevtt = 1;}
+	if ( JetPFCor_Pt[2] > 30 && JetPFCor_Pt[3] < 0.1 ) {evtNJ = 3;}
+	
+	if (evtNJ==2||evtNJ==3) { // Do the kinematic fit for all event!!!
+	  int Aj = 0, Bj = 1;    TLorentzVector  mup, nvp, ajp, bjp; 
+	  mup.SetPtEtaPhiE(W_muon_pt,              W_muon_eta,       W_muon_phi,       W_muon_e               );
+	  nvp.SetPxPyPzE(event_met_pfmet * cos(event_met_pfmetPhi), event_met_pfmet * sin(event_met_pfmetPhi), 
+			 W_pzNu1, sqrt(event_met_pfmet*event_met_pfmet + W_pzNu1*W_pzNu1)                     );
+	  ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
+	  bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
+	  
+	  TLorentzVector fit_mup(0,0,0,0), fit_nvp(0,0,0,0), fit_ajp(0,0,0,0), fit_bjp(0,0,0,0) ; 
+	  doKinematicFit( 1, mup, nvp, ajp, bjp,  fit_mup, fit_nvp, fit_ajp, fit_bjp, fit_chi2, fit_NDF, fit_status);
+	  fit_mu_px = fit_mup.Px(); fit_mu_py = fit_mup.Py(); fit_mu_pz = fit_mup.Pz(); fit_mu_e = fit_mup.E(); 
+	  fit_nv_px = fit_nvp.Px(); fit_nv_py = fit_nvp.Py(); fit_nv_pz = fit_nvp.Pz(); fit_nv_e = fit_nvp.E(); 
+	  fit_aj_px = fit_ajp.Px(); fit_aj_py = fit_ajp.Py(); fit_aj_pz = fit_ajp.Pz(); fit_aj_e = fit_ajp.E(); 
+	  fit_bj_px = fit_bjp.Px(); fit_bj_py = fit_bjp.Py(); fit_bj_pz = fit_bjp.Pz(); fit_bj_e = fit_bjp.E(); 
+	  fit_mlvjj = (fit_mup+fit_nvp+fit_ajp+fit_bjp).M(); 
+	  fit_mlv   = (fit_mup+fit_nvp).M();
+	  fit_mjj   = (fit_ajp+fit_bjp).M(); 
+	  
+	  TLorentzVector fi2_mup(0,0,0,0), fi2_nvp(0,0,0,0), fi2_ajp(0,0,0,0), fi2_bjp(0,0,0,0) ; 
+	  doKinematicFit( 2, mup, nvp, ajp, bjp,  fi2_mup, fi2_nvp, fi2_ajp, fi2_bjp, fi2_chi2, fi2_NDF, fi2_status);
+	  fi2_mu_px = fi2_mup.Px(); fi2_mu_py = fi2_mup.Py(); fi2_mu_pz = fi2_mup.Pz(); fi2_mu_e = fi2_mup.E(); 
+	  fi2_nv_px = fi2_nvp.Px(); fi2_nv_py = fi2_nvp.Py(); fi2_nv_pz = fi2_nvp.Pz(); fi2_nv_e = fi2_nvp.E(); 
+	  fi2_aj_px = fi2_ajp.Px(); fi2_aj_py = fi2_ajp.Py(); fi2_aj_pz = fi2_ajp.Pz(); fi2_aj_e = fi2_ajp.E(); 
+	  fi2_bj_px = fi2_bjp.Px(); fi2_bj_py = fi2_bjp.Py(); fi2_bj_pz = fi2_bjp.Pz(); fi2_bj_e = fi2_bjp.E(); 
+	  fi2_mlvjj = (fi2_mup+fi2_nvp+fi2_ajp+fi2_bjp).M();
+	  fi2_mlv   = (fi2_mup+fi2_nvp).M();
+	  fi2_mjj   = (fi2_ajp+fi2_bjp).M(); 
+	}
+      }	 // Only Good event will be performed kinematic fit
     branch_mu_px->Fill();
     branch_mu_py->Fill();
     branch_mu_pz->Fill();
@@ -358,11 +372,14 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
     branch_bj_e ->Fill();
    
     branch_mlvjj->Fill();
+    branch_mlv  ->Fill();
+    branch_mjj  ->Fill();
     branch_chi2 ->Fill();
     branch_NDF  ->Fill();
     branch_status->Fill();
 
     branch_gdevtt->Fill();
+    branch_evtNJ ->Fill();
 
     branc2_mu_px->Fill();
     branc2_mu_py->Fill();
@@ -385,6 +402,8 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
     branc2_bj_e ->Fill();
    
     branc2_mlvjj->Fill();
+    branc2_mlv  ->Fill();
+    branc2_mjj  ->Fill();
     branc2_chi2 ->Fill();
     branc2_NDF  ->Fill();
     branc2_status->Fill();
@@ -439,7 +458,7 @@ bool kanamuon::doKinematicFit(Int_t                 fflage,
   OK = resolution->PFMETResolution(     nvp.Et(),            etRes, etaRes, phiRes);
   if(!OK) return OK;
   m2(0,0) = resolution->square(etRes);
-  m2(1,1) = 999.9; // resolution->square(etaRes)
+  m2(1,1) = 0.01; // resolution->square(etaRes)
   m2(2,2) = resolution->square(phiRes);
   // Leading Jet resolution
   OK = resolution->udscPFJetResolution( ajp.Et(), ajp.Eta(), etRes, etaRes, phiRes);
@@ -496,9 +515,9 @@ bool kanamuon::doKinematicFit(Int_t                 fflage,
   }else {return false;}
   
   //Set convergence criteria
-  fitter->setMaxNbIter( 30 );
+  fitter->setMaxNbIter( 500 );
   fitter->setMaxDeltaS( 1e-2 );
-  fitter->setMaxF( 1e-1 );
+  fitter->setMaxF( 1e-2 );
   fitter->setVerbosity(1);
   fitter->fit();
 
