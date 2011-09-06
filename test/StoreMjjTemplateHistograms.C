@@ -47,6 +47,14 @@ void StoreMjjTemplateHistograms() {
    getTemplate(data_dir + "/ReducedTree/RD_mu_Ztautau_CMSSW428.root", "ZJets_muon");
    getTemplate(data_dir + "/ReducedTree/RD_el_Ztautau_CMSSW428.root", "ZJets_electron");
 
+   // New Physics models normalized to 1/fb
+   getNPTemplate('Z', data_dir + "/ReducedTree/RD_Zprime_Wenujj_50k.root", "Zprime_electron");
+   getNPTemplate('Z', data_dir + "/ReducedTree/RD_Zprime_Wmunujj_50k.root", "Zprime_muon");
+   getNPTemplate('T', data_dir + "/ReducedTree/RD_Technicolor_CorrectConfig_Wenujj_50k.root", "Technicolor_electron");
+   getNPTemplate('T', data_dir + "/ReducedTree/RD_Technicolor_CorrectConfig_Wmunujj_50k.root", "Technicolor_muon");
+   getNPTemplate('H', data_dir + "/ReducedTree/RD_WH150qq_WenuJJ_50k.root", "WH_electron");
+   getNPTemplate('H', data_dir + "/ReducedTree/RD_WH150qq_WmunuJJ_50k.root", "WH_muon");
+
 }
 
 
@@ -145,4 +153,44 @@ void getTemplate(char* inputDataFileName, char* outHistogramName, char* inputTre
    f.cd();
    th1H->Write();
    f.Close();
+}
+
+/*
+  The model parameters is as follows:
+  Z : Z prime
+  T : Technicolor
+  H : WH/ZH higgs
+ */
+void getNPTemplate(char model, char* inputDataFileName, 
+		   char* outHistogramName, char* inputTreeName="WJet") {
+
+  float sampleLumi = 1.0; // fb^-1
+  switch (model) {
+  case 'Z':
+  case 'z':
+    sampleLumi = 29.069;
+  case 'T':
+  case 't':
+    sampleLumi = 31.519;
+  case 'H':
+  case 'h':
+    sampleLumi = 3448.276;
+  }
+  TFile f("Histograms_Mjj_data_and_template.root", "update");
+  TFile* mhfile = new TFile( inputDataFileName, "read");
+  cout << "File Name : " << inputDataFileName << endl;
+  TTree* treeTemp = (TTree*) mhfile->Get(inputTreeName);
+  cout << "Tree Entries = " << treeTemp->GetEntries() << endl;
+  
+  TH1* th1H = new TH1D(outHistogramName, outHistogramName, 
+		       NBINSFORPDF, MINRange, MAXRange);
+  char* treecuts = selection; 
+  if(!(inputTreeName=="WJet"))treecuts = "";
+
+  treeTemp->Draw( TString("Mass2j_PFCor>>")+TString(outHistogramName), treecuts,"goff");
+  th1H->Scale( 1. / sampleLumi );
+
+  f.cd();
+  th1H->Write();
+  f.Close();
 }
