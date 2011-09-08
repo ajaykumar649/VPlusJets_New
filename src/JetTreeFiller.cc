@@ -68,6 +68,9 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
   // ********** Corrected PFJets ********** //
   if( jetType=="PFCor" && iConfig.existsAs<edm::InputTag>("srcPFCor") )
     mInputJets = iConfig.getParameter<edm::InputTag>("srcPFCor"); 
+  // ********** Corrected PFJets for VBF Tag ********** //
+  if( jetType=="PFCorVBFTag" && iConfig.existsAs<edm::InputTag>("srcPFCorVBFTag") )
+    mInputJets = iConfig.getParameter<edm::InputTag>("srcPFCorVBFTag"); 
   // ********** JetPlusTrack Jets ********** //
   if( jetType=="JPT" && iConfig.existsAs<edm::InputTag>("srcJPTJets") )
     mInputJets = iConfig.getParameter<edm::InputTag>("srcJPTJets"); 
@@ -184,7 +187,7 @@ void ewk::JetTreeFiller::SetBranches()
 
   /////////////////////////////////////////////////////////////////////////
 
-  if( jetType_ == "PF" || jetType_ == "PFCor") {
+  if( jetType_ == "PF" || jetType_ == "PFCor" || jetType_ == "PFCorVBFTag") {
     /// chargedHadronEnergy 
     SetBranch( PFChargedHadronEnergy, "Jet" + jetType_ + "_ChargedHadronEnergy");
     ///  chargedHadronEnergyFraction
@@ -288,7 +291,7 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranchSingle( &cosThetaJJ, "cosThetaJJ_" + jetType_);
 
 
-  if( jetType_ == "PF" || jetType_ == "PFCor") {
+  if( jetType_ == "PF" || jetType_ == "PFCor" || jetType_ == "PFCorVBFTag") {
     /// Color Correlation between W jets ( jets pull )
     SetBranchSingle( &leadingDeltaTheta, "WJetsPull" + jetType_);
 

@@ -62,6 +62,7 @@ private:
   std::string  moduleLabel_;
   int idLevel_;
   double etaMax_;
+  double etaMin_;
   double ptMin_;
 
   unsigned int nJetsTot_;
@@ -85,6 +86,7 @@ JetCleaner<T>::JetCleaner(const edm::ParameterSet& iConfig)
   , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
   , idLevel_    (iConfig.getParameter<int>                   ("idLevel"))
   , etaMax_     (iConfig.getParameter<double>                ("etaMax"))
+  , etaMin_     (iConfig.getParameter<double>                ("etaMin"))
   , ptMin_      (iConfig.getParameter<double>                ("ptMin"))
   , nJetsTot_(0)
   , nJetsClean_(0)
@@ -171,7 +173,7 @@ void JetCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
       const T& goodJet = static_cast<const T&>((*jets)[iJet]);
       double pt = goodJet.pt();
       double eta = goodJet.eta();
-      if(isPassing && fabs(eta)<etaMax_ && pt>ptMin_) cleanJets->push_back( goodJet );
+      if(isPassing && fabs(eta)<etaMax_ && fabs(eta)>=etaMin_ && pt>ptMin_) cleanJets->push_back( goodJet );
     }
 
   nJetsTot_  +=jets->size();

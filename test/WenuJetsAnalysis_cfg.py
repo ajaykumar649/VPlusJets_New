@@ -81,21 +81,16 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/90646AF9-F957-E011-B0DB-003048F118C4.root',
-##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/749B54BD-E557-E011-AC27-000423D33970.root',
-##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/5A366F5F-7959-E011-AB12-0030487C8E02.root',
-##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/0EF76BBA-0858-E011-AE3A-003048F118C6.root',
-##        '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/024D65F9-F957-E011-8C5D-003048F024FE.root',
-       ##'/store/mc/Spring11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S1_START311_V1G1-v1/0005/0C01223C-1255-E011-9708-00261894389C.root',
-
+        '/store/data/Run2011A/SingleElectron/AOD/05Aug2011-v1/0000/00111ED4-C8BF-E011-BBC1-003048D43942.root',
+        '/store/data/Run2011A/SingleElectron/AOD/05Aug2011-v1/0000/003EF3F8-B5BF-E011-8FF9-003048D439AA.root',
 
 ############ Techni-color samples ############################
-       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_5_1_vVp.root',
-       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_4_1_Yg1.root',
-       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_3_1_lo7.root',
-       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_2_1_MfI.root',
-       '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_1_1_gPP.root' 
+##        '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_5_1_vVp.root',
+##        '/store/user/andersj/Technirho_Wjj_4_2_3_SIM/Technirho_Wjj_4_2_3_AODSIM/f71d043e41acd38c60e3392468355a0e/tc_AODSIM_4_1_Yg1.root',
     
+############ Summer11 W+jets samples ############################
+##        '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0001/FED96BE1-859A-E011-836E-001A92971B56.root',
+##        '/store/mc/Summer11/WJetsToLNu_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0001/FED7DD5E-9D9A-E011-A3BD-002618943954.root',
 ) )
 
 
@@ -117,6 +112,7 @@ process.HLTEle =cms.EDFilter("HLTHighLevel",
 ##-------- Save V+jets trees --------
 process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
     srcPFCor = cms.InputTag("ak5PFJetsCorClean"), 
+    srcPFCorVBFTag = cms.InputTag("ak5PFJetsCorCleanVBFTag"), 
     srcVectorBoson = cms.InputTag("bestWToEnu"),
     VBosonType     = cms.string('W'),
     LeptonType     = cms.string('electron'),                          

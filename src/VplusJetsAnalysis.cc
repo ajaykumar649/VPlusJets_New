@@ -45,6 +45,8 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   new JetTreeFiller("CorrectedCaloJetFiller", myTree, "Cor", iConfig) : 0),
   CorrectedPFJetFiller ( iConfig.existsAs<edm::InputTag>("srcPFCor") ? 
   new JetTreeFiller("CorrectedPFJetFiller", myTree, "PFCor", iConfig) : 0),
+  CorrectedPFJetFillerVBFTag ( iConfig.existsAs<edm::InputTag>("srcPFCorVBFTag") ? 
+  new JetTreeFiller("CorrectedPFJetFillerVBFTag", myTree, "PFCorVBFTag", iConfig) : 0),
   CorrectedJPTJetFiller ( iConfig.existsAs<edm::InputTag>("srcJPTCor") ?  
   new JetTreeFiller("CorrectedJPTJetFiller", myTree, "JPTCor", iConfig) : 0),
   GenJetFiller ( (iConfig.existsAs<bool>("runningOverMC") && 
@@ -234,6 +236,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if(PFJetFiller.get()) PFJetFiller->fill(iEvent);
   if(JPTJetFiller.get()) JPTJetFiller->fill(iEvent);
   if(CorrectedPFJetFiller.get()) CorrectedPFJetFiller->fill(iEvent);
+  if(CorrectedPFJetFillerVBFTag.get()) CorrectedPFJetFillerVBFTag->fill(iEvent);//For VBF Tag Jets
   if(CorrectedJPTJetFiller.get()) CorrectedJPTJetFiller->fill(iEvent);
 
 

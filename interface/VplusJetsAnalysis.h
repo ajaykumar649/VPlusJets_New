@@ -76,6 +76,7 @@ namespace ewk
     std::auto_ptr<ewk::JetTreeFiller> CaloJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedCaloJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFiller;
+    std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFillerVBFTag; //For VBF Tag Jets
     std::auto_ptr<ewk::JetTreeFiller> CorrectedJPTJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> GenJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> PFJetFiller; 
