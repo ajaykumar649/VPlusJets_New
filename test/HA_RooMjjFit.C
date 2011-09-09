@@ -54,10 +54,15 @@
 
 
 
-const double MINRange = 100.0;
-const double MAXRange = 800.0;
-const int BINWIDTH = 10;
 
+// const double MINRange = 0.0;
+// const double MAXRange = 304.0;
+// const int BINWIDTH = 8;
+
+
+const double MINRange = 30.0;
+const double MAXRange = 130.0;
+const int BINWIDTH = 5;
 
 const bool includeNuisancePDF = true;
 const bool drawSystematics = true;
@@ -77,42 +82,54 @@ RooRealVar *JES_scale;
 RooAbsReal *shiftedMass;
 RooRealVar *JES_scale2;
 RooAbsReal *shiftedMass2;
+// RooRealVar *reso_;
+// RooRealVar *zero_;
+// RooGaussModel *resModel_;
 
 using namespace RooFit;
 
 
-void RooWjj4BodyFitter() {
-   RooWjj4BodyFitter(0, "fit_mlvjj", 0.5);
-// "MassV2j_PFCor"
-}  
+
+void HA_RooMjjFit(int channel=0) {
+
+  RooWjjFitterNarrow(channel, "Mass2j_PFCor");
+
+}
+
+
+
 
 
 
 
 ///////// --------- channel 0 : combined,  1: mu,    2: ele --------------
-void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
+void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 {
+//   const char* mycuts = "(gdevtt && abs(JetPFCor_Pt[1]/Mass2j_PFCor-0.5)<0.2 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74)";
+//   const char* mycuts = "(gdevtt && JetPFCor_Pt[0]>40. && JetPFCor_Pt[1]/Mass2j_PFCor<0.8 && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74)";
 
-  const char* mycuts = "((evtNJ==2 || evtNJ==3) && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && fit_status==0 && fit_chi2<30. && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1])>0.1 && cosJacksonAngle2j_PFCor<0.8 && cosJacksonAngle2j_PFCor>-0.6 && Mass2j_PFCor>65. && Mass2j_PFCor<95.)";
-  const char* mycutsNoMassCut = "((evtNJ==2 || evtNJ==3) && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && fit_status==0 && fit_chi2<30. && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1])>0.1 && cosJacksonAngle2j_PFCor<0.8 && cosJacksonAngle2j_PFCor>-0.6)";
+  const char* mycuts = "((evtNJ==2 || evtNJ==3) && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && fit_status==0 && fit_chi2<30. && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1])>0.1 && cosJacksonAngle2j_PFCor<0.8 && cosJacksonAngle2j_PFCor>-0.6)";
+
+  //JetPFCor_bDiscriminator[1]<1.74 && 
+  // && (JetPFCor_QGLikelihood[0]>0.1 && JetPFCor_QGLikelihood[1]>0.1)
+
+//   const char* mycuts = "(gdevtt && JetPFCor_Pt[0]>40.&& JetPFCor_Pt[1]/Mass2j_PFCor<0.9 && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45. && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)";
 
 
-//   const char* mycuts = "((evtNJ==2 || evtNJ==3) && JetPFCor_Pt[1]>35. && JetPFCor_Pt[1]<100. && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && fit_status==0 && fit_chi2<30. && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1])>0.1 && cosJacksonAngle2j_PFCor<0.8 && cosJacksonAngle2j_PFCor>-0.6 && Mass2j_PFCor>65. && Mass2j_PFCor<95.)";
+  //  && JetPFCor_Pt[1]/Mass2j_PFCor<0.8
 
-//   const char* mycutsNoMassCut = "((evtNJ==2 || evtNJ==3) && JetPFCor_Pt[1]>35. && JetPFCor_Pt[1]<100. && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && fit_status==0 && fit_chi2<30. && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1])>0.1 && cosJacksonAngle2j_PFCor<0.8 && cosJacksonAngle2j_PFCor>-0.6)";
-
-
-  const char* PLOTPREFIX = "mLnuJJ";
-  const char* XLABEL = "m_{WW}";
+  const char* PLOTPREFIX = "mJJ";
+  const char* XLABEL = "m_{jj}";
 
   TCanvas *c;
   TCanvas *c1;
   TCanvas *c2;
 
+
    // The fit variable - lepton invariant mass
-   mjj_ = new RooRealVar( PLOTVAR, XLABEL, MINRange, MAXRange, "GeV");
+   mjj_ = new RooRealVar( "Mass2j_PFCor", XLABEL, MINRange, MAXRange, "GeV");
    RooRealVar Mass = *mjj_;
-   double nMuData, nEleData;
+   double nMuData, nEleData, QCDNorm;
 
    gROOT->cd();
    char temp[50];
@@ -132,6 +149,11 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    TTree* treeele = treeTemp2->CopyTree( mycuts );
    nEleData = treeele->GetEntries();
 
+   // ------ Normalization of QCD events: 0.8% in Mu data and 3% in Ele data
+   if(channel==1) QCDNorm = 0.008*nMuData; 
+   if(channel==2) QCDNorm = 0.03*nEleData; 
+   if(channel==0) QCDNorm = 0.008*nMuData + 0.03*nEleData; 
+
 
    ///////// convert Histograms into RooDataHists
    TTree* treeForDataSet = treemu;
@@ -147,7 +169,13 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    // ********** Construct signal & bkg shape PDF ********** //
    RooAbsPdf* signalShapePdf_ = makeSignalPdf(channel, PLOTVAR, mycuts);
    cout << "Made signal pdf" << endl;
-   RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, alpha, mycutsNoMassCut);
+   RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, 0, mycuts);
+
+  //------- for systematics: q2 up --------
+  // RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, 1);
+
+  //------- for systematics: q2 down --------
+   //RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, 2);
 
    RooAbsPdf* qcdPdf_;
    RooAbsPdf* ttPdf_;
@@ -156,34 +184,35 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    RooAbsPdf* ztautauPdf_;
 
    if(includeNuisancePDF) { 
-      qcdPdf_ = makeQCDPdf(channel, PLOTVAR);
-      ttPdf_ = makeTopPairPdf(channel, PLOTVAR, mycuts);
-      singleTopPdf_ = makeSingleTopPdf(channel, PLOTVAR, mycuts);
-      zjetsPdf_ = makeZJetsPdf(channel, PLOTVAR, mycuts);
-      ztautauPdf_ = makeZtautauPdf(channel, PLOTVAR, mycuts);  
+     qcdPdf_ = makeQCDPdf(channel, PLOTVAR);
+     ttPdf_ = makeTopPairPdf(channel, PLOTVAR, mycuts);
+     singleTopPdf_ = makeSingleTopPdf(channel, PLOTVAR, mycuts);
+     zjetsPdf_ = makeZJetsPdf(channel, PLOTVAR, mycuts);
+     ztautauPdf_ = makeZtautauPdf(channel, PLOTVAR, mycuts);
    }
    cout << "Made bkg pdf" << endl;
 
 
-   // ********* Do the Actual Fit ********** //  
-   double dibosonNorm_ = 723.536;
-   double wjetsNorm_ = 9659.77;
-   double QCDNorm = 177.571; 
 
-   if(channel == 1) {
-     dibosonNorm_ *= 0.6; 
-     wjetsNorm_ *= 0.6; 
-     QCDNorm = 0.008*nMuData; 
-   }
-   if(channel == 2) {
-     dibosonNorm_ *= 0.4; 
-     wjetsNorm_ *= 0.4; 
-     QCDNorm = 0.03*nEleData; 
+   // Define background yield variables: they are not related to each other  
+//    double initWjets = 36000.;
+//    double initDiboson = 1000.;
+
+   double initWjets = 15000.;
+   double initDiboson = 1000.;
+
+   if(channel==1) {
+     initWjets *= 0.5;
+     initDiboson *= 0.5;
    }
 
+   if(channel==2) {
+     initWjets *= 0.5;
+     initDiboson *= 0.5;
+   }
 
-   RooRealVar nWjets("nWjets","nWjets",        wjetsNorm_);
-   RooRealVar nDiboson("nDiboson","nDiboson",  dibosonNorm_);
+   RooRealVar nWjets("nWjets","nWjets",        initWjets,     0.0,   100000.);
+   RooRealVar nDiboson("nDiboson","nDiboson",  initDiboson,   0.0,   10000.);
    // fix the top and single top normalization
    RooRealVar nTTbar("nTTbar","", ttbarNorm_);
    RooRealVar nSingleTop("nSingleTop","", singleTopNorm_);
@@ -204,11 +233,90 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
      yields = new RooArgList(nDiboson, nWjets);
    }
    RooAddPdf totalPdf("totalPdf","extended sum pdf", *components, *yields);
+
+
+   Mass.setRange("Range55To250", 40, 300) ;
+   Mass.setRange("Range55To120", 40, MAXRange) ;
+   Mass.setRange("Range200To250", 200, 250) ;
+   Mass.setRange("RangeWmass", 65., 95.);
    Mass.setRange("RangeForPlot", MINRange, MAXRange) ;
-   //  Mass.setRange("RangeDefault", MINRange, MAXRange) ;
+   Mass.setRange("RangeDefault", MINRange, MAXRange) ;
+
+
+   // ********* Do the Actual Fit ********** //  
+   // const char* rangeString = "Range55To250";
+   char* rangeString = "RangeDefault";
+   if(truncateFitRange) 
+      rangeString = "Range55To120,Range200To250";
+
+   RooFitResult *fitResult;
+   RooGaussian constJES("constJES","", *JES_scale, RooConst(0.0),RooConst(0.05)) ;
+   RooGaussian constJES2("constJES2","", *JES_scale2, RooConst(0.0),RooConst(0.05)) ;
+
    JES_scale->setVal(0.0);
+   JES_scale->setConstant( kTRUE );
    JES_scale2->setVal(0.0);
- 
+   JES_scale2->setConstant( kTRUE );
+
+
+   fitResult = totalPdf.fitTo(*data, Save(true), 
+			      ExternalConstraints(constJES),
+			      ExternalConstraints(constJES2),
+			      RooFit::Extended(true), 
+   //RooFit::Minimizer(RooFit::Minuit2,RooFit::migrad),
+			      //RooFit::Minos(true), 
+			      RooFit::Hesse(false),
+			      PrintEvalErrors(-1),
+			      RooFit::Range(rangeString),
+			      Warnings(false) 
+			      );
+
+   fitResult->Print("v");
+
+
+
+   /////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////
+   // ----------- These are needed for systematics ----------------
+   // **** since our systematics are mostly uncorrelated we add them in quadrature ----
+   // ==== (1) From MC statistics: The uncertainty in W+jets yield grows by 0.1196% 
+   // = sqrt(0.005826**2 - 0.005702**2). This is symmetric.
+   // ==== (2) JEC: By fixing the JEC to 0 the W+jets yield changes by -0.1871% 
+   // = 33143 (default) - 33081 (fixed to 0). We can assume this to be symmetric.
+   // ==== (3) from q2 variation: We get 32429 W+jets events in default fit. 
+   //   We get 31539 events with q^2 down template (-2.7444%), 
+   //   32307 from scale up template (-0.3762%). 
+   //   The maximum difference being -2.7444 %.
+
+
+   double NBkg_sys = sqrt(0.001196**2 + 0.001871**2 + 0.027444**2)*nWjets.getVal(); 
+   double NBkg_statsys = sqrt(NBkg_sys**2+nWjets.getError()**2); 
+
+   RooDataSet* wjetsToyData = bkgShapePdf_->generate(*mjj_, 10000000);
+   TH1D* wjetstoyhist = new TH1D("wjetstoyhist","", 100*NBINSFORPDF, MINRange, MAXRange);
+   wjetstoyhist->Sumw2();
+   wjetsToyData->tree()->Draw(TString(PLOTVAR)+TString(">>wjetstoyhist"),"","goff");
+   TH1D* wjetshist_sysP = wjetstoyhist->Clone("wjetshist_sysP");
+   wjetshist_sysP->SetLineColor(2);
+   //  wjetshist_sysP->SetLineStyle(2);
+   wjetshist_sysP->SetLineWidth(2);
+   TH1D* wjetshist_sysM = wjetstoyhist->Clone("wjetshist_sysM");
+   wjetshist_sysM->SetLineColor(2);
+   //wjetshist_sysM->SetLineStyle(2);
+   wjetshist_sysM->SetLineWidth(2);
+   double den = wjetstoyhist->Integral();
+   wjetshist_sysP->Scale( 100*NBkg_sys / den);
+   wjetshist_sysM->Scale( -100*NBkg_sys / den);
+   TH1D* wjetshist_statsysM = wjetshist_sysM->Clone("wjetshist_statsysM"); 
+   TH1D* wjetshist_statsysP = wjetshist_sysM->Clone("wjetshist_statsysP"); 
+   wjetshist_statsysM->SetLineStyle(1);
+   wjetshist_statsysP->SetLineStyle(1);
+   wjetshist_statsysM->Scale( -100*NBkg_statsys / wjetshist_statsysM->Integral() );
+   wjetshist_statsysP->Scale( 100*NBkg_statsys / wjetshist_statsysP->Integral() );
+
+   /////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////
+
 
    // ********** Make and save Canvas for the plots ********** //
    gROOT->ProcessLine(".L ~kalanand/tdrstyle.C");
@@ -262,7 +370,7 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
 
    data->plotOn(frame1,RooFit::DataError(errorType));
    frame1->SetMinimum(0);
-   frame1->SetMaximum(1.25* frame1->GetMaximum());
+   frame1->SetMaximum(1.8* frame1->GetMaximum());
    frame1->Draw("e0");
    TPaveText *plotlabel4 = new TPaveText(0.55,0.87,0.85,0.92,"NDC");
    plotlabel4->SetTextColor(kBlack);
@@ -300,24 +408,24 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    plotlabel9->SetBorderSize(0);
    plotlabel9->SetTextAlign(12);
    plotlabel9->SetTextSize(0.03);
-   TPaveText *plotlabel1000 = new TPaveText(0.66,0.23,0.8,0.32,"NDC");
+   TPaveText *plotlabel1000 = new TPaveText(0.44,0.25,0.6,0.35,"NDC");
    plotlabel1000->SetTextColor(kBlack);
    plotlabel1000->SetFillColor(kWhite);
    plotlabel1000->SetBorderSize(0);
    plotlabel1000->SetTextAlign(12);
    plotlabel1000->SetTextSize(0.04);
 
-   sprintf(temp, "Diboson = %d", nDiboson.getVal());
+   sprintf(temp, "Diboson = %d #pm %d", nDiboson.getVal(), nDiboson.getError());
    plotlabel4->AddText(temp);
-   sprintf(temp, "W+jets = %d", nWjets.getVal());
+   sprintf(temp, "W+jets = %d #pm %d", nWjets.getVal(), nWjets.getError());
    plotlabel5->AddText(temp);
-   sprintf(temp, "t#bar{t}, Top = %d", nSingleTop.getVal()+nTTbar.getVal());
+   sprintf(temp, "t#bar{t}, Top = %d (fixed)", nSingleTop.getVal()+nTTbar.getVal());
    plotlabel6->AddText(temp);
-   sprintf(temp, "QCD = %d", nQCD.getVal());
+   sprintf(temp, "QCD = %d (fixed)", nQCD.getVal());
    plotlabel7->AddText(temp);
-   sprintf(temp, "Z+jets = %d", nZjets.getVal());
+   sprintf(temp, "Z+jets = %d (fixed)", nZjets.getVal());
    plotlabel8->AddText(temp);
-   sprintf(temp, "Z#rightarrow#tau#tau = %d", nZtautau.getVal());
+   sprintf(temp, "Z#rightarrow#tau#tau = %d (fixed)", nZtautau.getVal());
    plotlabel9->AddText(temp);
    double chi2fit = frame1->chiSquare("h_total", "h_data", 3)/1.8;
    sprintf(temp, "#chi^{2}/dof = %.2f",chi2fit );
@@ -332,8 +440,8 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    cout << "======= chi^2/dof = " << chi2fit << endl;
    cmsPrelim2();
    // TLegend* legend = new TLegend(0.35,0.35,0.55,0.55);
-   TLegend* legend = new TLegend(0.65,0.33,0.85,0.6);
-   // TLegend* legend = new TLegend(0.23,0.57,0.46,0.81);
+   //TLegend* legend = new TLegend(0.65,0.3,0.85,0.57);
+   TLegend* legend = new TLegend(0.23,0.57,0.46,0.81);
    RooHist* datahist = frame1->getHist("h_data");
    RooCurve* dibosonhist = frame1->getCurve("h_diboson");
    RooCurve* wjetshist = frame1->getCurve("h_Wjets");
@@ -359,20 +467,18 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    c->SaveAs( cname + TString(".C"));
    c->SaveAs( cname + TString(".pdf"));
 
-
-   /*
    ///////////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////
    //-------Make logY plots ---------------------------------
-   RooPlot* logframe = frame1->Clone("logframe");
+   RooPlot* frame1log = frame1->Clone("frame1log");
    TString cname = TString(PLOTPREFIX) + TString("-combined-fit-logY");
    if(channel==1) cname = TString(PLOTPREFIX) + TString("-mu-fit-logY");
    if(channel==2) cname = TString(PLOTPREFIX) + TString("-ele-fit-logY");
    if(truncateFitRange) cname = cname + TString("-truncated");
    c1 = new TCanvas(cname,cname,500,500);
-   logframe->SetMinimum(1.);
-   logframe->SetMaximum(10000000);
-   logframe->Draw("e0");
+   frame1log->SetMinimum(1.);
+   frame1log->SetMaximum(10000000);
+   frame1log->Draw("e0");
    plotlabel4->Draw();
    plotlabel5->Draw();
    plotlabel6->Draw();
@@ -380,18 +486,18 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    plotlabel8->Draw();
    plotlabel9->Draw();
    cmsPrelim2();
-   //TLegend* legendLog = new TLegend(0.6,0.42,0.85,0.62);
-   TLegend* legendLog = new TLegend(0.25,0.56,0.55,0.8);
-   legendLog->AddEntry( datahist, "Data", "P");  
-   legendLog->AddEntry( dibosonhist, "Di-boson", "F");
-   legendLog->AddEntry( wjetshist, "W+jets", "L");
+   //TLegend* legend2 = new TLegend(0.6,0.42,0.85,0.62);
+   TLegend* legend2 = new TLegend(0.25,0.56,0.55,0.8);
+   legend2->AddEntry( datahist, "Data", "P");  
+   legend2->AddEntry( dibosonhist, "Di-boson", "F");
+   legend2->AddEntry( wjetshist, "W+jets", "L");
    if(includeNuisancePDF) 
-     legendLog->AddEntry( tophist, "t#bar{t}, Top", "L");
-   legendLog->AddEntry( qcdhist, "QCD", "L");
-   legendLog->AddEntry( zjetshist, "Z+jets", "L");
-   legendLog->AddEntry( ztautauhist, "Z#rightarrow#tau#tau", "L");
-   legendLog->SetFillColor(0);
-   legendLog->Draw();
+     legend2->AddEntry( tophist, "t#bar{t}, Top", "L");
+   legend2->AddEntry( qcdhist, "QCD", "L");
+   legend2->AddEntry( zjetshist, "Z+jets", "L");
+   legend2->AddEntry( ztautauhist, "Z#rightarrow#tau#tau", "L");
+   legend2->SetFillColor(0);
+   legend2->Draw();
    c1->SetLogy(1);
    c1->SaveAs( cname + TString(".eps"));
    c1->SaveAs( cname + TString(".gif"));
@@ -401,42 +507,61 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    c1->SaveAs( cname + TString(".pdf"));
    // ----------------- logY plot done -----------------------------
 
-   */
+
 
 
    ///////////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////
-   //-------- Create a new frame to draw the  data - (W+jets) residual distribution 
+   //-------- Create a new frame to draw the residual distribution 
    //--------  and add the distribution to the frame
    RooPlot* frame2 = Mass.frame( MINRange, MAXRange, (int) ((MAXRange-MINRange)/BINWIDTH)); 
+   // RooPlot* frame2 = Title("After subtracting W+jets")) ;
+   // data->plotOn(frame2, RooFit::DataError(errorType), Invisible());
    data->plotOn(frame2,MarkerStyle(0),MarkerSize(0),MarkerColor(0),LineColor(0),LineWidth(0));
    totalPdf.plotOn(frame2,ProjWData(*data),Components(*signalShapePdf_),DrawOption("LF"),FillStyle(1001),FillColor(kOrange),Name("h_diboson"), Range("RangeForPlot"));
 
+   //    totalPdf.plotOn(frame2,ProjWData(*data), Components("stSPdf, stTPdf, stTWPdf"),LineColor(kBlack), Name("h_SingleTop"), Range("RangeForPlot"));
+   
    //// Construct a histogram with the residuals of the data w.r.t. the curve
-   RooHist* hresid = frame1->residHist("h_data", "h_Background") ;
+   const char* baseline = "h_Background";
+   RooHist* hresid = frame1->residHist("h_data", baseline) ;
    hresid->SetMarkerSize(0.8);
+   // frame2->addPlotable(hresid, "P") ;  
    frame2->GetYaxis()->SetTitle(frame1->GetYaxis()->GetTitle());
-   frame2->SetMaximum(300);
+   frame2->SetMaximum(500);
    frame2->SetMinimum(-80);
-   frame2->GetXaxis()->SetNdivisions(505);
-   cname = TString(PLOTPREFIX) + TString("-combined-fit-subtractedWjets");
-   if(channel==1) cname = TString(PLOTPREFIX) + TString("-mu-fit-subtractedWjets");
-   if(channel==2) cname = TString(PLOTPREFIX) + TString("-ele-fit-subtractedWjets");
+
+   cname = TString(PLOTPREFIX) + TString("-combined-fit-subtracted");
+   if(channel==1) cname = TString(PLOTPREFIX) + TString("-mu-fit-subtracted");
+   if(channel==2) cname = TString(PLOTPREFIX) + TString("-ele-fit-subtracted");
+   if(truncateFitRange) cname = cname + TString("-truncated");
    c2 = new TCanvas(cname,cname,500,500);
    frame2->Draw() ;
    hresid->Draw("P");
+   if(drawSystematics) {
+     wjetshist_sysP->Draw("Csame");
+     wjetshist_sysM->Draw("Csame");
+   }
    cmsPrelim2();
-   TLegend* legend2 = new TLegend(0.6,0.8,0.85,0.9);
-   legend2->AddEntry( datahist, "Data", "P");  
-   legend2->AddEntry( dibosonhist, "Di-boson", "F");
-   legend2->SetFillColor(0);
-   legend2->Draw();
+   TLegend* legend3 = new TLegend(0.6,0.7,0.85,0.9);
+   legend3->AddEntry( datahist, "Data", "P");  
+   legend3->AddEntry( dibosonhist, "Di-boson", "F");
+   if(drawSystematics) {
+     legend3->AddEntry( wjetshist_sysM, "Systematics", "L");
+     // legend3->AddEntry( wjetshist_statsysM, "Fit stat. #oplus syst.", "L");
+   }
+   legend3->SetFillColor(0);
+   legend3->Draw();
    c2->SaveAs( cname + TString(".eps"));
    c2->SaveAs( cname + TString(".gif"));
    c2->SaveAs( cname + TString(".root"));
    c2->SaveAs( cname + TString(".png"));
    c2->SaveAs( cname + TString(".C"));
    c2->SaveAs( cname + TString(".pdf"));
+
+
+
+
 
 
 
@@ -448,29 +573,58 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
    RooPlot* frame3 = Mass.frame( MINRange, MAXRange, (int) ((MAXRange-MINRange)/BINWIDTH)); 
    data->plotOn(frame3,MarkerStyle(0),MarkerSize(0),MarkerColor(0),LineColor(0),LineWidth(0));
    //// Construct a histogram with the residuals of the data w.r.t. the curve
-   hresid = frame1->residHist("h_data", "h_SM") ;
+   hresid = frame1->residHist("h_data", "h_total", true) ;
    hresid->SetMarkerSize(0.8);
    frame3->GetYaxis()->SetTitle(frame1->GetYaxis()->GetTitle());
-   frame3->SetMaximum(200);
-   frame3->SetMinimum(-100);
+   frame3->SetMaximum(6);
+   frame3->SetMinimum(-6);
    frame3->GetXaxis()->SetNdivisions(505);
-   cname = TString(PLOTPREFIX) + TString("-combined-fit-subtracted");
-   if(channel==1) cname = TString(PLOTPREFIX) + TString("-mu-fit-subtracted");
-   if(channel==2) cname = TString(PLOTPREFIX) + TString("-ele-fit-subtracted");
+   cname = TString(PLOTPREFIX) + TString("-combined-fit-residual");
+   if(channel==1) cname = TString(PLOTPREFIX) + TString("-mu-fit-residual");
+   if(channel==2) cname = TString(PLOTPREFIX) + TString("-ele-fit-residual");
+   if(truncateFitRange) cname = cname + TString("-truncated");
    c3 = new TCanvas(cname,cname,500,500);
    frame3->Draw() ;
    hresid->Draw("P");
    cmsPrelim2();
-   TLegend* legend3 = new TLegend(0.6,0.8,0.85,0.9);
-   legend3->AddEntry( datahist, "Data", "P");  
-   legend3->SetFillColor(0);
-   legend3->Draw();
+   TLegend* legend4 = new TLegend(0.6,0.8,0.85,0.9);
+   legend4->AddEntry( datahist, "Data", "P");  
+   legend4->SetFillColor(0);
+   legend4->Draw();
    c3->SaveAs( cname + TString(".eps"));
    c3->SaveAs( cname + TString(".gif"));
    c3->SaveAs( cname + TString(".root"));
    c3->SaveAs( cname + TString(".png"));
    c3->SaveAs( cname + TString(".C"));
    c3->SaveAs( cname + TString(".pdf"));
+
+
+
+
+
+
+
+
+//------------ Some jugglery to compute the PDF normalizations in W mass window -------
+   RooAbsReal* igx_sig;
+   RooAbsReal* igx_bkg;
+   RooAbsReal* igx_tot;
+
+
+   igx_sig = signalShapePdf_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
+   igx_bkg = bkgShapePdf_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
+   igx_qcd = qcdPdf_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
+
+   double numDiboson = nDiboson.getVal() * igx_sig->getVal();
+   double numWjets   = nWjets.getVal() * igx_bkg->getVal();
+   double numQCD   = nQCD.getVal() * igx_qcd->getVal();
+
+
+   cout << "-------- Printing yields in restricted mass range -------" << endl;
+   cout << "numDiboson = " << numDiboson << endl;
+   cout << "numWjets = " <<  numWjets << endl;
+   cout << "numQCD = " <<  numQCD << endl;
+   cout << "---------------------------------------------------------" << endl;
 
 
    //    if(data) delete data;
@@ -482,9 +636,8 @@ void RooWjj4BodyFitter(int channel=0, char PLOTVAR[], float alpha = 0.5)
 
 
 
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
+
+
 
 // // ***** Function to return the signal Pdf *** //
 RooAbsPdf*  makeSignalPdf(int channel, char PLOTVAR[], char* cut="gdevtt") {
@@ -543,13 +696,16 @@ RooAbsPdf*  makeSignalPdf(int channel, char PLOTVAR[], char* cut="gdevtt") {
 
 
 
+
+
+
+
 // ***** Function to return the background Pdf **** //
-RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], float alpha=1.0, char* cut="gdevtt")
+// scale 1:  syst==0, scale up: syst==1, scale down: syst==2
+
+RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], int syst=0, char* cut="gdevtt")
 {  
   // W+jets pdf
-   TCut sidebandLo("Mass2j_PFCor>35. && Mass2j_PFCor<65.");
-   TCut sidebandHi("Mass2j_PFCor>95. && Mass2j_PFCor<125.");
-
   TFile* wjetsShape_mu_file =  new TFile("data/ReducedTree/RD_mu_WpJ_CMSSW428.root", "READ");
   treeTemp = (TTree*) wjetsShape_mu_file->Get("WJet");
   ActivateTreeBranches(*treeTemp);
@@ -563,28 +719,32 @@ RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], float alpha=1.0, char* cut="g
   TTree* tree2 = treeTemp->CopyTree(cut);
 
 
+  char* weight = "1.0*";
+  char* weight1 = "";
+  char* weight2 = "";
+  //------- for systematics: q2 up --------
+  if(syst==1)  
+     weight = "(1.262 - 0.007112*Mass2j_PFCor + 0.00005637*Mass2j_PFCor*Mass2j_PFCor - 0.0000001433*Mass2j_PFCor*Mass2j_PFCor*Mass2j_PFCor)*";
+
+
+   //------- for systematics: q2 down --------
+  if(syst==2)  
+     weight = "(1.353 - 0.01078*Mass2j_PFCor + 0.00008975*Mass2j_PFCor*Mass2j_PFCor - 0.0000002139*Mass2j_PFCor*Mass2j_PFCor*Mass2j_PFCor)*";
+
+  TString myselection = TString(weight) + TString(cut);
+
+
   TH1* th1wjets = new TH1D("th1wjets", "th1wjets",
 			   NBINSFORPDF,MINRange,MAXRange);
-  TH1* th2wjets = new TH1D("th2wjets", "th2wjets",
-			   NBINSFORPDF,MINRange,MAXRange);
 
-     if(channel==0 || channel==1) {
-       tree1->Draw(TString(PLOTVAR)+TString(">>th1wjets"), sidebandHi, "goff");
-       tree1->Draw(TString(PLOTVAR)+TString(">>th2wjets"), sidebandLo, "goff");
-     }
-     if(channel==0) {
-       tree2->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), sidebandHi, "goff");
-       tree2->Draw(TString(PLOTVAR)+TString(">>+th2wjets"), sidebandLo, "goff");
-     }
-     if(channel==2) {
-       tree2->Draw(TString(PLOTVAR)+TString(">>th1wjets"), sidebandHi, "goff");
-       tree2->Draw(TString(PLOTVAR)+TString(">>+th2wjets"), sidebandLo, "goff");
-     }
+  if(channel==0 || channel==1) 
+     tree1->Draw(TString(PLOTVAR)+TString(">>th1wjets"), myselection, "goff");
+  if(channel==0)
+     tree2->Draw(TString(PLOTVAR)+TString(">>+th1wjets"), myselection, "goff");
+  if(channel==2) 
+     tree2->Draw(TString(PLOTVAR)+TString(">>th1wjets"), myselection, "goff");
 
 
-     th1wjets->Scale( 1./ th1wjets->Integral() );
-     th2wjets->Scale( 1./ th2wjets->Integral() );
-     th1wjets->Add(th2wjets, th1wjets, alpha, 1.0-alpha);
 
   RooDataHist* rdhWjets = new RooDataHist("rdhWjets","", *mjj_, th1wjets);
   RooAbsPdf* bkgShapePdf_ = new RooHistPdf("bkgShapePdf","",*shiftedMass, *mjj_,*rdhWjets);
@@ -593,6 +753,9 @@ RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], float alpha=1.0, char* cut="g
   delete tree2;
   return bkgShapePdf_;
 }
+
+
+
 
 
 
@@ -736,16 +899,16 @@ RooAbsPdf* makeSingleTopPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[])
 {  
   // QCD pdf
-  TFile* fqcd0 =  new TFile("data/RD_mu_QCDMu_CMSSW428_MET20Iso03.root", "READ");
-  TTree* tree10 = (TTree*) fqcd0->Get("WJet");
-  TFile* fqcd1 =  new TFile("data/RD_el_QCDEl_Pt30to80_CMSSW428_MET20Iso03.root", "READ");
-  TTree* tree11 = (TTree*) fqcd1->Get("WJet");
-  TFile* fqcd2 =  new TFile("data/RD_el_QCDEl_Pt80to170_CMSSW428_MET20Iso03.root", "READ");
-  TTree* tree12 = (TTree*) fqcd2->Get("WJet");
-  TFile* fqcd3 =  new TFile("data/RD_el_QCDEl_BCtoE30to80_CMSSW428_MET20Iso03.root", "READ");
-  TTree* tree13 = (TTree*) fqcd3->Get("WJet");
-  TFile* fqcd4 =  new TFile("data/RD_el_QCDEl_BCtoE80to170_CMSSW428_MET20Iso03.root", "READ");
-  TTree* tree14 = (TTree*) fqcd4->Get("WJet");
+  TFile* fqcd0 =  new TFile("data/W_mt_MET20Iso03_WmunuJets_QCD_Pt-20_MuEnrichedPt-15.root", "READ");
+  TTree* tree10 = (TTree*) fqcd0->Get("OutTree");
+  TFile* fqcd1 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-30to80_EMEnriched.root", "READ");
+  TTree* tree11 = (TTree*) fqcd1->Get("OutTree");
+  TFile* fqcd2 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-80to170_EMEnriched.root", "READ");
+  TTree* tree12 = (TTree*) fqcd2->Get("OutTree");
+  TFile* fqcd3 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-30to80_BCtoE.root", "READ");
+  TTree* tree13 = (TTree*) fqcd3->Get("OutTree");
+  TFile* fqcd4 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-80to170_BCtoE.root", "READ");
+  TTree* tree14 = (TTree*) fqcd4->Get("OutTree");
 
   char scale[50];
   TH1* th1qcdMu = new TH1D("th1qcdMu", "th1qcdMu", NBINSFORPDF, MINRange, MAXRange);
@@ -793,47 +956,6 @@ RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[])
 
   return qcdPdf_;
 }
-
-
-
-
-
-
-
-
-// // ***** Function to return the QCD Pdf **** //
-// RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
-// {
-//   // QCD pdf
-//   TFile* fqcd0 =  new TFile("data/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_1p6invfb.root", "READ");
-//   TTree* tree10 = (TTree*) fqcd0->Get("WJet");
-//   TFile* fqcd1 =  new TFile("data/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_1p6invfb.root", "READ");
-//   TTree* tree11 = (TTree*) fqcd1->Get("WJet");
-
-//   TH1* th1qcd = new TH1D("th1qcd", "th1qcd", NBINSFORPDF, MINRange, MAXRange);
-//   if(channel==0 || channel==1) 
-//      tree10->Draw( TString(PLOTVAR)+TString(">>th1qcd"), cut, "goff");
-//   if(channel==0)
-//   tree11->Draw( TString(PLOTVAR)+TString(">>+th1qcd"), cut, "goff");
-//   if(channel==2)
-//   tree11->Draw( TString(PLOTVAR)+TString(">>th1qcd"), cut, "goff");
-
-//   //     cout << " ----- num. all QCD events = " << th1qcd->Integral() << endl;
-//   //th1qcd->Scale( 1./ th1qcd->Integral() );
-
-//   RooDataHist* rdhqcd = new RooDataHist("rdhqcd","", *mjj_, th1qcd);
-//   RooAbsPdf* qcdPdf_ = new RooHistPdf("qcdPdf","",*shiftedMass, *mjj_,*rdhqcd);
-
-// //   RooDataHist* rdhqcd = new RooDataHist("rdhqcd","", *mjj_, th1qcd);
-// //   qcdPdf_ = new RooHistPdf("qcdPdf", "", *mjj_, *rdhqcd);
-
-//   delete tree10;
-//   delete tree11;
-//   delete fqcd0;
-//   delete fqcd1;
-
-//    return qcdPdf_;
-// }
 
 
 
@@ -932,9 +1054,7 @@ RooAbsPdf* makeZtautauPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 }
 
 
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
+
 
 
 
@@ -943,19 +1063,19 @@ RooAbsPdf* makeZtautauPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 ////CMS Preliminary label and lumu
 void cmsPrelim()
 {
-  const float LUMINOSITY = IntLUMI;
-  TLatex latex;
-  latex.SetNDC();
-  latex.SetTextSize(0.04);
+   const float LUMINOSITY = IntLUMI;
+   TLatex latex;
+   latex.SetNDC();
+   latex.SetTextSize(0.04);
 
-  latex.SetTextAlign(31); // align right
-  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
-  if (LUMINOSITY > 0.) {
-    latex.SetTextAlign(31); // align right
-    latex.DrawLatex(0.82,0.7,Form("#int #font[12]{L} dt = %d pb^{-1}", (int) LUMINOSITY));
-  }
-  latex.SetTextAlign(11); // align left
-  latex.DrawLatex(0.18,0.96,"CMS preliminary 2011");
+   latex.SetTextAlign(31); // align right
+   latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
+   if (LUMINOSITY > 0.) {
+      latex.SetTextAlign(31); // align right
+      latex.DrawLatex(0.82,0.7,Form("#int #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY/1000));
+   }
+   latex.SetTextAlign(11); // align left
+   latex.DrawLatex(0.18,0.96,"CMS preliminary 2011");
 }
 
 
@@ -964,19 +1084,19 @@ void cmsPrelim()
 ////CMS Preliminary label and lumu -- upper left corner
 void cmsPrelim2()
 {
-  const float LUMINOSITY = IntLUMI;
-  TLatex latex;
-  latex.SetNDC();
-  latex.SetTextSize(0.04);
+   const float LUMINOSITY = IntLUMI;
+   TLatex latex;
+   latex.SetNDC();
+   latex.SetTextSize(0.04);
 
-  latex.SetTextAlign(31); // align right
-  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
-  if (LUMINOSITY > 0.) {
-    latex.SetTextAlign(11); // align left
-    latex.DrawLatex(0.21,0.85,Form("#int #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY/1000));
-  }
-  latex.SetTextAlign(11); // align left
-  latex.DrawLatex(0.18,0.96,"CMS preliminary 2011");
+   latex.SetTextAlign(31); // align right
+   latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
+   if (LUMINOSITY > 0.) {
+      latex.SetTextAlign(11); // align left
+      latex.DrawLatex(0.21,0.85,Form("#int #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY/1000));
+   }
+   latex.SetTextAlign(11); // align left
+   latex.DrawLatex(0.18,0.96,"CMS preliminary 2011");
 }
 
 
@@ -1003,33 +1123,20 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false) {
   t.SetBranchStatus("event_met_pfmetsignificance",    1);
   t.SetBranchStatus("event_BeamSpot_x",    1);
   t.SetBranchStatus("event_BeamSpot_y",    1);
-  //  t.SetBranchStatus("event_BeamSpot_z",    1);
   t.SetBranchStatus("event_RhoForLeptonIsolation",    1);
-  //  t.SetBranchStatus("W_*",    1);
 
   t.SetBranchStatus("W_mt",    1);
+  t.SetBranchStatus("W_pt",    1);
   t.SetBranchStatus("W_pzNu1",    1);
   t.SetBranchStatus("W_pzNu2",    1);
-  // t.SetBranchStatus("WJetsPullPFCor",    1);
-  //t.SetBranchStatus("fit_*",    1);
-
-  //   t.SetBranchStatus("fit_aj_px",    1);
-  //   t.SetBranchStatus("fit_aj_py",    1);
-  //   t.SetBranchStatus("fit_aj_pz",    1);
-  //   t.SetBranchStatus("fit_aj_e",    1);
-
-  //   t.SetBranchStatus("fit_bj_px",    1);
-  //   t.SetBranchStatus("fit_bj_py",    1);
-  //   t.SetBranchStatus("fit_bj_pz",    1);
-  //   t.SetBranchStatus("fit_bj_e",    1);
-
-  t.SetBranchStatus("fit_mlvjj",    1);
-  t.SetBranchStatus("fit_chi2",    1);
-  t.SetBranchStatus("fit_NDF",    1);
   t.SetBranchStatus("fit_status",    1);
+  t.SetBranchStatus("fit_mjj",    1);
   t.SetBranchStatus("gdevtt",    1);
   t.SetBranchStatus("evtNJ",    1);
-
+  t.SetBranchStatus("fit_chi2",    1);
+  t.SetBranchStatus("fit_NDF",    1);
+  t.SetBranchStatus("fi2_chi2",    1);
+  t.SetBranchStatus("fi2_NDF",    1);
 
   if(isElectronTree) {
     t.SetBranchStatus("W_electron_et",    1);
@@ -1043,7 +1150,6 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false) {
     t.SetBranchStatus("W_electron_deltaeta_in",    1);
     t.SetBranchStatus("W_electron_vx",    1);
     t.SetBranchStatus("W_electron_vy",    1);
-    // t.SetBranchStatus("W_electron_vz",    1);
     t.SetBranchStatus("W_electron_e",    1);
     t.SetBranchStatus("W_electron_px",    1);
     t.SetBranchStatus("W_electron_py",    1);
