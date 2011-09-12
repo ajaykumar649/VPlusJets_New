@@ -33,7 +33,7 @@
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 
 ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   fOutputFileName ( iConfig.getParameter<std::string>("HistOutFile") ),
@@ -206,7 +206,10 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   else  lepIsoRho =  -999999.9;
 
 
-  /////////// GenMET information //////////
+  /////////// GenMET information & MC Pileup Summary Info  //////////
+  mcPUtotnvtx = 0;
+  mcPUbx[0]   = -999; mcPUbx[1]   = -999; mcPUbx[2]   = -999;
+  mcPUnvtx[0] = -999; mcPUnvtx[1] = -999; mcPUnvtx[2] = -999;
   if ( runningOverMC_ ){
     edm::Handle<reco::GenMETCollection> genMETs;
     iEvent.getByLabel("genMetTrue",genMETs);
@@ -221,8 +224,20 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
       genMETSign = (*genMETs)[0].significance();  
       genMETPhi = (*genMETs)[0].phi();
     }
+    // MC Pileup Summary Info
+    const edm::InputTag PileupSrc("addPileupInfo");
+    edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+    iEvent.getByLabel(PileupSrc, PupInfo);
+    std::vector<PileupSummaryInfo>::const_iterator PVI;
+    int ctid = 0;
+    for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+      if (ctid>2) break;
+      mcPUbx[ctid]   =  PVI->getBunchCrossing();
+      mcPUnvtx[ctid] =  PVI->getPU_NumInteractions();
+      mcPUtotnvtx   +=  PVI->getPU_NumInteractions();
+      ctid++;
+    }
   }
-
   // fill jet branches
   edm::Handle<reco::CandidateView> boson;
   iEvent.getByLabel( mInputBoson, boson);
@@ -308,6 +323,11 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
     myTree->Branch("event_met_gensumet",  &genSumET,"event_met_gensumet/F"); 
     myTree->Branch("event_met_genmetsignificance", &genMETSign,  "event_met_genmetsignificance/F"); 
     myTree->Branch("event_met_genmetPhi",    &genMETPhi,  "event_met_genmetPhi/F"); 
+
+    myTree->Branch("event_mcPU_totnvtx",    &mcPUtotnvtx,  "event_mcPU_totnvtx/F"); 
+    myTree->Branch("event_mcPU_bx",         mcPUbx ,       "event_mcPU_bx[3]/F"); 
+    myTree->Branch("event_mcPU_nvtx",       mcPUnvtx,      "event_mcPU_nvtx[3]/F"); 
+
   }
 
 }  

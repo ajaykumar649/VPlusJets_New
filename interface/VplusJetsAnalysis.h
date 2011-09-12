@@ -117,7 +117,9 @@ namespace ewk
     float genMETSign;
     float genMETPhi;
 
-
+    float mcPUtotnvtx;
+    float mcPUbx[3];
+    float mcPUnvtx[3];
   };
 }
 #endif

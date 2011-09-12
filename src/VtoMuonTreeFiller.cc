@@ -108,6 +108,13 @@ void ewk::VtoMuonTreeFiller::SetBranches()
   SetBranch( &mu1d0bsp,          lept1+"_d0bsp" );
   SetBranch( &mu1dz000,          lept1+"_dz000" );
 
+  SetBranch( &mu1pfiso_sumChargedHadronPt,            lept1+"_pfiso_sumChargedHadronPt" );
+  SetBranch( &mu1pfiso_sumChargedParticlePt,          lept1+"_pfiso_sumChargedParticlePt" );
+  SetBranch( &mu1pfiso_sumNeutralHadronEt,            lept1+"_pfiso_sumNeutralHadronEt" );
+  SetBranch( &mu1pfiso_sumPhotonEt,                   lept1+"_pfiso_sumPhotonEt" );
+  SetBranch( &mu1pfiso_sumPUPt,                       lept1+"_pfiso_sumPUPt" );
+
+
   ////////////////////////////////////////////////////////
   if(Vtype_=="Z") {	  
     SetBranch( &mu2px,             lept2+"_px" );
@@ -183,6 +190,12 @@ void ewk::VtoMuonTreeFiller::init()
 
   mu1d0bsp            = -99999.;
   mu1dz000            = -99999.;
+
+  mu1pfiso_sumChargedHadronPt   = -99999.;
+  mu1pfiso_sumChargedParticlePt = -99999.;
+  mu1pfiso_sumNeutralHadronEt   = -99999.;
+  mu1pfiso_sumPhotonEt          = -99999.;
+  mu1pfiso_sumPUPt              = -99999.;
 	  
   mu2px              = -99999.;
   mu2py              = -99999.;
@@ -334,6 +347,12 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
     iEvent.getByLabel("offlineBeamSpot", beamSpot);
     mu1d0bsp = muon1->innerTrack()->dxy( beamSpot->position() ) ;
     mu1dz000 = muon1->vertex().z();
+    // pf isolation
+    //mu1pfiso_sumChargedHadronPt   = muon1->pfIsolationR03().sumChargedHadronPt;
+    //mu1pfiso_sumChargedParticlePt = muon1->pfIsolationR03().sumChargedParticlePt;
+    //mu1pfiso_sumNeutralHadronEt   = muon1->pfIsolationR03().sumNeutralHadronEt;
+    //mu1pfiso_sumPhotonEt          = muon1->pfIsolationR03().sumPhotonEt;
+    //mu1pfiso_sumPUPt              = muon1->pfIsolationR03().sumPUPt;
   }
 
   ////////// muon #2 quantities //////////////

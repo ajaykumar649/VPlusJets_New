@@ -137,6 +137,11 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &e1_d0bsp,         lept1+"_d0bsp" );
   SetBranch( &e1_dz000,         lept1+"_dz000" );
 
+  SetBranch( &e1_pfiso_chargedHadronIso,         lept1+"_pfiso_chargedHadronIso" );
+  SetBranch( &e1_pfiso_photonIso,                lept1+"_pfiso_photonIso" );
+  SetBranch( &e1_pfiso_neutralHadronIso,         lept1+"_pfiso_neutralHadronIso" );
+
+
   ////////////////////////////////////////////////////////
   if(Vtype_=="Z") {	  
     SetBranch( &e2px,             lept2+"_px" );
@@ -279,6 +284,9 @@ void ewk::VtoElectronTreeFiller::init()
   e1_d0bsp           = -99999.;
   e1_dz000           = -99999.;
 
+  e1_pfiso_chargedHadronIso       = -99999.;
+  e1_pfiso_photonIso              = -99999.;
+  e1_pfiso_neutralHadronIso       = -99999.;
 
   e2px              = -99999.;
   e2py              = -99999.;
@@ -533,8 +541,10 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
    iEvent.getByLabel("offlineBeamSpot", beamSpot);
    e1_d0bsp = e1->gsfTrack()->dxy( beamSpot->position() ) ;
    e1_dz000 = e1->vertex().z();
-
-
+   // PF Isolation 
+   e1_pfiso_chargedHadronIso = e1->pfIsolationVariables().chargedHadronIso;
+   e1_pfiso_photonIso        = e1->pfIsolationVariables().photonIso;
+   e1_pfiso_neutralHadronIso = e1->pfIsolationVariables().neutralHadronIso;
   }
 
   ////////// electron #2 quantities //////////////

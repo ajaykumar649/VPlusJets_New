@@ -122,6 +122,12 @@ namespace ewk {
     float mu1d0bsp;
     float mu1dz000;
 
+    float mu1pfiso_sumChargedHadronPt;
+    float mu1pfiso_sumChargedParticlePt;
+    float mu1pfiso_sumNeutralHadronEt;
+    float mu1pfiso_sumPhotonEt;
+    float mu1pfiso_sumPUPt;
+
     ///////////////////
     float mu2px;
     float mu2py;
