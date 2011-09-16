@@ -18,12 +18,12 @@ void kanamuon::myana(double myflag)
 {
   TChain * myChain;
   // 2011 data
-  myflag = 20111000;
+  myflag = -100;
 
   if (myflag == 20111000 || myflag == -100){
     myChain = new TChain("WJet");  
-    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DataAll_GoldenJSON_1p6invfb.root"); 
-    Init(myChain);Loop( 2011, 1000,          "./RD_WmunuJets_DataAll_GoldenJSON_1p6invfb.root");
+    myChain->Add("/uscms_data/d2/kalanand/WjjTrees/WmunuJets_DataAll_GoldenJSON_2invfb.root"); 
+    Init(myChain);Loop( 2011, 1000,          "./RD_WmunuJets_DataAll_GoldenJSON_2invfb.root");
   }
   
   // General Background Samples
@@ -321,6 +321,7 @@ void kanamuon::Loop(int wda, int wsp, const char *outfilename)
       {
 	if ( JetPFCor_Pt[2] < 0.1 )                        {evtNJ = 2; gdevtt = 1;}
 	if ( JetPFCor_Pt[2] > 30 && JetPFCor_Pt[3] < 0.1 ) {evtNJ = 3;}
+	if ( JetPFCor_Pt[3] > 30  ) {evtNJ = 4;}
 	
 	if (evtNJ==2||evtNJ==3) { // Do the kinematic fit for all event!!!
 	  int Aj = 0, Bj = 1;    TLorentzVector  mup, nvp, ajp, bjp; 
