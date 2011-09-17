@@ -81,15 +81,17 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 
 
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/90646AF9-F957-E011-B0DB-003048F118C4.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/749B54BD-E557-E011-AC27-000423D33970.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/5A366F5F-7959-E011-AB12-0030487C8E02.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/0EF76BBA-0858-E011-AE3A-003048F118C6.root',
-       '/store/data/Run2011A/SingleElectron/AOD/PromptReco-v1/000/161/312/024D65F9-F957-E011-8C5D-003048F024FE.root',
+readFiles=cms.untracked.vstring()
+process.source = cms.Source("PoolSource", fileNames = readFiles)
 
-##        '/store/mc/Fall10/ZJetToEE_Pt_120to170_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0001/E82FBD2C-21C9-DF11-B7FB-0022649E7902.root',
-) )
+if isMC:
+    readFiles.extend([
+        '/store/mc/Summer11/ZZTo2L2Nu_TuneZ2_7TeV_pythia6_tauola/AODSIM/PU_S4_START42_V11-v1/0000/28AEA81A-E198-E011-A943-002618943939.root'
+    ])
+else:
+    readFiles.extend([
+        '/store/data/Run2011A/DoubleElectron/AOD/05Aug2011-v1/0000/24CC7F33-12C2-E011-80CA-0018F3D0968C.root'
+    ])
 
 
 
@@ -143,7 +145,7 @@ if isMC:
     process.myseq.remove ( process.noscraping)
     process.myseq.remove ( process.HLTEle)
 else:
-    process.myseq.remove ( process.genParticles)
+#    process.myseq.remove ( process.genParticles)
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 

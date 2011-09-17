@@ -81,15 +81,17 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
 
+readFiles=cms.untracked.vstring()
+process.source = cms.Source("PoolSource", fileNames = readFiles)
 
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F8AEC745-DF57-E011-8D23-001D09F290BF.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/F625BE01-E057-E011-892F-003048D2C108.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EEFD6397-E357-E011-978D-001D09F2A465.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EE67057F-DC57-E011-866E-001617E30D0A.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EC5B67FF-DF57-E011-8416-003048D2BED6.root',
-       '/store/data/Run2011A/SingleMu/AOD/PromptReco-v1/000/161/312/EA8C6F9E-D757-E011-9CF4-001D09F295A1.root',
-) )
+if isMC:
+    readFiles.extend([
+        '/store/mc/Summer11/ZZTo2L2Nu_TuneZ2_7TeV_pythia6_tauola/AODSIM/PU_S4_START42_V11-v1/0000/28AEA81A-E198-E011-A943-002618943939.root'
+    ])
+else:
+    readFiles.extend([
+        '/store/data/Run2011A/DoubleMu/AOD/05Aug2011-v1/0000/52D9759B-37C2-E011-9AA6-0026189438B9.root'
+    ])
 
 
 ##-------- Muon events of interest --------
@@ -142,7 +144,7 @@ if isMC:
     process.myseq.remove ( process.noscraping)
     process.myseq.remove ( process.HLTMu)
 else:
-    process.myseq.remove ( process.genParticles)
+#    process.myseq.remove ( process.genParticles)
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 
