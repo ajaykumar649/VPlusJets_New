@@ -7,6 +7,7 @@
  * Authors:
  *
  *   Kalanand Mishra, Fermilab - kalanand@fnal.gov
+ *   Osipenkov, Ilya, Texas A&M - ilyao@fnal.gov
  *
  * Description:
  *
@@ -27,6 +28,7 @@
 
 // ROOT
 #include <string.h>
+#include <TString.h>
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -49,26 +51,36 @@
 // #include <TPaveText.h>
 // #include <TLatex.h>
 // #include <RooGaussian.h>
-// #include <TLegend.h>
+#include <TLegend.h>
 // #include <RooCurve.h>
 
 
 
+//const TString MCDirectory = "pTsmeareddata";
+const TString MCDirectory = "data";
+const TString DataDirectory = "data";
+const TString QCDDirectory = "428MC";
 
+// const double MINRange = 50.0;
+// const double MAXRange = 150.0;
 const double MINRange = 30.0;
 const double MAXRange = 300.0;
+//const double MAXRange = 120.0;
+
 const int BINWIDTH = 10;
+//const int BINWIDTH = 5;
 const bool includeNuisancePDF = true;
-const bool drawSystematics = true;
+//const bool drawSystematics = true;
+const bool drawSystematics = false;
 double singleTopNorm_;
 double ttbarNorm_;
 double zjetsNorm_;
 double ztautauNorm_;
+double NMC_WpJ_;
 
-
-const float IntLUMI = 1200.0;
+const float IntLUMI = 2050.0;
 const bool truncateFitRange = false;
-const int NBINSFORPDF = (int)((MAXRange-MINRange)/BINWIDTH);
+const int NBINSFORPDF = (int)((MAXRange-MINRange)/(BINWIDTH));
 
 
 RooRealVar *mjj_;
@@ -99,16 +111,50 @@ void RooWjjFitterNarrow_Syst(int channel=0) {
 ///////// --------- channel 0 : combined,  1: mu,    2: ele --------------
 void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 {
-//   const char* mycuts = "(gdevtt && abs(JetPFCor_Pt[1]/Mass2j_PFCor-0.5)<0.2 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74)";
-//   const char* mycuts = "(gdevtt && JetPFCor_Pt[0]>40. && JetPFCor_Pt[1]/Mass2j_PFCor<0.8 && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74)";
-
-  const char* mycuts = "(gdevtt && JetPFCor_Pt[0]>40.&& JetPFCor_Pt[1]/Mass2j_PFCor<0.9 && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45. && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)";
+// //2J Default
+// const char* mycuts = "( gdevtt &&(JetPFCor_Pt[0]>40.)&&(sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.)&&(abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)&&(JetPFCor_bDiscriminator[0]<1.74)&&(JetPFCor_Pt[1]/Mass2j_PFCor>0.3) )";
 
 
-//   const char* mycuts = "(gdevtt && JetPFCor_Pt[0]>40.&& JetPFCor_Pt[1]/Mass2j_PFCor<0.9 && JetPFCor_Pt[1]/Mass2j_PFCor>0.3 && sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45. && JetPFCor_bDiscriminator[0]<1.74 && JetPFCor_bDiscriminator[1]<1.74 && abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)";
+// //Add 3Jet Events, QGSeparator and antibtag the second jet (aka 3JcutsV0)
+// const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_bDiscriminator[0]<1.74) && (JetPFCor_bDiscriminator[1]<1.74) && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1]>0.1) )";
 
 
-  //  && JetPFCor_Pt[1]/Mass2j_PFCor<0.8
+// // 2J default with 3J
+// const char* mycuts = "( (evtNJ==2 || evtNJ==3) &&(JetPFCor_Pt[0]>40.)&&(sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.)&&(abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)&&(JetPFCor_bDiscriminator[0]<1.74)&&(JetPFCor_Pt[1]/Mass2j_PFCor>0.3) )";
+//Add 3Jet Events, QGSeparator and antibtag the second jet (aka 3JcutsV0)
+
+
+// //CDF-Like (2J):
+//   const char* mycuts = "( evtNJ==2 )";
+
+// //CDF-Like (3J):
+//   const char* mycuts = "( (evtNJ==2 || evtNJ==3) )";
+
+// //CDF-Like 3J and ELM:
+//   const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) )";
+
+
+// // 3J without QGSeparator (aka 3JcutsV1)
+// const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_bDiscriminator[0]<1.74) && (JetPFCor_bDiscriminator[1]<1.74) )";
+
+// // 3J without any anti-btag of QGSeparator, but with j2pT/mjj<0.7 cut to emphacise new physics (aka 3JcutsV2)
+//   const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) )";
+
+// // 3JcutsV2 : nPV cross check
+//   const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) && (event_nPV>5) )";
+
+  
+// // 3JcutsV2 : (fit_chi2/fit_NDF)<8.5 fit and then refit with the expected WW+WZ Yield
+//   const char* mycuts = "( (fit_chi2/fit_NDF<5.0) && (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) )";
+
+// // 3JcutsV2 : j1pt,j2pt > 60,50,40
+//   const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>60.) && (JetPFCor_Pt[1]>60.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) )";
+
+// 3JcutsV2 : Default
+  const char* mycuts = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) )";
+
+// // 3JcutsV2 : 4+Jet bin
+//   const char* mycuts = "( (JetPFCor_Pt[3]>30.) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) )";
 
   const char* PLOTPREFIX = "mJJ";
   const char* XLABEL = "m_{jj}";
@@ -125,21 +171,22 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 
    gROOT->cd();
    char temp[50];
-   TFile fin("data/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_1p1invfb.root", "read");
+   TFile fin(DataDirectory + "/ReducedTree/RD_WmunuJets_DataAll_GoldenJSON_2invfb.root", "read");
    TTree* treeTemp = (TTree*) fin.Get("WJet");
    ActivateTreeBranches(*treeTemp);
    gROOT->cd();
    TTree* treemu = treeTemp->CopyTree( mycuts );
    nMuData = treemu->GetEntries();
+   cout << "Total Mu Events = " << nMuData << endl;
 
 
-
-   TFile fin2("data/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_1p1invfb.root", "read");
+   TFile fin2(DataDirectory + "/ReducedTree/RD_WenuJets_DataAll_GoldenJSON_2invfb.root", "read");
    TTree* treeTemp2 = (TTree*) fin2.Get("WJet");
    ActivateTreeBranches(*treeTemp2, true);
    gROOT->cd();
    TTree* treeele = treeTemp2->CopyTree( mycuts );
    nEleData = treeele->GetEntries();
+   cout << "Total El Events = " << nEleData << endl;
 
    // ------ Normalization of QCD events: 0.8% in Mu data and 3% in Ele data
    if(channel==1) QCDNorm = 0.008*nMuData; 
@@ -176,9 +223,9 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    RooAbsPdf* ztautauPdf_;
 
    if(includeNuisancePDF) { 
-     qcdPdf_ = makeQCDPdf(channel, PLOTVAR);
+     qcdPdf_ = makeQCDPdf(channel, PLOTVAR, mycuts);
      ttPdf_ = makeTopPairPdf(channel, PLOTVAR, mycuts);
-     singleTopPdf_ = makeSingleTopPdf(PLOTVAR, mycuts);
+     singleTopPdf_ = makeSingleTopPdf(channel, PLOTVAR, mycuts);
      zjetsPdf_ = makeZJetsPdf(channel, PLOTVAR, mycuts);
      ztautauPdf_ = makeZtautauPdf(channel, PLOTVAR, mycuts);
    }
@@ -186,12 +233,64 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 
 
 
-   // Define background yield variables: they are not related to each other  
-//    double initWjets = 36000.;
+   // Define background yield variables: they are not related to each other 
+//    //default:
+//    double initWjets = 15000.;
 //    double initDiboson = 1000.;
 
-   double initWjets = 15000.;
-   double initDiboson = 1000.;
+//    //stage0,1,a0,a1,a2,a3,b2
+//    double initWjets = 29000.;
+//    double initDiboson = 1000.;
+
+//    //stage2,3
+//    double initWjets = 20000.;
+//    double initDiboson = 800.;
+
+//    //stage4
+//    double initWjets = 18500.;
+//    double initDiboson = 900.;
+
+// //3J mu+el
+//    double initWjets = 30000.;
+//    double initDiboson = 1200.;
+
+// //3J mu
+//    double initWjets = 18000.;
+//    double initDiboson = 600.;
+
+// // CDF-like: total, muon
+//    double initWjets = 56000.;
+//    double initDiboson = 1500.;
+
+// // CDF-like: electron
+//    double initWjets = 26000.;
+//    double initDiboson = 500.;
+
+
+// // 3J V1
+//    double initWjets = 40000.;
+//    double initDiboson = 1500.;
+
+// //3J V2-total, V2-mu, V2-el, 3JV2 nPV<=5 total, 2JV2 nPV>5 total
+//    double initWjets = 34500.;
+//    double initDiboson = 1300.;
+
+//    // 3J V2, nPV<=5, nPV>5 :mu, el
+//    double initWjets = 13000.;
+//    double initDiboson = 800.;
+
+//    // 3J V2, Reduced Fit: fit_chi2/fit_NDF<8.5
+//    double initWjets = 23700.;
+//    double initDiboson = 1080.;
+
+//  // 3J V2: j1pt,j2pt > 60,50,40
+//    double initWjets = 14000.;
+//    double initDiboson = 510.;
+
+ //Current
+   double initWjets = 42000.;
+   double initDiboson = 1500.;
+
 
    if(channel==1) {
      initWjets *= 0.5;
@@ -205,6 +304,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 
    RooRealVar nWjets("nWjets","nWjets",        initWjets,     0.0,   100000.);
    RooRealVar nDiboson("nDiboson","nDiboson",  initDiboson,   0.0,   10000.);
+   //RooRealVar nDiboson("nDiboson","nDiboson", 1376.0);
    // fix the top and single top normalization
    RooRealVar nTTbar("nTTbar","", ttbarNorm_);
    RooRealVar nSingleTop("nSingleTop","", singleTopNorm_);
@@ -246,18 +346,18 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
      singleTopNorm_ *= 2.0;
    }
 
-   RooGaussian constJES("constJES","", *JES_scale, RooConst(0.0),RooConst(0.05)) ;
+   //   RooGaussian constJES("constJES","", *JES_scale, RooConst(0.0),RooConst(0.05)) ;
    RooGaussian constJES2("constJES2","", *JES_scale2, RooConst(0.0),RooConst(0.05)) ;
    RooGaussian constQCD("constQCD","", nQCD, RooConst(QCDNorm),RooConst(0.5*QCDNorm)) ;
    RooGaussian constTTbar("constTTbar","", nTTbar, RooConst(ttbarNorm_),RooConst(0.1*ttbarNorm_)) ;
    RooGaussian constSingleTop("constTTbar","", nSingleTop, RooConst(singleTopNorm_),RooConst(0.1*singleTopNorm_)) ;
 
-   JES_scale.setVal(0.0);
-   JES_scale.setConstant( kTRUE );
-
+   //   JES_scale2.setVal(0.0);
+   //   JES_scale2.setConstant( kTRUE );
+//   nDiboson.setConstant( kTRUE );
 
    fitResult = totalPdf.fitTo(*data, Save(true), 
-			      ExternalConstraints(constJES),
+			      //ExternalConstraints(constJES),
 			      ExternalConstraints(constJES2),
 			      //ExternalConstraints(constQCD),
 			      //ExternalConstraints(constTTbar),
@@ -414,9 +514,11 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    plotlabel1000->SetTextAlign(12);
    plotlabel1000->SetTextSize(0.04);
 
-   sprintf(temp, "Di-boson = %d #pm %d", nDiboson.getVal(), nDiboson.getPropagatedError(*fitResult));
+   //sprintf(temp, "Di-boson = %d #pm %d", nDiboson.getVal(), nDiboson.getPropagatedError(*fitResult));
+   sprintf(temp, "Di-boson = %d #pm %d", nDiboson.getVal(), nDiboson.getError());
    plotlabel4->AddText(temp);
-   sprintf(temp, "W+jets = %d #pm %d", nWjets.getVal(), nWjets.getPropagatedError(*fitResult));
+   //sprintf(temp, "W+jets = %d #pm %d", nWjets.getVal(), nWjets.getPropagatedError(*fitResult));
+   sprintf(temp, "W+jets = %d #pm %d", nWjets.getVal(), nWjets.getError());
    plotlabel5->AddText(temp);
    sprintf(temp, "t#bar{t}, Top = %d (fixed)", nSingleTop.getVal()+nTTbar.getVal());
    plotlabel6->AddText(temp);
@@ -426,7 +528,10 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    plotlabel8->AddText(temp);
    sprintf(temp, "Z#rightarrow#tau#tau = %d (fixed)", nZtautau.getVal());
    plotlabel9->AddText(temp);
-   double chi2fit = frame1->chiSquare("h_total", "h_data", 3)/1.8;
+   //double chi2fit = frame1->chiSquare("h_total", "h_data", 3)/1.8;
+   double NData_WpJ=nWjets.getVal();
+   double k_WpJ=NMC_WpJ_/NData_WpJ;
+   double chi2fit = frame1->chiSquare("h_total", "h_data", 3)/sqrt(1.0+1.0/k_WpJ);
    sprintf(temp, "#chi^{2}/dof = %.2f",chi2fit );
    plotlabel1000->AddText(temp);
    plotlabel4->Draw();
@@ -440,6 +545,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    cmsPrelim2();
    // TLegend* legend = new TLegend(0.35,0.35,0.55,0.55);
    TLegend* legend = new TLegend(0.65,0.3,0.85,0.57);
+   legend->SetName("legend");
    RooHist* datahist = frame1->getHist("h_data");
    RooCurve* dibosonhist = frame1->getCurve("h_diboson");
    RooCurve* wjetshist = frame1->getCurve("h_Wjets");
@@ -485,6 +591,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    cmsPrelim2();
    //TLegend* legend = new TLegend(0.6,0.42,0.85,0.62);
    TLegend* legend = new TLegend(0.25,0.56,0.55,0.8);
+   legend->SetName("legendlog-Y");
    legend->AddEntry( datahist, "Data", "P");  
    legend->AddEntry( dibosonhist, "Di-boson", "F");
    legend->AddEntry( wjetshist, "W+jets", "L");
@@ -541,6 +648,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    }
    cmsPrelim2();
    TLegend* legend2 = new TLegend(0.6,0.7,0.85,0.9);
+   legend2->SetName("legendSubtracted");
    legend2->AddEntry( datahist, "Data", "P");  
    legend2->AddEntry( dibosonhist, "Di-boson", "F");
    if(drawSystematics) {
@@ -571,10 +679,14 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    data->plotOn(frame3,MarkerStyle(0),MarkerSize(0),MarkerColor(0),LineColor(0),LineWidth(0));
    //// Construct a histogram with the residuals of the data w.r.t. the curve
    hresid = frame1->residHist("h_data", "h_total", true) ;
+   //hresid = frame1->residHist("h_data", "h_total");
    hresid->SetMarkerSize(0.8);
-   frame3->GetYaxis()->SetTitle(frame1->GetYaxis()->GetTitle());
+   //frame3->GetYaxis()->SetTitle(frame1->GetYaxis()->GetTitle());
+   frame3->GetYaxis()->SetTitle("Residual ( #sigma )");
    frame3->SetMaximum(6);
    frame3->SetMinimum(-6);
+//    frame3->SetMaximum(200);
+//    frame3->SetMinimum(-200);
    frame3->GetXaxis()->SetNdivisions(505);
    cname = TString(PLOTPREFIX) + TString("-combined-fit-residual");
    if(channel==1) cname = TString(PLOTPREFIX) + TString("-mu-fit-residual");
@@ -585,6 +697,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    hresid->Draw("P");
    cmsPrelim2();
    TLegend* legend2 = new TLegend(0.6,0.8,0.85,0.9);
+   legend2->SetName("legendResidual");
    legend2->AddEntry( datahist, "Data", "P");  
    legend2->SetFillColor(0);
    legend2->Draw();
@@ -639,44 +752,49 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 // // ***** Function to return the signal Pdf *** //
 RooAbsPdf*  makeSignalPdf(int channel, char PLOTVAR[], char* cut="gdevtt") {
 
-  TFile* wwShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_WWtoAnything.root", "READ");
+  TFile* wwShape_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_WW_CMSSW428.root", "READ");
   TTree* treeTemp1 = (TTree*) wwShape_mu_file->Get("WJet");
   ActivateTreeBranches(*treeTemp1);
-  TFile* wzShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_WZtoAnything.root", "READ");
+  TFile* wzShape_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_WZ_CMSSW428.root", "READ");
   TTree* treeTemp2 = (TTree*) wzShape_mu_file->Get("WJet");
   ActivateTreeBranches(*treeTemp2);
 
 
-  TFile* wwShape_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_CMSSW415-Spring11MC_WWtoAnything.root", "READ");
+  TFile* wwShape_ele_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_WW_CMSSW428.root", "READ");
   treeTemp3 = (TTree*) wwShape_ele_file->Get("WJet");
   ActivateTreeBranches(*treeTemp3, true);
-
-
-  TFile* wzShape_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_CMSSW415-Spring11MC_WZtoAnything.root", "READ");
+  TFile* wzShape_ele_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_WZ_CMSSW428.root", "READ");
   treeTemp4 = (TTree*) wzShape_ele_file->Get("WJet");
   ActivateTreeBranches(*treeTemp3, true);
 
+  //Scale the trees by the Crossection/Ngenerated (43/4225916=1.01753087377979123e-05 for WW and 18/4265243=4.22015814808206740e-06 for WZ).
+
+  TString WW_selection = TString("0.0000101753087377979123*") + TString(cut);
+  TString WZ_selection = TString("0.00000422015814808206740*") + TString(cut);
 
   TH1* th1ww = new TH1D("th1ww", "th1ww", NBINSFORPDF, MINRange, MAXRange);
 
   if(channel==0 || channel==1) {
-    treeTemp1->Draw( TString(PLOTVAR)+TString(">>th1ww"),  cut, "goff");
-    treeTemp2->Draw( TString(PLOTVAR)+TString(">>+th1ww"), cut, "goff");
+    treeTemp1->Draw( TString(PLOTVAR)+TString(">>th1ww"), WW_selection, "goff");
+    treeTemp2->Draw( TString(PLOTVAR)+TString(">>+th1ww"), WZ_selection, "goff");
   }
 
   if(channel==0) {
-    treeTemp3->Draw(TString(PLOTVAR)+TString(">>+th1ww"), "gdevtt", "goff");
-    treeTemp4->Draw( TString(PLOTVAR)+TString(">>+th1ww"), "gdevtt", "goff");
+    treeTemp3->Draw(TString(PLOTVAR)+TString(">>+th1ww"), WW_selection, "goff");
+    treeTemp4->Draw( TString(PLOTVAR)+TString(">>+th1ww"), WZ_selection, "goff");
   }
   if(channel==2) {
-    treeTemp3->Draw(TString(PLOTVAR)+TString(">>th1ww"), cut, "goff");
-    treeTemp4->Draw( TString(PLOTVAR)+TString(">>+th1ww"), cut, "goff");
+    treeTemp3->Draw(TString(PLOTVAR)+TString(">>th1ww"), WW_selection, "goff");
+    treeTemp4->Draw( TString(PLOTVAR)+TString(">>+th1ww"), WZ_selection, "goff");
   }
 
+  cout << "-------- Number of expected WW+WZ events = " << th1ww->Integral() << " x " << IntLUMI << " = " << th1ww->Integral() * IntLUMI << endl;
 
-  JES_scale = new RooRealVar("JES_scale","", 0.0,   -0.1, 0.1);
-  shiftedMass = new RooFormulaVar("shiftedMass", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale) );
+
+//   JES_scale = new RooRealVar("JES_scale","", 0.0,   -0.1, 0.1);
+//   shiftedMass = new RooFormulaVar("shiftedMass", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale) );
   JES_scale2 = new RooRealVar("JES_scale2","", 0.0, -0.1, 0.1);
+  shiftedMass = new RooFormulaVar("shiftedMass", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale2) );
   shiftedMass2 = new RooFormulaVar("shiftedMass2", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale2) );
 
 
@@ -703,13 +821,13 @@ RooAbsPdf*  makeSignalPdf(int channel, char PLOTVAR[], char* cut="gdevtt") {
 RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], int syst=0, char* cut="gdevtt")
 {  
   // W+jets pdf
-  TFile* wjetsShape_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW423-Summer11MC_WJets.root", "READ");
+  TFile* wjetsShape_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_WpJ_CMSSW428.root", "READ");
   treeTemp = (TTree*) wjetsShape_mu_file->Get("WJet");
   ActivateTreeBranches(*treeTemp);
   gROOT->cd();
   TTree* tree1 = treeTemp->CopyTree(cut);
 
-  TFile* wjetsShape_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_CMSSW423-Summer11MC_WJets.root", "READ");
+  TFile* wjetsShape_ele_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_WpJ_CMSSW428.root", "READ");
   treeTemp = (TTree*) wjetsShape_ele_file->Get("WJet");
   ActivateTreeBranches(*treeTemp, true);
   gROOT->cd();
@@ -741,7 +859,8 @@ RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], int syst=0, char* cut="gdevtt
   if(channel==2) 
      tree2->Draw(TString(PLOTVAR)+TString(">>th1wjets"), myselection, "goff");
 
-
+  NMC_WpJ_=th1wjets->GetEntries();
+  cout << "-------- Number of expected Wjj events = " << (31314./81352581.) * (th1wjets->Integral()) * IntLUMI << endl;
 
   RooDataHist* rdhWjets = new RooDataHist("rdhWjets","", *mjj_, th1wjets);
   RooAbsPdf* bkgShapePdf_ = new RooHistPdf("bkgShapePdf","",*shiftedMass, *mjj_,*rdhWjets);
@@ -762,11 +881,11 @@ RooAbsPdf* makeBkgPdf(int channel, char PLOTVAR[], int syst=0, char* cut="gdevtt
 RooAbsPdf* makeTopPairPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 {  
   // top pair pdf
-  TFile* ttbar_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW423-Summer11MC_TTToLNu2Q2B.root", "READ");
+  TFile* ttbar_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_TTbar_CMSSW428.root", "READ");
   TTree* tree1 = (TTree*) ttbar_mu_file->Get("WJet");
   ActivateTreeBranches(*tree1);
 
-  TFile* ttbar_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_CMSSW423-Summer11MC_TTToLNu2Q2B.root", "READ");
+  TFile* ttbar_ele_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_TTbar_CMSSW428.root", "READ");
   TTree* tree2 = (TTree*) ttbar_ele_file->Get("WJet");
   ActivateTreeBranches(*tree2, true);
 
@@ -803,38 +922,110 @@ RooAbsPdf* makeTopPairPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 
 
 // ***** Function to return the SingleTop Pdf **** //
-RooAbsPdf* makeSingleTopPdf(char PLOTVAR[], char* cut="gdevtt")
+RooAbsPdf* makeSingleTopPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 {  
-  // single top pdf
-  TFile* st1_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-s-channel.root", "READ");
-  TTree* treeTemp = (TTree*) st1_mu_file->Get("WJet");
-  ActivateTreeBranches(*treeTemp);
-  // --------- cross section: 1.53 pb, events_gen = 494967
-  // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTop2011DataMCTrig
+  // single top pdf (all samples are powheg, regardless of the unusual labeling scheme)
+  TFile* st1_Tbar_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_STopS_CMSSW428.root", "READ");
+  TTree* tree1Temp = (TTree*) st1_Tbar_mu_file->Get("WJet");
+  ActivateTreeBranches(*tree1Temp);
+  TFile* st1_Tbar_el_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_STopS_CMSSW428.root", "READ");
+  TTree* tree2Temp = (TTree*) st1_Tbar_el_file->Get("WJet");
+  ActivateTreeBranches(*tree2Temp, true);
+  TFile* st1_T_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_STopS_powheg_CMSSW428.root", "READ");
+  TTree* tree3Temp = (TTree*) st1_T_mu_file->Get("WJet");
+  ActivateTreeBranches(*tree3Temp);
+  TFile* st1_T_el_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_STopS_powheg_CMSSW428.root", "READ");
+  TTree* tree4Temp = (TTree*) st1_T_el_file->Get("WJet");
+  ActivateTreeBranches(*tree4Temp, true);
+
   TH1* th1st = new TH1D("th1st", "th1st",NBINSFORPDF,MINRange,MAXRange);
-  TString myselection = TString("0.000003091115*") + TString(cut);
-  treeTemp->Draw( TString(PLOTVAR)+TString(">>th1st"), myselection, "goff");
-  delete treeTemp;
+  // --------- cross section: Tbar - 1.44 pb, events_gen = 137980; T - 3.19 pb, events_gen = 259971
+  // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma 
+  TString Tbar_selection = TString("0.000010436295*") + TString(cut);
+  TString T_selection = TString("0.0000122706*") + TString(cut);
+
+  if(channel==0 || channel==1) {
+    tree1Temp->Draw(TString(PLOTVAR)+TString(">>th1st"), Tbar_selection, "goff");
+    tree3Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  if(channel==0) {
+    tree2Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree4Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  if(channel==2) {
+    tree2Temp->Draw(TString(PLOTVAR)+TString(">>th1st"), Tbar_selection, "goff");
+    tree4Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  delete tree1Temp;
+  delete tree2Temp;
+  delete tree3Temp;
+  delete tree4Temp;
 
 
-  TFile* st2_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-t-channel.root", "READ");
-  treeTemp = (TTree*) st2_mu_file->Get("WJet");
-  ActivateTreeBranches(*treeTemp);
-  // ---------- cross section: 20.93 pb, events_gen = 484060
-  // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTop2011DataMCTrig
-  myselection = TString("0.0000432384415*") + TString(cut);
-  treeTemp->Draw( TString(PLOTVAR)+TString(">>+th1st"), myselection, "goff");
-  delete treeTemp;
+  TFile* st2_Tbar_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_STopT_CMSSW428.root", "READ");
+  TTree* tree1Temp = (TTree*) st2_Tbar_mu_file->Get("WJet");
+  ActivateTreeBranches(*tree1Temp);
+  TFile* st2_Tbar_el_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_STopT_CMSSW428.root", "READ");
+  TTree* tree2Temp = (TTree*) st2_Tbar_el_file->Get("WJet");
+  ActivateTreeBranches(*tree2Temp, true);
+  TFile* st2_T_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_STopT_powheg_CMSSW428.root", "READ");
+  TTree* tree3Temp = (TTree*) st2_T_mu_file->Get("WJet");
+  ActivateTreeBranches(*tree3Temp);
+  TFile* st2_T_el_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_STopT_powheg_CMSSW428.root", "READ");
+  TTree* tree4Temp = (TTree*) st2_T_el_file->Get("WJet");
+  ActivateTreeBranches(*tree4Temp, true);
+  // --------- cross section: Tbar - 22.65 pb, events_gen = 1944826; T - 41.92 pb, events_gen = 3900171
+  Tbar_selection = TString("0.000011646286*") + TString(cut);
+  T_selection = TString("0.000010748247*") + TString(cut);
+  if(channel==0 || channel==1) {
+    tree1Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree3Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  if(channel==0) {
+    tree2Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree4Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  if(channel==2) {
+    tree2Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree4Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  delete tree1Temp;
+  delete tree2Temp;
+  delete tree3Temp;
+  delete tree4Temp;
+
+
+  TFile* st3_Tbar_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_STopTW_CMSSW428.root", "READ");
+  TTree* tree1Temp = (TTree*) st3_Tbar_mu_file->Get("WJet");
+  ActivateTreeBranches(*tree1Temp);
+  TFile* st3_Tbar_el_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_STopTW_CMSSW428.root", "READ");
+  TTree* tree2Temp = (TTree*) st3_Tbar_el_file->Get("WJet");
+  ActivateTreeBranches(*tree2Temp, true);
+  TFile* st3_T_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_STopTW_powheg_CMSSW428.root", "READ");
+  TTree* tree3Temp = (TTree*) st3_T_mu_file->Get("WJet");
+  ActivateTreeBranches(*tree3Temp);
+  TFile* st3_T_el_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_STopTW_powheg_CMSSW428.root", "READ");
+  TTree* tree4Temp = (TTree*) st3_T_el_file->Get("WJet");
+  ActivateTreeBranches(*tree4Temp, true);
+  // --------- cross section: Tbar - 7.87 pb, events_gen = 787629; T - 7.87 pb, events_gen = 795379
+  Tbar_selection = TString("0.000009992014*") + TString(cut);
+  T_selection = TString("0.000009894654*") + TString(cut);
+  if(channel==0 || channel==1) {
+    tree1Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree3Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  if(channel==0) {
+    tree2Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree4Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
+  if(channel==2) {
+    tree2Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), Tbar_selection, "goff");
+    tree4Temp->Draw(TString(PLOTVAR)+TString(">>+th1st"), T_selection, "goff");
+  }
 
 
 
-  TFile* st3_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW415-Spring11MC_SingleTopLNu2Q2B-tw-channel.root", "READ");
-  treeTemp = (TTree*) st3_mu_file->Get("WJet");
-  ActivateTreeBranches(*treeTemp);
-  // -------- cross section: 10.6 pb, events_gen = 489417
-  // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTop2011DataMCTrig
-  myselection = TString("0.000021658422*") + TString(cut);
-  treeTemp->Draw( TString(PLOTVAR)+TString(">>+th1st"), myselection, "goff");
+
   singleTopNorm_ = th1st->Integral() * IntLUMI;
   cout << "-------- Number of expected single top events = " << 
     th1st->Integral() << " x " << IntLUMI << " = " << singleTopNorm_ << endl;
@@ -847,42 +1038,48 @@ RooAbsPdf* makeSingleTopPdf(char PLOTVAR[], char* cut="gdevtt")
 //   RooDataHist* rdhst = new RooDataHist("rdhst","", *mjj_, th1st);
 //   singleTopPdf_ = new RooHistPdf("singleTopPdf", "", *mjj_, *rdhst);
 //   delete treeTemp;
+  delete tree1Temp;
+  delete tree2Temp;
   return singleTopPdf_;
 }
 
 
-
-
-
 // ***** Function to return the QCD Pdf **** //
-RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[])
+RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 {  
   // QCD pdf
-  TFile* fqcd0 =  new TFile("data/W_mt_MET20Iso03_WmunuJets_QCD_Pt-20_MuEnrichedPt-15.root", "READ");
-  TTree* tree10 = (TTree*) fqcd0->Get("OutTree");
-  TFile* fqcd1 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-30to80_EMEnriched.root", "READ");
-  TTree* tree11 = (TTree*) fqcd1->Get("OutTree");
-  TFile* fqcd2 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-80to170_EMEnriched.root", "READ");
-  TTree* tree12 = (TTree*) fqcd2->Get("OutTree");
-  TFile* fqcd3 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-30to80_BCtoE.root", "READ");
-  TTree* tree13 = (TTree*) fqcd3->Get("OutTree");
-  TFile* fqcd4 =  new TFile("data/W_mt_MET20Iso03_WenuJets_QCD_Pt-80to170_BCtoE.root", "READ");
-  TTree* tree14 = (TTree*) fqcd4->Get("OutTree");
+  TFile* fqcd0 =  new TFile(QCDDirectory + "/RD_mu_QCDMu_CMSSW428_MET20Iso03.root", "READ");
+  TTree* tree10 = (TTree*) fqcd0->Get("WJet");
+  TFile* fqcd1 =  new TFile(QCDDirectory + "/RD_el_QCDEl_Pt30to80_CMSSW428_MET20Iso03.root", "READ");
+  TTree* tree11 = (TTree*) fqcd1->Get("WJet");
+  TFile* fqcd2 =  new TFile(QCDDirectory + "/RD_el_QCDEl_Pt80to170_CMSSW428_MET20Iso03.root", "READ");
+  TTree* tree12 = (TTree*) fqcd2->Get("WJet");
+  TFile* fqcd3 =  new TFile(QCDDirectory + "/RD_el_QCDEl_BCtoE30to80_CMSSW428_MET20Iso03.root", "READ");
+  TTree* tree13 = (TTree*) fqcd3->Get("WJet");
+  TFile* fqcd4 =  new TFile(QCDDirectory + "/RD_el_QCDEl_BCtoE80to170_CMSSW428_MET20Iso03.root", "READ");
+  TTree* tree14 = (TTree*) fqcd4->Get("WJet");
 
+  //// Scaling Coefficients = 84679.3/25080241, 3866200/70392060, 139500/2194800, 136804/2030033, 9360/1082691 = 3.37633517955429532e-03, 5.49238081681371476e-02, 6.35593220338983023e-02, 6.73900375018534198e-02, 8.64512589464584008e-03 
   char scale[50];
   TH1* th1qcdMu = new TH1D("th1qcdMu", "th1qcdMu", NBINSFORPDF, MINRange, MAXRange);
-  sprintf(scale, "%f", 8.97075877667985987e-03);
-  tree10->Draw( TString(PLOTVAR)+TString(">>th1qcdMu"), scale, "goff");
+  //sprintf(scale, "%f", 3.37633517955429532e-03);
+  myselection = TString("0.00337633517955429532*") + TString(cut);
+  tree10->Draw( TString(PLOTVAR)+TString(">>th1qcdMu"), myselection, "goff");
 
   TH1* th1qcdEle = new TH1D("th1qcdEle", "th1qcdEle", NBINSFORPDF, MINRange, MAXRange);
-  sprintf(scale, "%f", 5.38127155207120747e-02);
-  tree11->Draw( TString(PLOTVAR)+TString(">>th1qcdEle"), scale, "goff");
-  sprintf(scale, "%f", 1.72786252011039969e-02);
-  tree12->Draw( TString(PLOTVAR)+TString(">>+th1qcdEle"), scale, "goff");
-  sprintf(scale, "%f", 6.85561828552414404e-02);
-  tree13->Draw( TString(PLOTVAR)+TString(">>+th1qcdEle"), scale, "goff");
-  sprintf(scale, "%f", 8.97075877667985987e-03);
-  tree14->Draw( TString(PLOTVAR)+TString(">>+th1qcdEle"), scale, "goff");
+  //sprintf(scale, "%f", 5.49238081681371476e-02);
+  myselection = TString("0.0549238081681371476*") + TString(cut);
+  tree11->Draw( TString(PLOTVAR)+TString(">>th1qcdEle"), myselection, "goff");
+  //sprintf(scale, "%f", 6.35593220338983023e-02);
+  myselection = TString("0.0635593220338983023*") + TString(cut);
+  tree12->Draw( TString(PLOTVAR)+TString(">>+th1qcdEle"), myselection, "goff");
+  //sprintf(scale, "%f", 6.73900375018534198e-02);
+  myselection = TString("0.0673900375018534198*") + TString(cut);
+  tree13->Draw( TString(PLOTVAR)+TString(">>+th1qcdEle"), myselection, "goff");
+  //sprintf(scale, "%f", 8.64512589464584008e-03);
+  myselection = TString("0.00864512589464584008*") + TString(cut);
+  tree14->Draw( TString(PLOTVAR)+TString(">>+th1qcdEle"), myselection, "goff");
+
 
 
   TH1D* th1qcd; 
@@ -922,11 +1119,11 @@ RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[])
 // ***** Function to return the Z+jets Pdf **** //
 RooAbsPdf* makeZJetsPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 {  
-  TFile* zjets_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root", "READ");
+  TFile* zjets_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_ZpJ_CMSSW428.root", "READ");
   TTree* tree1 = (TTree*) zjets_mu_file->Get("WJet");
   ActivateTreeBranches(*tree1);
 
-  TFile* zjets_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_CMSSW423-Summer11MC_DYJetsToLL_MadGraph.root", "READ");
+  TFile* zjets_ele_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_ZpJ_CMSSW428.root", "READ");
   TTree* tree2 = (TTree*) zjets_ele_file->Get("WJet");
   ActivateTreeBranches(*tree2, true);
 
@@ -973,11 +1170,11 @@ RooAbsPdf* makeZJetsPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 // ***** Function to return the Z->tautau Pdf **** //
 RooAbsPdf* makeZtautauPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 {  
-  TFile* ztautau_mu_file =  new TFile("data/ReducedTree/RD_WmunuJets_DYToTauTau.root", "READ");
+  TFile* ztautau_mu_file =  new TFile(MCDirectory + "/ReducedTree/RD_mu_Ztautau_CMSSW428.root", "READ");
   TTree* tree1 = (TTree*) ztautau_mu_file->Get("WJet");
   ActivateTreeBranches(*tree1);
 
-  TFile* ztautau_ele_file =  new TFile("data/ReducedTree/RD_WenuJets_DYToTauTau.root", "READ");
+  TFile* ztautau_ele_file =  new TFile(MCDirectory + "/ReducedTree/RD_el_Ztautau_CMSSW428.root", "READ");
   TTree* tree2 = (TTree*) ztautau_ele_file->Get("WJet");
   ActivateTreeBranches(*tree2, true);
 
@@ -1075,6 +1272,7 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false) {
   t.SetBranchStatus("JetPFCor_ChargedHadronEnergyFrac",    1);
   t.SetBranchStatus("JetPFCor_NeutralHadronMultiplicity",    1);
   t.SetBranchStatus("JetPFCor_bDiscriminator",    1);
+  t.SetBranchStatus("JetPFCor_QGLikelihood",    1);
 
   t.SetBranchStatus("event_met_pfmet",    1);
   t.SetBranchStatus("event_met_pfmetPhi",    1);
@@ -1082,6 +1280,7 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false) {
   t.SetBranchStatus("event_BeamSpot_x",    1);
   t.SetBranchStatus("event_BeamSpot_y",    1);
   t.SetBranchStatus("event_RhoForLeptonIsolation",    1);
+  t.SetBranchStatus("event_nPV",    1);
 
   t.SetBranchStatus("W_mt",    1);
   t.SetBranchStatus("W_pt",    1);
@@ -1093,6 +1292,8 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false) {
   t.SetBranchStatus("fit_NDF",    1);
   t.SetBranchStatus("fi2_chi2",    1);
   t.SetBranchStatus("fi2_NDF",    1);
+  t.SetBranchStatus("evtNJ",    1);
+
 
   if(isElectronTree) {
     t.SetBranchStatus("W_electron_et",    1);
