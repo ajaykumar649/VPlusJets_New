@@ -486,12 +486,6 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
      // 		     LineColor(kCyan), Name("h_Ztautau"), Range("RangeForPlot"));
    }
 
-   RooPlot* sframe = Mass.frame(MINRange, MAXRange, 
-				int((MAXRange-MINRange)/BINWIDTH));
-   data->plotOn(sframe, RooFit::DataError(errorType), Name("h_data"));
-
-
-
    data->plotOn(frame1,RooFit::DataError(errorType));
    frame1->SetMinimum(0);
    frame1->SetMaximum(1.25* frame1->GetMaximum());
@@ -499,42 +493,49 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    TPaveText *plotlabel4 = new TPaveText(0.55,0.87,0.85,0.92,"NDC");
    plotlabel4->SetTextColor(kBlack);
    plotlabel4->SetFillColor(kWhite);
+   plotlabel4->SetFillStyle(0);
    plotlabel4->SetBorderSize(0);
    plotlabel4->SetTextAlign(12);
    plotlabel4->SetTextSize(0.03);
    TPaveText *plotlabel5 = new TPaveText(0.55,0.82,0.85,0.87,"NDC");
    plotlabel5->SetTextColor(kBlack);
    plotlabel5->SetFillColor(kWhite);
+   plotlabel5->SetFillStyle(0);
    plotlabel5->SetBorderSize(0);
    plotlabel5->SetTextAlign(12);
    plotlabel5->SetTextSize(0.03);
    TPaveText *plotlabel6 = new TPaveText(0.55,0.77,0.85,0.82,"NDC");
    plotlabel6->SetTextColor(kBlack);
    plotlabel6->SetFillColor(kWhite);
+   plotlabel6->SetFillStyle(0);
    plotlabel6->SetBorderSize(0);
    plotlabel6->SetTextAlign(12);
    plotlabel6->SetTextSize(0.03);
    TPaveText *plotlabel7 = new TPaveText(0.55,0.72,0.85,0.77,"NDC");
    plotlabel7->SetTextColor(kBlack);
    plotlabel7->SetFillColor(kWhite);
+   plotlabel7->SetFillStyle(0);
    plotlabel7->SetBorderSize(0);
    plotlabel7->SetTextAlign(12);
    plotlabel7->SetTextSize(0.03);
    TPaveText *plotlabel8 = new TPaveText(0.55,0.67,0.85,0.72,"NDC");
    plotlabel8->SetTextColor(kBlack);
    plotlabel8->SetFillColor(kWhite);
+   plotlabel8->SetFillStyle(0);
    plotlabel8->SetBorderSize(0);
    plotlabel8->SetTextAlign(12);
    plotlabel8->SetTextSize(0.03);
    TPaveText *plotlabel9 = new TPaveText(0.55,0.62,0.85,0.67,"NDC");
    plotlabel9->SetTextColor(kBlack);
    plotlabel9->SetFillColor(kWhite);
+   plotlabel9->SetFillStyle(0);
    plotlabel9->SetBorderSize(0);
    plotlabel9->SetTextAlign(12);
    plotlabel9->SetTextSize(0.03);
    TPaveText *plotlabel1000 = new TPaveText(0.28,0.2,0.42,0.35,"NDC");
    plotlabel1000->SetTextColor(kBlack);
    plotlabel1000->SetFillColor(kWhite);
+   plotlabel1000->SetFillStyle(0);
    plotlabel1000->SetBorderSize(0);
    plotlabel1000->SetTextAlign(12);
    plotlabel1000->SetTextSize(0.04);
@@ -595,6 +596,58 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    c->SaveAs( cname + TString(".png"));
    c->SaveAs( cname + TString(".C"));
    c->SaveAs( cname + TString(".pdf"));
+
+
+   // make stacked plot
+   RooPlot* sframe = Mass.frame(MINRange, MAXRange, 
+				int((MAXRange-MINRange)/BINWIDTH));
+   data->plotOn(sframe, RooFit::DataError(errorType), Name("h_data"));
+   int comp(1);
+   totalPdf.plotOn(sframe,ProjWData(*data), DrawOption("LF"), FillStyle(1001),
+		   FillColor(kOrange), LineColor(kOrange), Name("h_total"),
+		   Range("RangeForPlot"));
+   // totalPdf.plotOn(sframe,ProjWData(*data), 
+   // 		   Name("h_total"), Range("RangeForPlot"));
+   components->remove((*components)[0]);
+   int linec = kRed;
+   while (components->getSize() > 0) {
+     totalPdf.plotOn(sframe, ProjWData(*data), FillColor(linec), 
+		     DrawOption("LF"),
+		     Components(RooArgSet(*components)),
+		     FillStyle(1001), LineColor(linec));
+     // totalPdf.plotOn(sframe, ProjWData(*data), 
+     // 		     Components(RooArgSet(*components)),
+     // 		     LineColor(linec));
+     components->remove((*components)[0]);
+     switch (comp) {
+     case 1: linec = kBlack; break;
+     case 2: linec = kGreen; 
+       components->remove((*components)[0]);
+       break;
+     case 3: linec = kMagenta; break;
+     }
+     ++comp;
+   }
+   data->plotOn(sframe,RooFit::DataError(errorType));
+   sframe->SetMinimum(0);
+   sframe->SetMaximum(1.25* sframe->GetMaximum());
+
+   TCanvas * cs = new TCanvas("cs", TString(PLOTPREFIX) + "_Stacked", 500, 500);
+   sframe->Draw("e0");
+   plotlabel4->Draw();
+   plotlabel5->Draw();
+   plotlabel6->Draw();
+   plotlabel7->Draw();
+   plotlabel8->Draw();
+   plotlabel9->Draw();
+   plotlabel1000->Draw();
+   cmsPrelim2();
+   legend->Draw();
+
+   cs.Print(cs.GetTitle() + TString(".eps"));
+   cs.Print(cs.GetTitle() + TString(".pdf"));
+   cs.Print(cs.GetTitle() + TString(".root"));
+   cs.Print(cs.GetTitle() + TString(".png"));
 
    ///////////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////
