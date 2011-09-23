@@ -375,7 +375,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    nQCD.setConstant(false);
    exConstraints.add(constQCD);
 
-   exConstraints.add(constDiboson);
+   // exConstraints.add(constDiboson);
    //   JES_scale2.setVal(0.0);
    //   JES_scale2.setConstant( kTRUE );
 //   nDiboson.setConstant( kTRUE );
@@ -384,7 +384,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 			      ExternalConstraints(exConstraints),
 			      RooFit::Extended(true), 
 			      //RooFit::Minos(true), 
-			      RooFit::Hesse(false),
+			      RooFit::Hesse(true),
 			      PrintEvalErrors(-1),
 			      RooFit::Range(rangeString),
 			      Warnings(false) 
@@ -485,6 +485,11 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
      // totalPdf.plotOn(frame1,ProjWData(*data),Components(*ztautauPdf_), 
      // 		     LineColor(kCyan), Name("h_Ztautau"), Range("RangeForPlot"));
    }
+
+   RooPlot* sframe = Mass.frame(MINRange, MAXRange, 
+				int((MAXRange-MINRange)/BINWIDTH));
+   data->plotOn(sframe, RooFit::DataError(errorType), Name("h_data"));
+
 
 
    data->plotOn(frame1,RooFit::DataError(errorType));
