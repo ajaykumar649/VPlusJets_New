@@ -317,8 +317,8 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    RooArgList* components;
    RooArgList* yields;	 
    if(includeNuisancePDF) {
-     components = new RooArgList(*signalShapePdf_,*bkgShapePdf_, *ttPdf_, *singleTopPdf_, *qcdPdf_, *zjetsPdf_, *ztautauPdf_);
-     yields = new RooArgList(nDiboson, nWjets, nTTbar, nSingleTop, nQCD, nZjets, nZtautau);
+     components = new RooArgList(*signalShapePdf_,*bkgShapePdf_, *ttPdf_, *singleTopPdf_, *qcdPdf_, *zjetsPdf_/*, *ztautauPdf_*/);
+     yields = new RooArgList(nDiboson, nWjets, nTTbar, nSingleTop, nQCD, nZjets/*, nZtautau*/);
    }
    else {
      components = new RooArgList(*signalShapePdf_,*bkgShapePdf_);
@@ -348,20 +348,40 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 
    //   RooGaussian constJES("constJES","", *JES_scale, RooConst(0.0),RooConst(0.05)) ;
    RooGaussian constJES2("constJES2","", *JES_scale2, RooConst(0.0),RooConst(0.05)) ;
-   RooGaussian constQCD("constQCD","", nQCD, RooConst(QCDNorm),RooConst(0.5*QCDNorm)) ;
+   RooGaussian constQCD("constQCD","", nQCD, RooConst(QCDNorm),RooConst(1.0*QCDNorm)) ;
    RooGaussian constTTbar("constTTbar","", nTTbar, RooConst(ttbarNorm_),RooConst(0.1*ttbarNorm_)) ;
-   RooGaussian constSingleTop("constTTbar","", nSingleTop, RooConst(singleTopNorm_),RooConst(0.1*singleTopNorm_)) ;
+   RooGaussian constSingleTop("constSingleTop","", nSingleTop, RooConst(singleTopNorm_),RooConst(0.1*singleTopNorm_)) ;
+   RooGaussian constZpJ("constZpJ", "constZpJ", nZjets, 
+			RooConst(nZjets.getVal()),
+			RooConst(nZjets.getVal()*0.3));
 
+   nDiboson.setVal(1000.);
+   RooGaussian constDiboson("constDiboson", "constDiboson", nDiboson,
+			    RooConst(nDiboson.getVal()), 
+			    RooConst(nDiboson.getVal()*0.3));
+
+
+   RooArgSet exConstraints(constJES2);
+
+   nTTbar.setConstant(false);
+   exConstraints.add(constTTbar);
+
+   nSingleTop.setConstant(false);
+   exConstraints.add(constSingleTop);
+
+   nZjets.setConstant(false);
+   exConstraints.add(constZpJ);
+
+   nQCD.setConstant(false);
+   exConstraints.add(constQCD);
+
+   exConstraints.add(constDiboson);
    //   JES_scale2.setVal(0.0);
    //   JES_scale2.setConstant( kTRUE );
 //   nDiboson.setConstant( kTRUE );
 
    fitResult = totalPdf.fitTo(*data, Save(true), 
-			      //ExternalConstraints(constJES),
-			      ExternalConstraints(constJES2),
-			      //ExternalConstraints(constQCD),
-			      //ExternalConstraints(constTTbar),
-			      //ExternalConstraints(constSingleTop),
+			      ExternalConstraints(exConstraints),
 			      RooFit::Extended(true), 
 			      //RooFit::Minos(true), 
 			      RooFit::Hesse(false),
@@ -462,8 +482,8 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
 		     LineColor(kGreen), Name("h_QCD"), Range("RangeForPlot"));
      totalPdf.plotOn(frame1,ProjWData(*data),Components(*zjetsPdf_), 
 		     LineColor(kMagenta), Name("h_Zjets"), Range("RangeForPlot"));
-     totalPdf.plotOn(frame1,ProjWData(*data),Components(*ztautauPdf_), 
-		     LineColor(kCyan), Name("h_Ztautau"), Range("RangeForPlot"));
+     // totalPdf.plotOn(frame1,ProjWData(*data),Components(*ztautauPdf_), 
+     // 		     LineColor(kCyan), Name("h_Ztautau"), Range("RangeForPlot"));
    }
 
 
@@ -507,7 +527,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    plotlabel9->SetBorderSize(0);
    plotlabel9->SetTextAlign(12);
    plotlabel9->SetTextSize(0.03);
-   TPaveText *plotlabel1000 = new TPaveText(0.22,0.22,0.42,0.42,"NDC");
+   TPaveText *plotlabel1000 = new TPaveText(0.28,0.2,0.42,0.35,"NDC");
    plotlabel1000->SetTextColor(kBlack);
    plotlabel1000->SetFillColor(kWhite);
    plotlabel1000->SetBorderSize(0);
@@ -520,14 +540,14 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
    //sprintf(temp, "W+jets = %d #pm %d", nWjets.getVal(), nWjets.getPropagatedError(*fitResult));
    sprintf(temp, "W+jets = %d #pm %d", nWjets.getVal(), nWjets.getError());
    plotlabel5->AddText(temp);
-   sprintf(temp, "t#bar{t}, Top = %d (fixed)", nSingleTop.getVal()+nTTbar.getVal());
+   sprintf(temp, "t#bar{t}, Top = %d #pm %d", nSingleTop.getVal()+nTTbar.getVal(), TMath::Sqrt(nSingleTop.getError()**2+nTTbar.getError()**2));
    plotlabel6->AddText(temp);
-   sprintf(temp, "QCD = %d (fixed)", nQCD.getVal());
+   sprintf(temp, "QCD = %d #pm %d", nQCD.getVal(), nQCD.getError());
    plotlabel7->AddText(temp);
-   sprintf(temp, "Z+jets = %d (fixed)", nZjets.getVal());
+   sprintf(temp, "Z+jets = %d #pm %d", nZjets.getVal(), nZjets.getError());
    plotlabel8->AddText(temp);
-   sprintf(temp, "Z#rightarrow#tau#tau = %d (fixed)", nZtautau.getVal());
-   plotlabel9->AddText(temp);
+   // sprintf(temp, "Z#rightarrow#tau#tau = %d (fixed)", nZtautau.getVal());
+   // plotlabel9->AddText(temp);
    //double chi2fit = frame1->chiSquare("h_total", "h_data", 3)/1.8;
    double NData_WpJ=nWjets.getVal();
    double k_WpJ=NMC_WpJ_/NData_WpJ;
@@ -561,7 +581,7 @@ void RooWjjFitterNarrow(int channel=0, char PLOTVAR[])
      legend->AddEntry( tophist, "t#bar{t}, Top", "L");
    legend->AddEntry( qcdhist, "QCD", "L");
    legend->AddEntry( zjetshist, "Z+jets", "L");
-   legend->AddEntry( ztautauhist, "Z#rightarrow#tau#tau", "L");
+   // legend->AddEntry( ztautauhist, "Z#rightarrow#tau#tau", "L");
    legend->SetFillColor(0);
    legend->Draw();
    c->SaveAs( cname + TString(".eps"));
