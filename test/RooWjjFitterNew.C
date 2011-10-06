@@ -120,7 +120,7 @@ using namespace RooFit;
 
 void RooWjjFitterNarrow(int channel, const char * PLOTVAR, 
 			bool truncateFitRange, bool doAllPlots,
-			bool includeNP, int Njets);
+			bool includeNP, int Njets, TString initParams);
 RooAbsPdf*  makeSignalPdf(int channel, const char * PLOTVAR, 
 			  const char * cut="gdevtt");
 RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int syst=0, 
@@ -142,7 +142,8 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false);
 
 
 void RooWjjFitterNew(int channel=0,double JES = 0.0, bool truncRange = false,
-		     bool plotAll = true, bool doNP = false, int Njets = 0) {
+		     bool plotAll = true, bool doNP = false, int Njets = 0,
+		     TString initParams = "initWjjParams.txt") {
 
   JES_scl = JES;
   JES_scl2 = JES;
@@ -152,14 +153,14 @@ void RooWjjFitterNew(int channel=0,double JES = 0.0, bool truncRange = false,
   }
   // gROOT->ProcessLine(".L histInterpolate.cc+");
   RooWjjFitterNarrow(channel, "Mass2j_PFCor", truncRange, plotAll, doNP,
-		     Njets);
+		     Njets, initParams);
 }
 
 
 ///////// --------- channel 0 : combined,  1: mu,    2: ele --------------
 void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 			bool truncateFitRange, bool doAllPlots, bool includeNP,
-			int Njets)
+			int Njets, TString initParams)
 {
 // //2J Default
 // const char* mycuts = "( gdevtt &&(JetPFCor_Pt[0]>40.)&&(sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.)&&(abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)&&(JetPFCor_bDiscriminator[0]<1.74)&&(JetPFCor_Pt[1]/Mass2j_PFCor>0.3) )";
@@ -412,8 +413,8 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 
    RooArgSet * params = totalPdf.getParameters(data);
 
-   if (readInit)
-     params->readFromFile("initWjjParams.txt");
+   if ((readInit) && (initParams.Length() > 0))
+     params->readFromFile(initParams);
 
    std::cout << "\n***External constraints***\n";
    TIter con(exConstraints.createIterator());
@@ -449,30 +450,39 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    totalPdf.plotOn(chi2frame, ProjWData(*data), 
 		   Name("h_total"), ((rangeString.Length()>0) ? RooFit::Range(rangeString) : RooFit::Name("h_total")));
 
-   double NData_WpJ=nWjets.getVal();
    double weightedNMC = 0.;
    double sumf = 0.;
    for (int fi = 0; fi < WpJf.getSize(); ++fi) {
-     weightedNMC += WpJF[fi]*WpJF[fi]/WpJN[fi];
-     sumf += WpJF[fi];
+     weightedNMC += dynamic_cast<RooRealVar&>(WpJf[fi]).getVal()*WpJN[fi];
+     sumf += dynamic_cast<RooRealVar&>(WpJf[fi]).getVal();
    }
-   weightedNMC += (1.-sumf)*(1.-sumf)/NMC_WpJ_;
+   weightedNMC += (1.-sumf)*(1.-sumf)*NMC_WpJ_;
 
    // double NData_WpJ=nWjets.getVal();
    // double k_WpJ=NMC_WpJ_/NData_WpJ;
    // double chi2fit = frame1->chiSquare("h_total", "h_data", fitResult->floatParsFinal().getSize())/sqrt(1.0+1.0/k_WpJ);
    double k_WpJ=weightedNMC/nWjets.getVal();
    double chi2fit = chi2frame->chiSquare("h_total", "theData", 
-					 ((fitResult) ? fitResult->floatParsFinal().getSize() : 0) )/sqrt(1.0+1./k_WpJ);
-   sprintf(temp, "#chi^{2}/dof = %.4f",chi2fit );
-   std::cout << " --- " << temp << " --- \n";
+					 ((fitResult) ? fitResult->floatParsFinal().getSize() : 0) );//sqrt(1.0+1./k_WpJ);
+   int dof = 
+     NBINSFORPDF - ((fitResult) ? fitResult->floatParsFinal().getSize() : 0);
+   double chi2 = chi2fit*dof;
+   double chi2Prob = TMath::Prob(chi2, dof);
+//    std::cout << " --- " << temp << " --- \n";
 
    if (!doAllPlots) {
      chi2frame->Draw();
 
+     std::cout << "\n *** chi^2/dof = " << chi2 << "/" << dof << " = "
+	       << chi2fit << " ***\n *** chi^2 probability = " << chi2Prob
+	       << " ***\n\n";
      params->writeToStream(std::cout, false);
      return;
    }
+   chi2fit /= sqrt(1. + 1./k_WpJ);
+   sprintf(temp, "#chi^{2}/dof = %.4f",chi2fit );
+   chi2 = chi2fit*dof;
+   chi2Prob = TMath::Prob(chi2, dof);
    /////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////
    // ----------- These are needed for systematics ----------------
@@ -915,6 +925,9 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 
 
    fitResult->Print("v");
+   std::cout << " *** chi^2/dof = " << chi2 << "/" << dof << " = "
+	     << chi2fit << " ***\n *** chi^2 probability = " << chi2Prob
+	     << " ***\n\n";
 
    cout << "-------- Printing yields in restricted mass range -------" << endl;
    cout << "numDiboson = " << numDiboson << endl;

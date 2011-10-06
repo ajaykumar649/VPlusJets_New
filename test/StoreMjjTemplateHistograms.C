@@ -4,8 +4,14 @@ const double MINRange = 40.0;
 const double MAXRange = 300.0;
 const int BINWIDTH = 10;
 const int NBINSFORPDF = (int)((MAXRange-MINRange)/BINWIDTH);
-const char* selection = "( (evtNJ==2 || evtNJ==3) && (JetPFCor_Pt[0]>40.) && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) && (JetPFCor_bDiscriminator[0]<1.74) && (JetPFCor_bDiscriminator[1]<1.74) && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1]>0.1) )";
-
+const char* selection = "( (evtNJ==2 || evtNJ==3)"
+  " && (JetPFCor_Pt[0]>40.)"
+  " && (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)"
+  " && (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.)"
+  // " && (JetPFCor_bDiscriminator[0]<1.74)"
+  // " && (JetPFCor_bDiscriminator[1]<1.74)"
+  // " && (JetPFCor_QGLikelihood[0]*JetPFCor_QGLikelihood[1]>0.1) )"
+  " && (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) )";
 
 const TString plots_dir = "/uscms/home/ilyao/nobackup/KinematicFitterS11/2fbFit/FitResults_3JcutsV0";
 const TString data_dir = "/uscms_data/d2/kalanand/WjjTrees";
@@ -180,6 +186,11 @@ void getNPTemplate(char model, char* inputDataFileName,
   TFile* mhfile = new TFile( inputDataFileName, "read");
   cout << "File Name : " << inputDataFileName << endl;
   TTree* treeTemp = (TTree*) mhfile->Get(inputTreeName);
+  if (!treeTemp) {
+    cout << "Tree not found in file " << inputDataFileName << ".  Skipping."
+	 << endl;
+    return;
+  }
   cout << "Tree Entries = " << treeTemp->GetEntries() << endl;
   
   TH1* th1H = new TH1D(outHistogramName, outHistogramName, 
