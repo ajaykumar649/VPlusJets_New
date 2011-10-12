@@ -3,7 +3,21 @@
 import subprocess
 import re
 
-cmdRoot = ['root', '-l', '-b', '-q', 'RooWjjFitterNew.C+(0,0.,true,false,false,2)']
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option('-b', action='store_true', dest='noX', default=False,
+                  help='no X11 windows')
+parser.add_option('-j', '--Njets', dest='Nj', default=2, type='int',
+                  help='Number of jets.')
+parser.add_option('-i', '--init', dest='startingFile',
+                  default='TestWjjFitParams.txt',
+                  help='File to use as the initial template')
+parser.add_option('-p', '--precision', dest='P', default=3, type='int',
+                  help='precision to find minimum 10^-P')
+(opts, args) = parser.parse_args()
+
+cmdRoot = ['root', '-l', '-b', '-q', 'RooWjjFitterNew.C+(0,0.,true,false,false,{0})'.format(opts.Nj)]
 cmdGrepChi = ['grep', '^ \*\*\* chi']
 
 optVars = ['fSU', 'fMU']
@@ -11,21 +25,30 @@ optVars = ['fSU', 'fMU']
 
 from ROOT import TGraph, TF1, gPad, TFile
 
-outf = TFile('optimization.root', 'recreate')
-for iteration in range(0, 2):
+outf = TFile('optimization{0}.root'.format(opts.Nj), 'recreate')
+keepIterating = True
+iteration = -1
+
+#for iteration in range(0, 2):
+while keepIterating:
+    iteration += 1
+    keepIterating = False
     Npts = 6
     start = 0.
     step = 0.1
     if iteration > 0:
         step = step/10.
+    if iteration > 1:
+        step = step/2.
     for optVar in optVars:
 
-        initFile = open('TestWjjFitParams.txt').readlines()
+        initFile = open(opts.startingFile).readlines()
         for line in initFile:
             if re.search('{0} = [ ]*([-0-9\.]*)'.format(optVar), line):
                 start = float(re.search('{0} = [ ]*([-0-9\.]*)'.format(optVar),
                                         line).group(1))
 
+        oldVal = start
         if iteration > 0:
             start -= 2*step
 
@@ -57,15 +80,18 @@ for iteration in range(0, 2):
         parabolaFit = TF1("parabFit", "x*x++x++1", start, newVal)
         optGraph.Fit(parabolaFit)
         bestVal = -1.*parabolaFit.GetParameter(1)/2./parabolaFit.GetParameter(0)
-        print 'minimum:', bestVal
+        print 'old minimum:',oldVal,'new minimum:', bestVal
 
         newStart = [re.sub('{0} = [ ]*[-0-9\.]*'.format(optVar),
                            '{0} = {1:.3f}'.format(optVar, bestVal), x) \
-                    for x in open('TestWjjFitParams.txt').readlines()]
-        newFile = open('TestWjjFitParams.txt', 'w')
+                    for x in open(opts.startingFile).readlines()]
+        newFile = open(opts.startingFile, 'w')
         newFile.writelines(newStart)
         newFile.close()
         optGraph.Write()
+        if abs(oldVal-bestVal) > 10**(-opts.P):
+            keepIterating = True
+        
     ##     optGraph.Draw('ap*')
     ##     gPad.WaitPrimitive()
 

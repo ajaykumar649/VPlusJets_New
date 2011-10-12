@@ -146,11 +146,12 @@ void RooWjjFitterNew(int channel=0,double JES = 0.0, bool truncRange = false,
 		     TString initParams = "initWjjParams.txt") {
 
   JES_scl = JES;
-  JES_scl2 = JES;
-  if (Njets > 2) {
-    BINWIDTH *= 2;
-    NBINSFORPDF = (int)(MAXRange-MINRange)/BINWIDTH;
-  }
+  JES_scl2 = 0.;
+//   JES_scl2 = JES;
+//   if (Njets > 2) {
+//     BINWIDTH *= 2;
+//     NBINSFORPDF = (int)(MAXRange-MINRange)/BINWIDTH;
+//   }
   // gROOT->ProcessLine(".L histInterpolate.cc+");
   RooWjjFitterNarrow(channel, "Mass2j_PFCor", truncRange, plotAll, doNP,
 		     Njets, initParams);
@@ -356,8 +357,8 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    Mass.setRange("RangeWmass", 65., 95.);
    Mass.setRange("RangeForPlot", MINRange, MAXRange) ;
    Mass.setRange("RangeDefault", MINRange, MAXRange) ;
-   Mass.setRange("lowSideBand", MINRange, 150. - 20.);
-   Mass.setRange("highSideBand", 150. + 20., MAXRange);
+   Mass.setRange("lowSideBand", MINRange, 150.-20.);
+   Mass.setRange("highSideBand", 150.+20., MAXRange);
 
 
    // ********* Do the Actual Fit ********** //  
@@ -446,9 +447,33 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    std::cout << "*** ***\n\n";
 
    RooPlot * chi2frame = Mass.frame(MINRange, MAXRange, NBINSFORPDF);
-   data->plotOn(chi2frame, RooFit::DataError(errorType), Name("theData"));
-   totalPdf.plotOn(chi2frame, ProjWData(*data), 
-		   Name("h_total"), ((rangeString.Length()>0) ? RooFit::Range(rangeString) : RooFit::Name("h_total")));
+
+   data->plotOn(chi2frame, //RooFit::DataError(errorType), 
+		RooFit::Invisible(),
+		RooFit::Name("h_data"), RooFit::MarkerColor(kRed));
+   totalPdf.plotOn(chi2frame, RooFit::ProjWData(*data),
+		   RooFit::Name("h_total"),
+		   RooFit::Invisible(),
+		   ( (rangeString.Length() > 0)? 
+		     RooFit::NormRange("RangeForPlot") :
+		     RooCmdArg::none()),
+		   ( (rangeString.Length() > 0)? 
+		     RooFit::Range("RangeForPlot", false) :
+		     RooCmdArg::none())
+		   );
+   totalPdf.plotOn(chi2frame, RooFit::ProjWData(*data),
+		   RooFit::Name("h_fit"),
+		   ( (rangeString.Length() > 0)? 
+		     RooFit::NormRange(rangeString) :
+		     RooCmdArg::none()),
+		   ( (rangeString.Length() > 0)? 
+		     RooFit::Range(rangeString) :
+		     RooCmdArg::none())
+		   );
+   data->plotOn(chi2frame, //RooFit::DataError(errorType),
+		RooFit::Name("theData"),
+		(rangeString.Length() > 0)? RooFit::CutRange(rangeString) :
+		RooCmdArg::none());
 
    double weightedNMC = 0.;
    double sumf = 0.;
@@ -467,9 +492,20 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    int dof = 
      NBINSFORPDF - ((fitResult) ? fitResult->floatParsFinal().getSize() : 0);
    double chi2 = chi2fit*dof;
+   if (truncateFitRange) 
+     dof -= (int)(40./BINWIDTH);
    double chi2Prob = TMath::Prob(chi2, dof);
+   chi2fit = chi2/dof;
 //    std::cout << " --- " << temp << " --- \n";
 
+//    std::cout << "\n *** chi^2/dof = " << chi2 << "/" << dof << " = "
+// 	     << chi2fit << " ***\n *** chi^2 probability = " << chi2Prob
+// 	     << " ***\n\n";
+
+   chi2 /= sqrt(1. + 1./k_WpJ);
+   chi2fit = chi2/dof;
+   sprintf(temp, "#chi^{2}/dof = %.4f",chi2fit );
+   chi2Prob = TMath::Prob(chi2, dof);
    if (!doAllPlots) {
      chi2frame->Draw();
 
@@ -479,10 +515,6 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
      params->writeToStream(std::cout, false);
      return;
    }
-   chi2fit /= sqrt(1. + 1./k_WpJ);
-   sprintf(temp, "#chi^{2}/dof = %.4f",chi2fit );
-   chi2 = chi2fit*dof;
-   chi2Prob = TMath::Prob(chi2, dof);
    /////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////
    // ----------- These are needed for systematics ----------------
