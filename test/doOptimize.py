@@ -17,6 +17,9 @@ parser.add_option('-p', '--precision', dest='P', default=3, type='int',
                   help='precision to find minimum 10^-P')
 (opts, args) = parser.parse_args()
 
+if opts.P > 3:
+    print 'precision cannot be better than 10^-3'
+    opts.P = 3
 cmdRoot = ['root', '-l', '-b', '-q', 'RooWjjFitterNew.C+(0,0.,true,false,false,{0})'.format(opts.Nj)]
 cmdGrepChi = ['grep', '^ \*\*\* chi']
 
@@ -39,24 +42,26 @@ while keepIterating:
     if iteration > 0:
         step = step/10.
     if iteration > 1:
-        step = step/2.
+        step = step/2**(iteration-1).
+    if step < 10**(-opts.P):
+        step = 10**(-opts.P)
     for optVar in optVars:
-
         initFile = open(opts.startingFile).readlines()
         for line in initFile:
-            if re.search('{0} = [ ]*([-0-9\.]*)'.format(optVar), line):
-                start = float(re.search('{0} = [ ]*([-0-9\.]*)'.format(optVar),
-                                        line).group(1))
-
+            found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
+            if found:
+                start = float(found.group(1))
         oldVal = start
         if iteration > 0:
             start -= 2*step
+        else:
+            start = 0.
 
         optGraph = TGraph(Npts)
         optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
         for point in range(0, Npts):
             newVal = start + step*point
-            testFile = [re.sub(optVar+' = [ ]*[-0-9\.]*',
+            testFile = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
                                '{0} = {1:.3f}'.format(optVar, newVal), x) \
                         for x in initFile]
             print ''.join(testFile)
@@ -82,7 +87,7 @@ while keepIterating:
         bestVal = -1.*parabolaFit.GetParameter(1)/2./parabolaFit.GetParameter(0)
         print 'old minimum:',oldVal,'new minimum:', bestVal
 
-        newStart = [re.sub('{0} = [ ]*[-0-9\.]*'.format(optVar),
+        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
                            '{0} = {1:.3f}'.format(optVar, bestVal), x) \
                     for x in open(opts.startingFile).readlines()]
         newFile = open(opts.startingFile, 'w')
