@@ -529,34 +529,34 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    //   The maximum difference being -2.7444 %.
 
 
-   double NBkg_sys = sqrt(pow(0.001196,2) + pow(0.001871,2) + pow(0.027444,2))*nWjets.getVal(); 
-   double NBkg_statsys = sqrt(pow(NBkg_sys,2)+pow(nWjets.getError(),2)); 
+//    double NBkg_sys = sqrt(pow(0.001196,2) + pow(0.001871,2) + pow(0.027444,2))*nWjets.getVal(); 
+//    double NBkg_statsys = sqrt(pow(NBkg_sys,2)+pow(nWjets.getError(),2)); 
 
-   RooDataSet* wjetsToyData = bkgShapePdf_->generate(*mjj_, 10000000);
-   // TH1D* wjetstoyhist = new TH1D("wjetstoyhist","", 100*NBINSFORPDF, MINRange, MAXRange);
-   // wjetstoyhist->Sumw2();
-   // wjetsToyData->tree()->Draw(TString(PLOTVAR)+TString(">>wjetstoyhist"),"","goff");
-   TH1 * wjetstoyhist = 
-     wjetsToyData->createHistogram("wjetstoyhist", *mjj_, 
-				   Binning(100*NBINSFORPDF, 
-					   MINRange, MAXRange));
-   TH1* wjetshist_sysP = (TH1*)wjetstoyhist->Clone("wjetshist_sysP");
-   wjetshist_sysP->SetLineColor(2);
-   //  wjetshist_sysP->SetLineStyle(2);
-   wjetshist_sysP->SetLineWidth(2);
-   TH1* wjetshist_sysM = (TH1*)wjetstoyhist->Clone("wjetshist_sysM");
-   wjetshist_sysM->SetLineColor(2);
-   //wjetshist_sysM->SetLineStyle(2);
-   wjetshist_sysM->SetLineWidth(2);
-   double den = wjetstoyhist->Integral();
-   wjetshist_sysP->Scale( 100*NBkg_sys / den);
-   wjetshist_sysM->Scale( -100*NBkg_sys / den);
-   TH1* wjetshist_statsysM = (TH1*)wjetshist_sysM->Clone("wjetshist_statsysM"); 
-   TH1* wjetshist_statsysP = (TH1*)wjetshist_sysM->Clone("wjetshist_statsysP"); 
-   wjetshist_statsysM->SetLineStyle(1);
-   wjetshist_statsysP->SetLineStyle(1);
-   wjetshist_statsysM->Scale( -100*NBkg_statsys / wjetshist_statsysM->Integral() );
-   wjetshist_statsysP->Scale( 100*NBkg_statsys / wjetshist_statsysP->Integral() );
+//    RooDataSet* wjetsToyData = bkgShapePdf_->generate(*mjj_, 10000000);
+//    // TH1D* wjetstoyhist = new TH1D("wjetstoyhist","", 100*NBINSFORPDF, MINRange, MAXRange);
+//    // wjetstoyhist->Sumw2();
+//    // wjetsToyData->tree()->Draw(TString(PLOTVAR)+TString(">>wjetstoyhist"),"","goff");
+//    TH1 * wjetstoyhist = 
+//      wjetsToyData->createHistogram("wjetstoyhist", *mjj_, 
+// 				   Binning(100*NBINSFORPDF, 
+// 					   MINRange, MAXRange));
+//    TH1* wjetshist_sysP = (TH1*)wjetstoyhist->Clone("wjetshist_sysP");
+//    wjetshist_sysP->SetLineColor(2);
+//    //  wjetshist_sysP->SetLineStyle(2);
+//    wjetshist_sysP->SetLineWidth(2);
+//    TH1* wjetshist_sysM = (TH1*)wjetstoyhist->Clone("wjetshist_sysM");
+//    wjetshist_sysM->SetLineColor(2);
+//    //wjetshist_sysM->SetLineStyle(2);
+//    wjetshist_sysM->SetLineWidth(2);
+//    double den = wjetstoyhist->Integral();
+//    wjetshist_sysP->Scale( 100*NBkg_sys / den);
+//    wjetshist_sysM->Scale( -100*NBkg_sys / den);
+//    TH1* wjetshist_statsysM = (TH1*)wjetshist_sysM->Clone("wjetshist_statsysM"); 
+//    TH1* wjetshist_statsysP = (TH1*)wjetshist_sysM->Clone("wjetshist_statsysP"); 
+//    wjetshist_statsysM->SetLineStyle(1);
+//    wjetshist_statsysP->SetLineStyle(1);
+//    wjetshist_statsysM->Scale( -100*NBkg_statsys / wjetshist_statsysM->Integral() );
+//    wjetshist_statsysP->Scale( 100*NBkg_statsys / wjetshist_statsysP->Integral() );
 
    /////////////////////////////////////////////////////////////////////////
    /////////////////////////////////////////////////////////////////////////
@@ -868,19 +868,19 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    c2 = new TCanvas(cname,cname,500,500);
    frame2->Draw() ;
    hresid->Draw("P");
-   if(drawSystematics) {
-     wjetshist_sysP->Draw("Csame");
-     wjetshist_sysM->Draw("Csame");
-   }
+//    if(drawSystematics) {
+//      wjetshist_sysP->Draw("Csame");
+//      wjetshist_sysM->Draw("Csame");
+//    }
    cmsPrelim2();
    TLegend* legend2 = new TLegend(0.6,0.7,0.85,0.9);
    legend2->SetName("legendSubtracted");
    legend2->AddEntry( datahist, "Data", "P");  
    legend2->AddEntry( dibosonhist, "Di-boson", "F");
-   if(drawSystematics) {
-     legend2->AddEntry( wjetshist_sysM, "Systematics", "L");
-     // legend2->AddEntry( wjetshist_statsysM, "Fit stat. #oplus syst.", "L");
-   }
+//    if(drawSystematics) {
+//      legend2->AddEntry( wjetshist_sysM, "Systematics", "L");
+//      // legend2->AddEntry( wjetshist_statsysM, "Fit stat. #oplus syst.", "L");
+//    }
    legend2->SetFillColor(0);
    legend2->Draw();
    c2->SaveAs( cname + TString(".eps"));
