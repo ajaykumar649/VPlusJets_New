@@ -64,6 +64,7 @@
 
 //#include "/uscms/home/kalanand/tdrstyle.C"
 
+#include "ComputeChi2.C"
 
 //const TString MCDirectory = "pTsmeareddata";
 const TString MCDirectory = "data/ReducedTree/NewReducedTree/RD_";
@@ -90,13 +91,13 @@ double singleTopNorm_;
 double ttbarNorm_;
 double zjetsNorm_;
 // double ztautauNorm_;
-double NMC_WpJ_;
+// double NMC_WpJ_;
 // double NMC_WpJMU_;
 // double NMC_WpJMD_;
 // double NMC_WpJSU_;
 // double NMC_WpJSD_;
-RooArgList WpJf;
-std::vector<double> WpJN;
+// RooArgList WpJf;
+// std::vector<double> WpJN;
 double initWjets;
 double initDiboson;
 
@@ -210,6 +211,7 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
     "&& (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) "
     "&& (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) "
     "&& (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) "
+//     "&& ((Mass2j_PFCor < 130) || (Mass2j_PFCor > 170))"
     ")";
 
   if (Njets > 1)
@@ -475,44 +477,65 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 		(rangeString.Length() > 0)? RooFit::CutRange(rangeString) :
 		RooCmdArg::none());
 
-   double weightedNMC = 0.;
-   double sumf = 0.;
-   for (int fi = 0; fi < WpJf.getSize(); ++fi) {
-     weightedNMC += dynamic_cast<RooRealVar&>(WpJf[fi]).getVal()*WpJN[fi];
-     sumf += dynamic_cast<RooRealVar&>(WpJf[fi]).getVal();
-   }
-   weightedNMC += (1.-sumf)*(1.-sumf)*NMC_WpJ_;
+   int chi2bins;
+   double mychi2 = ComputeChi2(*(chi2frame->getHist("theData")), totalPdf,
+			       Mass, chi2bins);
+//    std::cout << " *** my chi^2 = " << mychi2 << " ***\n"
+// 	     << " *** my chi^2 bins = " << chi2bins << " ***\n";
+   if (fitResult)
+     chi2bins -= fitResult->floatParsFinal().getSize();
+//    std::cout << " *** my chi^2 dof = " << chi2bins << " ***\n";
+//    double weightedMC = 0.;
+//    double sumf = 0.;
+//    double theF = 0.;
+// //    double remainingF = 1.0;
+//    for (int fi = 0; fi < WpJf.getSize(); ++fi) {
+//      theF = dynamic_cast<RooRealVar&>(WpJf[fi]).getVal();
+//      weightedMC += theF / 
+//        (1+pow(theF*nWjets.getVal(), 2)/WpJN[fi]/data->sumEntries());
+// //      remainingF *= (1. - theF);
+//      sumf += theF; 
+//    }
+//    weightedMC += (1-sumf)/
+//      (1.+pow((1-sumf)*nWjets.getVal(),2)/NMC_WpJ_/data->sumEntries());
+//    weightedMC *= nWjets.getVal()/data->sumEntries();
 
-   // double NData_WpJ=nWjets.getVal();
-   // double k_WpJ=NMC_WpJ_/NData_WpJ;
-   // double chi2fit = frame1->chiSquare("h_total", "h_data", fitResult->floatParsFinal().getSize())/sqrt(1.0+1.0/k_WpJ);
-   double k_WpJ=weightedNMC/nWjets.getVal();
+//    weightedMC += 1 - nWjets.getVal()/data->sumEntries();
+
+//    // double NData_WpJ=nWjets.getVal();
+//    // double k_WpJ=NMC_WpJ_/NData_WpJ;
+//    // double chi2fit = frame1->chiSquare("h_total", "h_data", fitResult->floatParsFinal().getSize())/sqrt(1.0+1.0/k_WpJ);
+// //    double k_WpJ=weightedMC/data->sumEntries();
    double chi2fit = chi2frame->chiSquare("h_total", "theData", 
-					 ((fitResult) ? fitResult->floatParsFinal().getSize() : 0) );//sqrt(1.0+1./k_WpJ);
+					 ((fitResult) ? fitResult->floatParsFinal().getSize() : 0) );
    int dof = 
      NBINSFORPDF - ((fitResult) ? fitResult->floatParsFinal().getSize() : 0);
    double chi2 = chi2fit*dof;
-   if (truncateFitRange) 
-     dof -= (int)(40./BINWIDTH);
-   double chi2Prob = TMath::Prob(chi2, dof);
-   chi2fit = chi2/dof;
+//    if (truncateFitRange) 
+//      dof -= (int)(40./BINWIDTH);
+   double chi2Prob = TMath::Prob(mychi2, chi2bins);
 //    std::cout << " --- " << temp << " --- \n";
 
 //    std::cout << "\n *** chi^2/dof = " << chi2 << "/" << dof << " = "
 // 	     << chi2fit << " ***\n *** chi^2 probability = " << chi2Prob
-// 	     << " ***\n\n";
+// 	     << " ***\n *** k_WpJ = " << k_WpJ << " ***\n\n";
 
-   chi2 /= sqrt(1. + 1./k_WpJ);
-   chi2fit = chi2/dof;
-   sprintf(temp, "#chi^{2}/dof = %.4f",chi2fit );
-   chi2Prob = TMath::Prob(chi2, dof);
+//    chi2 *= weightedMC;
+//    chi2fit = chi2/dof;
+   sprintf(temp, "#chi^{2}/dof = %.4f", mychi2/chi2bins );
+//    chi2Prob = TMath::Prob(chi2, dof);
    if (!doAllPlots) {
      chi2frame->Draw();
 
-     std::cout << "\n *** chi^2/dof = " << chi2 << "/" << dof << " = "
-	       << chi2fit << " ***\n *** chi^2 probability = " << chi2Prob
-	       << " ***\n\n";
+     std::cout << "\n *** chi^2/dof = " << mychi2 << "/" << chi2bins << " = "
+	       << mychi2/chi2bins << " ***\n"
+	       << " *** chi^2 probability = " << chi2Prob << " ***\n"
+	       << " *** uncorrected chi^2 = " << chi2 << " ***\n"
+	       << "\n";
      params->writeToStream(std::cout, false);
+     std::cout << "FitEvents = " << totalPdf.expectedEvents(RooArgSet(Mass)) 
+	       << "\n"
+	       << "DataEvents = " << data->sumEntries() << "\n";
      return;
    }
    /////////////////////////////////////////////////////////////////////////
@@ -1008,6 +1031,7 @@ RooAbsPdf*  makeSignalPdf(int channel, const char* PLOTVAR, const char* cut) {
   TString plotStr = TString::Format("%s*(1+%0.4f)", PLOTVAR, JES_scl);
 
   TH1* th1ww = new TH1D("th1ww", "th1ww", NBINSFORPDF*2, MINRange, MAXRange);
+  th1ww->Sumw2();
 
   if(channel==0 || channel==1) {
     treeTemp1->Draw( plotStr+TString(">>th1ww"), WW_selection, "goff");
@@ -1039,6 +1063,8 @@ RooAbsPdf*  makeSignalPdf(int channel, const char* PLOTVAR, const char* cut) {
   RooAbsPdf* signalShapePdf_ = new RooHistPdf("signalShapePdf","",
 					      RooArgSet(*shiftedMass),
 					      RooArgSet(*mjj_),*rdh);
+
+  rdh->Print();
 
   delete treeTemp1;
   delete treeTemp2;
@@ -1167,12 +1193,12 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
      sTree2->Draw(plotStr+">>th1wjetsS", myselection, "goff");
   }
 
-  NMC_WpJ_=th1wjets->GetEntries();
+//   NMC_WpJ_=th1wjets->GetEntries();
   initWjets = (31314./81352581.) * (th1wjets->Integral()) * IntLUMI;
   cout << "-------- Number of expected Wjj events = " <<  initWjets << endl;
 
   RooArgList pdfs;
-  //RooArgList coefs;
+  RooArgList coefs;
 
   RooDataHist* rdhWjets = new RooDataHist("rdhWjets","", *mjj_, th1wjets);
   RooHistPdf * WjetsShape = new RooHistPdf("WjetsShape", "WjetsShape", 
@@ -1182,28 +1208,6 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
 
   // coefs.add(*fnom);
 
-  RooDataHist* rdhWjetsMU = new RooDataHist("rdhWjetsMU","", *mjj_, th1wjetsMU);
-  RooHistPdf * WjetsShapeMU = new RooHistPdf("WjetsShapeMU", "WjetsShapeMU",
-					     RooArgSet(*shiftedMass),
-					     RooArgSet(*mjj_), *rdhWjetsMU);
-  RooRealVar * fMU = new RooRealVar("fMU", "f_{matchingUp}", 0.0, 0., 1.);
-  fMU->setError(0.01);
-  fMU->setConstant();
-  pdfs.add(*WjetsShapeMU);
-  WpJf.add(*fMU);
-  WpJN.push_back(th1wjetsMU->GetEntries());
-
-  RooDataHist* rdhWjetsMD = new RooDataHist("rdhWjetsMD","", *mjj_, th1wjetsMD);
-  RooHistPdf * WjetsShapeMD = new RooHistPdf("WjetsShapeMD", "WjetsShapeMD", 
-					     RooArgSet(*shiftedMass),
-					     RooArgSet(*mjj_), *rdhWjetsMD);
-  RooRealVar * fMD = new RooRealVar("fMD", "f_{matchingDown}", 0.0, 0., 1.);
-  fMD->setError(0.01);
-  fMD->setConstant();
-  pdfs.add(*WjetsShapeMD);
-  WpJf.add(*fMD);
-  WpJN.push_back(th1wjetsMD->GetEntries());
-
   RooDataHist* rdhWjetsSU = new RooDataHist("rdhWjetsSU","", *mjj_, th1wjetsSU);
   RooHistPdf * WjetsShapeSU = new RooHistPdf("WjetsShapeSU", "WjetsShapeSU", 
 					     RooArgSet(*shiftedMass),
@@ -1212,29 +1216,51 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   fSU->setError(0.01);
   fSU->setConstant();
   pdfs.add(*WjetsShapeSU);
-  WpJf.add(*fSU);
-  WpJN.push_back(th1wjetsSU->GetEntries());
+  coefs.add(*fSU);
+//   WpJN.push_back(th1wjetsSU->GetEntries());
 
   RooDataHist* rdhWjetsSD = new RooDataHist("rdhWjetsSD","", *mjj_, th1wjetsSD);
-  RooHistPdf * WjetsShapeSD = new RooHistPdf("WjetsShapeSD", "WjetsShapeSD", 
+//   RooHistPdf * WjetsShapeSD = new RooHistPdf("WjetsShapeSD", "WjetsShapeSD", 
+// 					     RooArgSet(*shiftedMass),
+// 					     RooArgSet(*mjj_), *rdhWjetsSD);
+//   RooRealVar * fSD = new RooRealVar("fSD", "f_{scaleDown}", 0.0, 0., 1.);
+//   fSD->setError(0.01);
+//   fSD->setConstant();
+//   pdfs.add(*WjetsShapeSD);
+//   coefs.add(*fSD);
+//   WpJN.push_back(th1wjetsSD->GetEntries());
+
+  RooDataHist* rdhWjetsMU = new RooDataHist("rdhWjetsMU","", *mjj_, th1wjetsMU);
+  RooHistPdf * WjetsShapeMU = new RooHistPdf("WjetsShapeMU", "WjetsShapeMU",
 					     RooArgSet(*shiftedMass),
-					     RooArgSet(*mjj_), *rdhWjetsSD);
-  RooRealVar * fSD = new RooRealVar("fSD", "f_{scaleDown}", 0.0, 0., 1.);
-  fSD->setError(0.01);
-  fSD->setConstant();
-  pdfs.add(*WjetsShapeSD);
-  WpJf.add(*fSD);
-  WpJN.push_back(th1wjetsSD->GetEntries());
+					     RooArgSet(*mjj_), *rdhWjetsMU);
+  RooRealVar * fMU = new RooRealVar("fMU", "f_{matchingUp}", 0.0, 0., 1.);
+  fMU->setError(0.01);
+  fMU->setConstant();
+  pdfs.add(*WjetsShapeMU);
+  coefs.add(*fMU);
+//   WpJN.push_back(th1wjetsMU->GetEntries());
+
+  RooDataHist* rdhWjetsMD = new RooDataHist("rdhWjetsMD","", *mjj_, th1wjetsMD);
+//   RooHistPdf * WjetsShapeMD = new RooHistPdf("WjetsShapeMD", "WjetsShapeMD", 
+// 					     RooArgSet(*shiftedMass),
+// 					     RooArgSet(*mjj_), *rdhWjetsMD);
+//   RooRealVar * fMD = new RooRealVar("fMD", "f_{matchingDown}", 0.0, 0., 1.);
+//   fMD->setError(0.01);
+//   fMD->setConstant();
+//   pdfs.add(*WjetsShapeMD);
+//   coefs.add(*fMD);
+//   WpJN.push_back(th1wjetsMD->GetEntries());
 
   RooDataHist* rdhWjetsS = new RooDataHist("rdhWjetsS","", *mjj_, th1wjetsS);
-  RooHistPdf * WjetsShapeS = new RooHistPdf("WjetsShapeS", "WjetsShapeS", 
-					     RooArgSet(*shiftedMass),
-					     RooArgSet(*mjj_), *rdhWjetsS);
-  RooRealVar * fS = new RooRealVar("fS", "f_{SHERPA}", 0.0, 0., 1.);
-  fS->setError(0.01);
-  fS->setConstant();
-  pdfs.add(*WjetsShapeS);
-  WpJf.add(*fS);
+//   RooHistPdf * WjetsShapeS = new RooHistPdf("WjetsShapeS", "WjetsShapeS", 
+// 					     RooArgSet(*shiftedMass),
+// 					     RooArgSet(*mjj_), *rdhWjetsS);
+//   RooRealVar * fS = new RooRealVar("fS", "f_{SHERPA}", 0.0, 0., 1.);
+//   fS->setError(0.01);
+//   fS->setConstant();
+//   pdfs.add(*WjetsShapeS);
+//   coefs.add(*fS);
 
   // RooPlot * wjf = mjj_->frame();
   // WjetsShape->plotOn(wjf, LineColor(kBlue), Name("MadGraph"));
@@ -1259,12 +1285,12 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   // shapeLeg.AddEntry(wjf->findObject("ScaleDown"), "ScaleDown", "l");
   // shapeLeg.AddEntry(wjf->findObject("Sherpa"), "Sherpa", "l");
 
-  // rdhWjets->Print();
-  // rdhWjetsMU->Print();
-  // rdhWjetsMD->Print();
-  // rdhWjetsSU->Print();
-  // rdhWjetsSD->Print();
-  // rdhWjetsS->Print();
+  rdhWjets->Print();
+  rdhWjetsMU->Print();
+  rdhWjetsMD->Print();
+  rdhWjetsSU->Print();
+  rdhWjetsSD->Print();
+  rdhWjetsS->Print();
 
   // wjf->Draw();
   // shapeLeg.Draw();
@@ -1272,7 +1298,8 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
 
   pdfs.add(*WjetsShape);
 
-  RooAddPdf* bkgShapePdf_ = new RooAddPdf("bkgShapePdf","", pdfs, WpJf, false);
+  RooAddPdf* bkgShapePdf_ = new RooAddPdf("bkgShapePdf","", pdfs, coefs, 
+					  false);
 
   matchingUp_mu_file.Close();
   matchingUp_el_file.Close();
@@ -1317,7 +1344,8 @@ RooAbsPdf* makeTopPairPdf(int channel, const char* PLOTVAR,
   // --------- cross section: 157.5 pb, events_gen = 3701947 (These are summer11 TTJets sample
   // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTop2011DataMCTrig
 
-  TString myselection = TString("0.00004254518*") + TString(cut);
+//   TString myselection = TString("0.00004254518*") + TString(cut);
+  TString myselection = cut;
   TString plotStr = TString::Format("%s*(1+%0.4f)", PLOTVAR, JES_scl2);
 
   if(channel==0 || channel==1) 
@@ -1328,7 +1356,7 @@ RooAbsPdf* makeTopPairPdf(int channel, const char* PLOTVAR,
     tree2->Draw(plotStr+TString(">>th1Top"), myselection, "goff");
 
 
-  ttbarNorm_ = th1Top->Integral() * IntLUMI;
+  ttbarNorm_ = (157.5/3701947) * th1Top->Integral() * IntLUMI;
   cout << "-------- Number of expected ttbar events = " << 
     th1Top->Integral() << " x " << IntLUMI << " = " << ttbarNorm_ << endl;
 
@@ -1365,6 +1393,7 @@ RooAbsPdf* makeSingleTopPdf(int channel, const char* PLOTVAR, const char* cut)
   ActivateTreeBranches(*tree4Temp, true);
 
   TH1* th1st = new TH1D("th1st", "th1st",NBINSFORPDF*2,MINRange,MAXRange);
+  th1st->Sumw2();
   // --------- cross section: Tbar - 1.44 pb, events_gen = 137980; T - 3.19 pb, events_gen = 259971
   // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma 
   TString Tbar_selection = TString("0.000010436295*") + TString(cut);
@@ -1492,6 +1521,7 @@ RooAbsPdf* makeQCDPdf(int channel, const char* PLOTVAR, const char* cut)
   // char scale[50];
   TH1* th1qcdMu = new TH1D("th1qcdMu", "th1qcdMu", NBINSFORPDF/2, 
 			   MINRange, MAXRange);
+  th1qcdMu->Sumw2();
   TString plotStr = TString::Format("%s*(1+%0.4f)", PLOTVAR, JES_scl2);
 
   //sprintf(scale, "%f", 3.37633517955429532e-03);
@@ -1525,7 +1555,7 @@ RooAbsPdf* makeQCDPdf(int channel, const char* PLOTVAR, const char* cut)
   //     cout << " ----- num. mu QCD events = " << th1qcdMu->Integral() << endl;
   //     cout << " ----- num. ele QCD events = " << th1qcdEle->Integral() << endl;
 
-  th1qcd->Scale( 1./ th1qcd->Integral() );
+  // th1qcd->Scale( 1./ th1qcd->Integral() );
 
   RooDataHist* rdhqcd = new RooDataHist("rdhqcd","", *mjj_, th1qcd);
   RooAbsPdf* qcdPdf_ = new RooHistPdf("qcdPdf","",
@@ -1570,7 +1600,8 @@ RooAbsPdf* makeZJetsPdf(int channel, const char* PLOTVAR,
   // ---------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTop2011DataMCTrig 
   // ----------- https://twiki.cern.ch/twiki/bin/view/CMS/StandardModelCrossSections
 
-  TString myselection = TString("0.000084017952387*") + TString(cut);
+//   TString myselection = TString("0.000084017952387*") + TString(cut);
+  TString myselection = cut;
   TString plotStr = TString::Format("%s*(1+%0.4f)", PLOTVAR, JES_scl2);
 
   if(channel==0 || channel==1) 
@@ -1581,7 +1612,7 @@ RooAbsPdf* makeZJetsPdf(int channel, const char* PLOTVAR,
     tree2->Draw(plotStr+TString(">>th1ZJets"), myselection, "goff");
 
 
-  zjetsNorm_ = th1ZJets->Integral() * IntLUMI;
+  zjetsNorm_ = (3048./36277961.) * th1ZJets->Integral() * IntLUMI;
   cout << "-------- Number of expected zjets events = " << 
     th1ZJets->Integral() << " x " << IntLUMI << " = " << zjetsNorm_ << endl;
 

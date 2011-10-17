@@ -21,16 +21,23 @@ if opts.P > 3:
     print 'precision cannot be better than 10^-3'
     opts.P = 3
 cmdRoot = ['root', '-l', '-b', '-q', 'RooWjjFitterNew.C+(0,0.,true,false,false,{0})'.format(opts.Nj)]
-cmdGrepChi = ['grep', '^ \*\*\* chi']
+cmdGrepChi = ['grep', '^ \*\*\* ']
 
-optVars = ['fSU', 'fMU']
+optVars = { 'fSU' : 0.0, 'fMU' : 0.0 }
 ## optVars = ['fSU']
 
-from ROOT import TGraph, TF1, gPad, TFile
+from ROOT import TGraph, TF1, gPad, TFile, Double
 
 outf = TFile('optimization{0}.root'.format(opts.Nj), 'recreate')
 keepIterating = True
 iteration = -1
+
+for optVar in optVars:
+    initFile = open(opts.startingFile).readlines()
+    for line in initFile:
+        found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
+        if found:
+            optVars[optVar] = float(found.group(1))
 
 #for iteration in range(0, 2):
 while keepIterating:
@@ -42,9 +49,9 @@ while keepIterating:
     if iteration > 0:
         step = step/10.
     if iteration > 1:
-        step = step/2**(iteration-1).
-    if step < 10**(-opts.P):
-        step = 10**(-opts.P)
+        step = step/2**(iteration-1)
+    if step < 10**(-opts.P+1):
+        step = 10**(-opts.P+1)
     for optVar in optVars:
         initFile = open(opts.startingFile).readlines()
         for line in initFile:
@@ -56,11 +63,26 @@ while keepIterating:
             start -= 2*step
         else:
             start = 0.
+        if start < 0.:
+            start = 0.
 
         optGraph = TGraph(Npts)
         optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
+        SetPoints = 0
+        minchi2 = 10000.
+        minVal = 0.
         for point in range(0, Npts):
             newVal = start + step*point
+            theSum = 0.
+            for tmpVar in optVars:
+                if tmpVar == optVar:
+                    theSum += newVal
+                else:
+                    theSum += optVars[tmpVar]
+            if theSum > 1.0:
+                continue
+
+            SetPoints += 1
             testFile = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
                                '{0} = {1:.3f}'.format(optVar, newVal), x) \
                         for x in initFile]
@@ -81,12 +103,35 @@ while keepIterating:
             dof = float(chi2match.group(5))
             prob = float(re.search('probability = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)', output).group(1))
             print 'chi2:', chi2, 'dof:', dof, 'prob:', prob
+            if chi2 < minchi2:
+                minchi2 = chi2
+                minVal = newVal
             optGraph.SetPoint(point, newVal, chi2)
-        parabolaFit = TF1("parabFit", "x*x++x++1", start, newVal)
-        optGraph.Fit(parabolaFit)
-        bestVal = -1.*parabolaFit.GetParameter(1)/2./parabolaFit.GetParameter(0)
-        print 'old minimum:',oldVal,'new minimum:', bestVal
 
+        optGraph.Set(SetPoints)
+        bestVal = minVal
+        if SetPoints > 2:
+            parabolaFit = TF1("parabFit", "x*x++x++1", start, newVal)
+            optGraph.Fit(parabolaFit)
+            if (parabolaFit.GetParameter(0) > 0):
+                bestVal = -1.*parabolaFit.GetParameter(1)/2./parabolaFit.GetParameter(0)
+            else:
+                bestVal = minVal
+        if bestVal > 1.0:
+            bestVal = 1.0
+        if bestVal < 0.:
+            bestVal = 0.
+        theSum = 0.
+        for tmpVar in optVars:
+            if tmpVar == optVar:
+                theSum += bestVal
+            else:
+                theSum += optVars[tmpVar]
+        if theSum > 1.0:
+            bestVal = minVal
+
+        print 'old minimum:',oldVal,'new minimum:', bestVal
+        optVars[optVar] = bestVal
         newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
                            '{0} = {1:.3f}'.format(optVar, bestVal), x) \
                     for x in open(opts.startingFile).readlines()]
