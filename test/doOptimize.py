@@ -2,6 +2,7 @@
 
 import subprocess
 import re
+import sys
 
 from optparse import OptionParser
 
@@ -28,120 +29,199 @@ optVars = { 'fSU' : 0.0, 'fMU' : 0.0 }
 
 from ROOT import TGraph, TF1, gPad, TFile, Double
 
-outf = TFile('optimization{0}.root'.format(opts.Nj), 'recreate')
-keepIterating = True
-iteration = -1
+Npts = 6
 
-for optVar in optVars:
-    initFile = open(opts.startingFile).readlines()
+def optimizeVar (optVar, start, step, iteration):
+
+    optGraph = TGraph(Npts)
+    optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
+    SetPoints = 0
+    minchi2 = 10000.
+    minVal = 0.
+    for point in range(0, Npts):
+        newVal = start + step*point
+##         theSum = sumPts(optVar, newVal)
+##         if theSum > 1.0:
+##             continue
+
+        SetPoints += 1
+
+        writeValToFile(optVar, newVal, opts.startingFile, 'tmpInit.txt')
+##         testFile = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
+##                            '{0} = {1:.3f}'.format(optVar, newVal), x) \
+##                     for x in initFile]
+##         print ''.join(testFile)
+##         tmpInit = open('tmpInit.txt', 'w')
+##         tmpInit.writelines(testFile)
+##         tmpInit.close()
+
+##         print optVar,'=',newVal
+        printPts(optVar, newVal)
+        p1 = subprocess.Popen(cmdRoot, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(cmdGrepChi, stdin=p1.stdout,
+                              stdout=subprocess.PIPE)
+        p1.stdout.close()
+        output = p2.communicate()[0]
+
+        print output
+        chi2match = re.search('dof = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)/(\d+)', output)
+        chi2 = float(chi2match.group(1))
+        dof = float(chi2match.group(5))
+        prob = float(re.search('probability = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)', output).group(1))
+        nll = float(re.search('nll = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)', output).group(1))
+        print 'chi2:', chi2, 'dof:', dof, 'prob:', prob, 'nll:',nll
+        if nll < minchi2:
+            minchi2 = nll
+            minVal = newVal
+        optGraph.SetPoint(point, newVal, nll)
+
+    optGraph.Set(SetPoints)
+    bestVal = minVal
+    if SetPoints > 2:
+        parabolaFit = TF1("parabFit", "x*x++x++1", start, newVal)
+        optGraph.Fit(parabolaFit)
+        if (parabolaFit.GetParameter(0) > 0):
+            bestVal = -1.*parabolaFit.GetParameter(1)/2./parabolaFit.GetParameter(0)
+        else:
+            bestVal = minVal
+    print 'extrapolated optimum for',optVar,':',bestVal
+    if bestVal > 1.0:
+        bestVal = 1.0
+    if bestVal < -1.:
+        bestVal = -1.
+##     theSum = sumPts(optVar, bestVal)
+##     if theSum > 1.0:
+##         bestVal = minVal
+    optGraph.Write()
+
+    return round(bestVal,3)
+
+def readValFromFile(optVar, filename):
+    initFile = open(filename).readlines()
+    retVal = 0.
     for line in initFile:
         found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
         if found:
-            optVars[optVar] = float(found.group(1))
+            retVal = float(found.group(1))
+        if retVal == 0.:
+            found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar.replace('U', 'D')), line)
+            if found:
+                retVal = float(found.group(1))
+                retVal *= -1
+                              
+    return retVal
+    
+def writeValToFile(optVar, newVal, filename, outname = None):
+    if outname == None:
+        outname = filename
+    compliment = optVar.replace('U', 'D')
+    if (newVal >= 0):
+        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
+                           '{0} = {1:.3f}'.format(optVar, newVal), x) \
+                    for x in open(filename).readlines()]
+        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(compliment),
+                           '{0} = {1:.3f}'.format(compliment, 0.), x) \
+                    for x in newStart]
+    else:
+        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(compliment),
+                           '{0} = {1:.3f}'.format(compliment, -1*newVal), x) \
+                    for x in open(filename).readlines()]
+        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
+                           '{0} = {1:.3f}'.format(optVar, 0.), x) \
+                    for x in newStart]
+    newFile = open(outname, 'w')
+    newFile.writelines(newStart)
+    newFile.close()
 
-#for iteration in range(0, 2):
-while keepIterating:
+def sumPts(optVar, newVal):
+    theSum = 0.
+    for tmpVar in optVars:
+        if tmpVar == optVar:
+            theSum += newVal
+        else:
+            theSum += optVars[tmpVar]
+    return theSum
+
+def printPts(optVar, newVal):
+    for tmpVar in optVars:
+        print tmpVar,'=',
+        if tmpVar == optVar:
+            print newVal,
+        else:
+            print optVars[tmpVar],
+        print ',',
+    print
+    
+outf = TFile('optimization{0}.root'.format(opts.Nj), 'recreate')
+keepIterating = True
+iteration = 0
+
+start = 0.
+step = 0.1
+for optVar in optVars:
+    optVars[optVar] = readValFromFile(optVar, opts.startingFile)
+
+optVar = 'fSU'
+start = optVars[optVar]
+oldVal = start
+
+start -= 2*step
+
+if start < -1.:
+    start = -1.
+
+bestVal = optimizeVar(optVar, start, step, iteration)
+
+print 'old minimum:',oldVal,'new minimum:', bestVal
+optVars[optVar] = bestVal
+writeValToFile(optVar, bestVal, opts.startingFile)
+## newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
+##                    '{0} = {1:.3f}'.format(optVar, bestVal), x) \
+##             for x in open(opts.startingFile).readlines()]
+## newFile = open(opts.startingFile, 'w')
+## newFile.writelines(newStart)
+## newFile.close()
+sys.stdout.flush()
+maxIterations = 10
+
+while (keepIterating) and (iteration < maxIterations):
     iteration += 1
     keepIterating = False
-    Npts = 6
-    start = 0.
-    step = 0.1
-    if iteration > 0:
-        step = step/10.
     if iteration > 1:
-        step = step/2**(iteration-1)
+        step = step/10.
+##     if iteration > 2:
+##         step = step/2**(iteration-1)
     if step < 10**(-opts.P+1):
         step = 10**(-opts.P+1)
     for optVar in optVars:
+
         initFile = open(opts.startingFile).readlines()
         for line in initFile:
             found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
             if found:
                 start = float(found.group(1))
         oldVal = start
-        if iteration > 0:
-            start -= 2*step
-        else:
-            start = 0.
-        if start < 0.:
-            start = 0.
+        
+        start -= 2*step
 
-        optGraph = TGraph(Npts)
-        optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
-        SetPoints = 0
-        minchi2 = 10000.
-        minVal = 0.
-        for point in range(0, Npts):
-            newVal = start + step*point
-            theSum = 0.
-            for tmpVar in optVars:
-                if tmpVar == optVar:
-                    theSum += newVal
-                else:
-                    theSum += optVars[tmpVar]
-            if theSum > 1.0:
-                continue
+        if start < -1.:
+            start = -1.
 
-            SetPoints += 1
-            testFile = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-                               '{0} = {1:.3f}'.format(optVar, newVal), x) \
-                        for x in initFile]
-            print ''.join(testFile)
-            tmpInit = open('tmpInit.txt', 'w')
-            tmpInit.writelines(testFile)
-            tmpInit.close()
-
-            p1 = subprocess.Popen(cmdRoot, stdout=subprocess.PIPE)
-            p2 = subprocess.Popen(cmdGrepChi, stdin=p1.stdout,
-                                  stdout=subprocess.PIPE)
-            p1.stdout.close()
-            output = p2.communicate()[0]
-
-            print output
-            chi2match = re.search('dof = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)/(\d+)', output)
-            chi2 = float(chi2match.group(1))
-            dof = float(chi2match.group(5))
-            prob = float(re.search('probability = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)', output).group(1))
-            print 'chi2:', chi2, 'dof:', dof, 'prob:', prob
-            if chi2 < minchi2:
-                minchi2 = chi2
-                minVal = newVal
-            optGraph.SetPoint(point, newVal, chi2)
-
-        optGraph.Set(SetPoints)
-        bestVal = minVal
-        if SetPoints > 2:
-            parabolaFit = TF1("parabFit", "x*x++x++1", start, newVal)
-            optGraph.Fit(parabolaFit)
-            if (parabolaFit.GetParameter(0) > 0):
-                bestVal = -1.*parabolaFit.GetParameter(1)/2./parabolaFit.GetParameter(0)
-            else:
-                bestVal = minVal
-        if bestVal > 1.0:
-            bestVal = 1.0
-        if bestVal < 0.:
-            bestVal = 0.
-        theSum = 0.
-        for tmpVar in optVars:
-            if tmpVar == optVar:
-                theSum += bestVal
-            else:
-                theSum += optVars[tmpVar]
-        if theSum > 1.0:
-            bestVal = minVal
+        bestVal = optimizeVar(optVar, start, step, iteration)
 
         print 'old minimum:',oldVal,'new minimum:', bestVal
         optVars[optVar] = bestVal
-        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-                           '{0} = {1:.3f}'.format(optVar, bestVal), x) \
-                    for x in open(opts.startingFile).readlines()]
-        newFile = open(opts.startingFile, 'w')
-        newFile.writelines(newStart)
-        newFile.close()
-        optGraph.Write()
+        writeValToFile(optVar, bestVal, opts.startingFile)
+##         newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
+##                            '{0} = {1:.3f}'.format(optVar, bestVal), x) \
+##                     for x in open(opts.startingFile).readlines()]
+##         newFile = open(opts.startingFile, 'w')
+##         newFile.writelines(newStart)
+##         newFile.close()
         if abs(oldVal-bestVal) > 10**(-opts.P):
             keepIterating = True
-        
+        sys.stdout.flush()
+
     ##     optGraph.Draw('ap*')
     ##     gPad.WaitPrimitive()
 

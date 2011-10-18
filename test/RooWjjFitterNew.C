@@ -482,8 +482,11 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 			       Mass, chi2bins);
 //    std::cout << " *** my chi^2 = " << mychi2 << " ***\n"
 // 	     << " *** my chi^2 bins = " << chi2bins << " ***\n";
-   if (fitResult)
+   double nll = 0.;
+   if (fitResult) {
      chi2bins -= fitResult->floatParsFinal().getSize();
+     nll = fitResult->minNll();
+   }
 //    std::cout << " *** my chi^2 dof = " << chi2bins << " ***\n";
 //    double weightedMC = 0.;
 //    double sumf = 0.;
@@ -522,7 +525,6 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 
 //    chi2 *= weightedMC;
 //    chi2fit = chi2/dof;
-   sprintf(temp, "#chi^{2}/dof = %.4f", mychi2/chi2bins );
 //    chi2Prob = TMath::Prob(chi2, dof);
    if (!doAllPlots) {
      chi2frame->Draw();
@@ -531,6 +533,8 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 	       << mychi2/chi2bins << " ***\n"
 	       << " *** chi^2 probability = " << chi2Prob << " ***\n"
 	       << " *** uncorrected chi^2 = " << chi2 << " ***\n"
+	       << " *** min nll = " << TString::Format("%0.1f", nll) 
+	       << " ***\n"
 	       << "\n";
      params->writeToStream(std::cout, false);
      std::cout << "FitEvents = " << totalPdf.expectedEvents(RooArgSet(Mass)) 
@@ -704,10 +708,7 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    plotlabel7->AddText(temp);
    sprintf(temp, "Z+jets = %.0f #pm %.0f", nZjets.getVal(), nZjets.getError());
    plotlabel8->AddText(temp);
-   // sprintf(temp, "Z#rightarrow#tau#tau = %d (fixed)", nZtautau.getVal());
-   // plotlabel9->AddText(temp);
-   //double chi2fit = frame1->chiSquare("h_total", "h_data", 3)/1.8;
-   sprintf(temp, "#chi^{2}/dof = %.2f",chi2fit );
+   sprintf(temp, "#chi^{2}/dof = %.4f", mychi2/chi2bins );
    plotlabel1000->AddText(temp);
    plotlabel4->Draw();
    plotlabel5->Draw();
@@ -980,9 +981,15 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 
 
    fitResult->Print("v");
-   std::cout << " *** chi^2/dof = " << chi2 << "/" << dof << " = "
-	     << chi2fit << " ***\n *** chi^2 probability = " << chi2Prob
-	     << " ***\n\n";
+   std::cout << "\n *** chi^2/dof = " << mychi2 << "/" << chi2bins << " = "
+	     << mychi2/chi2bins << " ***\n"
+	     << " *** chi^2 probability = " << chi2Prob << " ***\n"
+	     << " *** uncorrected chi^2 = " << chi2 << " ***\n"
+	     << " *** min nll = " << nll << " ***\n"
+	     << "\n";
+   std::cout << "FitEvents = " << totalPdf.expectedEvents(RooArgSet(Mass)) 
+	     << "\n"
+	     << "DataEvents = " << data->sumEntries() << "\n";
 
    cout << "-------- Printing yields in restricted mass range -------" << endl;
    cout << "numDiboson = " << numDiboson << endl;
@@ -1220,14 +1227,14 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
 //   WpJN.push_back(th1wjetsSU->GetEntries());
 
   RooDataHist* rdhWjetsSD = new RooDataHist("rdhWjetsSD","", *mjj_, th1wjetsSD);
-//   RooHistPdf * WjetsShapeSD = new RooHistPdf("WjetsShapeSD", "WjetsShapeSD", 
-// 					     RooArgSet(*shiftedMass),
-// 					     RooArgSet(*mjj_), *rdhWjetsSD);
-//   RooRealVar * fSD = new RooRealVar("fSD", "f_{scaleDown}", 0.0, 0., 1.);
-//   fSD->setError(0.01);
-//   fSD->setConstant();
-//   pdfs.add(*WjetsShapeSD);
-//   coefs.add(*fSD);
+  RooHistPdf * WjetsShapeSD = new RooHistPdf("WjetsShapeSD", "WjetsShapeSD", 
+					     RooArgSet(*shiftedMass),
+					     RooArgSet(*mjj_), *rdhWjetsSD);
+  RooRealVar * fSD = new RooRealVar("fSD", "f_{scaleDown}", 0.0, 0., 1.);
+  fSD->setError(0.01);
+  fSD->setConstant();
+  pdfs.add(*WjetsShapeSD);
+  coefs.add(*fSD);
 //   WpJN.push_back(th1wjetsSD->GetEntries());
 
   RooDataHist* rdhWjetsMU = new RooDataHist("rdhWjetsMU","", *mjj_, th1wjetsMU);
@@ -1242,14 +1249,14 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
 //   WpJN.push_back(th1wjetsMU->GetEntries());
 
   RooDataHist* rdhWjetsMD = new RooDataHist("rdhWjetsMD","", *mjj_, th1wjetsMD);
-//   RooHistPdf * WjetsShapeMD = new RooHistPdf("WjetsShapeMD", "WjetsShapeMD", 
-// 					     RooArgSet(*shiftedMass),
-// 					     RooArgSet(*mjj_), *rdhWjetsMD);
-//   RooRealVar * fMD = new RooRealVar("fMD", "f_{matchingDown}", 0.0, 0., 1.);
-//   fMD->setError(0.01);
-//   fMD->setConstant();
-//   pdfs.add(*WjetsShapeMD);
-//   coefs.add(*fMD);
+  RooHistPdf * WjetsShapeMD = new RooHistPdf("WjetsShapeMD", "WjetsShapeMD", 
+					     RooArgSet(*shiftedMass),
+					     RooArgSet(*mjj_), *rdhWjetsMD);
+  RooRealVar * fMD = new RooRealVar("fMD", "f_{matchingDown}", 0.0, 0., 1.);
+  fMD->setError(0.01);
+  fMD->setConstant();
+  pdfs.add(*WjetsShapeMD);
+  coefs.add(*fMD);
 //   WpJN.push_back(th1wjetsMD->GetEntries());
 
   RooDataHist* rdhWjetsS = new RooDataHist("rdhWjetsS","", *mjj_, th1wjetsS);
