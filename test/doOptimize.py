@@ -16,13 +16,13 @@ parser.add_option('-i', '--init', dest='startingFile',
                   help='File to use as the initial template')
 parser.add_option('-p', '--precision', dest='P', default=3, type='int',
                   help='precision to find minimum 10^-P')
+parser.add_option('-d', '--dir', dest='mcdir', default='',
+                  help='directory to pick up the W+jets shapes')
 (opts, args) = parser.parse_args()
 
 if opts.P > 3:
     print 'precision cannot be better than 10^-3'
     opts.P = 3
-cmdRoot = ['root', '-l', '-b', '-q', 'RooWjjFitterNew.C+(0,0.,true,false,false,{0})'.format(opts.Nj)]
-cmdGrepChi = ['grep', '^ \*\*\* ']
 
 optVars = { 'fSU' : 0.0, 'fMU' : 0.0 }
 ## optVars = ['fSU']
@@ -32,6 +32,12 @@ from ROOT import TGraph, TF1, gPad, TFile, Double
 Npts = 6
 
 def optimizeVar (optVar, start, step, iteration):
+
+    tmpInitFile = 'tmpInit.txt'
+    cmdRoot = ['root', '-l', '-b', '-q',
+               'RooWjjFitterNew.C+(0,0.,true,false,false,{0},"{2}","{1}")'.format(opts.Nj, opts.mcdir, tmpInitFile)
+               ]
+    cmdGrepChi = ['grep', '^ \*\*\* ']
 
     optGraph = TGraph(Npts)
     optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
@@ -46,7 +52,7 @@ def optimizeVar (optVar, start, step, iteration):
 
         SetPoints += 1
 
-        writeValToFile(optVar, newVal, opts.startingFile, 'tmpInit.txt')
+        writeValToFile(optVar, newVal, opts.startingFile, tmpInitFile)
 ##         testFile = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
 ##                            '{0} = {1:.3f}'.format(optVar, newVal), x) \
 ##                     for x in initFile]
@@ -74,6 +80,7 @@ def optimizeVar (optVar, start, step, iteration):
             minchi2 = nll
             minVal = newVal
         optGraph.SetPoint(point, newVal, nll)
+        sys.stdout.flush()
 
     optGraph.Set(SetPoints)
     bestVal = minVal
@@ -175,24 +182,24 @@ bestVal = optimizeVar(optVar, start, step, iteration)
 print 'old minimum:',oldVal,'new minimum:', bestVal
 optVars[optVar] = bestVal
 writeValToFile(optVar, bestVal, opts.startingFile)
+sys.stdout.flush()
 ## newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
 ##                    '{0} = {1:.3f}'.format(optVar, bestVal), x) \
 ##             for x in open(opts.startingFile).readlines()]
 ## newFile = open(opts.startingFile, 'w')
 ## newFile.writelines(newStart)
 ## newFile.close()
-sys.stdout.flush()
-maxIterations = 10
+maxIterations = 9
 
 while (keepIterating) and (iteration < maxIterations):
     iteration += 1
     keepIterating = False
     if iteration > 1:
-        step = step/10.
+        step = step/2.
 ##     if iteration > 2:
 ##         step = step/2**(iteration-1)
-    if step < 10**(-opts.P+1):
-        step = 10**(-opts.P+1)
+    if step < 10**(-opts.P)*3.:
+        step = 10**(-opts.P)*3.
     for optVar in optVars:
 
         initFile = open(opts.startingFile).readlines()
@@ -226,3 +233,6 @@ while (keepIterating) and (iteration < maxIterations):
     ##     gPad.WaitPrimitive()
 
 outf.Close()
+
+print '*** final optimization:',
+printPts(' ', 0.)

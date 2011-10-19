@@ -67,9 +67,10 @@
 #include "ComputeChi2.C"
 
 //const TString MCDirectory = "pTsmeareddata";
-const TString MCDirectory = "data/ReducedTree/NewReducedTree/RD_";
-const TString DataDirectory = "data/ReducedTree/NewReducedTree/RD_";
-const TString NPDirectory = "data/ReducedTree/RD_";
+TString MCDirectory = "data/ReducedTree/NewReducedTree/RD_";
+TString WJetsDirectory = MCDirectory;
+TString DataDirectory = "data/ReducedTree/NewReducedTree/RD_";
+TString NPDirectory = "data/ReducedTree/RD_";
 // const TString QCDDirectory = "data/ReducedTree/TestNewReducedTree/RD_";
 const TString QCDDirectory = "428MC/RD_";
 
@@ -121,7 +122,8 @@ using namespace RooFit;
 
 void RooWjjFitterNarrow(int channel, const char * PLOTVAR, 
 			bool truncateFitRange, bool doAllPlots,
-			bool includeNP, int Njets, TString initParams);
+			bool includeNP, int Njets, TString initParams,
+			bool toyTrees);
 RooAbsPdf*  makeSignalPdf(int channel, const char * PLOTVAR, 
 			  const char * cut="gdevtt");
 RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int syst=0, 
@@ -144,8 +146,14 @@ void ActivateTreeBranches(TTree& t, bool isElectronTree=false);
 
 void RooWjjFitterNew(int channel=0,double JES = 0.0, bool truncRange = false,
 		     bool plotAll = true, bool doNP = false, int Njets = 0,
-		     TString initParams = "initWjjParams.txt") {
+		     TString initParams = "initWjjParams.txt", 
+		     TString MCDir = "") {
 
+  bool toyTrees = false;
+  if (MCDir.Length() > 0) {
+    WJetsDirectory = MCDir;
+    toyTrees = true;
+  }
   JES_scl = JES;
   JES_scl2 = 0.;
 //   JES_scl2 = JES;
@@ -155,14 +163,14 @@ void RooWjjFitterNew(int channel=0,double JES = 0.0, bool truncRange = false,
 //   }
   // gROOT->ProcessLine(".L histInterpolate.cc+");
   RooWjjFitterNarrow(channel, "Mass2j_PFCor", truncRange, plotAll, doNP,
-		     Njets, initParams);
+		     Njets, initParams, toyTrees);
 }
 
 
 ///////// --------- channel 0 : combined,  1: mu,    2: ele --------------
 void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 			bool truncateFitRange, bool doAllPlots, bool includeNP,
-			int Njets, TString initParams)
+			int Njets, TString initParams, bool toyTrees)
 {
 // //2J Default
 // const char* mycuts = "( gdevtt &&(JetPFCor_Pt[0]>40.)&&(sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.)&&(abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2)&&(JetPFCor_bDiscriminator[0]<1.74)&&(JetPFCor_Pt[1]/Mass2j_PFCor>0.3) )";
@@ -279,7 +287,8 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
    // ********** Construct signal & bkg shape PDF ********** //
    RooAbsPdf* signalShapePdf_ = makeSignalPdf(channel, PLOTVAR, mycuts);
    cout << "Made signal pdf" << endl;
-   RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, 0, mycuts);
+   RooAbsPdf *bkgShapePdf_ = makeBkgPdf( channel, PLOTVAR, 0, 
+					 ( (toyTrees)? "" : mycuts ) );
 
   //------- for systematics: q2 up --------
   // RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, 1);
@@ -533,7 +542,7 @@ void RooWjjFitterNarrow(int channel, const char * PLOTVAR,
 	       << mychi2/chi2bins << " ***\n"
 	       << " *** chi^2 probability = " << chi2Prob << " ***\n"
 	       << " *** uncorrected chi^2 = " << chi2 << " ***\n"
-	       << " *** min nll = " << TString::Format("%0.1f", nll) 
+	       << " *** min nll = " << TString::Format("%0.4f", nll) 
 	       << " ***\n"
 	       << "\n";
      params->writeToStream(std::cout, false);
@@ -1098,13 +1107,13 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   // setTheHist(CorrectionFactor);
 
   // W+jets pdf
-  TFile* wjetsShape_mu_file =  new TFile(MCDirectory + "mu_WpJ_CMSSW428.root", "READ");
+  TFile* wjetsShape_mu_file =  new TFile(WJetsDirectory + "mu_WpJ_CMSSW428.root", "READ");
   TTree * tree1 = (TTree*) wjetsShape_mu_file->Get("WJet");
   // ActivateTreeBranches(*treeTemp);
   // gROOT->cd();
   // TTree* tree1 = treeTemp->CopyTree(cut);
 
-  TFile* wjetsShape_ele_file =  new TFile(MCDirectory + "el_WpJ_CMSSW428.root", "READ");
+  TFile* wjetsShape_ele_file =  new TFile(WJetsDirectory + "el_WpJ_CMSSW428.root", "READ");
   TTree * tree2 = (TTree*) wjetsShape_ele_file->Get("WJet");
   // ActivateTreeBranches(*treeTemp, true);
   // gROOT->cd();
@@ -1124,40 +1133,40 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   // if(syst==2)  
   //    weight = "(1.353 - 0.01078*Mass2j_PFCor + 0.00008975*Mass2j_PFCor*Mass2j_PFCor - 0.0000002139*Mass2j_PFCor*Mass2j_PFCor*Mass2j_PFCor)*";
 
-  TFile matchingUp_mu_file(MCDirectory + "mu_WpJmatchingup_CMSSW428.root");
+  TFile matchingUp_mu_file(WJetsDirectory + "mu_WpJmatchingup_CMSSW428.root");
   TTree * muTree1;
   matchingUp_mu_file.GetObject("WJet", muTree1);
-  TFile matchingUp_el_file(MCDirectory + "el_WpJmatchingup_CMSSW428.root");
+  TFile matchingUp_el_file(WJetsDirectory + "el_WpJmatchingup_CMSSW428.root");
   TTree * muTree2;
   matchingUp_el_file.GetObject("WJet", muTree2);
 
-  TFile matchingDown_mu_file(MCDirectory + "mu_WpJmatchingdown_CMSSW428.root");
+  TFile matchingDown_mu_file(WJetsDirectory + "mu_WpJmatchingdown_CMSSW428.root");
   TTree * mdTree1;
   matchingDown_mu_file.GetObject("WJet", mdTree1);
-  TFile matchingDown_el_file(MCDirectory + "el_WpJmatchingdown_CMSSW428.root");
+  TFile matchingDown_el_file(WJetsDirectory + "el_WpJmatchingdown_CMSSW428.root");
   TTree * mdTree2;
   matchingDown_el_file.GetObject("WJet", mdTree2);
 
-  TFile scaleUp_mu_file(MCDirectory + "mu_WpJscaleup_CMSSW428.root");
+  TFile scaleUp_mu_file(WJetsDirectory + "mu_WpJscaleup_CMSSW428.root");
   TTree * suTree1;
   scaleUp_mu_file.GetObject("WJet", suTree1);
-  TFile scaleUp_el_file(MCDirectory + "el_WpJscaleup_CMSSW428.root");
+  TFile scaleUp_el_file(WJetsDirectory + "el_WpJscaleup_CMSSW428.root");
   TTree * suTree2;
   scaleUp_el_file.GetObject("WJet", suTree2);
 
-  TFile scaleDown_mu_file(MCDirectory + "mu_WpJscaledown_CMSSW428.root");
+  TFile scaleDown_mu_file(WJetsDirectory + "mu_WpJscaledown_CMSSW428.root");
   TTree * sdTree1;
   scaleDown_mu_file.GetObject("WJet", sdTree1);
-  TFile scaleDown_el_file(MCDirectory + "el_WpJscaledown_CMSSW428.root");
+  TFile scaleDown_el_file(WJetsDirectory + "el_WpJscaledown_CMSSW428.root");
   TTree * sdTree2;
   scaleDown_el_file.GetObject("WJet", sdTree2);
 
-  TFile sherpa_mu_file(MCDirectory + "mu_WpJsherpa_CMSSW428.root");
-  TTree * sTree1;
-  sherpa_mu_file.GetObject("WJet", sTree1);
-  TFile sherpa_el_file(MCDirectory + "el_WpJsherpa_CMSSW428.root");
-  TTree * sTree2;
-  sherpa_el_file.GetObject("WJet", sTree2);
+//   TFile sherpa_mu_file(WJetsDirectory + "mu_WpJsherpa_CMSSW428.root");
+//   TTree * sTree1;
+//   sherpa_mu_file.GetObject("WJet", sTree1);
+//   TFile sherpa_el_file(WJetsDirectory + "el_WpJsherpa_CMSSW428.root");
+//   TTree * sTree2;
+//   sherpa_el_file.GetObject("WJet", sTree2);
 
   gROOT->cd();
 
@@ -1171,7 +1180,7 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   TH1* th1wjetsMD = (TH1D*)th1wjets->Clone("th1wjetsMD");
   TH1* th1wjetsSU = (TH1D*)th1wjets->Clone("th1wjetsSU");
   TH1* th1wjetsSD = (TH1D*)th1wjets->Clone("th1wjetsSD");
-  TH1* th1wjetsS = (TH1D*)th1wjets->Clone("th1wjetsS");
+//   TH1* th1wjetsS = (TH1D*)th1wjets->Clone("th1wjetsS");
 
   TString plotStr = TString::Format("%s*(1+%0.4f)", PLOTVAR, JES_scl2);
 
@@ -1181,7 +1190,7 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
      mdTree1->Draw(plotStr+">>th1wjetsMD", myselection, "goff");
      suTree1->Draw(plotStr+">>th1wjetsSU", myselection, "goff");
      sdTree1->Draw(plotStr+">>th1wjetsSD", myselection, "goff");
-     sTree1->Draw(plotStr+">>th1wjetsS", myselection, "goff");
+//      sTree1->Draw(plotStr+">>th1wjetsS", myselection, "goff");
   }
   if(channel==0) {
      tree2->Draw(plotStr+TString(">>+th1wjets"), myselection, "goff");
@@ -1189,7 +1198,7 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
      mdTree2->Draw(plotStr+">>+th1wjetsMD", myselection, "goff");
      suTree2->Draw(plotStr+">>+th1wjetsSU", myselection, "goff");
      sdTree2->Draw(plotStr+">>+th1wjetsSD", myselection, "goff");
-     sTree2->Draw(plotStr+">>+th1wjetsS", myselection, "goff");
+//      sTree2->Draw(plotStr+">>+th1wjetsS", myselection, "goff");
   }
   if(channel==2) {
      tree2->Draw(plotStr+TString(">>th1wjets"), myselection, "goff");
@@ -1197,7 +1206,7 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
      mdTree2->Draw(plotStr+">>th1wjetsMD", myselection, "goff");
      suTree2->Draw(plotStr+">>th1wjetsSU", myselection, "goff");
      sdTree2->Draw(plotStr+">>th1wjetsSD", myselection, "goff");
-     sTree2->Draw(plotStr+">>th1wjetsS", myselection, "goff");
+//      sTree2->Draw(plotStr+">>th1wjetsS", myselection, "goff");
   }
 
 //   NMC_WpJ_=th1wjets->GetEntries();
@@ -1259,7 +1268,7 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   coefs.add(*fMD);
 //   WpJN.push_back(th1wjetsMD->GetEntries());
 
-  RooDataHist* rdhWjetsS = new RooDataHist("rdhWjetsS","", *mjj_, th1wjetsS);
+//   RooDataHist* rdhWjetsS = new RooDataHist("rdhWjetsS","", *mjj_, th1wjetsS);
 //   RooHistPdf * WjetsShapeS = new RooHistPdf("WjetsShapeS", "WjetsShapeS", 
 // 					     RooArgSet(*shiftedMass),
 // 					     RooArgSet(*mjj_), *rdhWjetsS);
@@ -1297,7 +1306,7 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, int /*syst*/,
   rdhWjetsMD->Print();
   rdhWjetsSU->Print();
   rdhWjetsSD->Print();
-  rdhWjetsS->Print();
+//   rdhWjetsS->Print();
 
   // wjf->Draw();
   // shapeLeg.Draw();
