@@ -93,12 +93,12 @@ void grabDataSubtractedHistograms(int nJet, int massRange) {
   TFile* systFileUp = new TFile( dirName + TString("SystUp/") + fitFileName+".root", "read");
   TCanvas* systFileUpCan = (TCanvas*) systFileUp->Get( fitFileName );
   RooCurve* fit_wjj_systUp = (RooCurve*) systFileUpCan->FindObject( "h_Wjets" );
-
+  RooCurve* fit_systUp = (RooCurve*) systFileUpCan->FindObject( "h_total" );
 
   TFile* systFileDown = new TFile( dirName + TString("SystDown/") + fitFileName+".root", "read");
   TCanvas* systFileDownCan = (TCanvas*) systFileDown->Get( fitFileName );
   RooCurve* fit_wjj_systDown = (RooCurve*) systFileDownCan->FindObject( "h_Wjets" );
-
+  RooCurve* fit_systDown = (RooCurve*) systFileDownCan->FindObject("h_total");
 
 
   ///// Now save everything ///////////////
@@ -115,7 +115,8 @@ void grabDataSubtractedHistograms(int nJet, int massRange) {
   fit_Zjets->SetName(  outPrefix+"curve_Zjets" );
   fit_wjj_systUp->SetName( outPrefix+"curve_WJets_SystUp" );
   fit_wjj_systDown->SetName( outPrefix+"curve_WJets_SystDown" );
-
+  fit_systUp->SetName( outPrefix+"curve_fitTotal_SystUp" );
+  fit_systDown->SetName( outPrefix+"curve_fitTotal_SystDown" );
 
   
   f.cd();
@@ -128,6 +129,8 @@ void grabDataSubtractedHistograms(int nJet, int massRange) {
   fit_Zjets->Write();
   fit_wjj_systUp->Write();
   fit_wjj_systDown->Write();
+  fit_systUp->Write();
+  fit_systDown->Write();
 
   f.Close();
   delete fitFile;
