@@ -80,7 +80,7 @@ const double MINRange = 60.0;
 const double MAXRange = 300.0;
 //const double MAXRange = 120.0;
 
-int BINWIDTH = 10;
+double BINWIDTH = 10;
 //const int BINWIDTH = 5;
 const bool includeNuisancePDF = true;
 //const bool drawSystematics = true;

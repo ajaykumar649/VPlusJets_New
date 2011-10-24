@@ -18,6 +18,8 @@ parser.add_option('-p', '--precision', dest='P', default=3, type='int',
                   help='precision to find minimum 10^-P')
 parser.add_option('-d', '--dir', dest='mcdir', default='',
                   help='directory to pick up the W+jets shapes')
+parser.add_option('--channel', dest='channel', default='RooWjjFitterNew.C',
+                  help='which fitter to use.')
 (opts, args) = parser.parse_args()
 
 if opts.P > 3:
@@ -34,10 +36,13 @@ Npts = 6
 def optimizeVar (optVar, start, step, iteration):
 
     tmpInitFile = 'tmpInit.txt'
+    tmpOutputFile = 'tmpFit.out'
     cmdRoot = ['root', '-l', '-b', '-q',
-               'RooWjjFitterNew.C+(0,0.,true,false,false,{0},"{2}","{1}")'.format(opts.Nj, opts.mcdir, tmpInitFile)
+               '{3}+(0,0.,true,false,false,{0},"{2}","{1}")'.format(opts.Nj, opts.mcdir, tmpInitFile, opts.channel)
                ]
-    cmdGrepChi = ['grep', '^ \*\*\* ']
+    cmdGrepChi = ['grep', '^ \*\*\* ', tmpOutputFile]
+
+    print ' '.join(cmdRoot)
 
     optGraph = TGraph(Npts)
     optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
@@ -50,26 +55,22 @@ def optimizeVar (optVar, start, step, iteration):
 ##         if theSum > 1.0:
 ##             continue
 
-        SetPoints += 1
-
         writeValToFile(optVar, newVal, opts.startingFile, tmpInitFile)
-##         testFile = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-##                            '{0} = {1:.3f}'.format(optVar, newVal), x) \
-##                     for x in initFile]
-##         print ''.join(testFile)
-##         tmpInit = open('tmpInit.txt', 'w')
-##         tmpInit.writelines(testFile)
-##         tmpInit.close()
 
-##         print optVar,'=',newVal
         printPts(optVar, newVal)
-        p1 = subprocess.Popen(cmdRoot, stdout=subprocess.PIPE)
-        p2 = subprocess.Popen(cmdGrepChi, stdin=p1.stdout,
-                              stdout=subprocess.PIPE)
-        p1.stdout.close()
+        tmpOutput = open(tmpOutputFile, 'w')
+        p1 = subprocess.Popen(cmdRoot, stdout=tmpOutput)
+        p1.communicate()
+        tmpOutput.close()
+        p2 = subprocess.Popen(cmdGrepChi, stdout=subprocess.PIPE)
         output = p2.communicate()[0]
 
+        print "Root return code:",p1.returncode,\
+              "grep return code:",p2.returncode
         print output
+        if (p1.returncode != 0) or (p2.returncode != 0):
+            continue
+        
         chi2match = re.search('dof = ([-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?)/(\d+)', output)
         chi2 = float(chi2match.group(1))
         dof = float(chi2match.group(5))
@@ -79,7 +80,8 @@ def optimizeVar (optVar, start, step, iteration):
         if nll < minchi2:
             minchi2 = nll
             minVal = newVal
-        optGraph.SetPoint(point, newVal, nll)
+        optGraph.SetPoint(SetPoints, newVal, nll)
+        SetPoints += 1
         sys.stdout.flush()
 
     optGraph.Set(SetPoints)
@@ -104,18 +106,22 @@ def optimizeVar (optVar, start, step, iteration):
     return round(bestVal,3)
 
 def readValFromFile(optVar, filename):
+    compliment = optVar.replace('U','D')
     initFile = open(filename).readlines()
     retVal = 0.
+    compVal = 0.
     for line in initFile:
         found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
         if found:
             retVal = float(found.group(1))
-        if retVal == 0.:
-            found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar.replace('U', 'D')), line)
-            if found:
-                retVal = float(found.group(1))
-                retVal *= -1
-                              
+##             print 'found',optVar,':',retVal
+        found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(compliment),line)
+        if found:
+            compVal = float(found.group(1))
+##             print 'found',compliment,':',compVal
+    if (compVal > retVal):
+        retVal = -1*compVal
+##     print 'looking for',optVar,'found:',retVal
     return retVal
     
 def writeValToFile(optVar, newVal, filename, outname = None):
@@ -168,6 +174,8 @@ step = 0.1
 for optVar in optVars:
     optVars[optVar] = readValFromFile(optVar, opts.startingFile)
 
+print optVars
+
 optVar = 'fSU'
 start = optVars[optVar]
 oldVal = start
@@ -183,30 +191,20 @@ print 'old minimum:',oldVal,'new minimum:', bestVal
 optVars[optVar] = bestVal
 writeValToFile(optVar, bestVal, opts.startingFile)
 sys.stdout.flush()
-## newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-##                    '{0} = {1:.3f}'.format(optVar, bestVal), x) \
-##             for x in open(opts.startingFile).readlines()]
-## newFile = open(opts.startingFile, 'w')
-## newFile.writelines(newStart)
-## newFile.close()
 maxIterations = 9
 
 while (keepIterating) and (iteration < maxIterations):
     iteration += 1
     keepIterating = False
     if iteration > 1:
-        step = step/2.
+        step = round(step/2., 3)
 ##     if iteration > 2:
 ##         step = step/2**(iteration-1)
     if step < 10**(-opts.P)*3.:
         step = 10**(-opts.P)*3.
     for optVar in optVars:
 
-        initFile = open(opts.startingFile).readlines()
-        for line in initFile:
-            found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
-            if found:
-                start = float(found.group(1))
+        start = optVars[optVar]
         oldVal = start
         
         start -= 2*step
@@ -219,12 +217,6 @@ while (keepIterating) and (iteration < maxIterations):
         print 'old minimum:',oldVal,'new minimum:', bestVal
         optVars[optVar] = bestVal
         writeValToFile(optVar, bestVal, opts.startingFile)
-##         newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-##                            '{0} = {1:.3f}'.format(optVar, bestVal), x) \
-##                     for x in open(opts.startingFile).readlines()]
-##         newFile = open(opts.startingFile, 'w')
-##         newFile.writelines(newStart)
-##         newFile.close()
         if abs(oldVal-bestVal) > 10**(-opts.P):
             keepIterating = True
         sys.stdout.flush()
