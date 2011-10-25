@@ -7,11 +7,14 @@
 
 #include "TString.h"
 #include "RooWorkspace.h"
+#include "RooHist.h"
+#include "RooAbsPdf.h"
+#include "RooRealVar.h"
+#include "RooHistPdf.h"
+#include "RooAddPdf.h"
 
 class TH1;
 class RooAbsReal;
-class RooRealVar;
-class RooHistPdf;
 class RooDataHist;
 class RooDataSet;
 
@@ -47,9 +50,14 @@ public:
 
   void setJES_scale(unsigned int i, double jes);
 
-private:
+  static double computeChi2(RooHist& hist, RooAbsPdf& pdf, RooRealVar& obs, 
+			    int& nbin);
+
+protected:
 
   void updatenjets();
+  static double sig2(RooAddPdf& pdf, RooRealVar& obs, double Nbin);
+  static double sig2(RooHistPdf& pdf, RooRealVar& obs, double Nbin);
 
   int nbins_;
   double histmin_, histmax_;

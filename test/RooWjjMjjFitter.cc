@@ -19,6 +19,7 @@
 #include "RooHistPdf.h"
 #include "RooGaussian.h"
 #include "RooConstVar.h"
+#include "RooPlot.h"
 
 // #include "ComputeChi2.C"
 
@@ -49,25 +50,7 @@ RooFitResult * RooWjjMjjFitter::fit() {
   RooAbsPdf * totalPdf = makeFitter();
   RooRealVar * mass = ws_.var(params_.var);
 
-  RooDataSet data("data", "data", RooArgSet(*mass));
-  QCDNorm_ = 0.;
-  if (params_.includeMuons) {
-    RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
-					   params_.muonData, "data_muon");
-    mds->Print();
-    QCDNorm_ += 0.08*mds->sumEntries();
-    data.append(*mds);
-    delete mds;
-  }
-  if (params_.includeElectrons) {
-    RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
-					   params_.muonData, "data_electron");
-    eds->Print();
-    QCDNorm_ += 0.3*eds->sumEntries();
-    data.append(*eds);
-    delete eds;
-  }
-  ws_.import(data);
+  RooAbsData * data = loadData();
   cout << "Made dataset" << endl;
 
   std::cout << "-------- Number of expected QCD events: " << QCDNorm_
@@ -77,21 +60,17 @@ RooFitResult * RooWjjMjjFitter::fit() {
    mass->setRange("highSideBand", params_.maxTrunc, params_.maxMass);
 
    // const char* rangeString = "Range55To250";
-   TString rangeString = "";
+   rangeString_ = "";
    if (params_.truncRange) 
-      rangeString = "lowSideBand,highSideBand";
+      rangeString_ = "lowSideBand,highSideBand";
 
    RooFitResult *fitResult = 0;
 
-   RooRealVar * nQCD = ws_.var("nQCD");
-   nQCD->setVal(QCDNorm_);
-   nQCD->setError(QCDNorm_*0.5);
-
+   resetYields();
    RooArgSet * params = totalPdf->getParameters(data);
-   if (params_.constraintParamsFile.Length() > 0) {
-     params->readFromFile(params_.constraintParamsFile);
-   }
+   loadParameters(params_.constraintParamsFile);
 
+   RooRealVar * nQCD = ws_.var("nQCD");
    RooGaussian constQCD("constQCD","constQCD", *nQCD, RooConst(nQCD->getVal()),
 			RooConst(nQCD->getError())) ;
    RooRealVar * nTTbar = ws_.var("nTTbar");
@@ -118,10 +97,10 @@ RooFitResult * RooWjjMjjFitter::fit() {
    exConstraints.add(constSingleTop);
    exConstraints.add(constZpJ);
    exConstraints.add(constQCD);
-   exConstraints.add(constDiboson);
+   if (params_.constrainDiboson) 
+     exConstraints.add(constDiboson);
 
-   if (params_.initParamsFile.Length() > 0)
-     params->readFromFile(params_.initParamsFile);
+   loadParameters(params_.initParamsFile);
 
    std::cout << "\n***External constraints***\n";
    TIter con(exConstraints.createIterator());
@@ -130,13 +109,13 @@ RooFitResult * RooWjjMjjFitter::fit() {
      tc->Print();
    std::cout << "*** ***\n\n";
    
-   fitResult = totalPdf->fitTo(data, Save(true), 
+   fitResult = totalPdf->fitTo(*data, Save(true), 
 			       ExternalConstraints(exConstraints),
 			       RooFit::Extended(true), 
 			       RooFit::Minos(false), 
 			       RooFit::Hesse(true),
 			       PrintEvalErrors(-1),
-			       RooFit::Range(rangeString),
+			       RooFit::Range(rangeString_),
 			       Warnings(false) 
 			       );
 
@@ -145,6 +124,56 @@ RooFitResult * RooWjjMjjFitter::fit() {
 
    delete params;
    return fitResult;
+}
+
+RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
+
+  RooRealVar * mass = ws_.var(params_.var);
+  RooPlot * chi2frame = mass->frame(params_.minMass, params_.maxMass,
+				    params_.nbins);
+  mass->setRange("RangeForPlot", params_.minMass, params_.maxMass);
+  RooAbsData * data = ws_.data("data");
+  RooAbsPdf * totalPdf = ws_.pdf("totalPdf");
+
+  data->plotOn(chi2frame, //RooFit::DataError(errorType), 
+	       RooFit::Invisible(),
+	       RooFit::Name("h_data"), RooFit::MarkerColor(kRed));
+  totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
+		   RooFit::Name("h_total"),
+		   RooFit::Invisible(),
+		   ( (rangeString_.Length() > 0)? 
+		     RooFit::NormRange("RangeForPlot") :
+		     RooCmdArg::none() ),
+		   ( (rangeString_.Length() > 0)? 
+		     RooFit::Range("RangeForPlot", false) :
+		     RooCmdArg::none() )
+		   );
+  totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
+		   RooFit::Name("h_fit"),
+		   ( (rangeString_.Length() > 0)? 
+		     RooFit::NormRange(rangeString_) :
+		     RooCmdArg::none() ),
+		   ( (rangeString_.Length() > 0)? 
+		     RooFit::Range(rangeString_) :
+		     RooCmdArg::none() )
+		   );
+  data->plotOn( chi2frame, //RooFit::DataError(errorType),
+		RooFit::Name("theData"),
+		(rangeString_.Length() > 0)? RooFit::CutRange(rangeString_) :
+		RooCmdArg::none() 
+		);
+  int chi2bins;
+  chi2 = RooWjjFitterUtils::computeChi2(*(chi2frame->getHist("theData")),
+					*totalPdf, *mass, chi2bins);
+
+  chi2bins -= ndf;
+  std::cout << "\n *** chi^2/dof = " << chi2 << "/" << chi2bins << " = " 
+	    << chi2/chi2bins << " ***\n"
+	    << " *** chi^2 probability = " << TMath::Prob(chi2, chi2bins)
+	    << " ***\n\n";
+
+  ndf = chi2bins;
+  return chi2frame;
 }
 
 RooAbsPdf * RooWjjMjjFitter::makeFitter() {
@@ -191,6 +220,35 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter() {
   ws_.import(totalPdf);
 
   return ws_.pdf("totalPdf"); 
+}
+
+RooAbsData * RooWjjMjjFitter::loadData() {
+  if (ws_.data("data"))
+    return ws_.data("data");
+
+  RooRealVar * mass = ws_.var(params_.var);
+
+  RooDataSet data("data", "data", RooArgSet(*mass));
+  QCDNorm_ = 0.;
+  if (params_.includeMuons) {
+    RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
+					   params_.muonData, "data_muon");
+    mds->Print();
+    QCDNorm_ += 0.008*mds->sumEntries();
+    data.append(*mds);
+    delete mds;
+  }
+  if (params_.includeElectrons) {
+    RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
+					   params_.muonData, "data_electron");
+    eds->Print();
+    QCDNorm_ += 0.03*eds->sumEntries();
+    data.append(*eds);
+    delete eds;
+  }
+  ws_.import(data);
+
+  return ws_.data("data");
 }
 
 RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
@@ -632,4 +690,32 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   RooAbsPdf * NPPdf = utils_.Hist2Pdf(&th1NP, "NPPdf", ws_);
 
   return NPPdf;
+}
+
+void RooWjjMjjFitter::loadParameters(TString const& fname) {
+  
+  if (fname.Length() > 0) {
+    RooArgSet * params = ws_.pdf("totalPdf")->getParameters(ws_.data("data"));
+    params->readFromFile(fname);
+    delete params;
+  }
+}
+
+void RooWjjMjjFitter::resetYields() {
+  ws_.var("nWjets")->setVal(initWjets_);
+  ws_.var("nWjets")->setError(TMath::Sqrt(initWjets_));
+  ws_.var("nDiboson")->setVal(initDiboson_);
+  ws_.var("nDiboson")->setError(initDiboson_*0.15);
+  ws_.var("nTTbar")->setVal(ttbarNorm_);
+  ws_.var("nTTbar")->setError(ttbarNorm_*0.1);
+  ws_.var("nSingleTop")->setVal(singleTopNorm_);
+  ws_.var("nSingleTop")->setError(singleTopNorm_*0.1);
+  ws_.var("nQCD")->setVal(QCDNorm_);
+  ws_.var("nQCD")->setError(QCDNorm_*0.5);
+  ws_.var("nZjets")->setVal(zjetsNorm_);
+  ws_.var("nZjets")->setError(zjetsNorm_*0.15);
+  if (params_.doNewPhysics) {
+    ws_.var("nNP")->setVal( 0. );
+    ws_.var("nNP")->setError(100.);
+  }
 }

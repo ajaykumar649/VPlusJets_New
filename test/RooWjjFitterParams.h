@@ -40,6 +40,7 @@ public:
   TString muonData;
   TString electronData;
   double intLumi;
+  bool constrainDiboson;
 };
 
 RooWjjFitterParams::RooWjjFitterParams() :
@@ -53,7 +54,7 @@ RooWjjFitterParams::RooWjjFitterParams() :
   cuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
   electronData("WenuJets_DataAll_GoldenJSON_2p1invfb.root"),
-  intLumi(2100.)
+  intLumi(2100.), constrainDiboson(true)
 {
 }
 
@@ -72,7 +73,8 @@ RooWjjFitterParams::RooWjjFitterParams(RooWjjFitterParams const& other) :
   constraintParamsFile(other.constraintParamsFile),
   cuts(other.cuts), var(other.var), treeName(other.treeName),
   toyWpJ(other.toyWpJ), muonData(other.muonData), 
-  electronData(other.electronData), intLumi(other.intLumi)
+  electronData(other.electronData), intLumi(other.intLumi),
+  constrainDiboson(other.constrainDiboson)
 {
 }
 

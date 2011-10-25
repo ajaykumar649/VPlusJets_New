@@ -17,7 +17,10 @@ public:
   virtual ~RooWjjMjjFitter() { }
 
   RooFitResult * fit();
+  RooPlot * computeChi2(double& chi2, int& ndf);
+
   RooAbsPdf * makeFitter();
+  RooAbsData * loadData();
 
   RooAbsPdf * makeDibosonPdf();
   RooAbsPdf * makeWpJPdf();
@@ -27,7 +30,11 @@ public:
   RooAbsPdf * makeZpJPdf();
   RooAbsPdf * makeNPPdf();
 
+  void loadParameters(TString const& fname);
+
   RooWorkspace& getWorkSpace() { return ws_; }
+
+  void resetYields();
 
 private:
   RooWorkspace ws_;
@@ -40,6 +47,8 @@ private:
   double singleTopNorm_;
   double zjetsNorm_;
   double QCDNorm_;
+
+  TString rangeString_;
 };
 
 #endif
