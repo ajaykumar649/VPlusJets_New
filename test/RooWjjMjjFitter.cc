@@ -4,6 +4,8 @@
 #include "TH1.h"
 #include "TTree.h"
 #include "TMath.h"
+#include "TLine.h"
+#include "TLegend.h"
 
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
@@ -20,6 +22,8 @@
 #include "RooGaussian.h"
 #include "RooConstVar.h"
 #include "RooPlot.h"
+#include "RooCurve.h"
+#include "RooHist.h"
 
 // #include "ComputeChi2.C"
 
@@ -28,7 +32,7 @@ using namespace RooFit;
 RooWjjMjjFitter::RooWjjMjjFitter() :
   ws_("ws", "ws"), initWjets_(0.), initDiboson_(0.),
   ttbarNorm_(0.), singleTopNorm_(0.), zjetsNorm_(0.),
-  QCDNorm_(0.)
+  QCDNorm_(0.), errorType_(RooAbsData::SumW2)
 {
   utils_.setJES_scale(0, params_.JES_scale1);
   utils_.setJES_scale(1, params_.JES_scale2);
@@ -39,7 +43,7 @@ RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
 					 pars.maxMass, pars.njets,
 					 pars.cuts, pars.var, pars.treeName),
   initWjets_(0.), initDiboson_(0.), ttbarNorm_(0.), singleTopNorm_(0.), 
-  zjetsNorm_(0.), QCDNorm_(0.)
+  zjetsNorm_(0.), QCDNorm_(0.), errorType_(RooAbsData::SumW2)
 {
   utils_.setJES_scale(0, params_.JES_scale1);
   utils_.setJES_scale(1, params_.JES_scale2);
@@ -675,6 +679,130 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   RooAbsPdf * NPPdf = utils_.Hist2Pdf(&th1NP, "NPPdf", ws_);
 
   return NPPdf;
+}
+
+RooPlot * RooWjjMjjFitter::stackedPlot(bool logy) {
+  ws_.var(params_.var)->setRange("RangeForPlot", params_.minMass, 
+				 params_.maxMass);
+  RooPlot * sframe = ws_.var(params_.var)->frame(params_.minMass, 
+						 params_.maxMass, 
+						 params_.nbins);
+  sframe->SetName("mass_stacked");
+  RooAbsData * data = ws_.data("data");
+  RooAddPdf * totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf"));
+  RooArgList components(totalPdf->pdfList());
+
+//   components.Print("v");
+  data->plotOn(sframe, RooFit::DataError(errorType_), RooFit::Name("h_data"),
+	       RooFit::Invisible());
+
+  int comp(1);
+  totalPdf->plotOn(sframe,ProjWData(*data), DrawOption("LF"), FillStyle(1001),
+		   FillColor(kOrange), LineColor(kOrange), Name("h_total"),
+		   VLines(), Range("RangeForPlot"));
+  RooCurve * tmpCurve = sframe->getCurve("h_total");
+  tmpCurve->SetTitle("WW/WZ");
+  components.remove(components[0]);
+  if (params_.doNewPhysics) {
+    totalPdf->plotOn(sframe, ProjWData(*data), DrawOption("LF"), 
+		     FillStyle(1001), Name("h_NP"), VLines(),
+		     FillColor(kCyan+2), LineColor(kCyan+2), 
+		     Components(RooArgSet(components)),
+		     Range("RangeForPlot"));
+    components.remove(*(components.find("NPPdf")));
+    tmpCurve = sframe->getCurve("h_NP");
+    tmpCurve->SetTitle("New Physics");
+  }
+  int linec(kRed);
+  TString pdfName("h_background");
+  while (components.getSize() > 0) {
+    totalPdf->plotOn(sframe, ProjWData(*data), FillColor(linec), 
+		     Name(pdfName),
+		     DrawOption("LF"), Range("RangeForPlot"),
+		     Components(RooArgSet(components)), VLines(),
+		     FillStyle(1001), LineColor(linec));
+    components.remove(components[0]);
+    tmpCurve = sframe->getCurve(pdfName);
+    switch (comp) {
+    case 1: 
+      linec = kBlack; 
+      tmpCurve->SetTitle("W+jets");
+      break;
+    case 2: 
+      linec = kGreen;
+      components.remove(components[0]);
+      tmpCurve->SetTitle("top");
+      break;
+    case 3: 
+      linec = kMagenta; 
+      tmpCurve->SetTitle("QCD");
+      break;
+    default:
+      linec = kCyan;
+      tmpCurve->SetTitle("Z+jets");
+    }
+    if (components.getSize() > 0) {
+      pdfName = components[0].GetName();
+      pdfName = "h_" + pdfName;
+    }
+    ++comp;
+  }
+  data->plotOn(sframe, RooFit::DataError(errorType_), Name("theData"));
+  RooHist * tmpHist = sframe->getHist("theData");
+  tmpHist->SetTitle("data");
+  TLegend * legend = RooWjjFitterUtils::legend4Plot(sframe);
+  sframe->addObject(legend);
+  if (params_.truncRange) {
+    TLine * lowerLine = new TLine(params_.minTrunc, 0., params_.minTrunc, 
+				  sframe->GetMaximum()*0.65);
+    lowerLine->SetLineWidth(3);
+    TLine * upperLine = new TLine(params_.maxTrunc, 0., params_.maxTrunc, 
+				  sframe->GetMaximum()*0.65);
+    upperLine->SetLineWidth(3);
+    sframe->addObject(lowerLine);
+    sframe->addObject(upperLine);
+  }
+  if (logy) {
+    sframe->SetMinimum(0.1);
+    sframe->SetMaximum(1.0e9);
+  } else {
+    sframe->SetMinimum(0.);
+    sframe->SetMaximum(1.25*sframe->GetMaximum());
+  }
+
+  return sframe;
+}
+
+RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
+					TString pdfName, bool normalize) {
+  RooPlot * rframe = thePlot->emptyClone("mass_residuals");
+  RooAbsData * data = ws_.data("data");
+  RooAddPdf * totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf"));
+  if (pdfName.Length() > 0) {
+    data->plotOn(rframe, RooFit::Invisible());
+    totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
+		     DrawOption("LF"), VLines(), FillStyle(1001),
+		     FillColor(kOrange), Name("h_diboson"),
+		     Range("RangeForPlot"));
+    if (params_.doNewPhysics)
+      totalPdf->plotOn(rframe, ProjWData(*data), Components("NPPdf"),
+		       DrawOption("LF"), VLines(), FillStyle(1001),
+		       FillColor(kOrange), Name("h_diboson"),
+		       Range("RangeForPlot"));
+  }
+  RooHist * hresid = thePlot->residHist("h_data", curveName, normalize);
+  rframe->addPlotable(hresid, "p");
+  
+  if (!normalize) {
+    rframe->SetMaximum(600.);
+    rframe->SetMinimum(-100.);
+  } else {
+    rframe->SetMaximum(5.);
+    rframe->SetMinimum(-5.);
+    rframe->GetYaxis()->SetTitle("pull ( #sigma )");
+  }
+  return rframe;
+
 }
 
 void RooWjjMjjFitter::loadParameters(TString fname) {

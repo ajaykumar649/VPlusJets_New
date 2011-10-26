@@ -3,6 +3,7 @@
 #include "TFile.h"
 #include "TH1D.h"
 #include "TTree.h"
+#include "TLegend.h"
 
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
@@ -15,6 +16,7 @@
 #include "RooArgList.h"
 #include "RooFormulaVar.h"
 #include "RooDataSet.h"
+#include "RooPlot.h"
 
 RooWjjFitterUtils::RooWjjFitterUtils() :
   nbins_(14), histmin_(50.), histmax_(120.), njets_(2),
@@ -212,6 +214,30 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
 
   return chi2;
 }
+
+TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
+  TObject * theObj;
+  TString objName, objTitle;
+  TLegend * theLeg = new TLegend(0.70, 0.65, 0.92, 0.92, "", "NDC");
+  theLeg->SetName("theLegend");
+  theLeg->SetLineColor(0);
+  theLeg->SetFillColor(0);
+  theLeg->SetFillStyle(0);
+  theLeg->SetLineWidth(0);
+  theLeg->SetLineStyle(0);
+  for(int obj=0; obj < plot->numItems(); ++obj) {
+    objName = plot->nameOf(obj);
+    if (!(plot->getInvisible(objName))) {
+      theObj = plot->getObject(obj);
+      objTitle = theObj->GetTitle();
+      if (objTitle.Length() < 1)
+	objTitle = objName;
+      theLeg->AddEntry(theObj, objTitle, plot->getDrawOptions(objName));
+    }
+  }
+  return theLeg;
+}
+
 
 double RooWjjFitterUtils::sig2(RooAddPdf& pdf, RooRealVar& obs, double Nbin) {
 

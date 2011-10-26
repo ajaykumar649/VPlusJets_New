@@ -17,6 +17,8 @@ class TH1;
 class RooAbsReal;
 class RooDataHist;
 class RooDataSet;
+class RooPlot;
+class TLegend;
 
 class RooWjjFitterUtils {
 
@@ -51,6 +53,7 @@ public:
 
   static double computeChi2(RooHist& hist, RooAbsPdf& pdf, RooRealVar& obs, 
 			    int& nbin);
+  static TLegend * legend4Plot(RooPlot * plot);
 
 protected:
 

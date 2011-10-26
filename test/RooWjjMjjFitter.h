@@ -5,6 +5,7 @@
 
 #include "RooWjjFitterParams.h"
 #include "RooWjjFitterUtils.h"
+#include "RooAbsData.h"
 
 #include "RooWorkspace.h"
 
@@ -30,6 +31,10 @@ public:
   RooAbsPdf * makeZpJPdf();
   RooAbsPdf * makeNPPdf();
 
+  RooPlot * stackedPlot(bool logy = false);
+  RooPlot * residualPlot(RooPlot * thePlot, TString curveName,
+			 TString pdfName = "", bool normalize = false);
+
   void loadParameters(TString fname);
 
   RooWorkspace& getWorkSpace() { return ws_; }
@@ -47,6 +52,7 @@ private:
   double singleTopNorm_;
   double zjetsNorm_;
   double QCDNorm_;
+  RooAbsData::ErrorType errorType_;
 
   TString rangeString_;
 };

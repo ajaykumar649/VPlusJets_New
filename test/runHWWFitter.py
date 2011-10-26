@@ -17,7 +17,7 @@ parser.add_option('-d', '--dir', dest='mcdir', default='',
 import pyroot_logon
 from WjjFitterConfigs import HWWconfig
 
-from ROOT import gPad, TFile, Double, Long, gROOT
+from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+');
@@ -32,5 +32,18 @@ theFitter = RooWjjMjjFitter(fitterPars)
 fr = theFitter.fit()
 chi2 = Double(0.)
 ndf = Long(fr.floatParsFinal().getSize())
-mf = theFitter.computeChi2(chi2, ndf)
+theFitter.computeChi2(chi2, ndf)
+mf = theFitter.stackedPlot()
+sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
+pf = theFitter.residualPlot(mf, "h_total", "", True)
+lf = theFitter.stackedPlot(True)
+
+c1 = TCanvas("c1", "c1")
 mf.Draw()
+c2 = TCanvas("c2", "c2")
+c2.SetLogy()
+lf.Draw()
+c3 = TCanvas("c3", "c3")
+sf.Draw()
+c4 = TCanvas("c4", "c4")
+pf.Draw()
