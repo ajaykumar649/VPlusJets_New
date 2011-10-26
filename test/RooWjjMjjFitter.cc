@@ -578,11 +578,11 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
     return ws_.pdf("qcdPdf");
 
   //// Scaling Coefficients = 84679.3/25080241, 3866200/70392060, 139500/2194800, 136804/2030033, 9360/1082691 = 3.37633517955429532e-03, 5.49238081681371476e-02, 6.35593220338983023e-02, 6.73900375018534198e-02, 8.64512589464584008e-03 
-  double weight1 = 84679.3/25080241;
-  double weight2 = 3866200./70392060.;
-  double weight3 = 139500./2194800.;
-  double weight4 = 136804./2030033.;
-  double weight5 = 9360./1082691.;
+//   double weight1 = 84679.3/25080241;
+//   double weight2 = 3866200./70392060.;
+//   double weight3 = 139500./2194800.;
+//   double weight4 = 136804./2030033.;
+//   double weight5 = 9360./1082691.;
 
   TH1D th1qcd("th1qcd", "th1qcd", utils_.getNbins(),
 	      utils_.getMin(), utils_.getMax());
@@ -590,31 +590,16 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "mu_QCDMu_CMSSW428_MET20Iso03.root",
+			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
 			       "hist_qcd_mu", 1, false);
-    th1qcd.Add(tmpHist, weight1);
+    th1qcd.Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "el_QCDEl_Pt30to80_CMSSW428_MET20Iso03.root",
-			       "hist_qcd_el_1", 1, false);
-    th1qcd.Add(tmpHist, weight2);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "el_QCDEl_Pt80to170_CMSSW428_MET20Iso03.root",
-			       "hist_qcd_el_2", 1, false);
-    th1qcd.Add(tmpHist, weight3);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "el_QCDEl_BCtoE30to80_CMSSW428_MET20Iso03.root",
-			       "hist_qcd_el_3", 1, false);
-    th1qcd.Add(tmpHist, weight4);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "el_QCDEl_BCtoE80to170_CMSSW428_MET20Iso03.root",
-			       "hist_qcd_el_4", 1, false);
-    th1qcd.Add(tmpHist, weight5);
+			       "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
+			       "hist_qcd_el", 1, false);
+    th1qcd.Add(tmpHist);
     delete tmpHist;
   }
 
@@ -692,7 +677,7 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   return NPPdf;
 }
 
-void RooWjjMjjFitter::loadParameters(TString const& fname) {
+void RooWjjMjjFitter::loadParameters(TString fname) {
   
   if (fname.Length() > 0) {
     RooArgSet * params = ws_.pdf("totalPdf")->getParameters(ws_.data("data"));

@@ -30,7 +30,7 @@ public:
   RooAbsPdf * makeZpJPdf();
   RooAbsPdf * makeNPPdf();
 
-  void loadParameters(TString const& fname);
+  void loadParameters(TString fname);
 
   RooWorkspace& getWorkSpace() { return ws_; }
 

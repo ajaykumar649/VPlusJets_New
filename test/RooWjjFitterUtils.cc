@@ -33,9 +33,8 @@ RooWjjFitterUtils::RooWjjFitterUtils() :
 }
 
 RooWjjFitterUtils::RooWjjFitterUtils(int nbins, double min, double max, 
-				     int njets, TString const& cut, 
-				     TString const& var, 
-				     TString const& treeName) :
+				     int njets, TString cut, 
+				     TString var, TString treeName) :
   nbins_(nbins), histmin_(min), histmax_(max), njets_(njets),
   jes_scales_(2), massVar_(0), mjj_(0), cut_(cut), var_(var), 
   treeName_(treeName)
@@ -53,8 +52,8 @@ RooWjjFitterUtils::~RooWjjFitterUtils()  {
   delete massVar_;
 }
 
-TH1 * RooWjjFitterUtils::File2Hist(TString const& fname, 
-				   TString const& histName, 
+TH1 * RooWjjFitterUtils::File2Hist(TString fname, 
+				   TString histName, 
 				   int jes_scl, bool noCuts, 
 				   double binMult) const {
   TFile treeFile(fname);
@@ -81,10 +80,11 @@ TH1 * RooWjjFitterUtils::File2Hist(TString const& fname,
 
   theHist->SetDirectory(0);
 
+  //theHist->Print();
   return theHist;
 }
 
-RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString const& pdfName,
+RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
 					 RooWorkspace& ws) const {
   if (ws.pdf(pdfName))
     return ws.pdf(pdfName);
@@ -101,8 +101,8 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString const& pdfName,
   return ws.pdf(pdfName);
 }
 
-RooDataSet * RooWjjFitterUtils::File2Dataset(TString const& fname, 
-					     TString const& dsName) const {
+RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname, 
+					     TString dsName) const {
   TFile treeFile(fname);
   TTree * theTree;
   treeFile.GetObject(treeName_, theTree);
@@ -135,7 +135,7 @@ TString RooWjjFitterUtils::fullCuts() const {
 }
 
 void RooWjjFitterUtils::hist2RandomTree(TH1 * theHist, 
-					TString const& fname) const {
+					TString fname) const {
   TFile treeFile(fname, "recreate");
   TTree WJet(treeName_, treeName_);
   double theVar;

@@ -23,19 +23,18 @@ class RooWjjFitterUtils {
 public:
   RooWjjFitterUtils();
   RooWjjFitterUtils(int nbins, double min, double max, int njets,
-		    TString const& cut, TString const& var, 
-		    TString const& treeName);
+		    TString cut, TString var, TString treeName);
   virtual ~RooWjjFitterUtils();
 
-  TH1 * File2Hist(TString const& fname, TString const& histName, 
+  TH1 * File2Hist(TString fname, TString histName, 
 		  int jes_scl = -1, bool noCuts = false, 
 		  double binMult = 1.0) const;
-  RooAbsPdf * Hist2Pdf(TH1 * hist, TString const& pdfName, 
+  RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
 		       RooWorkspace& ws) const;
-  RooDataSet * File2Dataset(TString const& fname, TString const& dsName) const;
+  RooDataSet * File2Dataset(TString fname, TString dsName) const;
   TString fullCuts() const;
 
-  void hist2RandomTree(TH1 * theHist, TString const& fname) const;
+  void hist2RandomTree(TH1 * theHist, TString fname) const;
 
   int getNbins() const { return nbins_; }
   double getMin() const { return histmin_; }
