@@ -225,6 +225,7 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
   theLeg->SetFillStyle(0);
   theLeg->SetLineWidth(0);
   theLeg->SetLineStyle(0);
+  theLeg->SetTextFont(42);
   for(int obj=0; obj < plot->numItems(); ++obj) {
     objName = plot->nameOf(obj);
     if (!(plot->getInvisible(objName))) {

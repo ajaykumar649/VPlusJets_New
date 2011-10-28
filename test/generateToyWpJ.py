@@ -5,8 +5,8 @@ from ROOT import gROOT
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
 from ROOT import RooWjjFitterUtils, TH1, TH1D
 
-def generate (outdir, Nj):
-    fitParams = WjjFitterConfigs.HWWconfig(Nj)
+def generate (outdir, Nj, mode = "HWWconfig"):
+    fitParams = WjjFitterConfigs.__dict__[mode](Nj)
     fitUtils = RooWjjFitterUtils(fitParams.nbins, fitParams.minMass,
                                  fitParams.maxMass, fitParams.njets,
                                  fitParams.cuts, fitParams.var,

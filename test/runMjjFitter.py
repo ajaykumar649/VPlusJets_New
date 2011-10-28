@@ -8,14 +8,14 @@ parser.add_option('-b', action='store_true', dest='noX', default=False,
 parser.add_option('-j', '--Njets', dest='Nj', default=2, type='int',
                   help='Number of jets.')
 parser.add_option('-i', '--init', dest='startingFile',
-                  default='HWWNominal2Jets.txt',
+                  default='MjjNominal2Jets.txt',
                   help='File to use as the initial template')
 parser.add_option('-d', '--dir', dest='mcdir', default='',
                   help='directory to pick up the W+jets shapes')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
-from WjjFitterConfigs import HWWconfig
+from WjjFitterConfigs import MjjFitConfig
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
@@ -26,7 +26,7 @@ from ROOT import RooWjjMjjFitter, RooFitResult, \
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = HWWconfig(opts.Nj, opts.mcdir, opts.startingFile)
+fitterPars = MjjFitConfig(opts.Nj, opts.mcdir, opts.startingFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
 fr = theFitter.fit()

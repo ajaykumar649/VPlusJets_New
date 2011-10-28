@@ -17,6 +17,8 @@ parser.add_option('-p', '--precision', dest='P', default=3, type='int',
                   help='precision to find minimum 10^-P')
 parser.add_option('-d', '--dir', dest='mcdir', default='',
                   help='directory to pick up the W+jets shapes')
+parser.add_option('-m', '--mode', default="HWWconfig", dest='modeConfig',
+                  help='which config to select from WjjFitterConfigs')
 (opts, args) = parser.parse_args()
 
 if opts.P > 3:
@@ -29,7 +31,7 @@ minPoint = optVars.copy()
 g_minFOM = 100000.
 
 import pyroot_logon
-from WjjFitterConfigs import HWWconfig
+import WjjFitterConfigs
 from ROOT import TGraph, TF1, gPad, TFile, Double, Long, gROOT
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
@@ -40,7 +42,8 @@ from ROOT import RooWjjMjjFitter, RooFitResult, \
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 tmpInitFile = opts.startingFile
 
-fitterPars = HWWconfig(opts.Nj, opts.mcdir, tmpInitFile)
+fitterPars = WjjFitterConfigs.__dict__[opts.modeConfig](opts.Nj, opts.mcdir,
+                                                        tmpInitFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
 Npts = 7
@@ -48,6 +51,8 @@ Npts = 7
 def optimizeVar (optVar, start, step, iteration, tryFit = True,
                  theVars = optVars):
 
+    global g_minFOM, minPoint
+    
     optGraph = TGraph(Npts)
     optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
     SetPoints = 0
@@ -67,16 +72,17 @@ def optimizeVar (optVar, start, step, iteration, tryFit = True,
         ndf = Long(fr.floatParsFinal().getSize())
         theFitter.computeChi2(chi2, ndf)
         print 'chi2:', chi2, 'dof:', ndf, 'nll:',nll
-        if nll < minFOM:
-            minFOM = nll
+        FOM = nll
+        if FOM < minFOM:
+            minFOM = FOM
             minVal = newVal
-        if (nll < g_minFOM):
-            g_minFOM = nll
+        if FOM < g_minFOM:
+            g_minFOM = FOM
             for tmpVar in minPoint:
-                minPoint[tmpVar] = optVar[tmpVar]
+                minPoint[tmpVar] = theVars[tmpVar]
             minPoint[optVar] = newVal
             
-        optGraph.SetPoint(SetPoints, newVal, nll)
+        optGraph.SetPoint(SetPoints, newVal, FOM)
         SetPoints += 1
         sys.stdout.flush()
 

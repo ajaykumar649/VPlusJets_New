@@ -1,5 +1,19 @@
-from ROOT import gROOT, gStyle, gSystem
+from ROOT import gROOT, gStyle, gSystem, TLatex
 import subprocess
+
+
+def cmsPrelim(canvas, lumi):
+    l = TLatex();
+    l.SetNDC();
+    l.SetTextFont(42);
+    l.SetTextAlign(31);
+    l.SetTextSize(0.04);
+
+    canvas.cd()
+    l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
+                'CMS Preliminary 2011, #font[52]{{L}} = {0:.1f} fb^{{-1}}'.format(lumi)
+                )
+    canvas.Update()
 
 gROOT.SetStyle('Plain')
 gStyle.SetPadTickX(1)
