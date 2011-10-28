@@ -25,6 +25,8 @@ if opts.P > 3:
 
 optVars = { 'fSU' : 0.0, 'fMU' : 0.0 }
 ## optVars = ['fSU']
+minPoint = optVars.copy()
+g_minFOM = 100000.
 
 import pyroot_logon
 from WjjFitterConfigs import HWWconfig
@@ -36,30 +38,28 @@ from ROOT import RooWjjMjjFitter, RooFitResult, \
      RooMsgService, RooFit
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
-tmpInitFile = 'tmpInit.txt'
+tmpInitFile = opts.startingFile
 
 fitterPars = HWWconfig(opts.Nj, opts.mcdir, tmpInitFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
+Npts = 7
 
-Npts = 6
-
-def optimizeVar (optVar, start, step, iteration):
+def optimizeVar (optVar, start, step, iteration, tryFit = True,
+                 theVars = optVars):
 
     optGraph = TGraph(Npts)
     optGraph.SetName('graph_{0}_{1}'.format(optVar, iteration))
     SetPoints = 0
-    minchi2 = 10000.
+    minFOM = 10000.
     minVal = 0.
     for point in range(0, Npts):
         newVal = start + step*point
-##         theSum = sumPts(optVar, newVal)
-##         if theSum > 1.0:
-##             continue
 
-        writeValToFile(optVar, newVal, opts.startingFile, tmpInitFile)
+        writeValToFile(optVar, newVal, opts.startingFile, tmpInitFile,
+                       theVars = theVars)
 
-        printPts(optVar, newVal)
+        printPts(optVar, newVal, theVars = theVars)
 
         fr = theFitter.fit()
         nll = fr.minNll()
@@ -67,16 +67,22 @@ def optimizeVar (optVar, start, step, iteration):
         ndf = Long(fr.floatParsFinal().getSize())
         theFitter.computeChi2(chi2, ndf)
         print 'chi2:', chi2, 'dof:', ndf, 'nll:',nll
-        if nll < minchi2:
-            minchi2 = nll
+        if nll < minFOM:
+            minFOM = nll
             minVal = newVal
+        if (nll < g_minFOM):
+            g_minFOM = nll
+            for tmpVar in minPoint:
+                minPoint[tmpVar] = optVar[tmpVar]
+            minPoint[optVar] = newVal
+            
         optGraph.SetPoint(SetPoints, newVal, nll)
         SetPoints += 1
         sys.stdout.flush()
 
     optGraph.Set(SetPoints)
     bestVal = minVal
-    if SetPoints > 2:
+    if tryFit and (SetPoints > 2):
         parabolaFit = TF1("parabFit", "x*x++x++1", start, newVal)
         optGraph.Fit(parabolaFit)
         if (parabolaFit.GetParameter(0) > 0):
@@ -88,71 +94,75 @@ def optimizeVar (optVar, start, step, iteration):
         bestVal = 1.0
     if bestVal < -1.:
         bestVal = -1.
-##     theSum = sumPts(optVar, bestVal)
-##     if theSum > 1.0:
-##         bestVal = minVal
     outf.cd()
     optGraph.Write()
 
     return round(bestVal,3)
 
-def readValFromFile(optVar, filename):
-    compliment = optVar.replace('U','D')
+def readValFromFile( filename, theVars = optVars):
     initFile = open(filename).readlines()
-    retVal = 0.
-    compVal = 0.
-    for line in initFile:
-        found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
-        if found:
-            retVal = float(found.group(1))
-##             print 'found',optVar,':',retVal
-        found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(compliment),line)
-        if found:
-            compVal = float(found.group(1))
-##             print 'found',compliment,':',compVal
-    if (compVal > retVal):
-        retVal = -1*compVal
-##     print 'looking for',optVar,'found:',retVal
-    return retVal
+    for optVar in theVars:
+        compliment = optVar.replace('U','D')
+        retVal = 0.
+        compVal = 0.
+        for line in initFile:
+            found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(optVar), line)
+            if found:
+                retVal = float(found.group(1))
+            found = re.search('^{0} = [ ]*([-0-9\.]*)'.format(compliment),line)
+            if found:
+                compVal = float(found.group(1))
+        if (compVal > retVal):
+            retVal = -1*compVal
+        theVars[optVar] = retVal
+
     
-def writeValToFile(optVar, newVal, filename, outname = None):
+def writeValToFile(optVar, newVal, filename, outname = None,
+                   theVars = optVars):
     if outname == None:
         outname = filename
-    compliment = optVar.replace('U', 'D')
-    if (newVal >= 0):
-        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-                           '{0} = {1:.3f}'.format(optVar, newVal), x) \
-                    for x in open(filename).readlines()]
-        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(compliment),
-                           '{0} = {1:.3f}'.format(compliment, 0.), x) \
-                    for x in newStart]
-    else:
-        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(compliment),
-                           '{0} = {1:.3f}'.format(compliment, -1*newVal), x) \
-                    for x in open(filename).readlines()]
-        newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(optVar),
-                           '{0} = {1:.3f}'.format(optVar, 0.), x) \
-                    for x in newStart]
+    newStart = open(filename).readlines()
+    for tmpVar in theVars:
+        compliment = tmpVar.replace('U', 'D')
+        if optVar == tmpVar:
+            theVal = newVal
+        else:
+            theVal = theVars[tmpVar]
+        if (theVal >= 0):
+            newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(tmpVar),
+                               '{0} = {1:.3f}'.format(tmpVar, theVal), x) \
+                        for x in newStart]
+            newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(compliment),
+                               '{0} = {1:.3f}'.format(compliment, 0.), x) \
+                        for x in newStart]
+        else:
+            newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(compliment),
+                               '{0} = {1:.3f}'.format(compliment, -1*theVal), x) \
+                        for x in newStart]
+            newStart = [re.sub('^{0} = [ ]*[-0-9\.]*'.format(tmpVar),
+                               '{0} = {1:.3f}'.format(tmpVar, 0.), x) \
+                        for x in newStart]
+    #print ''.join(newStart)
     newFile = open(outname, 'w')
     newFile.writelines(newStart)
     newFile.close()
 
-def sumPts(optVar, newVal):
+def sumPts(optVar, newVal, theVars = optVars):
     theSum = 0.
-    for tmpVar in optVars:
+    for tmpVar in theVars:
         if tmpVar == optVar:
             theSum += newVal
         else:
-            theSum += optVars[tmpVar]
+            theSum += theVars[tmpVar]
     return theSum
 
-def printPts(optVar, newVal):
-    for tmpVar in optVars:
+def printPts(optVar, newVal, theVars = optVars):
+    for tmpVar in theVars:
         print tmpVar,'=',
         if tmpVar == optVar:
             print newVal,
         else:
-            print optVars[tmpVar],
+            print theVars[tmpVar],
         print ',',
     print
     
@@ -160,37 +170,35 @@ outf = TFile('optimization{0}.root'.format(opts.Nj), 'recreate')
 keepIterating = True
 iteration = 0
 
-start = 0.
-step = 0.1
-for optVar in optVars:
-    optVars[optVar] = readValFromFile(optVar, opts.startingFile)
+start = -0.5
+step = 0.05
+Npts = 20
 
+scanVars = optVars.copy()
+
+for optVar in scanVars:
+    start = -0.5
+    step = 0.05
+    oldVal = scanVars[optVar]
+    bestVal = optimizeVar(optVar, start, step, iteration, False, scanVars)
+
+    print 'old minimum:',oldVal,'new minimum:', bestVal
+    optVars[optVar] = bestVal
+    sys.stdout.flush()
+
+writeValToFile("", 0, opts.startingFile, theVars=optVars)
+#readValFromFile(opts.startingFile)
 print optVars
 
-optVar = 'fSU'
-start = optVars[optVar]
-oldVal = start
-
-start -= 2*step
-
-if start < -1.:
-    start = -1.
-
-bestVal = optimizeVar(optVar, start, step, iteration)
-
-print 'old minimum:',oldVal,'new minimum:', bestVal
-optVars[optVar] = bestVal
-writeValToFile(optVar, bestVal, opts.startingFile)
-sys.stdout.flush()
 maxIterations = 9
+Npts = 7
 
-while (keepIterating) and (iteration < maxIterations):
+## while (keepIterating) and (iteration < maxIterations):
+while (keepIterating):
     iteration += 1
     keepIterating = False
     if iteration > 1:
         step = round(step/2., 3)
-##     if iteration > 2:
-##         step = step/2**(iteration-1)
     if step < 10**(-opts.P)*3.:
         step = 10**(-opts.P)*3.
     for optVar in optVars:
@@ -198,7 +206,7 @@ while (keepIterating) and (iteration < maxIterations):
         start = optVars[optVar]
         oldVal = start
         
-        start -= 2*step
+        start -= 3*step
 
         if start < -1.:
             start = -1.
@@ -217,5 +225,7 @@ while (keepIterating) and (iteration < maxIterations):
 
 outf.Close()
 
+print '*** best point:',
+printPts(' ', 0., minPoint)
 print '*** final optimization:',
 printPts(' ', 0.)
