@@ -15,7 +15,7 @@ parser.add_option('-d', '--dir', dest='mcdir', default='',
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
-from WjjFitterConfigs import MjjFitConfig
+import MjjFitConfig
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
@@ -26,7 +26,7 @@ from ROOT import RooWjjMjjFitter, RooFitResult, \
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = MjjFitConfig(opts.Nj, opts.mcdir, opts.startingFile)
+fitterPars = MjjFitConfig.theConfig(opts.Nj, opts.mcdir, opts.startingFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
 fr = theFitter.fit()

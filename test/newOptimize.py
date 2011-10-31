@@ -31,7 +31,7 @@ minPoint = optVars.copy()
 g_minFOM = 100000.
 
 import pyroot_logon
-import WjjFitterConfigs
+config = __import__(opts.modeConfig)
 from ROOT import TGraph, TF1, gPad, TFile, Double, Long, gROOT
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
@@ -42,8 +42,7 @@ from ROOT import RooWjjMjjFitter, RooFitResult, \
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 tmpInitFile = opts.startingFile
 
-fitterPars = WjjFitterConfigs.__dict__[opts.modeConfig](opts.Nj, opts.mcdir,
-                                                        tmpInitFile)
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, tmpInitFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
 Npts = 7

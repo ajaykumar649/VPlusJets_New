@@ -1,12 +1,12 @@
 
 import pyroot_logon
-import WjjFitterConfigs
-from ROOT import gROOT
-gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
-from ROOT import RooWjjFitterUtils, TH1, TH1D
 
 def generate (outdir, Nj, mode = "HWWconfig"):
-    fitParams = WjjFitterConfigs.__dict__[mode](Nj)
+    config = __import__(mode)
+    from ROOT import gROOT
+    gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
+    from ROOT import RooWjjFitterUtils, TH1, TH1D
+    fitParams = config.theConfig(Nj)
     fitUtils = RooWjjFitterUtils(fitParams.nbins, fitParams.minMass,
                                  fitParams.maxMass, fitParams.njets,
                                  fitParams.cuts, fitParams.var,
