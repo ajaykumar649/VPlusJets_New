@@ -58,6 +58,10 @@ bool ZMuMuFilter::filter(edm::Event &event, const edm::EventSetup &iSetup)
     if (cut_pt && cut_eta && cut_mass) {
       check = true;
       hMass_->Fill(m);
+      for(int i=0;i<2;i++) {
+        hPt_->Fill((*muons)[i].pt());
+        hEta_->Fill((*muons)[i].eta());
+      }
       NPass_++;
     }
     if (debug_ == 2) {
@@ -69,9 +73,6 @@ bool ZMuMuFilter::filter(edm::Event &event, const edm::EventSetup &iSetup)
 //////////////////////////////////////////////////////////////////////////////////////////
 void ZMuMuFilter::endJob() 
 {
-  delete hMass_;
-  delete hPt_;
-  delete hEta_;
   if (debug_ > 0) {
     cout<<"Number of events read:   "<<NTotal_<<endl;
     cout<<"Number of events passed: "<<NPass_<<endl;
