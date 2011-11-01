@@ -244,7 +244,7 @@ RooAbsData * RooWjjMjjFitter::loadData() {
   }
   if (params_.includeElectrons) {
     RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
-					   params_.muonData, "data_electron");
+					   params_.electronData, "data_electron");
     eds->Print();
     QCDNorm_ += 0.03*eds->sumEntries();
     data.append(*eds);
@@ -767,7 +767,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy) {
     sframe->SetMaximum(1.0e9);
   } else {
     sframe->SetMinimum(0.);
-    sframe->SetMaximum(1.25*sframe->GetMaximum());
+    sframe->SetMaximum(1.5*sframe->GetMaximum());
   }
 
   return sframe;

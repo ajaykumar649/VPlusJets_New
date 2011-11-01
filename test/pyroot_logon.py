@@ -11,7 +11,7 @@ def cmsPrelim(canvas, lumi):
 
     canvas.cd()
     l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
-                'CMS Preliminary 2011, #font[52]{{L}} = {0:.1f} fb^{{-1}}'.format(lumi)
+                'CMS Preliminary 2011, #font[52]{{L}} = {0:.1f} fb^{{-1}}, #sqrt{{s}} = 7 TeV'.format(lumi)
                 )
     canvas.Update()
 

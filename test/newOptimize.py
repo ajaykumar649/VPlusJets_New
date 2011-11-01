@@ -195,11 +195,11 @@ writeValToFile("", 0, opts.startingFile, theVars=optVars)
 #readValFromFile(opts.startingFile)
 print optVars
 
-maxIterations = 9
+maxIterations = 25
 Npts = 7
 
-## while (keepIterating) and (iteration < maxIterations):
-while (keepIterating):
+while (keepIterating) and (iteration < maxIterations):
+## while (keepIterating):
     iteration += 1
     keepIterating = False
     if iteration > 1:

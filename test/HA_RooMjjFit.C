@@ -63,7 +63,7 @@
 const TString MCDirectory =   "data/ReducedTree/NewKfitRDTree/";
 const TString DataDirectory = "data/ReducedTree/NewKfitRDTree/";
 
-const TString QCDDirectory = "data";
+const TString QCDDirectory = "428MC";
 
 // const double MINRange = 50.0;
 // const double MAXRange = 150.0;
@@ -188,9 +188,11 @@ void RooWjjFitterNarrow(int channel=0, int nJet, char PLOTVAR[])
    if(channel == 2) treeForDataSet = treeele;
    RooDataSet* data = new RooDataSet("data","data", treeForDataSet, Mass);
    RooDataSet* data_ele = new RooDataSet("data_ele","data_ele",treeele, Mass);
+   data->Print();
+   data_ele->Print();
    if(channel == 0) data->append(*data_ele);
    cout << "Made dataset" << endl;
-
+   data->Print();
 
 
    // ********** Construct signal & bkg shape PDF ********** //
@@ -1104,15 +1106,15 @@ RooAbsPdf* makeSingleTopPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 RooAbsPdf* makeQCDPdf(int channel, char PLOTVAR[], char* cut="gdevtt")
 {  
   // QCD pdf
-  TFile* fqcd0 =  new TFile(QCDDirectory + "/ReducedTree/RD_mu_QCDMu_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd0 =  new TFile(QCDDirectory + "/RD_mu_QCDMu_CMSSW428_MET20Iso03.root", "READ");
   TTree* tree10 = (TTree*) fqcd0->Get("WJet");
-  TFile* fqcd1 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_Pt30to80_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd1 =  new TFile(QCDDirectory + "/RD_el_QCDEl_Pt30to80_CMSSW428_MET20Iso03.root", "READ");
   TTree* tree11 = (TTree*) fqcd1->Get("WJet");
-  TFile* fqcd2 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_Pt80to170_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd2 =  new TFile(QCDDirectory + "/RD_el_QCDEl_Pt80to170_CMSSW428_MET20Iso03.root", "READ");
   TTree* tree12 = (TTree*) fqcd2->Get("WJet");
-  TFile* fqcd3 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_BCtoE30to80_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd3 =  new TFile(QCDDirectory + "/RD_el_QCDEl_BCtoE30to80_CMSSW428_MET20Iso03.root", "READ");
   TTree* tree13 = (TTree*) fqcd3->Get("WJet");
-  TFile* fqcd4 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_BCtoE80to170_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd4 =  new TFile(QCDDirectory + "/RD_el_QCDEl_BCtoE80to170_CMSSW428_MET20Iso03.root", "READ");
   TTree* tree14 = (TTree*) fqcd4->Get("WJet");
 
   //// Scaling Coefficients = 84679.3/25080241, 3866200/70392060, 139500/2194800, 136804/2030033, 9360/1082691 = 3.37633517955429532e-03, 5.49238081681371476e-02, 6.35593220338983023e-02, 6.73900375018534198e-02, 8.64512589464584008e-03 
