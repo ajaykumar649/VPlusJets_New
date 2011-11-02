@@ -15,286 +15,306 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 
-void kanamuon::myana(double myflag)
+const TString inDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/DataFile/MergFile/";
+const TString inQCDDir = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample/MergFile/";
+const TString outDataDir = "/uscms_data/d2/kalanand/WjjTrees/NewReducedQCDTrees/";
+
+void kanamuon::myana(double myflag, bool isQCD)
 {
   TChain * myChain;
-  myflag = 20110000;
+//   //QCD or data
+//   myflag = 20110000;
+
+//   //Wjj
+//   myflag = 20111009;
+ 
+  cout << "isQCD=" << isQCD << endl;
 
   // 2011 data
-  if (myflag == 20111000 || myflag == -100){
+  if (myflag == 20110000 || myflag == -100){
     myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/WmunuJets_DataAll_GoldenJSON_2p1invfb.root"); 
-    Init(myChain);Loop( 20110000,"./OutData/RD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root");
+
+    if ( !isQCD ) {
+      myChain->Add(                    inDataDir + "WmunuJets_DataAll_GoldenJSON_2p1invfb.root");
+      Init(myChain);Loop( 20110000,outDataDir + "RD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root");
+    } else {
+      myChain->Add(                    inQCDDir + "WmunuJets_DataAll_GoldenJSON_2p1invfb.root");
+      Init(myChain);Loop( 20110000,outDataDir + "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root", isQCD);
+    }
+    
   }
 
-  // General Background Samples
-  if (myflag == 20111002 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_STopS_Tbar_CMSSW428.root"); 
-    Init(myChain);Loop( 20111002,"./OutData/RD_mu_STopS_Tbar_CMSSW428.root");
-  }
-  if (myflag == 20111003 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_STopS_T_CMSSW428.root"); 
-    Init(myChain);Loop( 20111003,"./OutData/RD_mu_STopS_T_CMSSW428.root");
-  }
-  if (myflag == 20111004 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_STopT_Tbar_CMSSW428.root"); 
-    Init(myChain);Loop( 20111004,"./OutData/RD_mu_STopT_Tbar_CMSSW428.root");
-  }
-  if (myflag == 20111005 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_STopT_T_CMSSW428.root"); 
-    Init(myChain);Loop( 20111005,"./OutData/RD_mu_STopT_T_CMSSW428.root");
-  }
-  if (myflag == 20111006 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_STopTW_Tbar_CMSSW428.root"); 
-    Init(myChain);Loop( 20111006,"./OutData/RD_mu_STopTW_Tbar_CMSSW428.root");
-  }
-  if (myflag == 20111007 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_STopTW_T_CMSSW428.root"); 
-    Init(myChain);Loop( 20111007,"./OutData/RD_mu_STopTW_T_CMSSW428.root");
-  }
-  if (myflag == 20111008 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_TTbar_MG_CMSSW428.root"); 
-    Init(myChain);Loop( 20111008,"./OutData/RD_mu_TTbar_MG_CMSSW428.root");
-  }
-  if (myflag == 20111009 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WpJ_CMSSW428.root"); 
-    Init(myChain);Loop( 20111009,"./OutData/RD_mu_WpJ_CMSSW428.root");
-  }
-  if (myflag == 20111010 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WpJmatchingdown_CMSSW428.root"); 
-    Init(myChain);Loop( 20111010,"./OutData/RD_mu_WpJmatchingdown_CMSSW428.root");
-  }
-  if (myflag == 20111011 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WpJmatchingup_CMSSW428.root"); 
-    Init(myChain);Loop( 20111011,"./OutData/RD_mu_WpJmatchingup_CMSSW428.root");
-  }
-  if (myflag == 20111012 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WpJscaledown_CMSSW428.root"); 
-    Init(myChain);Loop( 20111012,"./OutData/RD_mu_WpJscaledown_CMSSW428.root");
-  }
-  if (myflag == 20111013 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WpJscaleup_CMSSW428.root"); 
-    Init(myChain);Loop( 20111013,"./OutData/RD_mu_WpJscaleup_CMSSW428.root");
-  }
-  if (myflag == 20111014 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WpJsherpa_CMSSW428.root"); 
-    Init(myChain);Loop( 20111014,"./OutData/RD_mu_WpJsherpa_CMSSW428.root");
-  }
-  if (myflag == 20111015 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WW_CMSSW428.root"); 
-    Init(myChain);Loop( 20111015,"./OutData/RD_mu_WW_CMSSW428.root");
-  }
-  if (myflag == 20111016 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_WZ_CMSSW428.root"); 
-    Init(myChain);Loop( 20111016,"./OutData/RD_mu_WZ_CMSSW428.root");
-  }
-  if (myflag == 20111017 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_ZpJ_CMSSW428.root"); 
-    Init(myChain);Loop( 20111017,"./OutData/RD_mu_ZpJ_CMSSW428.root");
-  }
-  if (myflag == 20111018 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_QCDMu_CMSSW428.root"); 
-    Init(myChain);Loop( 20111018,"./OutData/RD_mu_QCDMu_CMSSW428.root");
-  }
-  if (myflag == 20111019 || myflag ==  999){ // set 999 not run!! no need
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_TTbar_powheg_CMSSW428.root"); 
-    Init(myChain);Loop( 20111019,"./OutData/RD_mu_TTbar_powheg_CMSSW428.root");
+  if ( !isQCD ) {
+    // General Background Samples
+    if (myflag == 20111002 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_STopS_Tbar_CMSSW428.root"); 
+      Init(myChain);Loop( 20111002,outDataDir + "RD_mu_STopS_Tbar_CMSSW428.root");
+    }
+    if (myflag == 20111003 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_STopS_T_CMSSW428.root"); 
+      Init(myChain);Loop( 20111003,outDataDir + "RD_mu_STopS_T_CMSSW428.root");
+    }
+    if (myflag == 20111004 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_STopT_Tbar_CMSSW428.root"); 
+      Init(myChain);Loop( 20111004,outDataDir + "RD_mu_STopT_Tbar_CMSSW428.root");
+    }
+    if (myflag == 20111005 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_STopT_T_CMSSW428.root"); 
+      Init(myChain);Loop( 20111005,outDataDir + "RD_mu_STopT_T_CMSSW428.root");
+    }
+    if (myflag == 20111006 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_STopTW_Tbar_CMSSW428.root"); 
+      Init(myChain);Loop( 20111006,outDataDir + "RD_mu_STopTW_Tbar_CMSSW428.root");
+    }
+    if (myflag == 20111007 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_STopTW_T_CMSSW428.root"); 
+      Init(myChain);Loop( 20111007,outDataDir + "RD_mu_STopTW_T_CMSSW428.root");
+    }
+    if (myflag == 20111008 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_TTbar_MG_CMSSW428.root"); 
+      Init(myChain);Loop( 20111008,outDataDir + "RD_mu_TTbar_MG_CMSSW428.root");
+    }
+    if (myflag == 20111009 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJ_CMSSW428.root"); 
+      Init(myChain);Loop( 20111009,outDataDir + "RD_mu_WpJ_CMSSW428.root");
+    }
+    if (myflag == 20111010 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJmatchingdown_CMSSW428.root"); 
+      Init(myChain);Loop( 20111010,outDataDir + "RD_mu_WpJmatchingdown_CMSSW428.root");
+    }
+    if (myflag == 20111011 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJmatchingup_CMSSW428.root"); 
+      Init(myChain);Loop( 20111011,outDataDir + "RD_mu_WpJmatchingup_CMSSW428.root");
+    }
+    if (myflag == 20111012 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJscaledown_CMSSW428.root"); 
+      Init(myChain);Loop( 20111012,outDataDir + "RD_mu_WpJscaledown_CMSSW428.root");
+    }
+    if (myflag == 20111013 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJscaleup_CMSSW428.root"); 
+      Init(myChain);Loop( 20111013,outDataDir + "RD_mu_WpJscaleup_CMSSW428.root");
+    }
+    if (myflag == 20111014 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJsherpa_CMSSW428.root"); 
+      Init(myChain);Loop( 20111014,outDataDir + "RD_mu_WpJsherpa_CMSSW428.root");
+    }
+    if (myflag == 20111015 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WW_CMSSW428.root"); 
+      Init(myChain);Loop( 20111015,outDataDir + "RD_mu_WW_CMSSW428.root");
+    }
+    if (myflag == 20111016 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WZ_CMSSW428.root"); 
+      Init(myChain);Loop( 20111016,outDataDir + "RD_mu_WZ_CMSSW428.root");
+    }
+    if (myflag == 20111017 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_ZpJ_CMSSW428.root"); 
+      Init(myChain);Loop( 20111017,outDataDir + "RD_mu_ZpJ_CMSSW428.root");
+    }
+    if (myflag == 20111018 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_QCDMu_CMSSW428.root"); 
+      Init(myChain);Loop( 20111018,outDataDir + "RD_mu_QCDMu_CMSSW428.root");
+    }
+    if (myflag == 20111019 || myflag ==  999){ // set 999 not run!! no need
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_TTbar_powheg_CMSSW428.root"); 
+      Init(myChain);Loop( 20111019,outDataDir + "RD_mu_TTbar_powheg_CMSSW428.root");
+    }
+
+    // Higgs Signal Samples
+    if (myflag == 20112120 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH120_CMSSW428.root"); 
+      Init(myChain);Loop( 20112120,outDataDir + "RD_mu_HWWMH120_CMSSW428.root");
+    }
+    if (myflag == 20112130 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH130_CMSSW428.root"); 
+      Init(myChain);Loop( 20112130,outDataDir + "RD_mu_HWWMH130_CMSSW428.root");
+    }
+    if (myflag == 20112140 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH140_CMSSW428.root"); 
+      Init(myChain);Loop( 20112140,outDataDir + "RD_mu_HWWMH140_CMSSW428.root");
+    }
+    if (myflag == 20112150 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH150_CMSSW428.root"); 
+      Init(myChain);Loop( 20112150,outDataDir + "RD_mu_HWWMH150_CMSSW428.root");
+    }
+    if (myflag == 20112160 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH160_CMSSW428.root"); 
+      Init(myChain);Loop( 20112160,outDataDir + "RD_mu_HWWMH160_CMSSW428.root");
+    }
+    if (myflag == 20112170 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH170_CMSSW428.root"); 
+      Init(myChain);Loop( 20112170,outDataDir + "RD_mu_HWWMH170_CMSSW428.root");
+    }
+    if (myflag == 20112180 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH180_CMSSW428.root"); 
+      Init(myChain);Loop( 20112180,outDataDir + "RD_mu_HWWMH180_CMSSW428.root");
+    }
+    if (myflag == 20112190 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH190_CMSSW428.root"); 
+      Init(myChain);Loop( 20112190,outDataDir + "RD_mu_HWWMH190_CMSSW428.root");
+    }
+    if (myflag == 20112200 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH200_CMSSW428.root"); 
+      Init(myChain);Loop( 20112200,outDataDir + "RD_mu_HWWMH200_CMSSW428.root");
+    }
+    if (myflag == 20112250 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH250_CMSSW428.root"); 
+      Init(myChain);Loop( 20112250,outDataDir + "RD_mu_HWWMH250_CMSSW428.root");
+    }
+    if (myflag == 20112300 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH300_CMSSW428.root"); 
+      Init(myChain);Loop( 20112300,outDataDir + "RD_mu_HWWMH300_CMSSW428.root");
+    }
+    if (myflag == 20112350 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH350_CMSSW428.root"); 
+      Init(myChain);Loop( 20112350,outDataDir + "RD_mu_HWWMH350_CMSSW428.root");
+    }
+    if (myflag == 20112400 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH400_CMSSW428.root"); 
+      Init(myChain);Loop( 20112400,outDataDir + "RD_mu_HWWMH400_CMSSW428.root");
+    }
+    if (myflag == 20112450 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH450_CMSSW428.root"); 
+      Init(myChain);Loop( 20112450,outDataDir + "RD_mu_HWWMH450_CMSSW428.root");
+    }
+    if (myflag == 20112500 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH500_CMSSW428.root"); 
+      Init(myChain);Loop( 20112500,outDataDir + "RD_mu_HWWMH500_CMSSW428.root");
+    }
+    if (myflag == 20112550 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH550_CMSSW428.root"); 
+      Init(myChain);Loop( 20112550,outDataDir + "RD_mu_HWWMH550_CMSSW428.root");
+    }
+    if (myflag == 20112600 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH600_CMSSW428.root"); 
+      Init(myChain);Loop( 20112600,outDataDir + "RD_mu_HWWMH600_CMSSW428.root");
+    }
+
+    // VBF Higgs MC Signal
+    if (myflag == 20113120 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH120_CMSSW428.root"); 
+      Init(myChain);Loop( 20113120,outDataDir + "RD_mu_VBFHWWMH120_CMSSW428.root");
+    }
+    if (myflag == 20113130 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH130_CMSSW428.root"); 
+      Init(myChain);Loop( 20113130,outDataDir + "RD_mu_VBFHWWMH130_CMSSW428.root");
+    }
+    if (myflag == 20113140 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH140_CMSSW428.root"); 
+      Init(myChain);Loop( 20113140,outDataDir + "RD_mu_VBFHWWMH140_CMSSW428.root");
+    }
+    if (myflag == 20113150 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH150_CMSSW428.root"); 
+      Init(myChain);Loop( 20113150,outDataDir + "RD_mu_VBFHWWMH150_CMSSW428.root");
+    }
+    if (myflag == 20113160 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH160_CMSSW428.root"); 
+      Init(myChain);Loop( 20113160,outDataDir + "RD_mu_VBFHWWMH160_CMSSW428.root");
+    }
+    if (myflag == 20113170 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH170_CMSSW428.root"); 
+      Init(myChain);Loop( 20113170,outDataDir + "RD_mu_VBFHWWMH170_CMSSW428.root");
+    }
+    if (myflag == 20113180 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH180_CMSSW428.root"); 
+      Init(myChain);Loop( 20113180,outDataDir + "RD_mu_VBFHWWMH180_CMSSW428.root");
+    }
+    if (myflag == 20113190 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH190_CMSSW428.root"); 
+      Init(myChain);Loop( 20113190,outDataDir + "RD_mu_VBFHWWMH190_CMSSW428.root");
+    }
+    if (myflag == 20113200 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH200_CMSSW428.root"); 
+      Init(myChain);Loop( 20113200,outDataDir + "RD_mu_VBFHWWMH200_CMSSW428.root");
+    }
+    if (myflag == 20113250 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH250_CMSSW428.root"); 
+      Init(myChain);Loop( 20113250,outDataDir + "RD_mu_VBFHWWMH250_CMSSW428.root");
+    }
+    if (myflag == 20113300 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH300_CMSSW428.root"); 
+      Init(myChain);Loop( 20113300,outDataDir + "RD_mu_VBFHWWMH300_CMSSW428.root");
+    }
+    if (myflag == 20113350 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH350_CMSSW428.root"); 
+      Init(myChain);Loop( 20113350,outDataDir + "RD_mu_VBFHWWMH350_CMSSW428.root");
+    }
+    if (myflag == 20113400 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH400_CMSSW428.root"); 
+      Init(myChain);Loop( 20113400,outDataDir + "RD_mu_VBFHWWMH400_CMSSW428.root");
+    }
+    if (myflag == 20113450 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH450_CMSSW428.root"); 
+      Init(myChain);Loop( 20113450,outDataDir + "RD_mu_VBFHWWMH450_CMSSW428.root");
+    }
+    if (myflag == 20113500 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH500_CMSSW428.root"); 
+      Init(myChain);Loop( 20113500,outDataDir + "RD_mu_VBFHWWMH500_CMSSW428.root");
+    }
+    if (myflag == 20113550 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH550_CMSSW428.root"); 
+      Init(myChain);Loop( 20113550,outDataDir + "RD_mu_VBFHWWMH550_CMSSW428.root");
+    }
+    if (myflag == 20113600 || myflag == -100){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH600_CMSSW428.root"); 
+      Init(myChain);Loop( 20113600,outDataDir + "RD_mu_VBFHWWMH600_CMSSW428.root");
+    }
   }
 
-  // Higgs Signal Samples
-  if (myflag == 20112120 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH120_CMSSW428.root"); 
-    Init(myChain);Loop( 20112120,"./OutData/RD_mu_HWWMH120_CMSSW428.root");
-  }
-  if (myflag == 20112130 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH130_CMSSW428.root"); 
-    Init(myChain);Loop( 20112130,"./OutData/RD_mu_HWWMH130_CMSSW428.root");
-  }
-  if (myflag == 20112140 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH140_CMSSW428.root"); 
-    Init(myChain);Loop( 20112140,"./OutData/RD_mu_HWWMH140_CMSSW428.root");
-  }
-  if (myflag == 20112150 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH150_CMSSW428.root"); 
-    Init(myChain);Loop( 20112150,"./OutData/RD_mu_HWWMH150_CMSSW428.root");
-  }
-  if (myflag == 20112160 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH160_CMSSW428.root"); 
-    Init(myChain);Loop( 20112160,"./OutData/RD_mu_HWWMH160_CMSSW428.root");
-  }
-  if (myflag == 20112170 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH170_CMSSW428.root"); 
-    Init(myChain);Loop( 20112170,"./OutData/RD_mu_HWWMH170_CMSSW428.root");
-  }
-  if (myflag == 20112180 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH180_CMSSW428.root"); 
-    Init(myChain);Loop( 20112180,"./OutData/RD_mu_HWWMH180_CMSSW428.root");
-  }
-  if (myflag == 20112190 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH190_CMSSW428.root"); 
-    Init(myChain);Loop( 20112190,"./OutData/RD_mu_HWWMH190_CMSSW428.root");
-  }
-  if (myflag == 20112200 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH200_CMSSW428.root"); 
-    Init(myChain);Loop( 20112200,"./OutData/RD_mu_HWWMH200_CMSSW428.root");
-  }
-  if (myflag == 20112250 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH250_CMSSW428.root"); 
-    Init(myChain);Loop( 20112250,"./OutData/RD_mu_HWWMH250_CMSSW428.root");
-  }
-  if (myflag == 20112300 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH300_CMSSW428.root"); 
-    Init(myChain);Loop( 20112300,"./OutData/RD_mu_HWWMH300_CMSSW428.root");
-  }
-  if (myflag == 20112350 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH350_CMSSW428.root"); 
-    Init(myChain);Loop( 20112350,"./OutData/RD_mu_HWWMH350_CMSSW428.root");
-  }
-  if (myflag == 20112400 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH400_CMSSW428.root"); 
-    Init(myChain);Loop( 20112400,"./OutData/RD_mu_HWWMH400_CMSSW428.root");
-  }
-  if (myflag == 20112450 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH450_CMSSW428.root"); 
-    Init(myChain);Loop( 20112450,"./OutData/RD_mu_HWWMH450_CMSSW428.root");
-  }
-  if (myflag == 20112500 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH500_CMSSW428.root"); 
-    Init(myChain);Loop( 20112500,"./OutData/RD_mu_HWWMH500_CMSSW428.root");
-  }
-  if (myflag == 20112550 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH550_CMSSW428.root"); 
-    Init(myChain);Loop( 20112550,"./OutData/RD_mu_HWWMH550_CMSSW428.root");
-  }
-  if (myflag == 20112600 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_HWWMH600_CMSSW428.root"); 
-    Init(myChain);Loop( 20112600,"./OutData/RD_mu_HWWMH600_CMSSW428.root");
-  }
-
-  // VBF Higgs MC Signal
-  if (myflag == 20113120 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH120_CMSSW428.root"); 
-    Init(myChain);Loop( 20113120,"./OutData/RD_mu_VBFHWWMH120_CMSSW428.root");
-  }
-  if (myflag == 20113130 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH130_CMSSW428.root"); 
-    Init(myChain);Loop( 20113130,"./OutData/RD_mu_VBFHWWMH130_CMSSW428.root");
-  }
-  if (myflag == 20113140 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH140_CMSSW428.root"); 
-    Init(myChain);Loop( 20113140,"./OutData/RD_mu_VBFHWWMH140_CMSSW428.root");
-  }
-  if (myflag == 20113150 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH150_CMSSW428.root"); 
-    Init(myChain);Loop( 20113150,"./OutData/RD_mu_VBFHWWMH150_CMSSW428.root");
-  }
-  if (myflag == 20113160 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH160_CMSSW428.root"); 
-    Init(myChain);Loop( 20113160,"./OutData/RD_mu_VBFHWWMH160_CMSSW428.root");
-  }
-  if (myflag == 20113170 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH170_CMSSW428.root"); 
-    Init(myChain);Loop( 20113170,"./OutData/RD_mu_VBFHWWMH170_CMSSW428.root");
-  }
-  if (myflag == 20113180 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH180_CMSSW428.root"); 
-    Init(myChain);Loop( 20113180,"./OutData/RD_mu_VBFHWWMH180_CMSSW428.root");
-  }
-  if (myflag == 20113190 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH190_CMSSW428.root"); 
-    Init(myChain);Loop( 20113190,"./OutData/RD_mu_VBFHWWMH190_CMSSW428.root");
-  }
-  if (myflag == 20113200 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH200_CMSSW428.root"); 
-    Init(myChain);Loop( 20113200,"./OutData/RD_mu_VBFHWWMH200_CMSSW428.root");
-  }
-  if (myflag == 20113250 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH250_CMSSW428.root"); 
-    Init(myChain);Loop( 20113250,"./OutData/RD_mu_VBFHWWMH250_CMSSW428.root");
-  }
-  if (myflag == 20113300 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH300_CMSSW428.root"); 
-    Init(myChain);Loop( 20113300,"./OutData/RD_mu_VBFHWWMH300_CMSSW428.root");
-  }
-  if (myflag == 20113350 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH350_CMSSW428.root"); 
-    Init(myChain);Loop( 20113350,"./OutData/RD_mu_VBFHWWMH350_CMSSW428.root");
-  }
-  if (myflag == 20113400 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH400_CMSSW428.root"); 
-    Init(myChain);Loop( 20113400,"./OutData/RD_mu_VBFHWWMH400_CMSSW428.root");
-  }
-  if (myflag == 20113450 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH450_CMSSW428.root"); 
-    Init(myChain);Loop( 20113450,"./OutData/RD_mu_VBFHWWMH450_CMSSW428.root");
-  }
-  if (myflag == 20113500 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH500_CMSSW428.root"); 
-    Init(myChain);Loop( 20113500,"./OutData/RD_mu_VBFHWWMH500_CMSSW428.root");
-  }
-  if (myflag == 20113550 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH550_CMSSW428.root"); 
-    Init(myChain);Loop( 20113550,"./OutData/RD_mu_VBFHWWMH550_CMSSW428.root");
-  }
-  if (myflag == 20113600 || myflag == -100){
-    myChain = new TChain("WJet");  
-    myChain->Add(                    "./InData/mu_VBFHWWMH600_CMSSW428.root"); 
-    Init(myChain);Loop( 20113600,"./OutData/RD_mu_VBFHWWMH600_CMSSW428.root");
-  }
 }
 
-void kanamuon::Loop(int wda, const char *outfilename)
+void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 {
   if (fChain == 0) return;
   Long64_t nentries = fChain->GetEntries();
@@ -463,20 +483,29 @@ void kanamuon::Loop(int wda, const char *outfilename)
 
     TopWm     = 0;
 
-    // Good Event Selection Requirement
+    // Good Event Selection Requirement for all events
     bool  isgengdevt = 0;
     if (JetPFCor_Pt[0]>Jpt 
 	&& JetPFCor_Pt[1]>Jpt 
         //&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
         //&& fabs(JetPFCor_dphiMET[0])>0.4
-        && event_met_pfmet>30.
+        //&& event_met_pfmet>30. //apply separately for QCD and non-QCD
 	&& W_mt>40.
 	//&& dijetpt>40.
 	&& W_muon_pt>25.
-	&& muoniso<0.1
 	&& fabs(W_muon_d0bsp)<0.02
 	&& fabs(W_muon_eta)<2.1
         ) isgengdevt = 1;
+    // Event Selection Requirement for Standard vs QCD events
+    if ( !isQCD ) {
+      //keep muons with iso<0.1 && event_met_pfmet>30.
+      if ( !(muoniso<0.1) ) isgengdevt=0;
+      if ( !(event_met_pfmet>30.0) ) isgengdevt=0;
+    } else {
+      //keep muons with iso>0.1
+      if ( !(muoniso>0.1) ) isgengdevt=0;
+    }
+
 
     // 2 and 3 jet event for Mjj and Hww 
     if (isgengdevt

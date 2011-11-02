@@ -624,8 +624,8 @@ public :
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 
-   virtual void     myana(double myflag = -999);
-   virtual void     Loop(int wda, const char * outfilename);
+   virtual void     myana(double myflag = -999, bool isQCD = false);
+   virtual void     Loop(int wda, const char * outfilename, bool isQCD = false);
    virtual bool     doKinematicFit(Int_t                 fflage,
 				   const TLorentzVector     mup, 
 				   const TLorentzVector     nvp,

@@ -5,5 +5,6 @@
   gROOT->ProcessLine(".L ../src/METzCalculator.cc++");
   gROOT->ProcessLine(".L kanamuon.C++");
   gROOT->ProcessLine("kanamuon runover");
-  gROOT->ProcessLine("runover.myana(0)");
+  ///Set true/false for isQCD
+  gROOT->ProcessLine("runover.myana(0,false)");
 }
