@@ -21,7 +21,7 @@ public:
   RooPlot * computeChi2(double& chi2, int& ndf);
 
   RooAbsPdf * makeFitter();
-  RooAbsData * loadData();
+  RooAbsData * loadData(bool trunc = false);
 
   RooAbsPdf * makeDibosonPdf();
   RooAbsPdf * makeWpJPdf();

@@ -12,21 +12,25 @@ parser.add_option('-i', '--init', dest='startingFile',
                   help='File to use as the initial template')
 parser.add_option('-d', '--dir', dest='mcdir', default='',
                   help='directory to pick up the W+jets shapes')
+parser.add_option('-m', '--mode', default="HWWconfig", dest='modeConfig',
+                  help='which config to select look at HWWconfig.py for an '+ \
+                  'example.  Use the file name minus the .py extension.')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
-import HWWconfig
 
+config = __import__(opts.modeConfig)
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+');
 from ROOT import RooWjjMjjFitter, RooFitResult, \
-     RooMsgService, RooFit, TLatex
+     RooMsgService, RooFit, TLatex, TMatrixDSymEigen, RooArgList, RooArgSet
+from math import sqrt
 
-RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
+# RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = HWWconfig.theConfig(opts.Nj, opts.mcdir, opts.startingFile)
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
 fr = theFitter.fit()
@@ -65,3 +69,29 @@ c4 = TCanvas("c4", "pull")
 pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
 c4.Print('HWW_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
+
+mass = theFitter.getWorkSpace().var(fitterPars.var)
+mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
+yields = RooArgList(theFitter.makeFitter().coefList())
+iset = RooArgSet(mass)
+sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
+## print "*** yield vars ***"
+## yields.Print("v")
+eigen = TMatrixDSymEigen(fr.covarianceMatrix())
+
+usig2 = 0.
+totalYield = 0.
+for i in range(0, yields.getSize()):
+    usig2 += yields.at(i).getError()*yields.at(i).getError()
+    totalYield += yields.at(i).getVal()
+
+
+sig2 = 0.
+for eigVal in eigen.GetEigenValues():
+    sig2 += eigVal
+
+fr.Print()
+#print 'total yield error (uncorrelated): {0:0.1f}'.format(sqrt(usig2))
+print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
+print 'sqrt(total): {0:0.0f}'.format(sqrt(totalYield))
+print 'yield in signal box: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal(), sigInt.getVal()*sqrt(sig2))

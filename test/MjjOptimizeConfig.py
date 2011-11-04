@@ -5,15 +5,15 @@ from ROOT import RooWjjFitterParams
 
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
-    fitterPars.MCDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewReducedTree/RD_'
-    fitterPars.WpJDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewReducedTree/RD_'
+    fitterPars.MCDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
+    fitterPars.WpJDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = True
     fitterPars.QCDDirectory = '/uscms_data/d1/kalanand/WjjTrees/NewReducedQCDTrees/'
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
-    fitterPars.DataDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewReducedTree/RD_'
+    fitterPars.DataDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
     fitterPars.minMass = 60.
     fitterPars.maxMass = 300.
@@ -30,4 +30,3 @@ def theConfig(Nj, mcdir = '', initFile = ''):
                       '&& (JetPFCor_Pt[1]/Mass2j_PFCor<0.7) '
 
     return fitterPars
-

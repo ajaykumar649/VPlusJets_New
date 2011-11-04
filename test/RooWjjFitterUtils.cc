@@ -19,39 +19,33 @@
 #include "RooPlot.h"
 
 RooWjjFitterUtils::RooWjjFitterUtils() :
-  nbins_(14), histmin_(50.), histmax_(120.), njets_(2),
-  jes_scales_(2), massVar_(0), mjj_(0)
+  jes_scales_(2)
 {
-  cut_ = "";
-  var_ = "Mass2j_PFCor";
-  treeName_ = "WJet";
-  updatenjets();
+  initialize();
   for (int j = 0; j < 2; ++j)
     jes_scales_[j] = 0.;
-  mjj_ = new RooRealVar(var_, "m_{jj}", histmin_, histmax_, "GeV/c^{2}");
-  mjj_->setPlotLabel(mjj_->GetTitle());
-  mjj_->setBins(nbins_);
-  massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));
 }
 
-RooWjjFitterUtils::RooWjjFitterUtils(int nbins, double min, double max, 
-				     int njets, TString cut, 
-				     TString var, TString treeName) :
-  nbins_(nbins), histmin_(min), histmax_(max), njets_(njets),
-  jes_scales_(2), massVar_(0), mjj_(0), cut_(cut), var_(var), 
-  treeName_(treeName)
+RooWjjFitterUtils::RooWjjFitterUtils(RooWjjFitterParams & pars) :
+  params_(pars), jes_scales_(2)
 {
-  updatenjets();
-  for (int j = 0; j < 2; ++j)
-    jes_scales_[j] = 0.;
-  mjj_ = new RooRealVar(var_, "m_{jj}", histmin_, histmax_, "GeV/c^{2}");
-  mjj_->setBins(nbins_);
-  massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));
+  initialize();
+  jes_scales_[0] = params_.JES_scale1;
+  jes_scales_[1] = params_.JES_scale2;
 }
 
 RooWjjFitterUtils::~RooWjjFitterUtils()  { 
   delete mjj_; 
   delete massVar_;
+}
+
+void RooWjjFitterUtils::initialize() {
+  updatenjets();
+  mjj_ = new RooRealVar(params_.var, "m_{jj}", params_.minMass, 
+			params_.maxMass, "GeV/c^{2}");
+  mjj_->setPlotLabel(mjj_->GetTitle());
+  mjj_->setBins(params_.nbins);
+  massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));  
 }
 
 TH1 * RooWjjFitterUtils::File2Hist(TString fname, 
@@ -60,18 +54,19 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 				   double binMult) const {
   TFile treeFile(fname);
   TTree * theTree;
-  treeFile.GetObject(treeName_, theTree);
+  treeFile.GetObject(params_.treeName, theTree);
   if (!theTree) {
-    std::cout << "failed to find tree " << treeName_ << " in file " << fname 
+    std::cout << "failed to find tree " << params_.treeName << " in file " << fname 
 	      << '\n';
     return 0;
   }
   double tmpScale = 0.;
   if ((jes_scl >= 0) && (jes_scl < int(jes_scales_.size())))
     tmpScale = jes_scales_[jes_scl];
-  TString plotStr = TString::Format("%s*(1+%0.4f)", var_.Data(), tmpScale);
-  TH1D * theHist = new TH1D(histName, histName, int(nbins_*binMult), 
-			    histmin_, histmax_);
+  TString plotStr = TString::Format("%s*(1+%0.4f)", params_.var.Data(), 
+				    tmpScale);
+  TH1D * theHist = new TH1D(histName, histName, int(params_.nbins*binMult), 
+			    params_.minMass, params_.maxMass);
   theHist->Sumw2();
 
   theTree->Draw(plotStr + ">>" + histName, 
@@ -104,18 +99,20 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
 }
 
 RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname, 
-					     TString dsName) const {
+					     TString dsName, 
+					     bool trunc) const {
   TFile treeFile(fname);
   TTree * theTree;
-  treeFile.GetObject(treeName_, theTree);
+  treeFile.GetObject(params_.treeName, theTree);
   if (!theTree) {
-    std::cout << "failed to find tree " << treeName_ << " in file " << fname 
+    std::cout << "failed to find tree " << params_.treeName << " in file " << fname 
 	      << '\n';
     return 0;
   }
 
+  activateBranches(*theTree);
   TFile holder("holder_DELETE_ME.root", "recreate");
-  TTree * reducedTree = theTree->CopyTree( fullCuts() );
+  TTree * reducedTree = theTree->CopyTree( fullCuts(trunc) );
 
   RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
 				   RooArgSet(*mjj_));
@@ -126,22 +123,30 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
   return ds;
 }
 
-TString RooWjjFitterUtils::fullCuts() const {
+TString RooWjjFitterUtils::fullCuts(bool trunc) const {
   TString theCut = TString::Format("((%s > %0.3f) && (%s < %0.3f))", 
-				    var_.Data(), histmin_, 
-				    var_.Data(), histmax_);
+				    params_.var.Data(), params_.minMass, 
+				    params_.var.Data(), params_.maxMass);
+  if (trunc) {
+    theCut = TString::Format("(((%s>%0.3f) && (%s<%0.3f)) || "
+			     "((%s>%0.3f) && (%s<%0.3f)))",
+			     params_.var.Data(), params_.minMass,
+			     params_.var.Data(), params_.minTrunc,
+			     params_.var.Data(), params_.maxTrunc,
+			     params_.var.Data(), params_.maxMass);
+  }
   theCut += TString::Format(" && (%s)", jetCut_.Data());
-  if (cut_.Length() > 0)
-    theCut +=  TString::Format(" && (%s)", cut_.Data());
+  if (params_.cuts.Length() > 0)
+    theCut +=  TString::Format(" && (%s)", params_.cuts.Data());
   return "(" + theCut + ")";
 }
 
 void RooWjjFitterUtils::hist2RandomTree(TH1 * theHist, 
 					TString fname) const {
   TFile treeFile(fname, "recreate");
-  TTree WJet(treeName_, treeName_);
+  TTree WJet(params_.treeName, params_.treeName);
   double theVar;
-  WJet.Branch(var_, &theVar, var_ + "/D");
+  WJet.Branch(params_.var, &theVar, params_.var + "/D");
   double entries = 0;
   for (entries = 0; entries < theHist->GetEntries(); ++entries) {
     theVar = theHist->GetRandom();
@@ -151,19 +156,9 @@ void RooWjjFitterUtils::hist2RandomTree(TH1 * theHist,
   treeFile.Close();
 }
 
-
-// void RooWjjFitterUtils::setWorkspace(RooWorkspace * ws) {
-//   ws_ = ws;
-// }
-
-void RooWjjFitterUtils::setJES_scale(unsigned int i, double jes) {
-  if (i < jes_scales_.size())
-    jes_scales_[i] = jes;
-}
-
 void RooWjjFitterUtils::updatenjets() {
-  jetCut_ = TString::Format("evtNJ==%d", njets_);
-  if (njets_ < 2)
+  jetCut_ = TString::Format("evtNJ==%d", params_.njets);
+  if (params_.njets < 2)
     jetCut_ = "evtNJ==2 || evtNJ==3";
 }
 
@@ -239,6 +234,47 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
   return theLeg;
 }
 
+void RooWjjFitterUtils::activateBranches(TTree& t) {
+  t.SetBranchStatus("*",    0);
+  t.SetBranchStatus("JetPFCor_Pt",    1);
+  t.SetBranchStatus("JetPFCor_Px",    1);
+  t.SetBranchStatus("JetPFCor_Py",    1);
+  t.SetBranchStatus("JetPFCor_Pz",    1);
+  t.SetBranchStatus("JetPFCor_Eta",    1);
+  t.SetBranchStatus("JetPFCor_Phi",    1);
+  t.SetBranchStatus("JetPFCor_etaetaMoment",    1);
+  t.SetBranchStatus("JetPFCor_phiphiMoment",    1);
+  t.SetBranchStatus("JetPFCor_ChargedHadronMultiplicity",    1);
+  t.SetBranchStatus("JetPFCor_ChargedHadronEnergyFrac",    1);
+  t.SetBranchStatus("JetPFCor_NeutralHadronMultiplicity",    1);
+  t.SetBranchStatus("JetPFCor_bDiscriminator",    1);
+  t.SetBranchStatus("JetPFCor_QGLikelihood",    1);
+
+  t.SetBranchStatus("event_met_pfmet",    1);
+  t.SetBranchStatus("event_met_pfmetPhi",    1);
+  t.SetBranchStatus("event_met_pfmetsignificance",    1);
+  t.SetBranchStatus("event_BeamSpot_x",    1);
+  t.SetBranchStatus("event_BeamSpot_y",    1);
+  t.SetBranchStatus("event_RhoForLeptonIsolation",    1);
+  t.SetBranchStatus("event_nPV",    1);
+
+  t.SetBranchStatus("W_mt",    1);
+  t.SetBranchStatus("W_pt",    1);
+  t.SetBranchStatus("W_pzNu1",    1);
+  t.SetBranchStatus("W_pzNu2",    1);
+  t.SetBranchStatus("fit_status",    1);
+  t.SetBranchStatus("gdevtt",    1);
+  t.SetBranchStatus("fit_chi2",    1);
+  t.SetBranchStatus("fit_NDF",    1);
+  t.SetBranchStatus("fi2_chi2",    1);
+  t.SetBranchStatus("fi2_NDF",    1);
+  t.SetBranchStatus("evtNJ",    1);
+
+  t.SetBranchStatus("Mass2j_PFCor",    1);
+  t.SetBranchStatus("MassV2j_PFCor",    1);
+  t.SetBranchStatus("cosJacksonAngle2j_PFCor",    1);
+  t.SetBranchStatus("cosJacksonAngleV2j_PFCor",    1);
+}
 
 double RooWjjFitterUtils::sig2(RooAddPdf& pdf, RooRealVar& obs, double Nbin) {
 
