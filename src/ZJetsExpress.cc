@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id$
+// $Id: ZJetsExpress.cc,v 1.3 2011/11/04 08:10:45 kkousour Exp $
 //
 //
 
@@ -513,7 +513,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   nLeptons_   = int(myLeptons.size()); 
   nJets_      = int(myJets.size());
   // ---- keep only selected events -------------------------------------
-  if ((nVtx_ > 0) && (nLeptons_ > 1) && (nJets_ > mMinNjets)) {
+  if ((nVtx_ > 0) && (nLeptons_ > 1) && (nJets_ >= mMinNjets)) {
     TLorentzVector llP4 = myLeptons[0].p4 + myLeptons[1].p4;
     // ---- hadronic recoil vector --------------------------------------
     TLorentzVector pfmetP4(pfmetPx,pfmetPy,0,sqrt(pfmetPx * pfmetPx + pfmetPy * pfmetPy));
