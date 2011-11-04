@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.3 2011/11/04 08:10:45 kkousour Exp $
+// $Id: ZJetsExpress.cc,v 1.4 2011/11/04 08:36:49 kkousour Exp $
 //
 //
 
@@ -443,12 +443,12 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     int index = i_jet - jets_->begin();
     edm::RefToBase<reco::Jet> jetRef(edm::Ref<PFJetCollection>(jets_,index));
     double jec = mJEC->correction(*i_jet,jetRef,iEvent,iSetup);
+    // ---- only keep jets within the kinematic acceptance --------------
+    if ((jec * jetP4.Pt() < mMinJetPt) || (fabs(jetP4.Eta()) > mMaxJetEta)) continue;
     mJECunc->setJetEta(i_jet->eta());
     // ---- the unc is a function of the corrected pt -------------------
     mJECunc->setJetPt(jec * i_jet->pt());
     double unc = mJECunc->getUncertainty(true);
-    // ---- only keep jets within the kinematic acceptance --------------
-    if ((jec * jetP4.Pt() < mMinJetPt) || (fabs(jetP4.Eta()) > mMaxJetEta)) continue;
     // ---- jet vertex association --------------------------------------
     // ---- get the vector of tracks ------------------------------------
     reco::TrackRefVector vTrks(i_jet->getTrackRefs());
