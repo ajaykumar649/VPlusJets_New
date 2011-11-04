@@ -21,14 +21,17 @@ process.TFileService = cms.Service("TFileService",
 )
 # ---- ZJetsExpress analyzer --------------------------------------------
 process.accepted = cms.EDAnalyzer('ZJetsExpress',
-       jets       = cms.InputTag('ak5PFJets'),
-       srcRho     = cms.InputTag('kt6PFJets','rho'),
-       minJetPt   = cms.double(30),
-       maxJetEta  = cms.double(2.5),
-       minLepPt   = cms.double(20),
-       maxLepEta  = cms.double(2.4),
-       jecService = cms.string('ak5PFL1FastL2L3Residual'),
-       payload    = cms.string('AK5PF')
+       jets            = cms.InputTag('ak5PFJets'),
+       srcRho          = cms.InputTag('kt6PFJets','rho'),
+       minNjets        = cms.int32(-1),
+       jetLepIsoRadius = cms.double(0.4),
+       minJetPt        = cms.double(30),
+       maxJetEta       = cms.double(2.5),
+       minLepPt        = cms.double(20),
+       maxLepEta       = cms.double(2.4),
+       jecService      = cms.string('ak5PFL1FastL2L3Residual'),
+       payload         = cms.string('AK5PF'),
+       isMC            = cms.bool(False)
 )
 # ---- duplicate the analyzer with different name -----------------------
 process.rejected = process.accepted.clone()
