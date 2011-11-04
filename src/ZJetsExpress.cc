@@ -110,6 +110,10 @@ class ZJetsExpress : public edm::EDAnalyzer {
       struct LEPTON {
         // ---- momentum 4-vector ---------------------------------------
         TLorentzVector p4; 
+        // ---- standard isolation --------------------------------------
+        float iso;
+        // ---- modified isolation --------------------------------------
+        float isom; 
         // ---- charge id (+/-1: electrons, +/-2: muons) ---------------- 
         int chid; 
         // ---- tight id ------------------------------------------------
@@ -142,8 +146,9 @@ class ZJetsExpress : public edm::EDAnalyzer {
         float elf;
       };
       // ---- sorting rules ---------------------------------------------
-      static bool leptonSortingRule(LEPTON x, LEPTON y) {return x.p4.Pt() > y.p4.Pt();}
-      static bool jetSortingRule(JET x, JET y) {return x.p4.Pt() > y.p4.Pt();}
+      static bool leptonSortingRule(LEPTON x, LEPTON y)             {return x.p4.Pt() > y.p4.Pt();}
+      static bool jetSortingRule(JET x, JET y)                      {return x.p4.Pt() > y.p4.Pt();}
+      static bool p4SortingRule(TLorentzVector x, TLorentzVector y) {return x.Pt() > y.Pt();}
       // ---------- member data -----------------------------------------
       edm::Service<TFileService> fTFileService;	
       TTree *myTree_;
@@ -158,8 +163,10 @@ class ZJetsExpress : public edm::EDAnalyzer {
       // ---- jet energy uncertainty object -----------------------------
       JetCorrectionUncertainty *mJECunc;
       // ---- configurable parameters -----------------------------------
-      double mMinJetPt,mMaxJetEta,mMinLepPt,mMaxLepEta;
-      string mJECservice,mPayloadName;
+      bool          mIsMC;
+      int           mMinNjets;
+      double        mMinJetPt,mMaxJetEta,mMinLepPt,mMaxLepEta,mJetLepIsoR;
+      string        mJECservice,mPayloadName;
       edm::InputTag mJetsName,mSrcRho;
       // ---- tree variables --------------------------------------------
       // ---- event number ----------------------------------------------
@@ -184,8 +191,9 @@ class ZJetsExpress : public edm::EDAnalyzer {
       vector<float> *jetllDPhi_;
       // ---- lepton kinematics -----------------------------------------
       vector<float> *lepPt_,*lepEta_,*lepPhi_,*lepE_;
-      // ---- lepton charge and id -------------------------------------- 
+      // ---- lepton properties ----------------------------------------- 
       vector<int>   *lepChId_,*lepId_;
+      vector<float> *lepIso_,*lepIsoMod_;
       // ---- number of leptons -----------------------------------------
       int nLeptons_;
       // ---- jet kinematics --------------------------------------------
@@ -198,6 +206,18 @@ class ZJetsExpress : public edm::EDAnalyzer {
       vector<int>   *jetId_; 
       // ---- number of jets --------------------------------------------
       int nJets_;
+      // ---- flag to determine if the Z is one of the 2 leading objects-
+      int isZlead_;
+      // ---- HT of the two leading objects -----------------------------
+      float htLead_;
+      // ---- jet pt geometric mean -------------------------------------
+      float jetPtGeMean_;
+      // ---- jet pt arithmetic mean ------------------------------------
+      float jetPtArMean_;
+      // ---- dphi between jets -----------------------------------------
+      float j1j2DPhi_,j1j3DPhi_,j2j3DPhi_;
+      // ---- dR between jets -------------------------------------------
+      float j1j2DR_,j1j3DR_,j2j3DR_; 
       // ---- pf met ----------------------------------------------------
       float pfmet_;
       // ---- pf sumEt --------------------------------------------------
@@ -206,10 +226,6 @@ class ZJetsExpress : public edm::EDAnalyzer {
       float pfmetPhi_;
       // ---- pt of the hadronic recoil ---------------------------------
       float pfhadPt_; 
-      // ---- transverse mass of the Z and the hadronic recoil ----------
-      float mT_; 
-      // ---- transverse mass of the Z and the hadronic recoil assuming -
-      float mTp_;
       // ---- invariant mass of the Z and the leading jet --------------- 
       float mZj1_;
       // ---- invariant mass of the two leading jets --------------------
@@ -233,6 +249,9 @@ class ZJetsExpress : public edm::EDAnalyzer {
 // ---- constructor -----------------------------------------------------
 ZJetsExpress::ZJetsExpress(const ParameterSet& iConfig)
 {
+  mIsMC        = iConfig.getParameter<bool>          ("isMC");
+  mMinNjets    = iConfig.getParameter<int>           ("minNjets");   
+  mJetLepIsoR  = iConfig.getParameter<double>        ("jetLepIsoRadius");
   mMinJetPt    = iConfig.getParameter<double>        ("minJetPt");
   mMaxJetEta   = iConfig.getParameter<double>        ("maxJetEta");
   mMinLepPt    = iConfig.getParameter<double>        ("minLepPt");
@@ -267,7 +286,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
   // ----  MC truth pileup block ----------------------------------------
-  if (!isRealData_) {
+  if (mIsMC) {
     Handle<vector<PileupSummaryInfo> > pileupInfo;
     iEvent.getByLabel("addPileupInfo", pileupInfo);
     vector<PileupSummaryInfo>::const_iterator PVI;
@@ -306,29 +325,28 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   vector<LEPTON> myLeptons;
   // ---- loop over muons -----------------------------------------------
   for(View<Muon>::const_iterator i_mu = muons_->begin(); i_mu != muons_->end(); ++i_mu) {
-    if (!(i_mu->isGlobalMuon())) continue;
-    if (!(i_mu->isTrackerMuon())) continue;
-    if (!muon::isGoodMuon(*i_mu,muon::GlobalMuonPromptTight)) continue;
-    if ((i_mu->pt() < mMinLepPt) || (fabs(i_mu->eta()) > mMaxLepEta)) continue;
-    if (fabs(i_mu->globalTrack()->normalizedChi2()) > 10) continue;
-    if (fabs(i_mu->innerTrack()->dz(primVtx->position())) > 1.0) continue;
-    if (fabs(i_mu->innerTrack()->dxy(primVtx->position())) > 0.04) continue;
-    float muonIso = (i_mu->isolationR03().sumPt + i_mu->isolationR03().emEt + i_mu->isolationR03().hadEt)/i_mu->pt();
-    if (muonIso > 0.15) continue;
-    float nInnerTrkHits = i_mu->innerTrack()->hitPattern().numberOfValidHits();
-    if (nInnerTrkHits < 11) continue;
-    float numberOfValidPixelHits = i_mu->innerTrack()->hitPattern().numberOfValidPixelHits();
-    if (numberOfValidPixelHits < 1) continue;
-    float numberOfMatches = i_mu->numberOfMatches();
-    if (numberOfMatches < 2) continue;
-    float dptOpt = i_mu->innerTrack()->ptError()/i_mu->pt();
-    if (dptOpt > 0.1) continue;
+    if (!(i_mu->isGlobalMuon()))                                       continue;
+    if (!(i_mu->isTrackerMuon()))                                      continue;
+    if (!muon::isGoodMuon(*i_mu,muon::GlobalMuonPromptTight))          continue;
+    if ((i_mu->pt() < mMinLepPt) || (fabs(i_mu->eta()) > mMaxLepEta))  continue;
+    if (fabs(i_mu->globalTrack()->normalizedChi2()) > 10)              continue;
+    if (fabs(i_mu->innerTrack()->dz(primVtx->position())) > 1.0)       continue;
+    if (fabs(i_mu->innerTrack()->dxy(primVtx->position())) > 0.04)     continue;
+    float muonIso         = (i_mu->isolationR03().sumPt + i_mu->isolationR03().emEt + i_mu->isolationR03().hadEt)/i_mu->pt();
+    float muonIsoModified = muonIso - (*rho)*0.2827434/i_mu->pt();
+    if (muonIso > 0.15)                                                continue;
+    if (i_mu->innerTrack()->hitPattern().numberOfValidHits() < 11)     continue;
+    if (i_mu->innerTrack()->hitPattern().numberOfValidPixelHits() < 1) continue;
+    if (i_mu->numberOfMatches() < 2)                                   continue;
+    if (i_mu->innerTrack()->ptError()/i_mu->pt() > 0.1)                continue;
       
     LEPTON aLepton;
     TLorentzVector lepP4(i_mu->p4().Px(),i_mu->p4().Py(),i_mu->p4().Pz(),i_mu->p4().E());
     aLepton.p4   = lepP4;
     aLepton.chid = 2*i_mu->charge();
     aLepton.id   = 1;
+    aLepton.iso  = muonIso;
+    aLepton.isom = muonIsoModified;
     myLeptons.push_back(aLepton);
   }// muon loop
   // ---- loop over electrons -------------------------------------------
@@ -343,17 +361,18 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     float deltaPhiSuperClusterTrackAtVtx = i_el->deltaPhiSuperClusterTrackAtVtx();
     float deltaEtaSuperClusterTrackAtVtx = i_el->deltaEtaSuperClusterTrackAtVtx();
     bool  isTight(false);
+    float combinedIso03(-999);
     if ((elPt < mMinLepPt) || (fabs(elEta) > mMaxLepEta)) continue;
     if (i_el->isEB()) {
-      float combinedIso03 = (i_el->dr03TkSumPt()+max(0.,i_el->dr03EcalRecHitSumEt()-1.)+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt();
-      if (combinedIso03 > 0.15) continue;          
-      if (trackIsoRel > 0.15) continue;
-      if (ecalIsoRel > 2.00) continue; 
-      if (hcalIsoRel > 0.12) continue;
-      if (sigmaIetaIeta > 0.01) continue;
-      if (deltaPhiSuperClusterTrackAtVtx > 0.8) continue;
-      if (deltaEtaSuperClusterTrackAtVtx > 0.007) continue;
-      if (hadronicOverEm > 0.15) continue;
+      combinedIso03 = (i_el->dr03TkSumPt()+max(0.,i_el->dr03EcalRecHitSumEt()-1.)+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt(); 
+      if (combinedIso03 > 0.15)                           continue;          
+      if (trackIsoRel > 0.15)                             continue;
+      if (ecalIsoRel > 2.00)                              continue; 
+      if (hcalIsoRel > 0.12)                              continue;
+      if (sigmaIetaIeta > 0.01)                           continue;
+      if (deltaPhiSuperClusterTrackAtVtx > 0.8)           continue;
+      if (deltaEtaSuperClusterTrackAtVtx > 0.007)         continue;
+      if (hadronicOverEm > 0.15)                          continue;
       if (sigmaIetaIeta < 0.01) {
 	if (deltaPhiSuperClusterTrackAtVtx < 0.06) 
 	  if (deltaEtaSuperClusterTrackAtVtx < 0.004) 
@@ -362,22 +381,23 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       }
     }// if EB
     if (i_el->isEE()) {
-      float combinedIso03 = (i_el->dr03TkSumPt()+i_el->dr03EcalRecHitSumEt()+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt(); 
-      if (combinedIso03 > 0.1) continue;
-      if (trackIsoRel > 0.08) continue;
-      if (ecalIsoRel > 0.06) continue;
-      if (hcalIsoRel > 0.05) continue;
-      if (sigmaIetaIeta > 0.03) continue;
-      if (deltaPhiSuperClusterTrackAtVtx > 0.7) continue;
-      if (deltaEtaSuperClusterTrackAtVtx > 0.01) continue;
-      if (hadronicOverEm > 0.15) continue;
+      combinedIso03 = (i_el->dr03TkSumPt()+i_el->dr03EcalRecHitSumEt()+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt(); 
+      if (combinedIso03 > 0.1)                            continue;
+      if (trackIsoRel > 0.08)                             continue;
+      if (ecalIsoRel > 0.06)                              continue;
+      if (hcalIsoRel > 0.05)                              continue;
+      if (sigmaIetaIeta > 0.03)                           continue;
+      if (deltaPhiSuperClusterTrackAtVtx > 0.7)           continue;
+      if (deltaEtaSuperClusterTrackAtVtx > 0.01)          continue;
+      if (hadronicOverEm > 0.15)                          continue;
       if (sigmaIetaIeta<0.03) {
 	if (deltaPhiSuperClusterTrackAtVtx < 0.03)
 	  if (deltaEtaSuperClusterTrackAtVtx < 0.007)
 	    if (hadronicOverEm < 0.15) 
-              isTight=true;
+              isTight = true;
       } 
     }// if EE
+    float combinedIso03Modified = combinedIso03 - (*rho)*0.2827434/i_el->pt();
     LEPTON aLepton;
     TLorentzVector lepP4(i_el->p4().Px(),i_el->p4().Py(),i_el->p4().Pz(),i_el->p4().E());
     aLepton.p4   = lepP4;
@@ -386,6 +406,8 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     if (isTight) {
       aLepton.id = 1;
     }
+    aLepton.iso  = combinedIso03;
+    aLepton.isom = combinedIso03Modified;
     myLeptons.push_back(aLepton);
   } // electrons loop
   hist_->Fill(int(myLeptons.size()));
@@ -412,7 +434,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     //----- remove the leptons ------------------------------------------
     for(unsigned int i_lep = 0; i_lep < myLeptons.size(); i_lep++) {
       float DR = myLeptons[i_lep].p4.DeltaR(jetP4);
-      if (DR < 0.4) {
+      if (DR < mJetLepIsoR) {
         jetIsDuplicate = true; 
       }
     }// lepton loop 
@@ -491,55 +513,46 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   nLeptons_   = int(myLeptons.size()); 
   nJets_      = int(myJets.size());
   // ---- keep only selected events -------------------------------------
-  if ((nVtx_ > 0) && (nLeptons_ > 1) && (nJets_ > 0)) {
+  if ((nVtx_ > 0) && (nLeptons_ > 1) && (nJets_ > mMinNjets)) {
     TLorentzVector llP4 = myLeptons[0].p4 + myLeptons[1].p4;
-    TLorentzVector pfmetP4(pfmetPx,pfmetPy,0,sqrt(pfmetPx * pfmetPx + pfmetPy * pfmetPy));
     // ---- hadronic recoil vector --------------------------------------
+    TLorentzVector pfmetP4(pfmetPx,pfmetPy,0,sqrt(pfmetPx * pfmetPx + pfmetPy * pfmetPy));
     TLorentzVector pfhadP4 = -pfmetP4 - llP4; 
-    // ---- transverse mass calculation ---------------------------------
-    float ptZ          = llP4.Pt();
-    float mZ           = llP4.M();
-    float pxZ          = llP4.Px();
-    float pyZ          = llP4.Py();
-    float ZEt          = sqrt(ptZ*ptZ + mZ*mZ);
-    float metPt        = pfmetP4.Pt();
-    // ---- assume Z is on mass shell -----------------------------------
-    float ZnunuEt      = sqrt(metPt*metPt + 91.2*91.2); 
-    float tMassSquare  = (ptZ+metPt)*(ptZ+metPt) - (pxZ+pfmetPx)*(pxZ+pfmetPx) - (pyZ+pfmetPy)*(pyZ+pfmetPy);
-    float tMassSquareP = (ZEt+ZnunuEt)*(ZEt+ZnunuEt) - (pxZ+pfmetPx)*(pxZ+pfmetPx) - (pyZ+pfmetPy)*(pyZ+pfmetPy);
     // ---- Fill the myTree ---------------------------------------------
     eventNum_   = iEvent.id().event();
     runNum_     = iEvent.id().run();
     lumi_       = iEvent.luminosityBlock();
     isRealData_ = iEvent.isRealData() ? 1:0;
     rho_        = *rho; 
-    llM_        = mZ; 
-    llPt_       = ptZ;
+    llM_        = llP4.M();
+    llPt_       = llP4.Pt();
     llPhi_      = llP4.Phi();
     llY_        = llP4.Rapidity();
     llDPhi_     = fabs(myLeptons[0].p4.DeltaPhi(myLeptons[1].p4));
     TLorentzVector lepP4(0,0,0,0); 
     for(unsigned l = 0; l < myLeptons.size(); l++) {
       lepP4 += myLeptons[l].p4;
-      lepPt_   ->push_back(myLeptons[l].p4.Pt());
-      lepEta_  ->push_back(myLeptons[l].p4.Eta());
-      lepPhi_  ->push_back(myLeptons[l].p4.Phi());
-      lepE_    ->push_back(myLeptons[l].p4.Energy());
-      lepId_   ->push_back(myLeptons[l].id);
-      lepChId_ ->push_back(myLeptons[l].chid);
+      lepPt_     ->push_back(myLeptons[l].p4.Pt());
+      lepEta_    ->push_back(myLeptons[l].p4.Eta());
+      lepPhi_    ->push_back(myLeptons[l].p4.Phi());
+      lepE_      ->push_back(myLeptons[l].p4.Energy());
+      lepIso_    ->push_back(myLeptons[l].iso);
+      lepIsoMod_ ->push_back(myLeptons[l].isom);
+      lepId_     ->push_back(myLeptons[l].id);
+      lepChId_   ->push_back(myLeptons[l].chid);
     }   
     pfmet_      = (pfmetCol_->front()).pt();
     pfmetPhi_   = (pfmetCol_->front()).phi();
     pfhadPt_    = pfhadP4.Pt();
-    pfSumEt_    = (pfmetCol_->front()).sumEt();
-    mT_         = sqrt(tMassSquare);
-    mTp_        = sqrt(tMassSquareP);
-    mZj1_       = (llP4+myJets[0].p4).M();
-    if (nJets_ > 1) { 
-      mj1j2_    = (myJets[0].p4+myJets[1].p4).M();
-    } 
+    pfSumEt_    = (pfmetCol_->front()).sumEt(); 
     mLep_       = lepP4.M(); 
+    vector<TLorentzVector> allP4;
+    allP4.push_back(llP4);
+    double prod(1.0),sum(0.0);
     for(unsigned j = 0; j < myJets.size(); j++) {
+      prod *= myJets[j].p4.Pt();
+      sum  += myJets[j].p4.Pt();
+      allP4.push_back(myJets[j].p4); 
       jetllDPhi_   ->push_back(fabs(llP4.DeltaPhi(myJets[j].p4)));
       jetPt_       ->push_back(myJets[j].p4.Pt()); 
       jetEta_      ->push_back(myJets[j].p4.Eta()); 
@@ -557,9 +570,34 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       jetMUF_      ->push_back(myJets[j].muf);
       jetELF_      ->push_back(myJets[j].elf);
       jetId_       ->push_back(myJets[j].id);  
+    }
+    isZlead_ = 1;
+    if (nJets_ > 0) {
+      mZj1_        = (llP4+myJets[0].p4).M();
+      jetPtGeMean_ = pow(prod,1./nJets_);
+      jetPtArMean_ = sum/nJets_;
+      if (nJets_ > 1) {
+        mj1j2_    = (myJets[0].p4+myJets[1].p4).M();
+        j1j2DPhi_ = fabs(myJets[0].p4.DeltaPhi(myJets[1].p4));
+        j1j2DR_   = myJets[0].p4.DeltaR(myJets[1].p4);
+        if (llPt_ < myJets[1].p4.Pt()) {
+          isZlead_ = 0;
+        }
+        if (nJets_ > 2) {
+          j1j3DPhi_ = fabs(myJets[0].p4.DeltaPhi(myJets[2].p4));
+          j2j3DPhi_ = fabs(myJets[1].p4.DeltaPhi(myJets[2].p4));
+          j1j3DR_   = myJets[0].p4.DeltaR(myJets[2].p4);
+          j2j3DR_   = myJets[1].p4.DeltaR(myJets[2].p4);
+        }  
+      }
+    }
+    sort(allP4.begin(),allP4.end(),p4SortingRule);
+    htLead_ = 0.0;
+    for(int i=0;i<TMath::Min(int(allP4.size()),2);i++) {
+      htLead_ += allP4[i].Pt();
     }  
     myTree_->Fill();
-  }// if (nVtx > 0 && nLeptons > 1 && nJets > 0)
+  }// if (nVtx > 0 && nLeptons > 1 && nJets > mMinNjets)
 }
 // ---- method called once each job just after ending the event loop  ---
 void ZJetsExpress::endJob() 
@@ -571,7 +609,9 @@ void ZJetsExpress::buildTree()
   lepPt_             = new std::vector<float>();
   lepEta_            = new std::vector<float>();
   lepPhi_            = new std::vector<float>();
-  lepE_              = new std::vector<float>();
+  lepE_              = new std::vector<float>(); 
+  lepIso_            = new std::vector<float>();
+  lepIsoMod_         = new std::vector<float>();
   lepChId_           = new std::vector<int>();
   lepId_             = new std::vector<int>();
   jetPt_             = new std::vector<float>(); 
@@ -592,12 +632,14 @@ void ZJetsExpress::buildTree()
   jetELF_            = new std::vector<float>();
   jetId_             = new std::vector<int>();
   vtxZ_              = new std::vector<float>();
-  vtxNdof_           = new std::vector<float>(); 
-  puZpositions_      = new std::vector<float>();
-  puSumpT_lowpT_     = new std::vector<float>();
-  puSumpT_highpT_    = new std::vector<float>(); 
-  puNtrks_lowpT_     = new std::vector<float>();
-  puNtrks_highpT_    = new std::vector<float>();
+  vtxNdof_           = new std::vector<float>();
+  if (mIsMC) { 
+    puZpositions_    = new std::vector<float>();
+    puSumpT_lowpT_   = new std::vector<float>();
+    puSumpT_highpT_  = new std::vector<float>(); 
+    puNtrks_lowpT_   = new std::vector<float>();
+    puNtrks_highpT_  = new std::vector<float>();
+  }
   // ---- global event variables ----------------------------------------
   myTree_->Branch("isRealData"       ,&isRealData_        ,"isRealData/I");
   myTree_->Branch("eventNum"         ,&eventNum_          ,"eventNum/I");
@@ -606,18 +648,25 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("nVtx"             ,&nVtx_              ,"nVtx/I");
   myTree_->Branch("nLeptons"         ,&nLeptons_          ,"nLeptons/I");
   myTree_->Branch("nJets"            ,&nJets_             ,"nJets/I"); 
+  myTree_->Branch("isZlead"          ,&isZlead_           ,"isZlead/I");
   myTree_->Branch("rho"              ,&rho_               ,"rho/F");
+  myTree_->Branch("mZj1"             ,&mZj1_              ,"mZj1/F");
+  myTree_->Branch("mj1j2"            ,&mj1j2_             ,"mj1j2/F");
+  myTree_->Branch("mLep"             ,&mLep_              ,"mLep/F");
+  myTree_->Branch("htLead"           ,&htLead_            ,"htLead/F");
+  myTree_->Branch("j1j2DPhi"         ,&j1j2DPhi_          ,"j1j2DPhi/F");
+  myTree_->Branch("j1j3DPhi"         ,&j1j3DPhi_          ,"j1j3DPhi/F");
+  myTree_->Branch("j2j3DPhi"         ,&j2j3DPhi_          ,"j2j3DPhi/F");
+  myTree_->Branch("j1j2DR"           ,&j1j2DR_            ,"j1j2DR/F");
+  myTree_->Branch("j1j3DR"           ,&j1j3DR_            ,"j1j3DR/F");
+  myTree_->Branch("j2j3DR"           ,&j2j3DR_            ,"j2j3DR/F");
+  myTree_->Branch("jetPtGeMean"      ,&jetPtGeMean_       ,"jetPtGeMean/F");
+  myTree_->Branch("jetPtArMean"      ,&jetPtArMean_       ,"jetPtArMean/F");
   // ---- met variables -------------------------------------------------
   myTree_->Branch("pfmet"            ,&pfmet_             ,"pfmet/F");
   myTree_->Branch("pfmetPhi"         ,&pfmetPhi_          ,"pfmetPhi/F");
   myTree_->Branch("pfhadPt"          ,&pfhadPt_           ,"pfhadPt_/F");
-  myTree_->Branch("pfSumEt"          ,&pfSumEt_           ,"pfSumEt/F");
-  // ---- mass variables ------------------------------------------------
-  myTree_->Branch("mT"               ,&mT_                ,"mT/F");
-  myTree_->Branch("mTp"              ,&mTp_               ,"mTp/F");
-  myTree_->Branch("mZj1"             ,&mZj1_              ,"mZj1/F");
-  myTree_->Branch("mj1j2"            ,&mj1j2_             ,"mj1j2/F");
-  myTree_->Branch("mLep"             ,&mLep_              ,"mLep/F");
+  myTree_->Branch("pfSumEt"          ,&pfSumEt_           ,"pfSumEt/F");  
   // ---- dilepton variables --------------------------------------------
   myTree_->Branch("llM"              ,&llM_               ,"llM/F");
   myTree_->Branch("llPt"             ,&llPt_              ,"llPt/F");
@@ -629,6 +678,8 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("lepEta"           ,"vector<float>"     ,&lepEta_);
   myTree_->Branch("lepPhi"           ,"vector<float>"     ,&lepPhi_);
   myTree_->Branch("lepE"             ,"vector<float>"     ,&lepE_);
+  myTree_->Branch("lepIso"           ,"vector<float>"     ,&lepIso_);
+  myTree_->Branch("lepIsoMod"        ,"vector<float>"     ,&lepIsoMod_);
   myTree_->Branch("lepChId"          ,"vector<int>"       ,&lepChId_);
   myTree_->Branch("lepId"            ,"vector<int>"       ,&lepId_);
   // ---- jet variables -------------------------------------------------
@@ -653,12 +704,14 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("vtxZ"             ,"vector<float>"     ,&vtxZ_);
   myTree_->Branch("vtxNdof"          ,"vector<float>"     ,&vtxNdof_);
   // ---- simulated pu variables ----------------------------------------
-  myTree_->Branch("PUnumInteractions",&puNumInteractions_ ,"puNumInteractions_/I");
-  myTree_->Branch("PUzPositions"     ,"vector<float>"     ,&puZpositions_);
-  myTree_->Branch("PUsumPtLowPt"     ,"vector<float>"     ,&puSumpT_lowpT_);
-  myTree_->Branch("PUsumPtHighPt"    ,"vector<float>"     ,&puSumpT_highpT_);
-  myTree_->Branch("PUnTrksLowPt"     ,"vector<float>"     ,&puNtrks_lowpT_);
-  myTree_->Branch("PUnTrksHighPt"    ,"vector<float>"     ,&puNtrks_highpT_);  
+  if (mIsMC) { 
+    myTree_->Branch("PUnumInteractions",&puNumInteractions_ ,"puNumInteractions_/I");
+    myTree_->Branch("PUzPositions"     ,"vector<float>"     ,&puZpositions_);
+    myTree_->Branch("PUsumPtLowPt"     ,"vector<float>"     ,&puSumpT_lowpT_);
+    myTree_->Branch("PUsumPtHighPt"    ,"vector<float>"     ,&puSumpT_highpT_);
+    myTree_->Branch("PUnTrksLowPt"     ,"vector<float>"     ,&puNtrks_lowpT_);
+    myTree_->Branch("PUnTrksHighPt"    ,"vector<float>"     ,&puNtrks_highpT_);  
+  }
 }
 // ---- method for tree initialization ----------------------------------
 void ZJetsExpress::clearTree()
@@ -670,26 +723,35 @@ void ZJetsExpress::clearTree()
   nVtx_              = -999;
   nLeptons_          = -999;
   nJets_             = -999;
+  isZlead_           = -999;
   rho_               = -999;
   pfmet_             = -999;
   pfmetPhi_          = -999;
   pfhadPt_           = -999;
   pfSumEt_           = -999;
-  mT_                = -999;
-  mTp_               = -999;
   mZj1_              = -999; 
   mj1j2_             = -999;
-  mLep_              = -999;  
+  mLep_              = -999;
+  htLead_            = -999;
+  jetPtGeMean_       = -999;
+  jetPtArMean_       = -999; 
+  j1j2DPhi_          = -999;
+  j1j3DPhi_          = -999; 
+  j2j3DPhi_          = -999;
+  j1j2DR_            = -999;
+  j1j3DR_            = -999; 
+  j2j3DR_            = -999;
   llM_               = -999;
   llPt_              = -999; 
   llPhi_             = -999;
   llDPhi_            = -999;
   llY_               = -999;
-  puNumInteractions_ = -999;
   lepPt_             ->clear();
   lepEta_            ->clear();
   lepPhi_            ->clear();
   lepE_              ->clear();
+  lepIso_            ->clear();
+  lepIsoMod_         ->clear();
   lepChId_           ->clear();
   lepId_             ->clear();
   jetPt_             ->clear();
@@ -711,11 +773,14 @@ void ZJetsExpress::clearTree()
   jetId_             ->clear();
   vtxZ_              ->clear();
   vtxNdof_           ->clear();
-  puZpositions_      ->clear();
-  puSumpT_lowpT_     ->clear();
-  puSumpT_highpT_    ->clear(); 
-  puNtrks_lowpT_     ->clear();
-  puNtrks_highpT_    ->clear();
+  if (mIsMC) {
+    puNumInteractions_ = -999;
+    puZpositions_      ->clear();
+    puSumpT_lowpT_     ->clear();
+    puSumpT_highpT_    ->clear(); 
+    puNtrks_lowpT_     ->clear();
+    puNtrks_highpT_    ->clear();
+  }
 }
 // ---- define this as a plug-in ----------------------------------------
 DEFINE_FWK_MODULE(ZJetsExpress);
