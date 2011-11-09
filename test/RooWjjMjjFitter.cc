@@ -769,17 +769,21 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy) {
   sframe->addObject(legend);
   if (params_.truncRange) {
     TLine * lowerLine = new TLine(params_.minTrunc, 0., params_.minTrunc, 
-				  sframe->GetMaximum()*0.65);
+				  sframe->GetMaximum());
     lowerLine->SetLineWidth(3);
+    lowerLine->SetLineColor(kBlue+2);
+    lowerLine->SetLineStyle(kDashed);
     TLine * upperLine = new TLine(params_.maxTrunc, 0., params_.maxTrunc, 
-				  sframe->GetMaximum()*0.65);
+				  sframe->GetMaximum());
     upperLine->SetLineWidth(3);
+    upperLine->SetLineColor(kBlue+2);
+    upperLine->SetLineStyle(kDashed);
     sframe->addObject(lowerLine);
     sframe->addObject(upperLine);
   }
   if (logy) {
     sframe->SetMinimum(0.1);
-    sframe->SetMaximum(1.0e9);
+    sframe->SetMaximum(1.0e8);
   } else {
     sframe->SetMinimum(0.);
     sframe->SetMaximum(1.5*sframe->GetMaximum());
@@ -793,21 +797,32 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   RooPlot * rframe = thePlot->emptyClone("mass_residuals");
   RooAbsData * data = ws_.data("data");
   RooAddPdf * totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf"));
+  RooCurve * tmpCurve;
   if (pdfName.Length() > 0) {
     data->plotOn(rframe, RooFit::Invisible());
     totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
 		     DrawOption("LF"), VLines(), FillStyle(1001),
-		     FillColor(kOrange), Name("h_diboson"),
+		     FillColor(kOrange), Name("h_diboson"), LineColor(kOrange),
 		     Range("RangeForPlot"));
-    if (params_.doNewPhysics)
+    tmpCurve = rframe->getCurve("h_diboson");
+    tmpCurve->SetTitle("WW/WZ");
+    if (params_.doNewPhysics) {
       totalPdf->plotOn(rframe, ProjWData(*data), Components("NPPdf"),
 		       DrawOption("LF"), VLines(), FillStyle(1001),
-		       FillColor(kOrange), Name("h_diboson"),
+		       FillColor(kCyan+2), Name("h_NP"),
+		       LineColor(kCyan+2),
 		       Range("RangeForPlot"));
+      tmpCurve = rframe->getCurve("h_NP");
+      tmpCurve->SetTitle("new physics");
+    }
   }
   RooHist * hresid = thePlot->residHist("h_data", curveName, normalize);
+  hresid->SetTitle("data");
   rframe->addPlotable(hresid, "p");
   
+  TLegend * legend = RooWjjFitterUtils::legend4Plot(rframe);
+  rframe->addObject(legend);
+
   if (!normalize) {
     rframe->SetMaximum(600.);
     rframe->SetMinimum(-100.);
@@ -816,6 +831,22 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     rframe->SetMinimum(-5.);
     rframe->GetYaxis()->SetTitle("pull ( #sigma )");
   }
+
+  if (params_.truncRange) {
+    TLine * lowerLine = new TLine(params_.minTrunc,rframe->GetMinimum()*0.6,
+				  params_.minTrunc,rframe->GetMaximum()*0.6);
+    lowerLine->SetLineWidth(3);
+    lowerLine->SetLineColor(kBlue+2);
+    lowerLine->SetLineStyle(kDashed);
+    TLine * upperLine = new TLine(params_.maxTrunc,rframe->GetMinimum()*0.6, 
+				  params_.maxTrunc,rframe->GetMaximum()*0.6);
+    upperLine->SetLineWidth(3);
+    upperLine->SetLineColor(kBlue+2);
+    upperLine->SetLineStyle(kDashed);
+    rframe->addObject(lowerLine);
+    rframe->addObject(upperLine);
+  }  
+
   return rframe;
 
 }
