@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.5 2011/11/04 11:43:41 kkousour Exp $
+// $Id: ZJetsExpress.cc,v 1.6 2011/11/09 10:04:02 kkousour Exp $
 //
 //
 
@@ -165,7 +165,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       edm::Service<TFileService> fTFileService;	
       TTree *myTree_;
       // ---- histogram to record the number of events ------------------
-      TH1I  *hist_;
+      TH1I  *hRecoLeptons_,*hGenLeptons_;
       // ---- simulated in-time pile-up ---------------------------------
       TH1D  *mcPU_;
       // ---- flag to set the JEC uncertainty object --------------------
@@ -250,10 +250,10 @@ class ZJetsExpress : public edm::EDAnalyzer {
       vector<float> *vtxZ_,*vtxNdof_;
       // ---- number of good reconstructed vertices ---------------------
       int   nVtx_;
-      // ---- number of simulated in-time pu interactions ---------------
-      int puNumInteractions_;
-      // ---- properties of simulated in-time pu interactions -----------
-      vector<float> *puZpositions_,*puSumpT_lowpT_,*puSumpT_highpT_,*puNtrks_lowpT_,*puNtrks_highpT_;
+      // ---- number of simulated pu interactions -----------------------
+      int   pu_,puINT_,puOOT_;
+      // ---- RECO, GEN accepted flags for MC ---------------------------
+      int selRECO_,selGEN_;
 };
 //
 // class omplemetation
@@ -281,9 +281,12 @@ ZJetsExpress::~ZJetsExpress()
 void ZJetsExpress::beginJob()
 {
   // ---- create the objects --------------------------------------------
-  hist_   = fTFileService->make<TH1I>("hist", "hist",6,-1,5);
-  mcPU_   = fTFileService->make<TH1D>("mcPU", "mcPU",40,0,40);
-  myTree_ = fTFileService->make<TTree>("events", "events");
+  hRecoLeptons_ = fTFileService->make<TH1I>("RecoLeptons", "RecoLeptons",6,-1,5);
+  if (mIsMC) {
+    hGenLeptons_ = fTFileService->make<TH1I>("GenLeptons", "GenLeptons",6,-1,5);
+  }
+  mcPU_         = fTFileService->make<TH1D>("mcPU", "mcPU",40,0,40);
+  myTree_       = fTFileService->make<TTree>("events", "events");
   // ---- build the tree ------------------------------------------------
   buildTree();
   // ---- set the jec uncertainty flag ----------------------------------
@@ -293,7 +296,7 @@ void ZJetsExpress::beginJob()
 void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   // ---- event counter -------------------------------------------------
-  hist_->Fill(-1);  
+  hRecoLeptons_->Fill(-1);  
   // ---- initialize the tree branches ----------------------------------
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
@@ -301,23 +304,21 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   vector<GENLEPTON>      myGenLeptons;
   vector<TLorentzVector> myGenJets;  
   if (mIsMC) {
+    hGenLeptons_->Fill(-1);
     // ---- PU ----------------------------------------------------------
     Handle<vector<PileupSummaryInfo> > pileupInfo;
     iEvent.getByLabel("addPileupInfo", pileupInfo);
-    vector<PileupSummaryInfo>::const_iterator PVI;
-    for(PVI = pileupInfo->begin(); PVI != pileupInfo->end(); ++PVI) {
-      // ---- only look at in-time pileup -------------------------------
-      if (PVI->getBunchCrossing() != 0) continue; 
-      puNumInteractions_ = PVI->getPU_NumInteractions();
-      mcPU_->Fill(puNumInteractions_);
-      for(int i=0; i<puNumInteractions_; i++) {
-        puZpositions_   ->push_back(PVI->getPU_zpositions()[i]);
-	puSumpT_lowpT_  ->push_back(PVI->getPU_sumpT_lowpT()[i]);
-	puSumpT_highpT_ ->push_back(PVI->getPU_sumpT_highpT()[i]);
-	puNtrks_lowpT_  ->push_back(PVI->getPU_ntrks_lowpT()[i]);
-	puNtrks_highpT_ ->push_back(PVI->getPU_ntrks_highpT()[i]);
-      }// NumInteractions loop
-    }// PVI loop
+    vector<PileupSummaryInfo>::const_iterator PUI;
+    puOOT_ = 0;
+    puINT_ = 0;
+    for(PUI = pileupInfo->begin(); PUI != pileupInfo->end(); ++PUI) {
+      if (PUI->getBunchCrossing() == 0)
+        puINT_ += PUI->getPU_NumInteractions();     
+      else
+        puOOT_ += PUI->getPU_NumInteractions();
+    }// PUI loop
+    pu_ = puINT_+puOOT_;
+    mcPU_->Fill(pu_);
     Handle<GenJetCollection> genjets;
     iEvent.getByLabel("ak5GenJets",genjets);
     Handle<GenParticleCollection> gen;
@@ -341,6 +342,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
         }
       }
     }
+    hGenLeptons_->Fill(int(myGenLeptons.size()));
     // ---- sort the genLeptons -----------------------------------------
     sort(myGenLeptons.begin(),myGenLeptons.end(),lepSortingRuleGEN);
     // ---- genjets -----------------------------------------------------
@@ -468,7 +470,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     aLepton.isom = combinedIso03Modified;
     myLeptons.push_back(aLepton);
   } // electrons loop
-  hist_->Fill(int(myLeptons.size()));
+  hRecoLeptons_->Fill(int(myLeptons.size()));
   // ---- sort the leptons according to their pt ------------------------
   sort(myLeptons.begin(),myLeptons.end(),lepSortingRule); 
   //---- jets block -----------------------------------------------------
@@ -576,9 +578,11 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   bool selectionRECO = ((nVtx_ > 0) && (nLeptons_ > 1) && (nJets_ >= mMinNjets));
   bool selection(selectionRECO);
   bool selectionGEN(false);
+  selRECO_ = 0;
   if (mIsMC) {
     selectionGEN = ((nLeptonsGEN_ > 1) && (nJetsGEN_ >= mMinNjets)); 
     selection +=  selectionGEN;
+    selGEN_ = 0;
   }
   if (selection) {
     eventNum_   = iEvent.id().event();
@@ -590,6 +594,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     pfmetPhi_   = (pfmetCol_->front()).phi();
     pfSumEt_    = (pfmetCol_->front()).sumEt();
     if (selectionRECO) {
+      selRECO_ = 1;
       TLorentzVector llP4 = myLeptons[0].p4 + myLeptons[1].p4;
       // ---- hadronic recoil vector --------------------------------------
       TLorentzVector pfmetP4(pfmetPx,pfmetPy,0,sqrt(pfmetPx * pfmetPx + pfmetPy * pfmetPy));
@@ -665,6 +670,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       }
     }// if selection RECO 
     if (selectionGEN) {
+      selGEN_ = 1;
       TLorentzVector llP4GEN = myGenLeptons[0].p4 + myGenLeptons[1].p4;  
       llMGEN_        = llP4GEN.M();
       llPtGEN_       = llP4GEN.Pt();
@@ -759,11 +765,6 @@ void ZJetsExpress::buildTree()
   vtxZ_              = new std::vector<float>();
   vtxNdof_           = new std::vector<float>();
   if (mIsMC) { 
-    puZpositions_    = new std::vector<float>();
-    puSumpT_lowpT_   = new std::vector<float>();
-    puSumpT_highpT_  = new std::vector<float>(); 
-    puNtrks_lowpT_   = new std::vector<float>();
-    puNtrks_highpT_  = new std::vector<float>();
     lepPtGEN_        = new std::vector<float>();
     lepEtaGEN_       = new std::vector<float>();
     lepPhiGEN_       = new std::vector<float>();
@@ -778,6 +779,7 @@ void ZJetsExpress::buildTree()
   }
   // ---- global event variables ----------------------------------------
   myTree_->Branch("isRealData"       ,&isRealData_        ,"isRealData/I");
+  myTree_->Branch("selRECO"          ,&selRECO_           ,"selRECO/I");
   myTree_->Branch("eventNum"         ,&eventNum_          ,"eventNum/I");
   myTree_->Branch("runNum"           ,&runNum_            ,"runNum/I");
   myTree_->Branch("lumi"             ,&lumi_              ,"lumi/I");
@@ -841,12 +843,10 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("vtxNdof"          ,"vector<float>"     ,&vtxNdof_);
   // ---- simulated pu variables ----------------------------------------
   if (mIsMC) { 
-    myTree_->Branch("PUnumInteractions",&puNumInteractions_ ,"puNumInteractions_/I");
-    myTree_->Branch("PUzPositions"     ,"vector<float>"     ,&puZpositions_);
-    myTree_->Branch("PUsumPtLowPt"     ,"vector<float>"     ,&puSumpT_lowpT_);
-    myTree_->Branch("PUsumPtHighPt"    ,"vector<float>"     ,&puSumpT_highpT_);
-    myTree_->Branch("PUnTrksLowPt"     ,"vector<float>"     ,&puNtrks_lowpT_);
-    myTree_->Branch("PUnTrksHighPt"    ,"vector<float>"     ,&puNtrks_highpT_);  
+    myTree_->Branch("selGEN"           ,&selGEN_            ,"selGEN/I");
+    myTree_->Branch("pu"               ,&pu_                ,"pu/I");
+    myTree_->Branch("puINT"            ,&puINT_             ,"puINT/I");
+    myTree_->Branch("puOOT"            ,&puOOT_             ,"puOOT/I");
     myTree_->Branch("nLeptonsGEN"      ,&nLeptonsGEN_       ,"nLeptonsGEN/I");
     myTree_->Branch("nJetsGEN"         ,&nJetsGEN_          ,"nJetsGEN/I");
     myTree_->Branch("isZleadGEN"       ,&isZleadGEN_        ,"isZleadGEN/I");
@@ -882,6 +882,7 @@ void ZJetsExpress::buildTree()
 // ---- method for tree initialization ----------------------------------
 void ZJetsExpress::clearTree()
 {
+  selRECO_           = -999;
   isRealData_        = -999;
   eventNum_          = -999;
   runNum_            = -999;
@@ -940,12 +941,10 @@ void ZJetsExpress::clearTree()
   vtxZ_              ->clear();
   vtxNdof_           ->clear();
   if (mIsMC) {
-    puNumInteractions_ = -999;
-    puZpositions_      ->clear();
-    puSumpT_lowpT_     ->clear();
-    puSumpT_highpT_    ->clear(); 
-    puNtrks_lowpT_     ->clear();
-    puNtrks_highpT_    ->clear();
+    selGEN_            = -999;
+    pu_                = -999;
+    puINT_             = -999;
+    puOOT_             = -999;
     isRealData_        = -999;
     nLeptonsGEN_       = -999;
     nJetsGEN_          = -999;
