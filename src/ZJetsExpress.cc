@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.6 2011/11/09 10:04:02 kkousour Exp $
+// $Id: ZJetsExpress.cc,v 1.7 2011/11/09 12:54:07 kkousour Exp $
 //
 //
 
@@ -74,6 +74,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -118,7 +120,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
         // ---- standard isolation --------------------------------------
         float iso;
         // ---- modified isolation --------------------------------------
-        float isom; 
+        float isoPF; 
         // ---- charge id (+/-1: electrons, +/-2: muons) ---------------- 
         int chid; 
         // ---- tight id ------------------------------------------------
@@ -205,7 +207,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       vector<float> *lepPt_,*lepEta_,*lepPhi_,*lepE_,*lepPtGEN_,*lepEtaGEN_,*lepPhiGEN_,*lepEGEN_;
       // ---- lepton properties ----------------------------------------- 
       vector<int>   *lepChId_,*lepId_,*lepChIdGEN_;
-      vector<float> *lepIso_,*lepIsoMod_;
+      vector<float> *lepIso_,*lepIsoPF_;
       // ---- number of leptons -----------------------------------------
       int nLeptons_,nLeptonsGEN_;
       // ---- jet kinematics --------------------------------------------
@@ -393,7 +395,6 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     if (fabs(i_mu->innerTrack()->dz(primVtx->position())) > 1.0)       continue;
     if (fabs(i_mu->innerTrack()->dxy(primVtx->position())) > 0.04)     continue;
     float muonIso         = (i_mu->isolationR03().sumPt + i_mu->isolationR03().emEt + i_mu->isolationR03().hadEt)/i_mu->pt();
-    float muonIsoModified = muonIso - (*rho)*0.2827434/i_mu->pt();
     if (muonIso > 0.15)                                                continue;
     if (i_mu->innerTrack()->hitPattern().numberOfValidHits() < 11)     continue;
     if (i_mu->innerTrack()->hitPattern().numberOfValidPixelHits() < 1) continue;
@@ -406,7 +407,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     aLepton.chid = 2*i_mu->charge();
     aLepton.id   = 1;
     aLepton.iso  = muonIso;
-    aLepton.isom = muonIsoModified;
+    aLepton.isoPF = -999;
     myLeptons.push_back(aLepton);
   }// muon loop
   // ---- loop over electrons -------------------------------------------
@@ -457,7 +458,6 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
               isTight = true;
       } 
     }// if EE
-    float combinedIso03Modified = combinedIso03 - (*rho)*0.2827434/i_el->pt();
     LEPTON aLepton;
     TLorentzVector lepP4(i_el->p4().Px(),i_el->p4().Py(),i_el->p4().Pz(),i_el->p4().E());
     aLepton.p4   = lepP4;
@@ -467,12 +467,26 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       aLepton.id = 1;
     }
     aLepton.iso  = combinedIso03;
-    aLepton.isom = combinedIso03Modified;
+    aLepton.isoPF = -999;
     myLeptons.push_back(aLepton);
   } // electrons loop
   hRecoLeptons_->Fill(int(myLeptons.size()));
   // ---- sort the leptons according to their pt ------------------------
   sort(myLeptons.begin(),myLeptons.end(),lepSortingRule); 
+  // ---- PF isolation for leptons --------------------------------------
+  Handle<View<PFCandidate> > pfCandidates;
+  iEvent.getByLabel("particleFlow", pfCandidates);
+  for(unsigned il=0;il<myLeptons.size();il++) {
+    float sumPt(0.0);
+    for(unsigned ipf=0;ipf<pfCandidates->size();ipf++) {
+      float dR = deltaR(myLeptons[il].p4.Eta(),myLeptons[il].p4.Phi(),(*pfCandidates)[ipf].eta(),(*pfCandidates)[ipf].phi());
+      if (dR < 0.3) {
+        sumPt += (*pfCandidates)[ipf].pt();
+      }
+    }
+    float isoPF = (sumPt-myLeptons[il].p4.Pt()-(*rho)*0.2827434)/myLeptons[il].p4.Pt();
+    myLeptons[il].isoPF = isoPF;
+  }
   //---- jets block -----------------------------------------------------
   Handle<PFJetCollection> jets_;
   iEvent.getByLabel(mJetsName,jets_);
@@ -612,7 +626,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
         lepPhi_    ->push_back(myLeptons[l].p4.Phi());
         lepE_      ->push_back(myLeptons[l].p4.Energy());
         lepIso_    ->push_back(myLeptons[l].iso);
-        lepIsoMod_ ->push_back(myLeptons[l].isom);
+        lepIsoPF_  ->push_back(myLeptons[l].isoPF);
         lepId_     ->push_back(myLeptons[l].id);
         lepChId_   ->push_back(myLeptons[l].chid);
       }      
@@ -742,7 +756,7 @@ void ZJetsExpress::buildTree()
   lepPhi_            = new std::vector<float>();
   lepE_              = new std::vector<float>(); 
   lepIso_            = new std::vector<float>();
-  lepIsoMod_         = new std::vector<float>();
+  lepIsoPF_          = new std::vector<float>();
   lepChId_           = new std::vector<int>();
   lepId_             = new std::vector<int>();
   jetPt_             = new std::vector<float>(); 
@@ -817,7 +831,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("lepPhi"           ,"vector<float>"     ,&lepPhi_);
   myTree_->Branch("lepE"             ,"vector<float>"     ,&lepE_);
   myTree_->Branch("lepIso"           ,"vector<float>"     ,&lepIso_);
-  myTree_->Branch("lepIsoMod"        ,"vector<float>"     ,&lepIsoMod_);
+  myTree_->Branch("lepIsoPF"         ,"vector<float>"     ,&lepIsoPF_);
   myTree_->Branch("lepChId"          ,"vector<int>"       ,&lepChId_);
   myTree_->Branch("lepId"            ,"vector<int>"       ,&lepId_);
   // ---- jet variables -------------------------------------------------
@@ -918,7 +932,7 @@ void ZJetsExpress::clearTree()
   lepPhi_            ->clear();
   lepE_              ->clear();
   lepIso_            ->clear();
-  lepIsoMod_         ->clear();
+  lepIsoPF_          ->clear();
   lepChId_           ->clear();
   lepId_             ->clear();
   jetPt_             ->clear();
