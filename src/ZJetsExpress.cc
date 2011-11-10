@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.7 2011/11/09 12:54:07 kkousour Exp $
+// $Id: ZJetsExpress.cc,v 1.8 2011/11/09 13:53:32 kkousour Exp $
 //
 //
 
@@ -394,7 +394,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     if (fabs(i_mu->globalTrack()->normalizedChi2()) > 10)              continue;
     if (fabs(i_mu->innerTrack()->dz(primVtx->position())) > 1.0)       continue;
     if (fabs(i_mu->innerTrack()->dxy(primVtx->position())) > 0.04)     continue;
-    float muonIso         = (i_mu->isolationR03().sumPt + i_mu->isolationR03().emEt + i_mu->isolationR03().hadEt)/i_mu->pt();
+    float muonIso = (i_mu->isolationR03().sumPt + i_mu->isolationR03().emEt + i_mu->isolationR03().hadEt)/i_mu->pt();
     if (muonIso > 0.15)                                                continue;
     if (i_mu->innerTrack()->hitPattern().numberOfValidHits() < 11)     continue;
     if (i_mu->innerTrack()->hitPattern().numberOfValidPixelHits() < 1) continue;
@@ -422,10 +422,9 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     float deltaPhiSuperClusterTrackAtVtx = i_el->deltaPhiSuperClusterTrackAtVtx();
     float deltaEtaSuperClusterTrackAtVtx = i_el->deltaEtaSuperClusterTrackAtVtx();
     bool  isTight(false);
-    float combinedIso03(-999);
+    float combinedIso03 = (i_el->dr03TkSumPt()+max(0.,i_el->dr03EcalRecHitSumEt()-1.)+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt();
     if ((elPt < mMinLepPt) || (fabs(elEta) > mMaxLepEta)) continue;
     if (i_el->isEB()) {
-      combinedIso03 = (i_el->dr03TkSumPt()+max(0.,i_el->dr03EcalRecHitSumEt()-1.)+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt(); 
       if (combinedIso03 > 0.15)                           continue;          
       if (trackIsoRel > 0.15)                             continue;
       if (ecalIsoRel > 2.00)                              continue; 
@@ -442,7 +441,6 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       }
     }// if EB
     if (i_el->isEE()) {
-      combinedIso03 = (i_el->dr03TkSumPt()+i_el->dr03EcalRecHitSumEt()+i_el->dr03HcalTowerSumEt())/i_el->p4().Pt(); 
       if (combinedIso03 > 0.1)                            continue;
       if (trackIsoRel > 0.08)                             continue;
       if (ecalIsoRel > 0.06)                              continue;
@@ -466,7 +464,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     if (isTight) {
       aLepton.id = 1;
     }
-    aLepton.iso  = combinedIso03;
+    aLepton.iso   = combinedIso03;
     aLepton.isoPF = -999;
     myLeptons.push_back(aLepton);
   } // electrons loop
@@ -523,17 +521,26 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     // ---- the unc is a function of the corrected pt -------------------
     mJECunc->setJetPt(jec * i_jet->pt());
     double unc = mJECunc->getUncertainty(true);
+    // ---- keep only jets that pass the tight id -----------------------
+    int   chm = i_jet->chargedHadronMultiplicity();
+    int   npr = i_jet->chargedMultiplicity() + i_jet->neutralMultiplicity();
+    float nhf = (i_jet->neutralHadronEnergy() + i_jet->HFHadronEnergy())/i_jet->energy();
+    float phf = i_jet->photonEnergyFraction();
+    float chf = i_jet->chargedHadronEnergyFraction();
+    float elf = i_jet->electronEnergyFraction(); 
+    bool id = (npr>1 && phf<0.99 && nhf<0.99 && ((fabs(i_jet->eta())<=2.4 && nhf<0.9 && phf<0.9 && elf<0.99 && chf>0 && chm>0) || fabs(i_jet->eta())>2.4));
+    if (!id) continue;
     // ---- jet vertex association --------------------------------------
-    // ---- get the vector of tracks ------------------------------------
+    // ---- get the vector of tracks ------------------------------------ 
     reco::TrackRefVector vTrks(i_jet->getTrackRefs());
-    float sumTrkPt(0.0),sumTrkPtBeta(0.0),sumTrkPtBetaStar(0.0),beta(0.0),betaStar(0.0);
+    float sumTrkPt(0.0),sumTrkPtBeta(0.0),sumTrkPtBetaStar(0.0),beta(-1.0),betaStar(-1.0);
     // ---- loop over the tracks of the jet -----------------------------
     for(reco::TrackRefVector::const_iterator i_trk = vTrks.begin(); i_trk != vTrks.end(); i_trk++) {
       sumTrkPt += (*i_trk)->pt();
       // ---- loop over all vertices ------------------------------------
       for(unsigned i_vtx = 0;i_vtx < vertices_->size();i_vtx++) {
         // ---- loop over the tracks associated with the vertex ---------
-        if ((*vertices_)[i_vtx].isFake()) continue; 
+        if ((*vertices_)[i_vtx].isFake() || (*vertices_)[i_vtx].ndof() < 4) continue; 
         for(reco::Vertex::trackRef_iterator i_vtxTrk = (*vertices_)[i_vtx].tracks_begin(); i_vtxTrk != (*vertices_)[i_vtx].tracks_end(); ++i_vtxTrk) {
           // ---- match the jet track to the track from the vertex ------
           reco::TrackRef trkRef(i_vtxTrk->castTo<reco::TrackRef>());
@@ -559,14 +566,11 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     aJet.jec      = jec;
     aJet.unc      = unc;
     aJet.area     = i_jet->jetArea();
-    aJet.chf      = i_jet->chargedHadronEnergyFraction();
-    aJet.nhf      = (i_jet->neutralHadronEnergy() + i_jet->HFHadronEnergy())/i_jet->energy();
-    aJet.phf      = i_jet->photonEnergyFraction();
-    aJet.elf      = i_jet->electronEnergyFraction();
+    aJet.chf      = chf;
+    aJet.nhf      = nhf;
+    aJet.phf      = phf;
+    aJet.elf      = elf;
     aJet.muf      = i_jet->muonEnergyFraction();
-    int chm       = i_jet->chargedHadronMultiplicity();
-    int npr       = i_jet->chargedMultiplicity() + i_jet->neutralMultiplicity();
-    bool id       = (npr>1 && aJet.phf<0.99 && aJet.nhf<0.99 && ((fabs(i_jet->eta())<=2.4 && aJet.nhf<0.9 && aJet.phf<0.9 && aJet.elf<0.99 && aJet.chf>0 && chm>0) || fabs(i_jet->eta())>2.4));
     aJet.id       = 0;
     if (id) {
       aJet.id     = 1;
@@ -692,7 +696,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       llYGEN_        = llP4GEN.Rapidity();
       llDPhiGEN_     = fabs(myGenLeptons[0].p4.DeltaPhi(myGenLeptons[1].p4));
       TLorentzVector lepP4GEN(0,0,0,0); 
-      for(unsigned l = 0; l < myLeptons.size(); l++) {
+      for(unsigned l = 0; l < myGenLeptons.size(); l++) {
         lepP4GEN += myGenLeptons[l].p4;
         lepPtGEN_     ->push_back(myGenLeptons[l].p4.Pt());
         lepEtaGEN_    ->push_back(myGenLeptons[l].p4.Eta());
