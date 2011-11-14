@@ -62,6 +62,8 @@
 #include "RooGaussian.h"
 #include "RooCurve.h"
 
+#include "RooWjjFitterParams.h"
+#include "RooWjjMjjFitter.h"
 
 
 
@@ -71,7 +73,7 @@
 const TString MCDirectory =   "data/ReducedTree/NewKfitRDTree/";
 const TString DataDirectory = "data/ReducedTree/NewKfitRDTree/";
 
-const TString QCDDirectory = "data";
+const TString QCDDirectory = "data/ReducedTree/NewKfitRDTree/";
 
 const TString dataFileMu = "RD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root";
 const TString dataFileEl = "RD_WenuJets_DataAll_GoldenJSON_2p1invfb.root";
@@ -109,15 +111,15 @@ RooAbsReal *shiftedMass2;
 
 using namespace RooFit;
 
-void testFitter(int channel=0, int nJet=2, 
-		const char* PLOTVAR="fit_mlvjj", int massRange=0);
+void testFitter(int channel=0, int nJet=2,const char* PLOTVAR="fit_mlvjj");
 
 
 TH1D* GetDibosonHistogramShape(char* histName, double& integral, int channel, 
 			      const char* PLOTVAR, const char* cut);
 TH1D* GetWjetsHistogramShapeFromData(char* histName, int channel, 
 				     const char* PLOTVAR, float alpha, 
-				     float SBWidth, const char* cut);
+				     float SBWidth, const char* cut, 
+				     float Mass4bodyMin, float Mass4bodyMax, int Mass4bodyBins);
 
 TH1D* GetTTbarHistogramShape(char* histName, double& integral, int channel, 
 			    const char* PLOTVAR, const char* cut);
@@ -135,20 +137,11 @@ TH1D* GetHistogramShape(char* histName, double weight, double& integral,
 		       int channel, const char* PLOTVAR, const char* cut, 
 		       TString muInputFile, TString eleInputFile);
 
-RooAbsPdf*  makeSignalPdf(int channel, const char * PLOTVAR, 
-			  const char * cut="gdevtt");
 
 RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, 
-		      float alpha=0.5, float SBWidth=10., const char* cut="gdevtt");
-
-RooAbsPdf* makeTopPairPdf(int channel, const char* PLOTVAR, 
-			  const char* cut="gdevtt");
-RooAbsPdf* makeSingleTopPdf(int channel, const char* PLOTVAR, 
-			    const char* cut="gdevtt");
-RooAbsPdf* makeQCDPdf(int channel, const char* PLOTVAR, 
-		      const char* cut="gdevtt");
-RooAbsPdf* makeZJetsPdf(int channel, const char* PLOTVAR, 
-			const char* cut="gdevtt");
+		      float alpha=0.5, float SBWidth=10., const char* cut="gdevtt", 
+		      float Mass4bodyMin=MINRange, float Mass4bodyMax=MAXRange, 
+		      int Mass4bodyBins=NBINSFORPDF);
 
 
 
@@ -167,7 +160,7 @@ void RooWjj4BodyFitter() {
   // "MassV2j_PFCor"
 
   //   testFitter(0, 2, (char*) "fi2_mlvjj", 4);
-  testFitter(0, 3, (char*) "fi2_mlvjj", 3);
+  testFitter(0, 3, (char*) "fi2_mlvjj");
 
 }  
 
@@ -188,10 +181,9 @@ massRange  |     explanation    | W+jets fraction | diboson fraction | alpha
 --------------------------------------------------------------------------------------------
   0        |      full range    |     1           |      1           | 0.16
            |     (100--800 GeV) |                 |                  | 
-  1        |      150--230 GeV  |  0.398702       |  0.321052        | 0.00 + 0.07 - 0.00
-  2        |      200--400 GeV  |  0.750248       |  0.743344        | 0.20 +- 0.04
-  3        |      360--500 GeV  |  0.103053       |  0.144575        | 0.13 + 0.16 - 0.13
-  4        |      450--800 GeV  |  0.0501358      |  0.0832984       | 0.80 - 0.15 + 0.18 
+  1        |      150--220 GeV  |  0.398702       |  0.321052        | 0.00 + 0.07 - 0.00
+  2        |      220--400 GeV  |  0.750248       |  0.743344        | 0.20 +- 0.04
+  3        |      400--800 GeV  |  0.103053       |  0.144575        | 0.13 + 0.16 - 0.13
 ---------------------------------------------------------------------------------------------
 
 
@@ -218,9 +210,9 @@ massRange  |     explanation    | W+jets fraction | diboson fraction | alpha
 ---------------------------------------------------------------------------------------------
   0        |      full range    |     1           |      1           | 0.375
            |     (100--800 GeV) |                 |                  | 
-  1        |      150--230 GeV  |  0.306503       |  0.251909        | 0.06 + 0.13 - 0.06
-  2        |      200--400 GeV  |  0.724822       |  0.698483        | 0.28 +- 0.07
-  3        |      360--800 GeV  |  0.15226        |  0.264282        | 0.00 + 0.22 - 0.00
+  1        |      150--220 GeV  |  0.306503       |  0.251909        | 0.06 + 0.13 - 0.06
+  2        |      220--400 GeV  |  0.724822       |  0.698483        | 0.28 +- 0.07
+  3        |      400--800 GeV  |  0.15226        |  0.264282        | 0.00 + 0.22 - 0.00
 ----------------------------------------------------------------------------------------------
 
 We should use the sub-ranges for the Higgs mass limit 
@@ -237,122 +229,57 @@ sub-range  |   limit on Higgs mass mH
 ////////////////////////////////////////////////
 */
 
-void testFitter(int channel, int nJet, const char* PLOTVAR, int massRange)
+void testFitter(int channel, int nJet, const char* PLOTVAR)
 {
    double wjetsNorm_;
-   float alpha;
-   float wjjFraction = 1.0;
-   float dibosonFraction = 1.0;
+   float alpha1,  alpha2,  alpha3;
    float displayScaleFactor = 1.25;
    float legendStartX = 0.65;
    float legendStartY = 0.45;
    float SBWidth = 10.;
    float chi2boxStartX = 0.66;
    float chi2boxStartY = 0.23;
+   float fracAlpha1;
+   float fracAlpha2;
 
    if(nJet==0 || nJet==2) {
-     if (massRange==0) {
-       alpha = 0.16;
-       MINRange = 100;
-       MAXRange = 800;
-     }
-     if (massRange==1) {
-       alpha = 0.00;    ///// syst: +0.07, -0.0
-       wjjFraction = 0.398702;
-       dibosonFraction = 0.321052;
-       MINRange = 150;
-       MAXRange = 230;
-       BINWIDTH = 10;
-       SBWidth = 10.;
-       displayScaleFactor = 1.8;
-       legendStartX = 0.23;
-     }
-     if (massRange==2) {
-       alpha = 0.20;  ///// syst: +-0.04
-       wjjFraction = 0.750248;
-       dibosonFraction = 0.743344;
-       MINRange = 200;
-       MAXRange = 400;
-       legendStartX = 0.65;
-       legendStartY = 0.4;
-       chi2boxStartX = 0.3;
-       chi2boxStartY = 0.3;
-     }
-     if (massRange==3) {
-       alpha = 0.13; //// syst: + 0.16 - 0.13
-       wjjFraction = 0.103053;
-       dibosonFraction = 0.144575;
-       MINRange = 360;
-       MAXRange = 500;
-       BINWIDTH = 20;
-       displayScaleFactor = 1.8;
-       legendStartX = 0.67;
-       legendStartY = 0.41;
-       SBWidth = 10.;
-       chi2boxStartX = 0.33;
-     }
-     if (massRange==4) {
-       alpha = 0.80;  ////// - 0.15 + 0.18
-       wjjFraction = 0.0501358;
-       dibosonFraction = 0.0832984;
-       MINRange = 450;
-       MAXRange = 800;
-       BINWIDTH = 25;
-       legendStartY = 0.35;
-       SBWidth = 30.;
-     }
+     alpha1 = 0.00;    ///// syst: +0.07, -0.0
+     fracAlpha1 = 0.326313;
+     // displayScaleFactor = 1.8;
+     // legendStartX = 0.23;
+       alpha2 = 0.20;  ///// syst: +-0.04
+       fracAlpha2 = 0.589244;
+//        legendStartX = 0.65;
+//        legendStartY = 0.4;
+//        chi2boxStartX = 0.3;
+//        chi2boxStartY = 0.3;
+       alpha3 = 0.13; //// syst: + 0.16 - 0.13
+//        displayScaleFactor = 1.8;
+//        legendStartX = 0.67;
+//        legendStartY = 0.41;
+//        SBWidth = 10.;
+//        chi2boxStartX = 0.33;
    }
    else if(nJet==3) {
-     if (massRange==1) {
-       alpha = 0.06;  /////// syst: -0.06 + 0.13
-       MINRange = 150;
-       MAXRange = 230;
-       BINWIDTH = 10;
-       wjjFraction = 0.423077;
-       dibosonFraction = 0.354831;
-       SBWidth = 30.;
-       displayScaleFactor = 1.8;
-       legendStartX = 0.23;
-       chi2boxStartY = 0.32;
-     }
-     if (massRange==2) {
-       alpha = 0.28; ////// syst: +- 0.07 
-       wjjFraction = 0.724822;
-       dibosonFraction = 0.698483;
-       MINRange = 200;
-       MAXRange = 400;
-       BINWIDTH = 20;
-       SBWidth = 30.;
-       displayScaleFactor = 2.0;
-       legendStartX = 0.65;
-       legendStartY = 0.4;
-       chi2boxStartX = 0.3;
-       chi2boxStartY = 0.32;
-     }
-     if (massRange==3) {
-       alpha = 0.22; ////// syst: +- 0.22 - 0.00 
-       wjjFraction = 0.210944;
-       dibosonFraction = 0.264282;
-       MINRange = 360;
-       MAXRange = 800;
-       BINWIDTH = 40;
-       displayScaleFactor = 1.8;
-       legendStartX = 0.67;
-       legendStartY = 0.41;
-       SBWidth = 20.;
-       chi2boxStartX = 0.33;
-       chi2boxStartY = 0.5;
-     }
-//      if (massRange==4) {
-//        alpha = 0.76;  ////// +- 0.1
-//        wjjFraction = 0.0963521;
-//        dibosonFraction = 0.131148;
-//        MINRange = 450;
-//        MAXRange = 800;
-//        BINWIDTH = 50;
-//        legendStartY = 0.35;
-//        SBWidth = 500.;
-//      }
+       alpha1 = 0.06;  /////// syst: -0.06 + 0.13
+       fracAlpha1 = 0.250198;
+//        displayScaleFactor = 1.8;
+//        legendStartX = 0.23;
+//        chi2boxStartY = 0.32;
+       alpha2 = 0.28; ////// syst: +- 0.07 
+       fracAlpha2 = 0.605075;
+//        displayScaleFactor = 2.0;
+//        legendStartX = 0.65;
+//        legendStartY = 0.4;
+//        chi2boxStartX = 0.3;
+//        chi2boxStartY = 0.32;
+       alpha3 = 0.22; ////// syst: +- 0.22 - 0.00 
+//        displayScaleFactor = 1.8;
+//        legendStartX = 0.67;
+//        legendStartY = 0.41;
+//        SBWidth = 20.;
+//        chi2boxStartX = 0.33;
+//        chi2boxStartY = 0.5;
    }
    else return;
 
@@ -454,10 +381,51 @@ void testFitter(int channel, int nJet, const char* PLOTVAR, int massRange)
 
 
 
+
+   RooRealVar nWjets("nWjets","nWjets",        wjetsNorm_);
+   RooRealVar nDiboson("nDiboson","nDiboson",  dibosonNorm_);
+   RooRealVar nTTbar("nTTbar","", ttbarNorm_);
+   RooRealVar nSingleTop("nSingleTop","", singleTopNorm_);
+   RooRealVar nQCD("nQCD","nQCD", QCDNorm);
+   RooRealVar nZjets("nZjets","nZjets", zjetsNorm_);
+   /////////////////////////////////////////////////////////////////////////
+   /////////////////////////////////////////////////////////////////////////
+   RooWjjFitterParams fitterPars;
+   fitterPars.MCDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_';
+   fitterPars.WpJDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_';
+   fitterPars.QCDDirectory = '/uscms_data/d1/kalanand/WjjTrees/NewReducedQCDTrees/';
+   fitterPars.initParamsFile = "HWWConstraints2Jets.txt";
+   fitterPars.DataDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_';
+   fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_';
+   fitterPars.minMass = 150;
+   fitterPars.maxMass = 800.;
+   fitterPars.nbins = 65;
+   fitterPars.truncRange = false;
+   fitterPars.njets = nJet;
+   fitterPars.cuts = mycuts;
+   fitterPars.var = TString(PLOTVAR);
+
+   RooWjjMjjFitter* rwf = new RooWjjMjjFitter(fitterPars);
+
+
    // ********** Construct signal & bkg shape PDF ********** //
-   RooAbsPdf* signalShapePdf_ = makeSignalPdf(channel, PLOTVAR, mycuts);
+   RooAbsPdf* signalShapePdf_ = rwf->makeDibosonPdf();
    cout << "Made signal pdf" << endl;
-   RooAbsPdf *bkgShapePdf_ = makeBkgPdf(channel, PLOTVAR, alpha, SBWidth, mycutsNoMassCut);
+
+   RooAbsPdf *bkgShapePdf1_ = makeBkgPdf(channel, PLOTVAR, alpha1, SBWidth, mycutsNoMassCut, 
+					150., 220., 7);
+   RooAbsPdf *bkgShapePdf2_ = makeBkgPdf(channel, PLOTVAR, alpha2, SBWidth, mycutsNoMassCut, 
+					220., 400., 9);
+   RooAbsPdf *bkgShapePdf3_ = makeBkgPdf(channel, PLOTVAR, alpha3, SBWidth, mycutsNoMassCut, 
+					400., 800., 10);
+   RooRealVar fAlpha1("fAlpha1","fAlpha1",  fracAlpha1);
+   RooRealVar fAlpha2("fAlpha2","fAlpha2",  fracAlpha2);
+
+   RooAbsPdf *bkgShapePdf_ = new RooAddPdf("bkgShapePdf","", 
+					   RooArgList(*bkgShapePdf1_,*bkgShapePdf2_,*bkgShapePdf3_), 
+					   RooArgList(fAlpha1,fAlpha2));
+
+   cout << "Made W+jets pdf from data sidebands" << endl;
 
    RooAbsPdf* qcdPdf_;
    RooAbsPdf* ttPdf_;
@@ -465,10 +433,10 @@ void testFitter(int channel, int nJet, const char* PLOTVAR, int massRange)
    RooAbsPdf* zjetsPdf_;
 
    if(includeNuisancePDF) { 
-      qcdPdf_ = makeQCDPdf(channel, PLOTVAR, mycuts);
-      ttPdf_ = makeTopPairPdf(channel, PLOTVAR, mycuts);
-      singleTopPdf_ = makeSingleTopPdf(channel, PLOTVAR, mycuts);
-      zjetsPdf_ = makeZJetsPdf(channel, PLOTVAR, mycuts);
+     qcdPdf_       = rwf->makeQCDPdf();
+     ttPdf_        = rwf->makettbarPdf();
+     singleTopPdf_ = rwf->makeSingleTopPdf();
+     zjetsPdf_      = rwf->makeZpJPdf();
    }
    cout << "Made bkg pdf" << endl;
 
@@ -476,38 +444,32 @@ void testFitter(int channel, int nJet, const char* PLOTVAR, int massRange)
    // ********* Do the Actual Fit ********** //  
 
    if(channel==0 && nJet==2) {
-     dibosonNorm_ = 1046.48;
-     wjetsNorm_ = 20863.9;
+     dibosonNorm_ = 967.;
+     wjetsNorm_ = 20645.;
+     ttbarNorm_ = 1223.;
+     singleTopNorm_ = 563.;
+     QCDNorm = 415.;
+     zjetsNorm_ = 500.;
    }
    else if(channel==0 && nJet==3) {
-     dibosonNorm_ = 177.497;
-     wjetsNorm_ = 3648.06;
+     dibosonNorm_ = 165.;
+     wjetsNorm_ = 3559.;
+     ttbarNorm_ = 1605.;
+     singleTopNorm_ = 281.;
+     QCDNorm = 97.;
+     zjetsNorm_ = 90.;
    }
    else if(channel==0 && nJet==0) {
-     dibosonNorm_ = 1221.69;
-     wjetsNorm_ = 24443.6;
-   }
-   else if(channel==0 && nJet==3) {
-     dibosonNorm_ = 177.883;
-     wjetsNorm_ = 3648.18;
+     dibosonNorm_ = 1132.;
+     wjetsNorm_ = 24204.;
+     ttbarNorm_ = 2828.;
+     singleTopNorm_ = 844.;
+     QCDNorm = 512.;
+     zjetsNorm_ = 590.;
    }
    else return;
 
 
-   wjetsNorm_ *= wjjFraction;
-   dibosonNorm_ *= dibosonFraction;
-   QCDNorm *= wjjFraction;
-
-
-   RooRealVar nWjets("nWjets","nWjets",        wjetsNorm_);
-   RooRealVar nDiboson("nDiboson","nDiboson",  dibosonNorm_);
-   // fix the top and single top normalization
-   RooRealVar nTTbar("nTTbar","", ttbarNorm_);
-   RooRealVar nSingleTop("nSingleTop","", singleTopNorm_);
-   RooRealVar nQCD("nQCD","nQCD", QCDNorm);
-   RooRealVar nZjets("nZjets","nZjets", zjetsNorm_);
-   /////////////////////////////////////////////////////////////////////////
-   /////////////////////////////////////////////////////////////////////////
 
    RooArgList* components;
    RooArgList* yields;	 
@@ -912,73 +874,19 @@ void testFitter(int channel, int nJet, const char* PLOTVAR, int massRange)
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
-// // ***** Function to return the Diboson Pdf *** //
-RooAbsPdf*  makeSignalPdf(int channel, const char* PLOTVAR, const char* cut) {
-
-
-  TH1* th1ww = GetDibosonHistogramShape((char*)"th1ww", dibosonNorm_, 
-					channel, PLOTVAR, cut);
-
-  cout << "-------- Number of expected WW+WZ events = " << dibosonNorm_ << endl;
-
-
-//   JES_scale = new RooRealVar("JES_scale","", 0.0,   -0.1, 0.1);
-//   shiftedMass = new RooFormulaVar("shiftedMass", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale) );
-  JES_scale2 = new RooRealVar("JES_scale2","", 0.0, -0.1, 0.1);
-  shiftedMass = new RooFormulaVar("shiftedMass", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale2) );
-  shiftedMass2 = new RooFormulaVar("shiftedMass2", "@0*(1.+@1)", RooArgSet( *mjj_, *JES_scale2) );
-
-
-  RooDataHist* rdh = new RooDataHist("rdh","", *mjj_, th1ww);
-  RooAbsPdf* signalShapePdf_ = new RooHistPdf("signalShapePdf","",
-					      RooArgSet(*shiftedMass2), 
-					      RooArgSet(*mjj_),*rdh);
-
-  return signalShapePdf_;
-}
-
-
-
-
 
 
 // ***** Function to return the background Pdf **** //
 RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR, 
-		      float alpha, float SBWidth, const char* cut)
+		      float alpha, float SBWidth, const char* cut, 
+		      float Mass4bodyMin, float Mass4bodyMax, int Mass4bodyBins)
 {  
 
-//   // W+jets pdf from data sidebands 
-//    std::ostringstream cutRange1;
-//    cutRange1 << "("  << cut << " && " << PLOTVAR << "< 300." << ")";
-//    const char* cut1 = cutRange1.str().c_str();
-//    cout << "alpha1: " << cut1 << endl;
-
-//    TH1D* th1wjets = GetWjetsHistogramShapeFromData((char*)"th1wjets", channel, 
-// 						 PLOTVAR, alpha1, cut1); 
-
-// //    std::ostr
-//    ingstream cutRange2;
-//    cutRange2 << "(" << cut << " && "  << PLOTVAR << "> 300." << ")";
-//    const char* cut2 = cutRange2.str().c_str();
-//    cout << "alpha2: " << cut2 << endl;
-
-
-//    TH1D* th1wjets2 = GetWjetsHistogramShapeFromData((char*)"th1wjets2", channel, 
-// 						 PLOTVAR, alpha2, cut2); 
-
-//    th1wjets->Add( th1wjets2 );
-
-
-
-//////////// if using one alpha /////////////////////////////
-
  TH1D* th1wjets = GetWjetsHistogramShapeFromData((char*)"th1wjets", channel, 
-						 PLOTVAR, alpha, SBWidth, cut); 
+						 PLOTVAR, alpha, SBWidth, cut, 
+						 Mass4bodyMin, Mass4bodyMax, Mass4bodyBins); 
 
   //////////// if using one alpha /////////////////////////////
-
-
-
   NMC_WpJ_=th1wjets->GetEntries();
 
   RooDataHist* rdhWjets = new RooDataHist("rdhWjets","", *mjj_, th1wjets);
@@ -988,108 +896,6 @@ RooAbsPdf* makeBkgPdf(int channel, const char* PLOTVAR,
 
   return bkgShapePdf_;
 }
-
-
-
-
-
-
-// ***** Function to return the Top pair Pdf **** //
-RooAbsPdf* makeTopPairPdf(int channel, const char* PLOTVAR, const char* cut)
-{  
-
-  TH1* th1Top = GetTTbarHistogramShape((char*)"th1Top", ttbarNorm_, 
-				       channel, PLOTVAR, cut);
-
-  cout << "-------- Number of expected ttbar events = " << ttbarNorm_ << endl;
-
-
-  RooDataHist* rdhTop = new RooDataHist("rdhTop","", *mjj_, th1Top);
-  RooAbsPdf* ttPdf_ = new RooHistPdf("ttPdf","",RooArgSet(*shiftedMass), 
-				     RooArgSet(*mjj_),*rdhTop);
-
-//   RooDataHist* rdhTop = new RooDataHist("rdhTop","", *mjj_, th1Top);
-//   ttPdf_ = new RooHistPdf("ttPdf", "", *mjj_, *rdhTop);
-
-  return ttPdf_;
-}
-
-
-
-
-
-// ***** Function to return the SingleTop Pdf **** //
-RooAbsPdf* makeSingleTopPdf(int channel, const char* PLOTVAR, const char* cut)
-{  
-
-  TH1D* th1SingleTop = GetSingleTopHistogramShape((char*)"th1SingleTop", 
-						  singleTopNorm_,
-						  channel, PLOTVAR, cut);
-  cout << "-------- Number of expected single top events = " << singleTopNorm_ << endl;
-
-  RooDataHist* rdhst = new RooDataHist("rdhst","", *mjj_, th1SingleTop);
-  RooAbsPdf* singleTopPdf_ = new RooHistPdf("singleTopPdf","",RooArgSet(*shiftedMass), 
-					    RooArgSet(*mjj_),*rdhst);
-
-
-//   RooDataHist* rdhst = new RooDataHist("rdhst","", *mjj_, th1st);
-//   singleTopPdf_ = new RooHistPdf("singleTopPdf", "", *mjj_, *rdhst);
-
-  return singleTopPdf_;
-}
-
-
-
-
-
-
-
-
-// ***** Function to return the QCD Pdf **** //
-RooAbsPdf* makeQCDPdf(int channel, const char* PLOTVAR, const char* cut)
-{  
-  // QCD pdf
-  TH1D* th1qcd = GetQCDHistogramShape((char*)"th1qcd", channel, PLOTVAR, cut);
-
-  // th1qcd->Scale( 1./ th1qcd->Integral() );
-
-  RooDataHist* rdhqcd = new RooDataHist("rdhqcd","", *mjj_, th1qcd);
-  RooAbsPdf* qcdPdf_ = new RooHistPdf("qcdPdf","",RooArgSet(*shiftedMass), 
-				      RooArgSet(*mjj_),*rdhqcd);
-
-//   RooDataHist* rdhqcd = new RooDataHist("rdhqcd","", *mjj_, th1qcd);
-//   qcdPdf_ = new RooHistPdf("qcdPdf", "", *mjj_, *rdhqcd);
-
-
-  return qcdPdf_;
-}
-
-
-
-
-
-
-// ***** Function to return the Z+jets Pdf **** //
-RooAbsPdf* makeZJetsPdf(int channel, const char* PLOTVAR, const char* cut)
-{  
-
-  TH1* th1ZJets = GetZjetsHistogramShape((char*)"th1ZJets", zjetsNorm_, 
-					 channel, PLOTVAR, cut);
-
-  cout << "-------- Number of expected zjets events = " << zjetsNorm_ << endl;
-
-
-  RooDataHist* rdhZJets = new RooDataHist("rdhZJets","", *mjj_, th1ZJets);
-  RooAbsPdf* zjetsPdf_ = new RooHistPdf("zjetsPdf","",RooArgSet(*shiftedMass), 
-					RooArgSet(*mjj_),*rdhZJets);
-
-//   RooDataHist* rdhZJets = new RooDataHist("rdhZJets","", *mjj_, th1ZJets);
-//   zjetsPdf_ = new RooHistPdf("zjetsPdf", "", *mjj_, *rdhZJets);
-
-  return zjetsPdf_;
-}
-
-
 
 
 
@@ -1135,7 +941,8 @@ TH1D* GetDibosonHistogramShape(char* histName, double& integral, int channel,
 // ***** Function to ttbar histogram from MC **** //
 TH1D* GetWjetsHistogramShapeFromData(char* histName, int channel, 
 				     const char* PLOTVAR, float alpha, 
-				     float SBWidth, const char* cut) {
+				     float SBWidth, const char* cut, 
+				     float Mass4bodyMin, float Mass4bodyMax, int Mass4bodyBins) {
 
   // W+jets pdf from data sidebands 
    std::ostringstream ostrLowerSB;
@@ -1162,10 +969,8 @@ TH1D* GetWjetsHistogramShapeFromData(char* histName, int channel,
 
 
   TH1D* thwjetsHi = new TH1D(histName, histName,
-			   NBINSFORPDF,MINRange,MAXRange);
-  TH1D* thwjetsLo = new TH1D("thwjetsLo", "thwjetsLo",
-			   NBINSFORPDF,MINRange,MAXRange);
-
+			   Mass4bodyBins, Mass4bodyMin, Mass4bodyMax);
+  TH1D* thwjetsLo = (TH1D*) thwjetsHi->Clone("thwjetsLo");
 
 
   double integral=0.0;
@@ -1358,15 +1163,15 @@ TH1D* GetSingleTopHistogramShape(char* histName, double& integral, int channel,
 // ***** Function to ttbar histogram from MC **** //
 TH1D* GetQCDHistogramShape(char* histName, int channel, 
 		       const char* PLOTVAR, const char* cut) {
-  TFile* fqcd0 =  new TFile(QCDDirectory + "/ReducedTree/RD_mu_QCDMu_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd0 =  new TFile(QCDDirectory + "/RD_mu_QCDMu_CMSSW428.root", "READ");
   TTree* tree10 = (TTree*) fqcd0->Get("WJet");
-  TFile* fqcd1 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_Pt30to80_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd1 =  new TFile(QCDDirectory + "/RD_el_QCDEl_Pt30to80_CMSSW428.root", "READ");
   TTree* tree11 = (TTree*) fqcd1->Get("WJet");
-  TFile* fqcd2 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_Pt80to170_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd2 =  new TFile(QCDDirectory + "/RD_el_QCDEl_Pt80to170_CMSSW428.root", "READ");
   TTree* tree12 = (TTree*) fqcd2->Get("WJet");
-  TFile* fqcd3 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_BCtoE30to80_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd3 =  new TFile(QCDDirectory + "/RD_el_QCDEl_BCtoE30to80_CMSSW428.root", "READ");
   TTree* tree13 = (TTree*) fqcd3->Get("WJet");
-  TFile* fqcd4 =  new TFile(QCDDirectory + "/ReducedTree/RD_el_QCDEl_BCtoE80to170_CMSSW428_MET20Iso03.root", "READ");
+  TFile* fqcd4 =  new TFile(QCDDirectory + "/RD_el_QCDEl_BCtoE80to170_CMSSW428.root", "READ");
   TTree* tree14 = (TTree*) fqcd4->Get("WJet");
 
   //// Scaling Coefficients = 84679.3/25080241, 3866200/70392060, 139500/2194800, 136804/2030033, 9360/1082691 = 3.37633517955429532e-03, 5.49238081681371476e-02, 6.35593220338983023e-02, 6.73900375018534198e-02, 8.64512589464584008e-03 
@@ -1375,7 +1180,7 @@ TH1D* GetQCDHistogramShape(char* histName, int channel,
   TString myselection = TString("0.00337633517955429532*") + TString(cut);
   tree10->Draw( TString(PLOTVAR)+TString(">>th1qcdMu"), myselection, "goff");
 
-  TH1* th1qcdEle = new TH1D("th1qcdEle", "th1qcdEle", NBINSFORPDF, MINRange, MAXRange);
+  TH1* th1qcdEle = (TH1*) th1qcdMu->Clone("th1qcdEle");
   //sprintf(scale, "%f", 5.49238081681371476e-02);
   myselection = TString("0.0549238081681371476*") + TString(cut);
   tree11->Draw( TString(PLOTVAR)+TString(">>th1qcdEle"), myselection, "goff");
