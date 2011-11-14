@@ -7,12 +7,9 @@ def generate (outdir, Nj, mode = "HWWconfig"):
     gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
     from ROOT import RooWjjFitterUtils, TH1, TH1D
     fitParams = config.theConfig(Nj)
-    fitUtils = RooWjjFitterUtils(fitParams.nbins, fitParams.minMass,
-                                 fitParams.maxMass, fitParams.njets,
-                                 fitParams.cuts, fitParams.var,
-                                 fitParams.treeName)
-    fitUtils.setJES_scale(0, fitParams.JES_scale1);
-    fitUtils.setJES_scale(0, fitParams.JES_scale2);
+    fitUtils = RooWjjFitterUtils(fitParams);
+##     fitUtils.setJES_scale(0, fitParams.JES_scale1);
+##     fitUtils.setJES_scale(0, fitParams.JES_scale2);
 
     theModes = ["WpJ_CMSSW428.root", "WpJmatchingup_CMSSW428.root",
                 "WpJmatchingdown_CMSSW428.root", "WpJscaleup_CMSSW428.root",

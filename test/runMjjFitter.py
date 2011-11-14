@@ -95,5 +95,5 @@ for eigVal in eigen.GetEigenValues():
 fr.Print()
 #print 'total yield error (uncorrelated): {0:0.1f}'.format(sqrt(usig2))
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
-print 'sqrt(total): {0:0.0f}'.format(sqrt(totalYield))
+## print 'sqrt(total): {0:0.0f}'.format(sqrt(totalYield))
 print 'yield in signal box: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal(), sigInt.getVal()*sqrt(sig2))

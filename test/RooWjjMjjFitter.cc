@@ -726,7 +726,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy) {
 		     Range("RangeForPlot"));
     components.remove(*(components.find("NPPdf")));
     tmpCurve = sframe->getCurve("h_NP");
-    tmpCurve->SetTitle("New Physics");
+    tmpCurve->SetTitle("new physics");
   }
   int linec(kRed);
   TString pdfName("h_background");

@@ -52,9 +52,9 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 				   TString histName, 
 				   int jes_scl, bool noCuts, 
 				   double binMult) const {
-  TFile treeFile(fname);
+  TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
-  treeFile.GetObject(params_.treeName, theTree);
+  treeFile->GetObject(params_.treeName, theTree);
   if (!theTree) {
     std::cout << "failed to find tree " << params_.treeName << " in file " << fname 
 	      << '\n';
@@ -76,6 +76,8 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   delete theTree;
 
   theHist->SetDirectory(0);
+
+  delete treeFile;
 
   //theHist->Print();
   return theHist;
@@ -101,9 +103,9 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
 RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname, 
 					     TString dsName, 
 					     bool trunc) const {
-  TFile treeFile(fname);
+  TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
-  treeFile.GetObject(params_.treeName, theTree);
+  treeFile->GetObject(params_.treeName, theTree);
   if (!theTree) {
     std::cout << "failed to find tree " << params_.treeName << " in file " << fname 
 	      << '\n';
@@ -119,6 +121,7 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
 
   delete reducedTree;
   delete theTree;
+  delete treeFile;
 
   return ds;
 }

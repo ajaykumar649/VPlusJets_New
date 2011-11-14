@@ -5,18 +5,19 @@ from ROOT import RooWjjFitterParams
 
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
-    fitterPars.MCDirectory = "/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_"
-    fitterPars.WpJDirectory = "/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_"
+    fitterPars.MCDirectory = "root://cmssrv32.fnal.gov//store/user/lnujj/WjjTrees/NewKfitRDTree/RD_"
+    fitterPars.WpJDirectory = "root://cmssrv32.fnal.gov//store/user/lnujj/WjjTrees/NewKfitRDTree/RD_"
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = True
-    fitterPars.QCDDirectory = "/uscms_data/d1/kalanand/WjjTrees/NewReducedQCDTrees/"
-    fitterPars.initParamsFile = initFile
-    # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
-    fitterPars.DataDirectory = "/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_"
+    fitterPars.QCDDirectory = "root://cmssrv32.fnal.gov//store/user/lnujj/WjjTrees/NewReducedQCDTrees/"
+    fitterPars.DataDirectory = "root://cmssrv32.fnal.gov//store/user/lnujj/WjjTrees/NewKfitRDTree/RD_"
+    fitterPars.NewPhysicsDirectory = "root://cmssrv32.fnal.gov//store/user/lnujj/WjjTrees/NewKfitRDTree/RD_"
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_2p1invfb.root'
     fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_2p1invfb_SinglE_EleH.root'
-    fitterPars.NewPhysicsDirectory = "/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_"
+
+    fitterPars.initParamsFile = initFile
+
     fitterPars.minMass = 50.
     fitterPars.maxMass = 120.
     fitterPars.nbins = 14

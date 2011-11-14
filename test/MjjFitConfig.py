@@ -7,6 +7,6 @@ from ROOT import RooWjjFitterParams
 
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = MjjOptimizeConfig.theConfig(Nj, mcdir, initFile)
-    fitterPars.truncRange = False
+    # fitterPars.truncRange = False
 
     return fitterPars
