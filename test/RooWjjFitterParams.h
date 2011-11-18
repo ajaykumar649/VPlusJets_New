@@ -41,6 +41,17 @@ public:
   TString electronData;
   double intLumi;
   bool constrainDiboson;
+
+  ///External Parameters
+  bool useExternalMorphingPars;
+  double e_fSU;
+  double e_fMU;
+
+  ///Use for toyDataset Fitting
+  bool fitToyDataset;
+  TString ToyDatasetDirectory;
+  TString toydataFile;
+
 };
 
 RooWjjFitterParams::RooWjjFitterParams() :
@@ -54,7 +65,10 @@ RooWjjFitterParams::RooWjjFitterParams() :
   cuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
   electronData("WenuJets_DataAll_GoldenJSON_2p1invfb.root"),
-  intLumi(2100.), constrainDiboson(true)
+  intLumi(2100.), constrainDiboson(true),
+
+  useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),
+  fitToyDataset(false), ToyDatasetDirectory(""), toydataFile("")
 {
 }
 
@@ -74,7 +88,10 @@ RooWjjFitterParams::RooWjjFitterParams(RooWjjFitterParams const& other) :
   cuts(other.cuts), var(other.var), treeName(other.treeName),
   toyWpJ(other.toyWpJ), muonData(other.muonData), 
   electronData(other.electronData), intLumi(other.intLumi),
-  constrainDiboson(other.constrainDiboson)
+  constrainDiboson(other.constrainDiboson),
+
+  useExternalMorphingPars(other.useExternalMorphingPars), e_fSU(other.e_fSU), e_fMU(other.e_fMU),
+  fitToyDataset(other.fitToyDataset), ToyDatasetDirectory(other.ToyDatasetDirectory), toydataFile(other.toydataFile)
 {
 }
 

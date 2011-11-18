@@ -10,14 +10,16 @@ parser.add_option('-b', action='store_true', dest='noX', default=False,
                   help='no X11 windows')
 parser.add_option('-j', '--Njets', dest='Nj', default=2, type='int',
                   help='Number of jets.')
+parser.add_option('--TD', dest='toydataFile', default='',
+                  help='a file corresponding to a toy dataset')
 parser.add_option('-i', '--init', dest='startingFile',
-                  default='TestWjjFitParams.txt',
+                  default='MjjNominal2Jets.txt',
                   help='File to use as the initial template')
 parser.add_option('-p', '--precision', dest='P', default=3, type='int',
                   help='precision to find minimum 10^-P')
 parser.add_option('-d', '--dir', dest='mcdir', default='',
                   help='directory to pick up the W+jets shapes')
-parser.add_option('-m', '--mode', default="HWWconfig", dest='modeConfig',
+parser.add_option('-m', '--mode', default="MjjOptimizeConfig", dest='modeConfig',
                   help='which config to select from WjjFitterConfigs')
 (opts, args) = parser.parse_args()
 
@@ -42,7 +44,7 @@ from ROOT import RooWjjMjjFitter, RooFitResult, \
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 tmpInitFile = opts.startingFile
 
-fitterPars = config.theConfig(opts.Nj, opts.mcdir, tmpInitFile)
+fitterPars = config.theConfig(opts.Nj, -100.0, -100.0, opts.mcdir, tmpInitFile, opts.toydataFile)
 theFitter = RooWjjMjjFitter(fitterPars)
 
 Npts = 7

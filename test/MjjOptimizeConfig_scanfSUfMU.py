@@ -28,7 +28,7 @@ def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.maxTrunc = 170.
     fitterPars.njets = Nj
 
-    fitterPars.useExternalMorphingPars = False
+    fitterPars.useExternalMorphingPars = True
     fitterPars.e_fSU = e_FSU
     fitterPars.e_fMU = e_FMU
        

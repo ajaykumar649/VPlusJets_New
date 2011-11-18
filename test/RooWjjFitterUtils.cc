@@ -368,3 +368,36 @@ double RooWjjFitterUtils::sig2(RooHistPdf& pdf, RooRealVar& obs, double Nbin) {
   return retVal*retVal;
 
 }
+
+
+////////////////////////////////////////////////////////////////////
+////   Use For Fitting/Optimizing On Toy MC Sets
+////////////////////////////////////////////////////////////////////
+
+RooDataSet * RooWjjFitterUtils::File2DatasetNoCuts(TString fname, 
+					     TString dsName, 
+					     bool trunc) const {
+  TFile * treeFile = TFile::Open(fname);
+  TTree * theTree;
+  treeFile->GetObject(params_.treeName, theTree);
+  if (!theTree) {
+    std::cout << "failed to find tree " << params_.treeName << " in file " << fname 
+	      << '\n';
+    return 0;
+  }
+
+  activateBranches(*theTree);
+  TFile holder("holder_DELETE_ME.root", "recreate");
+  TTree * reducedTree = theTree->CopyTree("");
+
+  RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
+				   RooArgSet(*mjj_));
+
+  delete reducedTree;
+  delete theTree;
+  delete treeFile;
+
+  return ds;
+}
+
+////////////////////////////////////////////////////////////////////

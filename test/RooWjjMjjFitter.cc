@@ -25,6 +25,8 @@
 #include "RooCurve.h"
 #include "RooHist.h"
 #include "RooProdPdf.h"
+#include "RooRandom.h"
+
 
 // #include "ComputeChi2.C"
 
@@ -106,7 +108,11 @@ RooFitResult * RooWjjMjjFitter::fit() {
    Constraints.add(constTTbar);
    ConstrainedVars.add(*nTTbar);
 
+
+
    loadParameters(params_.initParamsFile);
+   //cout << "params_.e_fSU=" << params_.e_fSU << endl;
+
 
    std::cout << "\n***constraints***\n";
    TIter con(Constraints.createIterator());
@@ -130,6 +136,21 @@ RooFitResult * RooWjjMjjFitter::fit() {
 
    fitResult->Print("v");
    params->writeToFile("lastWjjFitParams.txt");
+
+   if (params_.fitToyDataset) {
+     char NJ_char[5];
+     sprintf(NJ_char,"%i",params_.njets);
+     TString NJ_str=NJ_char;
+
+     TFile *fAll = new TFile("/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/ToyValidation_results/FitSummary_1K_"+NJ_str+"j.root", "UPDATE");
+     fAll->cd();
+     TString fRname;
+     fRname=params_.toydataFile;
+     fRname="fit_"+fRname;
+     fitResult->Write(fRname);
+     fAll->Close();
+   }
+
 
    delete params;
    return fitResult;
@@ -230,6 +251,48 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter() {
 
   ws_.import(totalPdf);
 
+
+//   ///Toy MC Generation:
+//   char I_char[5];
+//   sprintf(I_char,"%i",params_.njets);
+//   TString I_str=I_char;
+
+//   cout << "Generating Diboson" << endl;
+//   generateToyMCSet(dibosonPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/Diboson_"+I_str+"j_GenMC.root",1010*1100,5004);
+
+//   resetfSUfMU(0.0,0.0);
+//   cout << "Generating Wjj - default" << endl;
+//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjDef_"+I_str+"j_GenMC.root",1010*30000,1837);
+
+//   resetfSUfMU(1.0,0.0);
+//   cout << "Generating Wjj - ScaleUp" << endl;
+//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjSU_"+I_str+"j_GenMC.root",1010*15000,1632);
+
+//   resetfSUfMU(-1.0,0.0);
+//   cout << "Generating Wjj - ScaleDown" << endl;
+//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjSD_"+I_str+"j_GenMC.root",1010*15000,44991);
+
+//   resetfSUfMU(0.0,1.0);
+//   cout << "Generating Wjj - MatchingUp" << endl;
+//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjMU_"+I_str+"j_GenMC.root",1010*20000,607);
+
+//   resetfSUfMU(0.0,-1.0);
+//   cout << "Generating Wjj - MatchingDown" << endl;
+//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjMD_"+I_str+"j_GenMC.root",1010*20000,4803);
+
+//   cout << "Generating tt" << endl;
+//   generateToyMCSet(ttPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/tt_"+I_str+"j_GenMC.root",1010*6000,5753);
+
+//   cout << "Generating singleTop" << endl;
+//   generateToyMCSet(stPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/singleTop_"+I_str+"j_GenMC.root",1010*1500,2237);
+
+//   cout << "Generating qcd" << endl;
+//   generateToyMCSet(qcdPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/qcd_"+I_str+"j_GenMC.root",1010*3000,1891);
+
+//   cout << "Generating zjets" << endl;
+//   generateToyMCSet(ZpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/zjets_"+I_str+"j_GenMC.root",1010*1000,8058);
+
+
   return ws_.pdf("totalPdf"); 
 }
 
@@ -247,23 +310,57 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
 
   RooDataSet data(dataName, dataName, RooArgSet(*mass));
   QCDNorm_ = 0.;
-  if (params_.includeMuons) {
-    RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
-					   params_.muonData, "data_muon", 
+
+  if (params_.fitToyDataset) {
+    RooDataSet * tds = utils_.File2DatasetNoCuts(params_.ToyDatasetDirectory + 
+					   params_.toydataFile, "data_muon", 
 					   trunc);
-    mds->Print();
-    QCDNorm_ += 0.008*mds->sumEntries();
-    data.append(*mds);
-    delete mds;
-  }
-  if (params_.includeElectrons) {
-    RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
-					   params_.electronData, 
-					   "data_electron", trunc);
-    eds->Print();
-    QCDNorm_ += 0.03*eds->sumEntries();
-    data.append(*eds);
-    delete eds;
+    tds->Print();
+
+    double fracel=0.5;
+    double fracmu=0.5;
+    if ( params_.njets==3 ) {
+      fracel=0.442;
+      fracmu=0.558;
+      QCDNorm_ += (0.081*fracmu+0.099*fracel)*tds->sumEntries();
+    } else {
+      fracel=0.434;
+      fracmu=0.566;
+      QCDNorm_ += (0.028*fracmu+0.087*fracel)*tds->sumEntries();
+    }
+    data.append(*tds);
+    delete tds;
+
+  } else {
+    if (params_.includeMuons) {
+      RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
+					     params_.muonData, "data_muon", 
+					     trunc);
+      mds->Print();
+
+      /// Note: for the 2+3 jets we use the 2jet bin coefficients
+      if ( params_.njets==3 ) {
+	QCDNorm_ += 0.081*mds->sumEntries();
+      } else {
+	QCDNorm_ += 0.028*mds->sumEntries();
+      }
+      data.append(*mds);
+      delete mds;
+    }
+    if (params_.includeElectrons) {
+      RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
+					     params_.electronData, 
+					     "data_electron", trunc);
+      eds->Print();
+      if ( params_.njets==3 ) {
+	QCDNorm_ += 0.099*eds->sumEntries();
+      } else {
+	QCDNorm_ += 0.087*eds->sumEntries();
+      }
+
+      data.append(*eds);
+      delete eds;
+    }
   }
   ws_.import(data);
 
@@ -856,6 +953,27 @@ void RooWjjMjjFitter::loadParameters(TString fname) {
   if (fname.Length() > 0) {
     RooArgSet * params = ws_.pdf("totalPdf")->getParameters(ws_.data("data"));
     params->readFromFile(fname);
+    if ( params_.useExternalMorphingPars ) {
+      if ( params_.e_fSU>-10.0 ) {
+	if ( params_.e_fSU>0 ) {
+	  params->setRealValue("fSU",params_.e_fSU);
+	  params->setRealValue("fSD",0.0);
+	} else {
+	  params->setRealValue("fSU",0.0);
+	  params->setRealValue("fSD",-params_.e_fSU);
+	}
+      }
+      if ( params_.e_fMU>-10.0 ) {
+	if ( params_.e_fMU>0 ) {
+	  params->setRealValue("fMU",params_.e_fMU);
+	  params->setRealValue("fMD",0.0);
+	} else {
+	  params->setRealValue("fMU",0.0);
+	  params->setRealValue("fMD",-params_.e_fMU);
+	}
+      }
+    }
+      
     delete params;
   }
 }
@@ -878,3 +996,47 @@ void RooWjjMjjFitter::resetYields() {
     ws_.var("nNP")->setError(100.);
   }
 }
+
+////////////////////////////////////////////////////////////////////
+////   Use For MC Dataset Toy Generation
+////////////////////////////////////////////////////////////////////
+
+void RooWjjMjjFitter::generateToyMCSet(RooAbsPdf *inputPdf, const char* outFileName, int NEvts, int seedInitializer)
+/// Generates a ToyMC dataset (for the mjj distribution) from the inputPdf
+{
+  int seed;
+  seed=3487+seedInitializer*3;
+  RooRandom::randomGenerator()->SetSeed(seed);
+  TFile *fMC = new TFile(outFileName, "RECREATE");
+
+  RooRealVar * mass = ws_.var(params_.var);
+  RooDataSet* toymc =  inputPdf->generate(*mass,NEvts);
+  const TTree* tMC  = toymc->tree();
+  fMC->cd();
+  tMC->Write();
+  fMC->Close();
+
+}
+
+
+void RooWjjMjjFitter::resetfSUfMU(double fSU, double fMU) {
+  RooArgSet * params = ws_.pdf("totalPdf")->getParameters(ws_.data("data"));
+  if ( fSU>0 ) {
+    params->setRealValue("fSU",fSU);
+    params->setRealValue("fSD",0.0);
+  } else {
+    params->setRealValue("fSU",0.0);
+    params->setRealValue("fSD",-fSU);
+  }
+  if ( fMU>0 ) {
+    params->setRealValue("fMU",fMU);
+    params->setRealValue("fMD",0.0);
+  } else {
+    params->setRealValue("fMU",0.0);
+    params->setRealValue("fMD",-fMU);
+  }
+
+  delete params;
+}
+
+////////////////////////////////////////////////////////////////////

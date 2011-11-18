@@ -41,6 +41,11 @@ public:
 
   void resetYields();
 
+  ////   Use For MC Dataset Toy Generation
+  void generateToyMCSet(RooAbsPdf *inputPdf, const char* outFileName, int NEvts, int seedInitializer);
+  void resetfSUfMU(double fSU, double fMU);
+
+
 private:
   RooWorkspace ws_;
   RooWjjFitterParams params_;

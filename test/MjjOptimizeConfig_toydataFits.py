@@ -17,7 +17,7 @@ def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_2p1invfb.root'
     fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_2p1invfb_SinglE_EleH.root'
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.fitToyDataset = False
+    fitterPars.fitToyDataset = True
     fitterPars.ToyDatasetDirectory = '/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSets/'
     fitterPars.toydataFile = toydataFile
     fitterPars.minMass = 60.

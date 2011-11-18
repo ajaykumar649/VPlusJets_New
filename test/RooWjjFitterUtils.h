@@ -36,6 +36,8 @@ public:
 		       RooWorkspace& ws) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
 			    bool trunc = false) const;
+  RooDataSet * File2DatasetNoCuts(TString fname, TString dsName,
+			    bool trunc = false) const;
   TString fullCuts(bool trunc = false) const;
 
   void hist2RandomTree(TH1 * theHist, TString fname) const;

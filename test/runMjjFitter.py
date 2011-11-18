@@ -7,6 +7,12 @@ parser.add_option('-b', action='store_true', dest='noX', default=False,
                   help='no X11 windows')
 parser.add_option('-j', '--Njets', dest='Nj', default=2, type='int',
                   help='Number of jets.')
+parser.add_option('--fSU', dest='e_FSU', default=-100.0, type='float',
+                  help='Externally set scaling up fraction. It is the scaling down fraction when -1.0<fSU<0.0; and it is taken from the input file when fSU<-10.0.')
+parser.add_option('--fMU', dest='e_FMU', default=-100.0, type='float',
+                  help='Externally set matching up fraction. It is the matching down fraction when -1.0<fMU<0.0; and it is taken from the input file when fMU<-10.0.')
+parser.add_option('--TD', dest='toydataFile', default='',
+                  help='a file corresponding to a toy dataset')
 parser.add_option('-i', '--init', dest='startingFile',
                   default='MjjNominal2Jets.txt',
                   help='File to use as the initial template')
@@ -32,7 +38,7 @@ from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile)
+fitterPars = config.theConfig(opts.Nj, opts.e_FSU, opts.e_FMU, opts.mcdir, opts.startingFile, opts.toydataFile )
 theFitter = RooWjjMjjFitter(fitterPars)
 
 fr = theFitter.fit()
@@ -57,20 +63,28 @@ l.DrawLatex(0.22, 0.85,
                                                               chi2/ndf)
             )
 pyroot_logon.cmsPrelim(c1, fitterPars.intLumi/1000)
-c1.Print('Wjj_Mjj_{0}jets_Stacked.pdf'.format(opts.Nj))
+### c1.Print('Wjj_Mjj_{0}jets_Stacked.pdf'.format(opts.Nj))
+### c1.Print('Wjj_Mjj_{0}jets_Stacked.eps'.format(opts.Nj))
+### c1.Print('Wjj_Mjj_{0}jets_Stacked.gif'.format(opts.Nj))
 c2 = TCanvas("c2", "stacked_log")
 c2.SetLogy()
 lf.Draw()
 pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-c2.Print('Wjj_Mjj_{0}jets_Stacked_log.pdf'.format(opts.Nj))
+### c2.Print('Wjj_Mjj_{0}jets_Stacked_log.pdf'.format(opts.Nj))
+### c2.Print('Wjj_Mjj_{0}jets_Stacked_log.eps'.format(opts.Nj))
+### c2.Print('Wjj_Mjj_{0}jets_Stacked_log.gif'.format(opts.Nj))
 c3 = TCanvas("c3", "subtracted")
 sf.Draw()
 pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-c3.Print('Wjj_Mjj_{0}jets_Subtracted.pdf'.format(opts.Nj))
+### c3.Print('Wjj_Mjj_{0}jets_Subtracted.pdf'.format(opts.Nj))
+### c3.Print('Wjj_Mjj_{0}jets_Subtracted.eps'.format(opts.Nj))
+### c3.Print('Wjj_Mjj_{0}jets_Subtracted.gif'.format(opts.Nj))
 c4 = TCanvas("c4", "pull")
 pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
-c4.Print('Wjj_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
+### c4.Print('Wjj_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
+### c4.Print('Wjj_Mjj_{0}jets_Pull.eps'.format(opts.Nj))
+### c4.Print('Wjj_Mjj_{0}jets_Pull.gif'.format(opts.Nj))
 
 mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
@@ -93,6 +107,10 @@ for eigVal in eigen.GetEigenValues():
     sig2 += eigVal
 
 fr.Print()
+nll=fr.minNll()
+print '***** nll = ',nll,' ***** \n'
+##nll.Print()
+
 #print 'total yield error (uncorrelated): {0:0.1f}'.format(sqrt(usig2))
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 ## print 'sqrt(total): {0:0.0f}'.format(sqrt(totalYield))
