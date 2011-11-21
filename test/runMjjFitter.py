@@ -150,14 +150,8 @@ print '-------------------------------'
 
 
 fr.Print()
-<<<<<<< runMjjFitter.py
-=======
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
-##nll.Print()
-
-#print 'total yield error (uncorrelated): {0:0.1f}'.format(sqrt(usig2))
->>>>>>> 1.5
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
 print 'shape file created'
