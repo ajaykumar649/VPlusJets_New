@@ -86,32 +86,82 @@ pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
 ### c4.Print('Wjj_Mjj_{0}jets_Pull.eps'.format(opts.Nj))
 ### c4.Print('Wjj_Mjj_{0}jets_Pull.gif'.format(opts.Nj))
 
+h_total = mf.getCurve('h_total')
+theData = mf.getHist('theData')
+
 mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
 yields = RooArgList(theFitter.makeFitter().coefList())
 iset = RooArgSet(mass)
 sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
+sigFullInt = theFitter.makeFitter().createIntegral(iset)
+dibosonInt = theFitter.makeDibosonPdf().createIntegral(iset, 'signal')
+dibosonFullInt = theFitter.makeDibosonPdf().createIntegral(iset)
+WpJInt = theFitter.makeWpJPdf().createIntegral(iset, 'signal')
+WpJFullInt = theFitter.makeWpJPdf().createIntegral(iset)
+ttbarInt = theFitter.makettbarPdf().createIntegral(iset, 'signal')
+ttbarFullInt = theFitter.makettbarPdf().createIntegral(iset)
+SingleTopInt = theFitter.makeSingleTopPdf().createIntegral(iset, 'signal')
+SingleTopFullInt = theFitter.makeSingleTopPdf().createIntegral(iset)
+QCDInt = theFitter.makeQCDPdf().createIntegral(iset, 'signal')
+QCDFullInt = theFitter.makeQCDPdf().createIntegral(iset)
+ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, 'signal')
+ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
 ## print "*** yield vars ***"
 ## yields.Print("v")
 eigen = TMatrixDSymEigen(fr.covarianceMatrix())
-
-usig2 = 0.
-totalYield = 0.
-for i in range(0, yields.getSize()):
-    usig2 += yields.at(i).getError()*yields.at(i).getError()
-    totalYield += yields.at(i).getVal()
-
 
 sig2 = 0.
 for eigVal in eigen.GetEigenValues():
     sig2 += eigVal
 
+usig2 = 0.
+totalYield = 0.
+
+print
+print '-------------------------------'
+print 'Yields in signal box'
+print '-------------------------------'
+for i in range(0, yields.getSize()):
+    usig2 += yields.at(i).getError()*yields.at(i).getError()
+    totalYield += yields.at(i).getVal()
+    theIntegral = 1.
+    theName = yields.at(i).GetName()
+    if (theName == 'nDiboson'):
+        theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
+    elif (theName == 'nWjets'):
+        theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
+    elif (theName == 'nTTbar'):
+        theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
+    elif (theName == 'nSingleTop'):
+        theIntegral = SingleTopInt.getVal()/SingleTopFullInt.getVal()
+    elif (theName == 'nQCD'):
+        theIntegral = QCDInt.getVal()/QCDFullInt.getVal()
+    elif (theName == 'nZjets'):
+        theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
+
+    print '{0}: {1:0.0f} +/- {2:0.0f}'.format(theName,
+                                              yields.at(i).getVal()*theIntegral,
+                                              yields.at(i).getError()*theIntegral)
+
+print '-------------------------------'
+print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
+print '-------------------------------'
+
+
 fr.Print()
+<<<<<<< runMjjFitter.py
+=======
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 ##nll.Print()
 
 #print 'total yield error (uncorrelated): {0:0.1f}'.format(sqrt(usig2))
+>>>>>>> 1.5
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
-## print 'sqrt(total): {0:0.0f}'.format(sqrt(totalYield))
-print 'yield in signal box: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal(), sigInt.getVal()*sqrt(sig2))
+
+print 'shape file created'
+ShapeFile = TFile('Mjj_{0}Jets_Fit_Shapes.root'.format(opts.Nj), 'recreate')
+h_total.Write()
+theData.Write()
+ShapeFile.Close()

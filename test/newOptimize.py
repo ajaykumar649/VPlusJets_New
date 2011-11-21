@@ -169,7 +169,7 @@ def printPts(optVar, newVal, theVars = optVars):
         if tmpVar == optVar:
             print newVal,
         else:
-            print theVars[tmpVar],
+            print '{0:0.3}'.format(theVars[tmpVar]),
         print ',',
     print
     
