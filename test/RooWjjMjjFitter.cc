@@ -138,20 +138,19 @@ RooFitResult * RooWjjMjjFitter::fit() {
    fitResult->Print("v");
    params->writeToFile("lastWjjFitParams.txt");
 
-   if (params_.fitToyDataset) {
-     char NJ_char[5];
-     sprintf(NJ_char,"%i",params_.njets);
-     TString NJ_str=NJ_char;
+//    if (params_.fitToyDataset) {
+//      char NJ_char[5];
+//      sprintf(NJ_char,"%i",params_.njets);
+//      TString NJ_str=NJ_char;
 
-     TFile *fAll = new TFile("/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/ToyValidation_results/FitSummary_1K_"+NJ_str+"j.root", "UPDATE");
-     fAll->cd();
-     TString fRname;
-     fRname=params_.toydataFile;
-     fRname="fit_"+fRname;
-     fitResult->Write(fRname);
-     fAll->Close();
-   }
-
+//      TFile *fAll = new TFile("/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/ToyValidation_results/FitSummary_1K_"+NJ_str+"j.root", "UPDATE");
+//      fAll->cd();
+//      TString fRname;
+//      fRname=params_.toydataFile;
+//      fRname="fit_"+fRname;
+//      fitResult->Write(fRname);
+//      fAll->Close();
+//    }
 
    delete params;
    return fitResult;
