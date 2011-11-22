@@ -277,6 +277,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t) {
   t.SetBranchStatus("fit_NDF",    1);
   t.SetBranchStatus("fi2_chi2",    1);
   t.SetBranchStatus("fi2_NDF",    1);
+  t.SetBranchStatus("fit_mlvjj", 1);
   t.SetBranchStatus("evtNJ",    1);
 
   t.SetBranchStatus("Mass2j_PFCor",    1);
@@ -375,8 +376,8 @@ double RooWjjFitterUtils::sig2(RooHistPdf& pdf, RooRealVar& obs, double Nbin) {
 ////////////////////////////////////////////////////////////////////
 
 RooDataSet * RooWjjFitterUtils::File2DatasetNoCuts(TString fname, 
-					     TString dsName, 
-					     bool trunc) const {
+						   TString dsName, 
+						   bool /*trunc*/) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);

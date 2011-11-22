@@ -251,48 +251,6 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter() {
 
   ws_.import(totalPdf);
 
-
-//   ///Toy MC Generation:
-//   char I_char[5];
-//   sprintf(I_char,"%i",params_.njets);
-//   TString I_str=I_char;
-
-//   cout << "Generating Diboson" << endl;
-//   generateToyMCSet(dibosonPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/Diboson_"+I_str+"j_GenMC.root",1010*1100,5004);
-
-//   resetfSUfMU(0.0,0.0);
-//   cout << "Generating Wjj - default" << endl;
-//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjDef_"+I_str+"j_GenMC.root",1010*30000,1837);
-
-//   resetfSUfMU(1.0,0.0);
-//   cout << "Generating Wjj - ScaleUp" << endl;
-//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjSU_"+I_str+"j_GenMC.root",1010*15000,1632);
-
-//   resetfSUfMU(-1.0,0.0);
-//   cout << "Generating Wjj - ScaleDown" << endl;
-//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjSD_"+I_str+"j_GenMC.root",1010*15000,44991);
-
-//   resetfSUfMU(0.0,1.0);
-//   cout << "Generating Wjj - MatchingUp" << endl;
-//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjMU_"+I_str+"j_GenMC.root",1010*20000,607);
-
-//   resetfSUfMU(0.0,-1.0);
-//   cout << "Generating Wjj - MatchingDown" << endl;
-//   generateToyMCSet(WpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/WjjMD_"+I_str+"j_GenMC.root",1010*20000,4803);
-
-//   cout << "Generating tt" << endl;
-//   generateToyMCSet(ttPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/tt_"+I_str+"j_GenMC.root",1010*6000,5753);
-
-//   cout << "Generating singleTop" << endl;
-//   generateToyMCSet(stPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/singleTop_"+I_str+"j_GenMC.root",1010*1500,2237);
-
-//   cout << "Generating qcd" << endl;
-//   generateToyMCSet(qcdPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/qcd_"+I_str+"j_GenMC.root",1010*3000,1891);
-
-//   cout << "Generating zjets" << endl;
-//   generateToyMCSet(ZpJPdf,"/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSource/zjets_"+I_str+"j_GenMC.root",1010*1000,8058);
-
-
   return ws_.pdf("totalPdf"); 
 }
 

@@ -60,7 +60,7 @@ RooWjjFitterParams::RooWjjFitterParams() :
   minMass(60.), maxMass(300.), njets(2), JES_scale1(0.),
   JES_scale2(0.), includeMuons(true), includeElectrons(true),
   truncRange(false), minTrunc(130.), maxTrunc(170.), 
-  minWmass(65.), maxWmass(85.), doNewPhysics(false),
+  minWmass(65.), maxWmass(95.), doNewPhysics(false),
   doAllPlots(false), initParamsFile(""), constraintParamsFile(""),
   cuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
