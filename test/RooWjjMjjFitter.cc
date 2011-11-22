@@ -44,6 +44,7 @@ RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
   initWjets_(0.), initDiboson_(0.), ttbarNorm_(0.), singleTopNorm_(0.), 
   zjetsNorm_(0.), QCDNorm_(0.), errorType_(RooAbsData::SumW2)
 {
+  utils_.vars2ws(ws_);
 }
 
 RooFitResult * RooWjjMjjFitter::fit() {
@@ -270,9 +271,10 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   QCDNorm_ = 0.;
 
   if (params_.fitToyDataset) {
-    RooDataSet * tds = utils_.File2DatasetNoCuts(params_.ToyDatasetDirectory + 
-					   params_.toydataFile, "data_muon", 
-					   trunc);
+    RooDataSet * tds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
+					   params_.toydataFile, 
+					   "data_muon", 
+					   trunc, true);
     tds->Print();
 
     double fracel=0.5;

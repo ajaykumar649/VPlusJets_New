@@ -29,15 +29,18 @@ public:
   RooWjjFitterUtils(RooWjjFitterParams & pars);
   virtual ~RooWjjFitterUtils();
 
+  void vars2ws(RooWorkspace& ws) const;
+
   TH1 * File2Hist(TString fname, TString histName, 
 		  int jes_scl = -1, bool noCuts = false, 
 		  double binMult = 1.0) const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
 		       RooWorkspace& ws) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
-			    bool trunc = false) const;
-  RooDataSet * File2DatasetNoCuts(TString fname, TString dsName,
-			    bool trunc = false) const;
+			    bool trunc = false,
+			    bool noCuts = false) const;
+//   RooDataSet * File2DatasetNoCuts(TString fname, TString dsName,
+// 				  bool trunc = false) const;
   TString fullCuts(bool trunc = false) const;
 
   void hist2RandomTree(TH1 * theHist, TString fname) const;

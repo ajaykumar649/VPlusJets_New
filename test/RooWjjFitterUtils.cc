@@ -39,6 +39,10 @@ RooWjjFitterUtils::~RooWjjFitterUtils()  {
   delete massVar_;
 }
 
+void RooWjjFitterUtils::vars2ws(RooWorkspace& ws) const {
+  ws.import(*massVar_, RooFit::RecycleConflictNodes(), RooFit::Silence());
+}
+
 void RooWjjFitterUtils::initialize() {
   updatenjets();
   mjj_ = new RooRealVar(params_.var, "m_{jj}", params_.minMass, 
@@ -102,7 +106,7 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
 
 RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname, 
 					     TString dsName, 
-					     bool trunc) const {
+					     bool trunc, bool noCuts) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);
@@ -114,7 +118,7 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
 
   activateBranches(*theTree);
   TFile holder("holder_DELETE_ME.root", "recreate");
-  TTree * reducedTree = theTree->CopyTree( fullCuts(trunc) );
+  TTree * reducedTree = theTree->CopyTree( ((noCuts) ? "" : fullCuts(trunc)) );
 
   RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
 				   RooArgSet(*mjj_));
@@ -369,36 +373,3 @@ double RooWjjFitterUtils::sig2(RooHistPdf& pdf, RooRealVar& obs, double Nbin) {
   return retVal*retVal;
 
 }
-
-
-////////////////////////////////////////////////////////////////////
-////   Use For Fitting/Optimizing On Toy MC Sets
-////////////////////////////////////////////////////////////////////
-
-RooDataSet * RooWjjFitterUtils::File2DatasetNoCuts(TString fname, 
-						   TString dsName, 
-						   bool /*trunc*/) const {
-  TFile * treeFile = TFile::Open(fname);
-  TTree * theTree;
-  treeFile->GetObject(params_.treeName, theTree);
-  if (!theTree) {
-    std::cout << "failed to find tree " << params_.treeName << " in file " << fname 
-	      << '\n';
-    return 0;
-  }
-
-  activateBranches(*theTree);
-  TFile holder("holder_DELETE_ME.root", "recreate");
-  TTree * reducedTree = theTree->CopyTree("");
-
-  RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
-				   RooArgSet(*mjj_));
-
-  delete reducedTree;
-  delete theTree;
-  delete treeFile;
-
-  return ds;
-}
-
-////////////////////////////////////////////////////////////////////
