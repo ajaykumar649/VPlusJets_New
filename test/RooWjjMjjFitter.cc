@@ -36,14 +36,14 @@ using namespace RooFit;
 RooWjjMjjFitter::RooWjjMjjFitter() :
   ws_("ws", "ws"), initWjets_(0.), initDiboson_(0.),
   ttbarNorm_(0.), singleTopNorm_(0.), zjetsNorm_(0.),
-  QCDNorm_(0.), errorType_(RooAbsData::SumW2)
+  QCDNorm_(0.), QCDError_(0.), errorType_(RooAbsData::SumW2)
 {
 }
 
 RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
   ws_("ws", "ws"), params_(pars), utils_(pars),
   initWjets_(0.), initDiboson_(0.), ttbarNorm_(0.), singleTopNorm_(0.), 
-  zjetsNorm_(0.), QCDNorm_(0.), errorType_(RooAbsData::SumW2)
+  zjetsNorm_(0.), QCDNorm_(0.), QCDError_(0.),errorType_(RooAbsData::SumW2)
 {
   utils_.vars2ws(ws_);
 }
@@ -226,13 +226,13 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter() {
   RooRealVar nDiboson("nDiboson","nDiboson",  initDiboson_, 0.0, 10000.);
   nDiboson.setError(initDiboson_*0.15);
   RooRealVar nTTbar("nTTbar","", ttbarNorm_);
-  nTTbar.setError(ttbarNorm_*0.1);
+  nTTbar.setError(ttbarNorm_*0.063);
   RooRealVar nSingleTop("nSingleTop","", singleTopNorm_);
-  nSingleTop.setError(singleTopNorm_*0.1);
+  nSingleTop.setError(singleTopNorm_*0.05);
   RooRealVar nQCD("nQCD","nQCD", QCDNorm_);
-  nQCD.setError(QCDNorm_*0.5);
+  nQCD.setError(QCDError_);
   RooRealVar nZjets("nZjets","nZjets", zjetsNorm_);
-  nZjets.setError(zjetsNorm_*0.15);
+  nZjets.setError(zjetsNorm_*0.043);
   RooRealVar nNP("nNP", "N_{new physics}", 0., 0., 10000.);
   nNP.setError(100.);
 
@@ -311,6 +311,11 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
 
   RooDataSet data(dataName, dataName, RooArgSet(*mass));
   QCDNorm_ = 0.;
+  QCDError_ = 0.;
+
+  double rel2jet = 0.0617, rel3jet = 0.0213, rmu2jet = 0.001625, rmu3jet = 0.;
+  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5;
+  double ermu2jet = 0.004214, ermu3jet = 0.0040797;
 
   if (params_.fitToyDataset) {
     RooDataSet * tds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
@@ -324,11 +329,15 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
     if ( params_.njets==3 ) {
       fracel=0.442;
       fracmu=0.558;
-      QCDNorm_ += (0.081*fracmu+0.099*fracel)*tds->sumEntries();
+      QCDNorm_ += (rmu3jet*fracmu+rel3jet*fracel)*tds->sumEntries();
+      QCDError_ += TMath::Power(ermu3jet*fracmu*tds->sumEntries(),2);
+      QCDError_ += TMath::Power(erel3jet*fracel*tds->sumEntries(),2);
     } else {
       fracel=0.434;
       fracmu=0.566;
-      QCDNorm_ += (0.028*fracmu+0.087*fracel)*tds->sumEntries();
+      QCDNorm_ += (rmu2jet*fracmu+rel2jet*fracel)*tds->sumEntries();
+      QCDError_ += TMath::Power(ermu2jet*fracmu*tds->sumEntries(),2);
+      QCDError_ += TMath::Power(erel2jet*fracel*tds->sumEntries(),2);
     }
     data.append(*tds);
     delete tds;
@@ -342,9 +351,11 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
 
       /// Note: for the 2+3 jets we use the 2jet bin coefficients
       if ( params_.njets==3 ) {
-	QCDNorm_ += 0.081*mds->sumEntries();
+	QCDNorm_ += rmu3jet*mds->sumEntries();
+	QCDError_ += TMath::Power(ermu3jet*mds->sumEntries(),2);
       } else {
-	QCDNorm_ += 0.028*mds->sumEntries();
+	QCDNorm_ += rmu2jet*mds->sumEntries();
+	QCDError_ += TMath::Power(ermu2jet*mds->sumEntries(),2);
       }
       data.append(*mds);
       delete mds;
@@ -355,15 +366,18 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
 					     "data_electron", trunc);
       eds->Print();
       if ( params_.njets==3 ) {
-	QCDNorm_ += 0.099*eds->sumEntries();
+	QCDNorm_ += rel3jet*eds->sumEntries();
+	QCDError_ += TMath::Power(erel3jet*eds->sumEntries(),2);
       } else {
-	QCDNorm_ += 0.087*eds->sumEntries();
+	QCDNorm_ += rel2jet*eds->sumEntries();
+	QCDError_ += TMath::Power(erel2jet*eds->sumEntries(),2);
       }
 
       data.append(*eds);
       delete eds;
     }
   }
+  QCDError_ = TMath::Sqrt(QCDError_);
   ws_.import(data);
 
   return ws_.data(dataName);
@@ -1040,13 +1054,13 @@ void RooWjjMjjFitter::resetYields() {
   ws_.var("nDiboson")->setVal(initDiboson_);
   ws_.var("nDiboson")->setError(initDiboson_*0.15);
   ws_.var("nTTbar")->setVal(ttbarNorm_);
-  ws_.var("nTTbar")->setError(ttbarNorm_*0.1);
+  ws_.var("nTTbar")->setError(ttbarNorm_*0.063);
   ws_.var("nSingleTop")->setVal(singleTopNorm_);
-  ws_.var("nSingleTop")->setError(singleTopNorm_*0.1);
+  ws_.var("nSingleTop")->setError(singleTopNorm_*0.05);
   ws_.var("nQCD")->setVal(QCDNorm_);
-  ws_.var("nQCD")->setError(QCDNorm_*0.5);
+  ws_.var("nQCD")->setError(QCDError_);
   ws_.var("nZjets")->setVal(zjetsNorm_);
-  ws_.var("nZjets")->setError(zjetsNorm_*0.15);
+  ws_.var("nZjets")->setError(zjetsNorm_*0.043);
   if (params_.doNewPhysics) {
     ws_.var("nNP")->setVal( 0. );
     ws_.var("nNP")->setError(100.);

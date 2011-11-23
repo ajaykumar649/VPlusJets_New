@@ -75,7 +75,7 @@ private:
   double ttbarNorm_;
   double singleTopNorm_;
   double zjetsNorm_;
-  double QCDNorm_;
+  double QCDNorm_, QCDError_;
   RooAbsData::ErrorType errorType_;
 
   TString rangeString_;
