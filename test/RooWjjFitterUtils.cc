@@ -18,20 +18,15 @@
 #include "RooDataSet.h"
 #include "RooPlot.h"
 
-RooWjjFitterUtils::RooWjjFitterUtils() :
-  jes_scales_(2)
+RooWjjFitterUtils::RooWjjFitterUtils()
 {
   initialize();
-  for (int j = 0; j < 2; ++j)
-    jes_scales_[j] = 0.;
 }
 
 RooWjjFitterUtils::RooWjjFitterUtils(RooWjjFitterParams & pars) :
-  params_(pars), jes_scales_(2)
+  params_(pars)
 {
   initialize();
-  jes_scales_[0] = params_.JES_scale1;
-  jes_scales_[1] = params_.JES_scale2;
 }
 
 RooWjjFitterUtils::~RooWjjFitterUtils()  { 
@@ -55,7 +50,7 @@ void RooWjjFitterUtils::initialize() {
 TH1 * RooWjjFitterUtils::File2Hist(TString fname, 
 				   TString histName, 
 				   int jes_scl, bool noCuts, 
-				   double binMult) const {
+				   double binMult, TString cutOverride) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);
@@ -65,16 +60,19 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     return 0;
   }
   double tmpScale = 0.;
-  if ((jes_scl >= 0) && (jes_scl < int(jes_scales_.size())))
-    tmpScale = jes_scales_[jes_scl];
+  if ((jes_scl >= 0) && (jes_scl < int(params_.JES_scales.size())))
+    tmpScale = params_.JES_scales[jes_scl];
   TString plotStr = TString::Format("%s*(1+%0.4f)", params_.var.Data(), 
 				    tmpScale);
   TH1D * theHist = new TH1D(histName, histName, int(params_.nbins*binMult), 
 			    params_.minMass, params_.maxMass);
   theHist->Sumw2();
 
+  TString theCuts(cutOverride);
+  if (theCuts.Length() < 1)
+    theCuts = fullCuts();
   theTree->Draw(plotStr + ">>" + histName, 
-		((noCuts) ? TString("") : fullCuts()),
+		((noCuts) ? TString("") : theCuts),
 		"goff");
 
   delete theTree;
@@ -282,6 +280,8 @@ void RooWjjFitterUtils::activateBranches(TTree& t) {
   t.SetBranchStatus("fi2_chi2",    1);
   t.SetBranchStatus("fi2_NDF",    1);
   t.SetBranchStatus("fit_mlvjj", 1);
+  t.SetBranchStatus("fi2_mlvjj", 1);
+  t.SetBranchStatus("fi3_mlvjj", 1);
   t.SetBranchStatus("evtNJ",    1);
 
   t.SetBranchStatus("Mass2j_PFCor",    1);

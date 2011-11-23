@@ -33,7 +33,7 @@ public:
 
   TH1 * File2Hist(TString fname, TString histName, 
 		  int jes_scl = -1, bool noCuts = false, 
-		  double binMult = 1.0) const;
+		  double binMult = 1.0, TString cutOverride = "") const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
 		       RooWorkspace& ws) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
@@ -59,7 +59,6 @@ protected:
   static double sig2(RooHistPdf& pdf, RooRealVar& obs, double Nbin);
 
   RooWjjFitterParams params_;
-  std::vector<double> jes_scales_;
 
   RooAbsReal * massVar_;
   RooRealVar * mjj_;

@@ -13,6 +13,9 @@ class RooFitResult;
 
 class RooWjjMjjFitter {
 public:
+
+  enum SideBand { LowSB, HighSB };
+  enum fitMode { mjj, mlnujj };
   RooWjjMjjFitter();
   RooWjjMjjFitter(RooWjjFitterParams & pars);
   virtual ~RooWjjMjjFitter() { }
@@ -21,6 +24,7 @@ public:
   RooPlot * computeChi2(double& chi2, int& ndf);
 
   RooAbsPdf * makeFitter();
+  RooAbsPdf * make4BodyPdf(RooWjjMjjFitter & fitter2body);
   RooAbsData * loadData(bool trunc = false);
 
   RooAbsPdf * makeDibosonPdf();
@@ -31,13 +35,18 @@ public:
   RooAbsPdf * makeZpJPdf();
   RooAbsPdf * makeNPPdf();
 
-  RooPlot * stackedPlot(bool logy = false);
+  RooAbsPdf * makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body);
+
+  RooPlot * stackedPlot(bool logy = false, fitMode fm = mjj);
   RooPlot * residualPlot(RooPlot * thePlot, TString curveName,
-			 TString pdfName = "", bool normalize = false);
+			 TString pdfName = "", bool normalize = false,
+			 fitMode fm = mjj);
 
   void loadParameters(TString fname);
 
   RooWorkspace& getWorkSpace() { return ws_; }
+
+  RooRealVar * getVar() { return ws_.var(params_.var); }
 
   void resetYields();
 
@@ -45,7 +54,17 @@ public:
   void generateToyMCSet(RooAbsPdf *inputPdf, const char* outFileName, int NEvts, int seedInitializer);
   void resetfSUfMU(double fSU, double fMU);
 
-
+protected:
+  TH1 * getWpJHistFromData(TString histName, double alpha,
+			   double xMin, double xMax, 
+			   RooWjjMjjFitter & fitter2body,
+			   RooWjjMjjFitter & shapesSBHi,
+			   RooWjjMjjFitter & shapesSBLo);
+  void subtractHistogram(TH1& hist, SideBand sideBand,
+			 double xMin, double xMax,
+			 RooWjjMjjFitter & fitter2body,
+			 RooWjjMjjFitter & shapesSB);
+  static void addHistograms(TH1& hist1, TH1& hist2, double weight = 1.0);
 private:
   RooWorkspace ws_;
   RooWjjFitterParams params_;

@@ -20,6 +20,9 @@ parser.add_option('-m', '--mode', default="HWWconfig", dest='modeConfig',
 import pyroot_logon
 
 config = __import__(opts.modeConfig)
+
+#import HWWwideSideband
+
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
@@ -99,6 +102,7 @@ for eigVal in eigen.GetEigenValues():
 usig2 = 0.
 totalYield = 0.
 
+yieldLines = []
 print
 print '-------------------------------'
 print 'Yields in signal box'
@@ -121,9 +125,11 @@ for i in range(0, yields.getSize()):
     elif (theName == 'nZjets'):
         theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-    print '{0}: {1:0.0f} +/- {2:0.0f}'.format(theName,
-                                              yields.at(i).getVal()*theIntegral,
-                                              yields.at(i).getError()*theIntegral)
+    theLine = '{0} = {1:0.0f} +/- {2:0.0f}'.format(theName,
+                                                   yields.at(i).getVal()*theIntegral,
+                                                   yields.at(i).getError()*theIntegral)
+    print theLine
+    yieldLines.append(theLine + '\n')
 
 print '-------------------------------'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
@@ -132,3 +138,19 @@ print '-------------------------------'
 
 fr.Print()
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
+
+open('lastSigYield.txt', 'w').writelines(yieldLines)
+
+cdebug = TCanvas('cdebug', 'debug')
+pars4 = config.the4BodyConfig(opts.Nj, opts.mcdir, 'lastSigYield.txt')
+fitter4 = RooWjjMjjFitter(pars4)
+
+fitter4.make4BodyPdf(theFitter)
+fitter4.loadData()
+fitter4.loadParameters(pars4.initParamsFile)
+
+mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+
+c4body = TCanvas('c4body', '4 body stacked')
+mf4.Draw()
+pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)

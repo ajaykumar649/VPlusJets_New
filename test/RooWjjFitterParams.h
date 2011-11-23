@@ -3,6 +3,7 @@
 #ifndef RooWjjFitterParams_h
 #define RooWjjFitterParams_h
 
+#include <vector>
 #include "TString.h"
 
 class RooWjjFitterParams {
@@ -20,8 +21,7 @@ public:
   double minMass;
   double maxMass;
   int njets;
-  double JES_scale1;
-  double JES_scale2;
+  std::vector<double> JES_scales;
   bool includeMuons;
   bool includeElectrons;
   bool truncRange;
@@ -42,6 +42,17 @@ public:
   double intLumi;
   bool constrainDiboson;
 
+  //4 body parameters
+  bool do4body;
+  double minSBHi, maxSBHi;
+  TString SBHicut;
+  double minSBLo, maxSBLo;
+  TString SBLocut;
+  std::vector<double> minMasses;
+  std::vector<double> maxMasses;
+  std::vector<double> alphas;
+  std::vector<double> falphas;
+
   ///External Parameters
   bool useExternalMorphingPars;
   double e_fSU;
@@ -57,15 +68,18 @@ public:
 RooWjjFitterParams::RooWjjFitterParams() :
   MCDirectory(""), WpJDirectory(""), DataDirectory(""), 
   NewPhysicsDirectory(""),QCDDirectory(""), nbins(24),
-  minMass(60.), maxMass(300.), njets(2), JES_scale1(0.),
-  JES_scale2(0.), includeMuons(true), includeElectrons(true),
+  minMass(60.), maxMass(300.), njets(2), JES_scales(2, 0.),
+  includeMuons(true), includeElectrons(true),
   truncRange(false), minTrunc(130.), maxTrunc(170.), 
   minWmass(65.), maxWmass(95.), doNewPhysics(false),
   doAllPlots(false), initParamsFile(""), constraintParamsFile(""),
   cuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
   electronData("WenuJets_DataAll_GoldenJSON_2p1invfb.root"),
-  intLumi(2100.), constrainDiboson(true),
+  intLumi(2100.), constrainDiboson(true), do4body(false),
+  minSBHi(95.), maxSBHi(105.), SBHicut(""), 
+  minSBLo(55.), maxSBLo(65.), SBLocut(""),
+  
 
   useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),
   fitToyDataset(false), ToyDatasetDirectory(""), toydataFile("")
@@ -78,7 +92,8 @@ RooWjjFitterParams::RooWjjFitterParams(RooWjjFitterParams const& other) :
   NewPhysicsDirectory(other.NewPhysicsDirectory),
   QCDDirectory(other.QCDDirectory),
   nbins(other.nbins), minMass(other.minMass), maxMass(other.maxMass),
-  njets(other.njets), includeMuons(other.includeMuons),
+  njets(other.njets), JES_scales(other.JES_scales),
+  includeMuons(other.includeMuons),
   includeElectrons(other.includeElectrons), truncRange(other.truncRange),
   minTrunc(other.minTrunc), maxTrunc(other.maxTrunc),
   minWmass(other.minWmass), maxWmass(other.maxWmass),
@@ -88,7 +103,11 @@ RooWjjFitterParams::RooWjjFitterParams(RooWjjFitterParams const& other) :
   cuts(other.cuts), var(other.var), treeName(other.treeName),
   toyWpJ(other.toyWpJ), muonData(other.muonData), 
   electronData(other.electronData), intLumi(other.intLumi),
-  constrainDiboson(other.constrainDiboson),
+  constrainDiboson(other.constrainDiboson), do4body(other.do4body),
+  minSBHi(other.minSBHi), maxSBHi(other.maxSBHi), SBHicut(other.SBHicut), 
+  minSBLo(other.minSBLo), maxSBLo(other.maxSBLo), SBLocut(other.SBLocut),
+  minMasses(other.minMasses), maxMasses(other.maxMasses), alphas(other.alphas),
+  falphas(other.falphas),
 
   useExternalMorphingPars(other.useExternalMorphingPars), e_fSU(other.e_fSU), e_fMU(other.e_fMU),
   fitToyDataset(other.fitToyDataset), ToyDatasetDirectory(other.ToyDatasetDirectory), toydataFile(other.toydataFile)
