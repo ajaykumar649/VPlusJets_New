@@ -18,12 +18,12 @@
  *
  * Copyright (C) 2010 FNAL 
  ********************************************************************/
-#ifndef __CINT__
-#include "RooGlobalFunc.h"
+// #ifndef __CINT__
+// #include "RooGlobalFunc.h"
 // gROOT->ProcessLine(".L RooWjjFitterParams.h+");
 // gROOT->ProcessLine(".L RooWjjFitterUtils.cc+");
 // gROOT->ProcessLine(".L RooWjjMjjFitter.cc+");
-#endif
+// #endif
 
 
 #include <vector>
@@ -33,7 +33,7 @@
 #include <iostream>
 #include <sstream>
 #include "TROOT.h"
-
+#include "RooGlobalFunc.h"
 
 
 #include "TChain.h"
@@ -68,6 +68,7 @@
 #include "RooGaussian.h"
 #include "RooCurve.h"
 
+#include "RooWorkspace.h"
 #include "RooWjjFitterParams.h"
 #include "RooWjjMjjFitter.h"
 
@@ -207,31 +208,31 @@ void testFitter(int channel, int nJet)
 
 
   // ------ Normalization from the mJJ fit ---------
-  if(channel==0 && nJet==2) {
-    dibosonNorm_ = 967.;
-    wjetsNorm_ = 20645.;
-    ttbarNorm_ = 1223.;
-    singleTopNorm_ = 563.;
-    qcdNorm_ = 415.;
-    zjetsNorm_ = 500.;
-  }
-  else if(channel==0 && nJet==3) {
-    dibosonNorm_ = 165.;
-    wjetsNorm_ = 3559.;
-    ttbarNorm_ = 1605.;
-    singleTopNorm_ = 281.;
-    qcdNorm_ = 97.;
-    zjetsNorm_ = 90.;
-  }
-  else if(channel==0 && nJet==0) {
-    dibosonNorm_ = 1132.;
-    wjetsNorm_ = 24204.;
-    ttbarNorm_ = 2828.;
-    singleTopNorm_ = 844.;
-    qcdNorm_ = 512.;
-    zjetsNorm_ = 590.;
-  }
-  else return;
+//   if(channel==0 && nJet==2) {
+//     dibosonNorm_ = 967.;
+//     wjetsNorm_ = 20645.;
+//     ttbarNorm_ = 1223.;
+//     singleTopNorm_ = 563.;
+//     qcdNorm_ = 415.;
+//     zjetsNorm_ = 500.;
+//   }
+//   else if(channel==0 && nJet==3) {
+//     dibosonNorm_ = 165.;
+//     wjetsNorm_ = 3559.;
+//     ttbarNorm_ = 1605.;
+//     singleTopNorm_ = 281.;
+//     qcdNorm_ = 97.;
+//     zjetsNorm_ = 90.;
+//   }
+//   else if(channel==0 && nJet==0) {
+//     dibosonNorm_ = 1132.;
+//     wjetsNorm_ = 24204.;
+//     ttbarNorm_ = 2828.;
+//     singleTopNorm_ = 844.;
+//     qcdNorm_ = 512.;
+//     zjetsNorm_ = 590.;
+//   }
+//   else return;
 
 
   if(nJet==0 || nJet==2) {
@@ -324,7 +325,6 @@ void testFitter(int channel, int nJet)
   if(channel==2) pars4body_->includeMuons = false;
   if(channel==1) pars4body_->includeElectrons = false;
   rwf_ = new RooWjjMjjFitter(*pars4body_);
-  rwf_->loadData();
   //////// -------------- for sidebands ---------------
   std::ostringstream ostrLowerSB;
   ostrLowerSB << "Mass2j_PFCor>" <<  
@@ -342,39 +342,29 @@ void testFitter(int channel, int nJet)
   // ********** Construct signal & bkg shape PDF ********** //
   RooAbsPdf* dibosonPdf_ = rwf_->makeDibosonPdf();
   cout << "Made signal pdf" << endl;
+  RooAbsPdf* ttPdf_         = rwf_->makettbarPdf();
+  RooAbsPdf* singleTopPdf_  = rwf_->makeSingleTopPdf();
+  RooAbsPdf* zjetsPdf_      = rwf_->makeZpJPdf();
+  RooAbsPdf* dummyWjetsPdf_ = rwf_->makeWpJPdf();
+  rwf_->loadData();
+  RooAbsPdf* qcdPdf_        = rwf_->makeQCDPdf();
+  dibosonNorm_   =  rwf_->initDiboson_;
+  wjetsNorm_     =  rwf_->initWjets_;
+  ttbarNorm_     =  rwf_->ttbarNorm_;
+  singleTopNorm_ =  rwf_->singleTopNorm_;
+  qcdNorm_       =  rwf_->QCDNorm_;
+  zjetsNorm_     =  rwf_->zjetsNorm_;
 
-  RooAbsPdf* qcdPdf_;
-  RooAbsPdf* ttPdf_;
-  RooAbsPdf* singleTopPdf_;
-  RooAbsPdf* zjetsPdf_;
-  RooAbsPdf* dummyWjetsPdf_;
-
-  if(includeNuisancePDF) { 
-    qcdPdf_        = rwf_->makeQCDPdf();
-    ttPdf_         = rwf_->makettbarPdf();
-    singleTopPdf_  = rwf_->makeSingleTopPdf();
-    zjetsPdf_      = rwf_->makeZpJPdf();
-    dummyWjetsPdf_ = rwf_->makeWpJPdf();
-  }
-
-  cout << " ********************************************************" << endl;
-  cout << " ********************************************************" << endl;
-  cout << " norm diboson = " << rwf_->initDiboson_ << endl;
-  cout << " norm wjets = " << rwf_->initWjets_ << endl;
-  cout << " norm ttbar = " << rwf_->ttbarNorm_ << endl;
-  cout << " norm single top = " << rwf_->singleTopNorm_ << endl;
-  cout << " norm zjets = " << rwf_->zjetsNorm_ << endl;
-  cout << " norm qcd = " << rwf_->QCDNorm_ << endl;
-  cout << " ********************************************************" << endl;
-  cout << " ********************************************************" << endl;
-
-  rwf_->initDiboson_ = dibosonNorm_;
-  rwf_->initWjets_   = wjetsNorm_;
-  rwf_->ttbarNorm_   = ttbarNorm_;
-  rwf_->singleTopNorm_ = singleTopNorm_;
-  rwf_->zjetsNorm_   = zjetsNorm_;
-  rwf_->QCDNorm_     = qcdNorm_;
-
+//   cout << " ********************************************************" << endl;
+//   cout << " ********************************************************" << endl;
+//   cout << " norm diboson = "    << dibosonNorm_   << endl;
+//   cout << " norm wjets = "      << wjetsNorm_     << endl;
+//   cout << " norm ttbar = "      << ttbarNorm_     << endl;
+//   cout << " norm single top = " << singleTopNorm_ << endl;
+//   cout << " norm zjets = "      << zjetsNorm_     << endl;
+//   cout << " norm qcd = "        << qcdNorm_       << endl;
+//   cout << " ********************************************************" << endl;
+//   cout << " ********************************************************" << endl;
 
   RooAbsPdf *bkgShapePdf_ = makeBkgPdf(alpha1, alpha2, 
 				       alpha3, fracAlpha1, fracAlpha2);
@@ -385,214 +375,233 @@ void testFitter(int channel, int nJet)
   // ********* Construct the total PDF ********** //  
   RooArgList* components;
   RooArgList* yields;	 
-  if(includeNuisancePDF) {
-    components = new RooArgList(*dibosonPdf_,
-				*bkgShapePdf_, *ttPdf_, 
-				*singleTopPdf_, *qcdPdf_, 
-				*zjetsPdf_);
-    yields = new RooArgList(nDiboson, nWjets, 
-			    nTTbar, nSingleTop, nQCD, nZjets);
-  }
-  else {
-    components = new RooArgList(*dibosonPdf_,*bkgShapePdf_);
-    yields = new RooArgList(nDiboson, nWjets);
-  }
+  components = new RooArgList(*dibosonPdf_,
+			      *bkgShapePdf_, *ttPdf_, 
+			      *singleTopPdf_, *qcdPdf_, 
+			      *zjetsPdf_);
+  yields = new RooArgList(nDiboson, nWjets, 
+			  nTTbar, nSingleTop, nQCD, nZjets);
   RooAddPdf totalPdf("totalPdf","extended sum pdf", *components, *yields);
   Mass.setRange("RangeForPlot", MINRange, MAXRange) ;
   //  Mass.setRange("RangeDefault", MINRange, MAXRange) ;
 
 
-  // ********** Make and save Canvas for the plots ********** //
-  gStyle->SetErrorX(0.5);
-  gStyle->SetPadLeftMargin(0.19);
-  gStyle->SetPadRightMargin(0.10);
-  gStyle->SetPadBottomMargin(0.15);
-  gStyle->SetLegendBorderSize(0);
-  gStyle->SetTitleYOffset(1.5);
+  // rwf_->getWorkSpace().import(totalPdf, RooFit::RecycleConflictNodes());
 
-  RooAbsData::ErrorType errorType = RooAbsData::SumW2;
-  RooCmdArg argTotalNorm = RooCmdArg::none();
-  RooCmdArg argWjjNorm = RooCmdArg::none();
-  RooCmdArg argBkgNorm = RooCmdArg::none();
-  RooCmdArg argTopNorm = RooCmdArg::none();
-  RooCmdArg argQCDNorm = RooCmdArg::none();
-  RooCmdArg argZjetsNorm = RooCmdArg::none();
+  cout << " ============================================== 0" << endl;
+  RooWorkspace& ws_ = rwf_->getWorkSpace();
+  ws_.Print();
+  ws_.import(*data, false);
+  cout << " ============================================== 1" << endl;
+  ws_.import(*dibosonPdf_, RooFit::RecycleConflictNodes());
+  cout << " ============================================== 11" << endl;
 
-  if(normalizeToAbsolute) {
-    argTotalNorm = Normalization(wjetsNorm_+dibosonNorm_+ttbarNorm_+
-				 singleTopNorm_+qcdNorm_+zjetsNorm_, 
-				 RooAbsPdf::NumEvent);
-    argWjjNorm = Normalization(wjetsNorm_, RooAbsPdf::NumEvent);
-    argBkgNorm = Normalization(wjetsNorm_+ttbarNorm_+singleTopNorm_+ 
-			       qcdNorm_+zjetsNorm_, RooAbsPdf::NumEvent);
-    argTopNorm = Normalization(ttbarNorm_+singleTopNorm_, 
-			       RooAbsPdf::NumEvent);
-    argQCDNorm = Normalization(qcdNorm_, RooAbsPdf::NumEvent);
-    argZjetsNorm = Normalization(zjetsNorm_, RooAbsPdf::NumEvent);
-  }
+  ws_.import(*bkgShapePdf_, RooFit::RecycleConflictNodes());
+  cout << " ============================================== 12" << endl;
+  ws_.import(*ttPdf_, RooFit::RecycleConflictNodes());
+  cout << " ============================================== 13" << endl;
+  ws_.import(*singleTopPdf_, RooFit::RecycleConflictNodes());
+  ws_.import(*qcdPdf_, RooFit::RecycleConflictNodes());
+  ws_.import(*zjetsPdf_, RooFit::RecycleConflictNodes());
+  cout << " ============================================== 2" << endl;
+  ws_.import(totalPdf, RooFit::RecycleConflictNodes());
+  RooPlot * stackf = rwf_->stackedPlot(false);
+  cout << " ============================================== 3" << endl;
 
+//   // ********** Make and save Canvas for the plots ********** //
+//   gStyle->SetErrorX(0.5);
+//   gStyle->SetPadLeftMargin(0.19);
+//   gStyle->SetPadRightMargin(0.10);
+//   gStyle->SetPadBottomMargin(0.15);
+//   gStyle->SetLegendBorderSize(0);
+//   gStyle->SetTitleYOffset(1.5);
 
+//   RooAbsData::ErrorType errorType = RooAbsData::SumW2;
+//   RooCmdArg argTotalNorm = RooCmdArg::none();
+//   RooCmdArg argWjjNorm = RooCmdArg::none();
+//   RooCmdArg argBkgNorm = RooCmdArg::none();
+//   RooCmdArg argTopNorm = RooCmdArg::none();
+//   RooCmdArg argQCDNorm = RooCmdArg::none();
+//   RooCmdArg argZjetsNorm = RooCmdArg::none();
+
+// //   if(normalizeToAbsolute) {
+// //     argTotalNorm = Normalization(wjetsNorm_+dibosonNorm_+ttbarNorm_+
+// // 				 singleTopNorm_+qcdNorm_+zjetsNorm_, 
+// // 				 RooAbsPdf::NumEvent);
+// //     argWjjNorm = Normalization(wjetsNorm_, RooAbsPdf::NumEvent);
+// //     argBkgNorm = Normalization(wjetsNorm_+ttbarNorm_+singleTopNorm_+ 
+// // 			       qcdNorm_+zjetsNorm_, RooAbsPdf::NumEvent);
+// //     argTopNorm = Normalization(ttbarNorm_+singleTopNorm_, 
+// // 			       RooAbsPdf::NumEvent);
+// //     argQCDNorm = Normalization(qcdNorm_, RooAbsPdf::NumEvent);
+// //     argZjetsNorm = Normalization(zjetsNorm_, RooAbsPdf::NumEvent);
+// //   }
+
+//   cout << " ============================================== 2" << endl;
 
   TString cname = PLOTPREFIX + TString("-combined-fit");
   if(channel==1) cname = PLOTPREFIX + TString("-mu-fit");
   if(channel==2) cname = PLOTPREFIX + TString("-ele-fit");
   if(truncateFitRange) cname = cname + TString("-truncated");
   c = new TCanvas(cname,cname,500,500);
-  RooPlot* frame1 = Mass.frame( MINRange, MAXRange, 
-				(int) ((MAXRange-MINRange)/BINWIDTH) );
-  data->plotOn(frame1,RooFit::DataError(errorType), Name("h_data"));
-  totalPdf.plotOn(frame1,ProjWData(*data),
-		  Components(*dibosonPdf_),
-		  DrawOption("LF"),FillStyle(1001),
-		  FillColor(kOrange), LineColor(kOrange),
-		  Name("h_diboson"),Range("RangeForPlot"),
-		  argTotalNorm);
 
-  totalPdf.plotOn(frame1,ProjWData(*data), 
-		  Name("h_total"), Range("RangeForPlot"),argTotalNorm);
-  totalPdf.plotOn(frame1,ProjWData(*data), Components(*bkgShapePdf_), 
-		  LineColor(kRed), Name("h_Wjets"), Range("RangeForPlot"),argWjjNorm);
-  totalPdf.plotOn(frame1,ProjWData(*data), 
-		  Components("bkgShapePdf,ttPdf,singleTopPdf,qcdPdf,zjetsPdf"), 
-		  Name("h_Background"), Range("RangeForPlot"),Invisible(),argBkgNorm);
-  totalPdf.plotOn(frame1,ProjWData(*data), 
-		  Components("signalShapePdf,bkgShapePdf,ttPdf,singleTopPdf,qcdPdf,zjetsPdf"), 
-		  Name("h_SM"), Range("RangeForPlot"),Invisible(),argTotalNorm);
+//   RooPlot* frame1 = Mass.frame( MINRange, MAXRange, 
+// 				(int) ((MAXRange-MINRange)/BINWIDTH) );
+//   data->plotOn(frame1,RooFit::DataError(errorType), Name("h_data"));
+//   totalPdf.plotOn(frame1,ProjWData(*data),
+// 		  Components(*dibosonPdf_),
+// 		  DrawOption("LF"),FillStyle(1001),
+// 		  FillColor(kOrange), LineColor(kOrange),
+// 		  Name("h_diboson"),Range("RangeForPlot"),
+// 		  argTotalNorm);
 
-  if(includeNuisancePDF) {
-    totalPdf.plotOn(frame1,ProjWData(*data),Components("ttPdf,singleTopPdf"),
-		    LineColor(kBlack), Name("h_Top"),Range("RangeForPlot"),argTopNorm);
-    totalPdf.plotOn(frame1,ProjWData(*data),Components(*qcdPdf_), 
-		    LineColor(kGreen), Name("h_QCD"), Range("RangeForPlot"),argQCDNorm);
-    totalPdf.plotOn(frame1,ProjWData(*data),Components(*zjetsPdf_), 
-		    LineColor(kMagenta), Name("h_Zjets"), Range("RangeForPlot"),argZjetsNorm);
-  }
+//   totalPdf.plotOn(frame1,ProjWData(*data), 
+// 		  Name("h_total"), Range("RangeForPlot"),argTotalNorm);
+//   totalPdf.plotOn(frame1,ProjWData(*data), Components(*bkgShapePdf_), 
+// 		  LineColor(kRed), Name("h_Wjets"), Range("RangeForPlot"),argWjjNorm);
+//   totalPdf.plotOn(frame1,ProjWData(*data), 
+// 		  Components("bkgShapePdf,ttPdf,singleTopPdf,qcdPdf,zjetsPdf"), 
+// 		  Name("h_Background"), Range("RangeForPlot"),Invisible(),argBkgNorm);
+//   totalPdf.plotOn(frame1,ProjWData(*data), 
+// 		  Components("signalShapePdf,bkgShapePdf,ttPdf,singleTopPdf,qcdPdf,zjetsPdf"), 
+// 		  Name("h_SM"), Range("RangeForPlot"),Invisible(),argTotalNorm);
 
+//   if(includeNuisancePDF) {
+//     totalPdf.plotOn(frame1,ProjWData(*data),Components("ttPdf,singleTopPdf"),
+// 		    LineColor(kBlack), Name("h_Top"),Range("RangeForPlot"),argTopNorm);
+//     totalPdf.plotOn(frame1,ProjWData(*data),Components(*qcdPdf_), 
+// 		    LineColor(kGreen), Name("h_QCD"), Range("RangeForPlot"),argQCDNorm);
+//     totalPdf.plotOn(frame1,ProjWData(*data),Components(*zjetsPdf_), 
+// 		    LineColor(kMagenta), Name("h_Zjets"), Range("RangeForPlot"),argZjetsNorm);
+//   }
 
-  data->plotOn(frame1,RooFit::DataError(errorType));
-  frame1->SetMinimum(0);
-  frame1->SetMaximum(displayScaleFactor* frame1->GetMaximum());
-  if((int)MINRange%100==0 && (int)MAXRange%100==0) 
-    frame1->GetXaxis()->SetNdivisions(505);
-  frame1->Draw("e0");
-  TPaveText *plotlabel4 = new TPaveText(0.55,0.87,0.85,0.92,"NDC");
-  plotlabel4->SetTextColor(kBlack);
-  plotlabel4->SetFillColor(kWhite);
-  plotlabel4->SetBorderSize(0);
-  plotlabel4->SetTextAlign(12);
-  plotlabel4->SetTextSize(0.03);
-  plotlabel4->SetFillStyle(0);
-  TPaveText *plotlabel5 = new TPaveText(0.55,0.82,0.85,0.87,"NDC");
-  plotlabel5->SetTextColor(kBlack);
-  plotlabel5->SetFillColor(kWhite);
-  plotlabel5->SetBorderSize(0);
-  plotlabel5->SetTextAlign(12);
-  plotlabel5->SetTextSize(0.03);
-  plotlabel5->SetFillStyle(0);
-  TPaveText *plotlabel6 = new TPaveText(0.55,0.77,0.85,0.82,"NDC");
-  plotlabel6->SetTextColor(kBlack);
-  plotlabel6->SetFillColor(kWhite);
-  plotlabel6->SetBorderSize(0);
-  plotlabel6->SetTextAlign(12);
-  plotlabel6->SetTextSize(0.03);
-  plotlabel6->SetFillStyle(0);
-  TPaveText *plotlabel7 = new TPaveText(0.55,0.72,0.85,0.77,"NDC");
-  plotlabel7->SetTextColor(kBlack);
-  plotlabel7->SetFillColor(kWhite);
-  plotlabel7->SetBorderSize(0);
-  plotlabel7->SetTextAlign(12);
-  plotlabel7->SetTextSize(0.03);
-  plotlabel7->SetFillStyle(0);
-  TPaveText *plotlabel8 = new TPaveText(0.55,0.67,0.85,0.72,"NDC");
-  plotlabel8->SetTextColor(kBlack);
-  plotlabel8->SetFillColor(kWhite);
-  plotlabel8->SetBorderSize(0);
-  plotlabel8->SetTextAlign(12);
-  plotlabel8->SetTextSize(0.03);
-  plotlabel8->SetFillStyle(0);
-  TPaveText *plotlabel9 = new TPaveText(0.55,0.62,0.85,0.67,"NDC");
-  plotlabel9->SetTextColor(kBlack);
-  plotlabel9->SetFillColor(kWhite);
-  plotlabel9->SetBorderSize(0);
-  plotlabel9->SetTextAlign(12);
-  plotlabel9->SetTextSize(0.03);
-  plotlabel9->SetFillStyle(0);
-  TPaveText *plotlabel1000 = new TPaveText(chi2boxStartX,
-					   chi2boxStartY, 
-					   chi2boxStartX+0.14, 
-					   chi2boxStartY+0.09,"NDC");
-  plotlabel1000->SetTextColor(kBlack);
-  plotlabel1000->SetFillColor(kWhite);
-  plotlabel1000->SetBorderSize(0);
-  plotlabel1000->SetTextAlign(12);
-  plotlabel1000->SetTextSize(0.04);
-  plotlabel1000->SetFillStyle(0);;
+//   data->plotOn(frame1,RooFit::DataError(errorType));
+//   frame1->SetMinimum(0);
+//   frame1->SetMaximum(displayScaleFactor* frame1->GetMaximum());
+//   if((int)MINRange%100==0 && (int)MAXRange%100==0) 
+//     frame1->GetXaxis()->SetNdivisions(505);
+//   frame1->Draw("e0");
+//   TPaveText *plotlabel4 = new TPaveText(0.55,0.87,0.85,0.92,"NDC");
+//   plotlabel4->SetTextColor(kBlack);
+//   plotlabel4->SetFillColor(kWhite);
+//   plotlabel4->SetBorderSize(0);
+//   plotlabel4->SetTextAlign(12);
+//   plotlabel4->SetTextSize(0.03);
+//   plotlabel4->SetFillStyle(0);
+//   TPaveText *plotlabel5 = new TPaveText(0.55,0.82,0.85,0.87,"NDC");
+//   plotlabel5->SetTextColor(kBlack);
+//   plotlabel5->SetFillColor(kWhite);
+//   plotlabel5->SetBorderSize(0);
+//   plotlabel5->SetTextAlign(12);
+//   plotlabel5->SetTextSize(0.03);
+//   plotlabel5->SetFillStyle(0);
+//   TPaveText *plotlabel6 = new TPaveText(0.55,0.77,0.85,0.82,"NDC");
+//   plotlabel6->SetTextColor(kBlack);
+//   plotlabel6->SetFillColor(kWhite);
+//   plotlabel6->SetBorderSize(0);
+//   plotlabel6->SetTextAlign(12);
+//   plotlabel6->SetTextSize(0.03);
+//   plotlabel6->SetFillStyle(0);
+//   TPaveText *plotlabel7 = new TPaveText(0.55,0.72,0.85,0.77,"NDC");
+//   plotlabel7->SetTextColor(kBlack);
+//   plotlabel7->SetFillColor(kWhite);
+//   plotlabel7->SetBorderSize(0);
+//   plotlabel7->SetTextAlign(12);
+//   plotlabel7->SetTextSize(0.03);
+//   plotlabel7->SetFillStyle(0);
+//   TPaveText *plotlabel8 = new TPaveText(0.55,0.67,0.85,0.72,"NDC");
+//   plotlabel8->SetTextColor(kBlack);
+//   plotlabel8->SetFillColor(kWhite);
+//   plotlabel8->SetBorderSize(0);
+//   plotlabel8->SetTextAlign(12);
+//   plotlabel8->SetTextSize(0.03);
+//   plotlabel8->SetFillStyle(0);
+//   TPaveText *plotlabel9 = new TPaveText(0.55,0.62,0.85,0.67,"NDC");
+//   plotlabel9->SetTextColor(kBlack);
+//   plotlabel9->SetFillColor(kWhite);
+//   plotlabel9->SetBorderSize(0);
+//   plotlabel9->SetTextAlign(12);
+//   plotlabel9->SetTextSize(0.03);
+//   plotlabel9->SetFillStyle(0);
+//   TPaveText *plotlabel1000 = new TPaveText(chi2boxStartX,
+// 					   chi2boxStartY, 
+// 					   chi2boxStartX+0.14, 
+// 					   chi2boxStartY+0.09,"NDC");
+//   plotlabel1000->SetTextColor(kBlack);
+//   plotlabel1000->SetFillColor(kWhite);
+//   plotlabel1000->SetBorderSize(0);
+//   plotlabel1000->SetTextAlign(12);
+//   plotlabel1000->SetTextSize(0.04);
+//   plotlabel1000->SetFillStyle(0);;
 
-  sprintf(temp, "Diboson = %d", (int) nDiboson.getVal());
-  plotlabel4->AddText(temp);
-  sprintf(temp, "W+jets = %d", (int) nWjets.getVal());
-  plotlabel5->AddText(temp);
-  sprintf(temp, "t#bar{t}, Top = %d", (int) (nSingleTop.getVal()+nTTbar.getVal()));
-  plotlabel6->AddText(temp);
-  sprintf(temp, "QCD = %d", (int) nQCD.getVal());
-  plotlabel7->AddText(temp);
-  sprintf(temp, "Z+jets = %d", (int) nZjets.getVal());
-  plotlabel8->AddText(temp);
-  double NData_WpJ=nWjets.getVal();
-  double k_WpJ=NMC_WpJ_/NData_WpJ;
+//   sprintf(temp, "Diboson = %d", (int) nDiboson.getVal());
+//   plotlabel4->AddText(temp);
+//   sprintf(temp, "W+jets = %d", (int) nWjets.getVal());
+//   plotlabel5->AddText(temp);
+//   sprintf(temp, "t#bar{t}, Top = %d", (int) (nSingleTop.getVal()+nTTbar.getVal()));
+//   plotlabel6->AddText(temp);
+//   sprintf(temp, "QCD = %d", (int) nQCD.getVal());
+//   plotlabel7->AddText(temp);
+//   sprintf(temp, "Z+jets = %d", (int) nZjets.getVal());
+//   plotlabel8->AddText(temp);
+//   double NData_WpJ=nWjets.getVal();
+//   double k_WpJ=NMC_WpJ_/NData_WpJ;
 
+//   double chi2fit = frame1->chiSquare("h_total", "h_data", 0) /sqrt(1.0+1.0/k_WpJ);
+//   cout << "======= chi^2/dof = " << chi2fit  << endl;
+//   double chi2fitRaw = chi2fit * (MAXRange-MINRange)/BINWIDTH;
+//   cout << "======= chi^2 raw = " <<  chi2fitRaw << endl;
 
-  double chi2fit = frame1->chiSquare("h_total", "h_data", 0) /sqrt(1.0+1.0/k_WpJ);
-  cout << "======= chi^2/dof = " << chi2fit  << endl;
-  double chi2fitRaw = chi2fit * (MAXRange-MINRange)/BINWIDTH;
-  cout << "======= chi^2 raw = " <<  chi2fitRaw << endl;
+//   //    double chi2fit = frame1->chiSquare("h_total", "h_data", 
+//   // 				      (int)((MAXRange-MINRange)/BINWIDTH));
+//   sprintf(temp, "#chi^{2}/dof = %.2f",chi2fit );
+//   plotlabel1000->AddText(temp);
+//   plotlabel4->Draw();
+//   plotlabel5->Draw();
+//   plotlabel6->Draw();
+//   plotlabel7->Draw();
+//   plotlabel8->Draw();
+//   plotlabel9->Draw();
+//   plotlabel1000->Draw();
 
-  //    double chi2fit = frame1->chiSquare("h_total", "h_data", 
-  // 				      (int)((MAXRange-MINRange)/BINWIDTH));
-  sprintf(temp, "#chi^{2}/dof = %.2f",chi2fit );
-  plotlabel1000->AddText(temp);
-  plotlabel4->Draw();
-  plotlabel5->Draw();
-  plotlabel6->Draw();
-  plotlabel7->Draw();
-  plotlabel8->Draw();
-  plotlabel9->Draw();
-  plotlabel1000->Draw();
+//   cmsPrelim();
+//   // TLegend* legend = new TLegend(0.35,0.35,0.55,0.55);
+//   TLegend* legend = new TLegend(legendStartX, legendStartY,legendStartX+0.2,legendStartY+0.25);
+//   // TLegend* legend = new TLegend(0.23,0.57,0.46,0.81);
+//   legend->SetFillStyle(0);
+//   RooHist* datahist = frame1->getHist("h_data");
+//   RooCurve* dibosonhist = frame1->getCurve("h_diboson");
+//   RooCurve* wjetshist = frame1->getCurve("h_Wjets");
+//   wjetshist->SetFillColor( wjetshist->GetLineColor() );
+//   RooCurve* tophist = frame1->getCurve("h_Top");
+//   tophist->SetFillColor( tophist->GetLineColor() );
+//   RooCurve* qcdhist = frame1->getCurve("h_QCD");
+//   qcdhist->SetFillColor( qcdhist->GetLineColor() );
+//   RooCurve* zjetshist = frame1->getCurve("h_Zjets");
+//   zjetshist->SetFillColor( zjetshist->GetLineColor() );
 
-  cmsPrelim();
-  // TLegend* legend = new TLegend(0.35,0.35,0.55,0.55);
-  TLegend* legend = new TLegend(legendStartX, legendStartY,legendStartX+0.2,legendStartY+0.25);
-  // TLegend* legend = new TLegend(0.23,0.57,0.46,0.81);
-  legend->SetFillStyle(0);
-  RooHist* datahist = frame1->getHist("h_data");
-  RooCurve* dibosonhist = frame1->getCurve("h_diboson");
-  RooCurve* wjetshist = frame1->getCurve("h_Wjets");
-  wjetshist->SetFillColor( wjetshist->GetLineColor() );
-  RooCurve* tophist = frame1->getCurve("h_Top");
-  tophist->SetFillColor( tophist->GetLineColor() );
-  RooCurve* qcdhist = frame1->getCurve("h_QCD");
-  qcdhist->SetFillColor( qcdhist->GetLineColor() );
-  RooCurve* zjetshist = frame1->getCurve("h_Zjets");
-  zjetshist->SetFillColor( zjetshist->GetLineColor() );
+//   legend->AddEntry( datahist, "Data", "PE");  
+//   legend->AddEntry( dibosonhist, "Di-boson", "F");
+//   legend->AddEntry( wjetshist, "W+jets", "F");
+//   if(includeNuisancePDF)
+//     legend->AddEntry( tophist, "t#bar{t}, Top", "F");
+//   legend->AddEntry( qcdhist, "QCD", "F");
+//   legend->AddEntry( zjetshist, "Z+jets", "F");
+//   legend->SetFillColor(0);
+//   legend->Draw();
 
-  legend->AddEntry( datahist, "Data", "PE");  
-  legend->AddEntry( dibosonhist, "Di-boson", "F");
-  legend->AddEntry( wjetshist, "W+jets", "F");
-  if(includeNuisancePDF)
-    legend->AddEntry( tophist, "t#bar{t}, Top", "F");
-  legend->AddEntry( qcdhist, "QCD", "F");
-  legend->AddEntry( zjetshist, "Z+jets", "F");
-  legend->SetFillColor(0);
-  legend->Draw();
+  stackf->Draw();
   c->SaveAs( cname + TString(".eps"));
   c->SaveAs( cname + TString(".gif"));
   c->SaveAs( cname + TString(".root"));
   c->SaveAs( cname + TString(".png"));
   c->SaveAs( cname + TString(".C"));
   c->SaveAs( cname + TString(".pdf"));
+  c->WaitPrimitive();
 
   ///////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////
+  /*
   //-------Make stacked plot ---------------------------------
   RooPlot* sframe = Mass.frame(MINRange, MAXRange, 
 			       int((MAXRange-MINRange)/BINWIDTH));
@@ -639,11 +648,12 @@ void testFitter(int channel, int nJet)
   plotlabel1000->Draw();
   cmsPrelim();
   legend->Draw();
-
   cs->Print(cs->GetTitle() + TString(".eps"));
   cs->Print(cs->GetTitle() + TString(".pdf"));
   cs->Print(cs->GetTitle() + TString(".root"));
   cs->Print(cs->GetTitle() + TString(".png"));
+  */
+
 
 
   /*
@@ -689,6 +699,7 @@ c1->SaveAs( cname + TString(".pdf"));
   */
 
 
+  /*
   ///////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////
   //-------- Create a new frame to draw the  data - (W+jets) residual distribution 
@@ -756,7 +767,7 @@ c1->SaveAs( cname + TString(".pdf"));
   c3->SaveAs( cname + TString(".png"));
   c3->SaveAs( cname + TString(".C"));
   c3->SaveAs( cname + TString(".pdf"));
-
+  */
 
   //    if(data) delete data;
   //    if(c) delete c;
@@ -919,14 +930,13 @@ void GetSubtractionHistogram( TH1F& hist, int UpperOrLowerSB) {
   pars2body_.minWmass = WMassMin;
   pars2body_.maxWmass = WMassMax;
   RooWjjMjjFitter rwf2body_(pars2body_);
-  rwf2body_.loadData();
-  RooAbsPdf*  qcdPdf2body_       = rwf2body_.makeQCDPdf();
+  RooAbsPdf*  dibosonPdf2body_   = rwf2body_.makeDibosonPdf();
+  RooAbsPdf*  dummyWjetsPdf2body_= rwf2body_.makeWpJPdf();
   RooAbsPdf*  ttPdf2body_        = rwf2body_.makettbarPdf();
   RooAbsPdf*  singleTopPdf2body_ = rwf2body_.makeSingleTopPdf();
   RooAbsPdf*  zjetsPdf2body_     = rwf2body_.makeZpJPdf();
-  RooAbsPdf*  dibosonPdf2body_   = rwf2body_.makeDibosonPdf();
-  RooAbsPdf*  dummyWjetsPdf2body_= rwf2body_.makeWpJPdf();
-
+  rwf2body_.loadData();
+  RooAbsPdf*  qcdPdf2body_       = rwf2body_.makeQCDPdf();
   ///// -------- unit normalized PDF is fine for computing ratio of integrals
   cout << " norm diboson = " << rwf2body_.initDiboson_ << endl;
   cout << " norm wjets = " << rwf2body_.initWjets_ << endl;
@@ -937,31 +947,29 @@ void GetSubtractionHistogram( TH1F& hist, int UpperOrLowerSB) {
 
 
   //// Create the numeric integrals in various Mjj ranges
-  RooWjjFitterUtils util(pars2body_);
-  RooRealVar*  variable = util.mjj_;
-  RooRealVar Mass = *variable;
-  Mass.setRange("RangeWmass", pars2body_.minWmass, pars2body_.maxWmass);
-  Mass.setRange("RangeSBLo", pars2body_.minWmass-SBWidth_, pars2body_.minWmass);
-  Mass.setRange("RangeSBHi", pars2body_.maxWmass, pars2body_.maxWmass+SBWidth_);
-  Mass.setRange("RangeDefault", pars2body_.minMass, pars2body_.maxMass) ;
+  RooRealVar* mass = rwf2body_.ws_.var(pars2body_.var);
+  mass->setRange("RangeWmass", pars2body_.minWmass, pars2body_.maxWmass);
+  mass->setRange("RangeSBLo", pars2body_.minWmass-SBWidth_, pars2body_.minWmass);
+  mass->setRange("RangeSBHi", pars2body_.maxWmass, pars2body_.maxWmass+SBWidth_);
+  mass->setRange("RangeDefault", pars2body_.minMass, pars2body_.maxMass) ;
 
-  RooAbsReal* igx_qcd_0 = qcdPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
-  RooAbsReal* igx_tt_0  = ttPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
-  RooAbsReal* igx_singtop_0 = singleTopPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
-  RooAbsReal* igx_zjets_0 = zjetsPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
-  RooAbsReal* igx_diboson_0 = dibosonPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeWmass"));
+  RooAbsReal* igx_qcd_0 = qcdPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeWmass"));
+  RooAbsReal* igx_tt_0  = ttPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeWmass"));
+  RooAbsReal* igx_singtop_0 = singleTopPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeWmass"));
+  RooAbsReal* igx_zjets_0 = zjetsPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeWmass"));
+  RooAbsReal* igx_diboson_0 = dibosonPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeWmass"));
   ////////
-  RooAbsReal* igx_qcd_L = qcdPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBLo"));
-  RooAbsReal* igx_tt_L  = ttPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBLo"));
-  RooAbsReal* igx_singtop_L = singleTopPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBLo"));
-  RooAbsReal* igx_zjets_L = zjetsPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBLo"));
-  RooAbsReal* igx_diboson_L = dibosonPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBLo"));
+  RooAbsReal* igx_qcd_L = qcdPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBLo"));
+  RooAbsReal* igx_tt_L  = ttPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBLo"));
+  RooAbsReal* igx_singtop_L = singleTopPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBLo"));
+  RooAbsReal* igx_zjets_L = zjetsPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBLo"));
+  RooAbsReal* igx_diboson_L = dibosonPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBLo"));
   ////////
-  RooAbsReal* igx_qcd_H = qcdPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBHi"));
-  RooAbsReal* igx_tt_H  = ttPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBHi"));
-  RooAbsReal* igx_singtop_H = singleTopPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBHi"));
-  RooAbsReal* igx_zjets_H = zjetsPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBHi"));
-  RooAbsReal* igx_diboson_H = dibosonPdf2body_->createIntegral(Mass,NormSet(Mass),Range("RangeSBHi"));
+  RooAbsReal* igx_qcd_H = qcdPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBHi"));
+  RooAbsReal* igx_tt_H  = ttPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBHi"));
+  RooAbsReal* igx_singtop_H = singleTopPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBHi"));
+  RooAbsReal* igx_zjets_H = zjetsPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBHi"));
+  RooAbsReal* igx_diboson_H = dibosonPdf2body_->createIntegral(*mass,NormSet(*mass),Range("RangeSBHi"));
   ////////
 
   double qcdNorm = 0.;
@@ -994,11 +1002,13 @@ void GetSubtractionHistogram( TH1F& hist, int UpperOrLowerSB) {
     parsSB.cuts = cutsSBHi_;
 
   RooWjjMjjFitter rwfSB(parsSB);
-  RooAbsPdf*  qcdPdfSB       = rwfSB.makeQCDPdf();
   RooAbsPdf*  ttPdfSB        = rwfSB.makettbarPdf();
   RooAbsPdf*  singleTopPdfSB = rwfSB.makeSingleTopPdf();
   RooAbsPdf*  zjetsPdfSB     = rwfSB.makeZpJPdf();
   RooAbsPdf*  dibosonPdfSB   = rwfSB.makeDibosonPdf();
+  rwfSB.loadData();
+  RooAbsPdf*  qcdPdfSB       = rwfSB.makeQCDPdf();
+  RooRealVar* variable = rwfSB.ws_.var(parsSB.var);
 
   const RooCmdArg binning = RooFit::Binning(pars4body_->nbins, 
 					    pars4body_->minMass, pars4body_->maxMass);
