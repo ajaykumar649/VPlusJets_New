@@ -6,7 +6,7 @@ void readMyEfficiency() {
   gROOT->ProcessLine(".L EffTableReader.cc+");
   gROOT->ProcessLine(".L EffTableLoader.cc+");
 
-  const std::string fDir = "/Users/kalanand/cms/documents/notes/notes/AN-11-266/trunk/";
+  const std::string fDir = "/uscms/home/kalanand/cms/documents/notes/AN-11-266/trunk/";
    EffTableLoader effEle(fDir + "eleEffsHLTEle2jPfMht_data_LWA_Ele.txt");
    EffTableLoader effJ30(fDir + "eleEffsHLTEle2jPfMht_data_LWA_Jet30.txt");
    EffTableLoader effJ25NoJ30(fDir + "eleEffsHLTEle2jPfMht_data_LWA_Jet25Not30.txt");
