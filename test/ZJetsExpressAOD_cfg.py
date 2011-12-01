@@ -32,6 +32,8 @@ process.accepted = cms.EDAnalyzer('ZJetsExpress',
     maxJetEta       = cms.double(2.5),
     minLepPt        = cms.double(20),
     maxLepEta       = cms.double(2.4),
+    maxCombRelIso03 = cms.double(0.15),
+    minLLMass      = cms.double(40),
     jecService      = cms.string('ak5PFL1FastL2L3Residual'),
     payload         = cms.string('AK5PF'),
     isMC            = cms.bool(False)
@@ -41,7 +43,19 @@ process.rejected = process.accepted.clone()
 # ---- filter the required HLT bits -------------------------------------
 process.hltFilter = cms.EDFilter('HLTHighLevel',
     TriggerResultsTag  = cms.InputTag('TriggerResults','','HLT'),
-    HLTPaths           = cms.vstring('HLT_DoubleMu6_v*','HLT_DoubleMu7_v*','HLT_DoubleMu8_v*','HLT_Mu13_Mu8_v*'),
+    HLTPaths           = cms.vstring(
+                                     'HLT_DoubleMu6_v*', # di-muon triggers
+                                     'HLT_DoubleMu7_v*',
+                                     'HLT_Mu13_Mu8_v*',
+                                     'HLT_Mu17_Mu8*', 
+                                     'HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*', #di-electron trigger
+                                     'HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*',
+                                     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*',
+				     'HLT_Mu17_Ele8_CaloIdL', #di-emu trigger (for data-driven ttbar estimation)
+                                     'HLT_Mu8_Ele17_CaloIdL',
+                                     'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL',
+                         	     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL'
+),
     eventSetupPathsKey = cms.string(''),
     andOr              = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
     throw              = cms.bool(False)
