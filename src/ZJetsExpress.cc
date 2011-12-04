@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.9 2011/11/10 08:42:29 kkousour Exp $
+// $Id: ZJetsExpress.cc,v 1.10 2011/12/01 20:18:29 theofil Exp $
 //
 //
 
@@ -501,7 +501,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     }
     aLepton.iso   = combinedIso03;
     aLepton.isoPF = -999;
-    aLepton.isoRho = -999;
+    aLepton.isoRho = combinedIso03Rho;
     myLeptons.push_back(aLepton);
   } // electrons loop
   hRecoLeptons_->Fill(int(myLeptons.size()));
