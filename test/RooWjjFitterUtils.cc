@@ -126,18 +126,20 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         lepton_pt;
   Float_t         lepton_eta;
 
-  theTree->SetBranchAddress("JetPFCor_Pt",JetPFCor_Pt);
-  theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
   theTree->SetBranchAddress(params_.var, &Mass2j_PFCor);
-  theTree->SetBranchAddress("event_nPV", &event_nPV);
-  theTree->SetBranchAddress("event_met_pfmet", &event_met_pfmet);
-  theTree->SetBranchAddress("evtNJ", &evtNJ);
-  if(isElectron) {
-     theTree->SetBranchAddress("W_electron_pt", &lepton_pt);
-     theTree->SetBranchAddress("W_electron_eta", &lepton_eta);
-  } else {
-    theTree->SetBranchAddress("W_muon_pt", &lepton_pt);
-    theTree->SetBranchAddress("W_muon_eta", &lepton_eta);
+  if (!params_.fitToyDataset) {
+    theTree->SetBranchAddress("JetPFCor_Pt",JetPFCor_Pt);
+    theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
+    theTree->SetBranchAddress("event_nPV", &event_nPV);
+    theTree->SetBranchAddress("event_met_pfmet", &event_met_pfmet);
+    theTree->SetBranchAddress("evtNJ", &evtNJ);
+    if(isElectron) {
+      theTree->SetBranchAddress("W_electron_pt", &lepton_pt);
+      theTree->SetBranchAddress("W_electron_eta", &lepton_eta);
+    } else {
+      theTree->SetBranchAddress("W_muon_pt", &lepton_pt);
+      theTree->SetBranchAddress("W_muon_eta", &lepton_eta);
+    }
   }
 
   static double const singleElectronCutOffLumi = 200.;
@@ -147,7 +149,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   for (int event = 0; event < list->GetN(); ++event) {
     theTree->GetEntry(list->GetEntry(event));
     evtWgt = 1.0;
-    if (params_.doEffCorrections) {
+    if ((params_.doEffCorrections) && (!params_.fitToyDataset)) {
       if (isElectron) {
 	evtWgt *= effEleReco.GetEfficiency(lepton_pt, lepton_eta);
 	evtWgt *= effEleId.GetEfficiency(lepton_pt, lepton_eta);
