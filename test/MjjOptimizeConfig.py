@@ -62,7 +62,7 @@ def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
 ##         fitterPars.binEdges.push_back(binEdge)
 ##         binEdge += 25.
 
-    fitterPars.truncRange = False
+    fitterPars.truncRange = True
     fitterPars.minTrunc = 130.
 
     binMin = fitterPars.minMass
