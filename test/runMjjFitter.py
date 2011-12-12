@@ -29,10 +29,13 @@ config = __import__(opts.modeConfig)
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
-gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
-gROOT.ProcessLine('.L RooWjjMjjFitter.cc+');
+gROOT.ProcessLine('.L EffTableReader.cc+')
+gROOT.ProcessLine('.L EffTableLoader.cc+')
+gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
+gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, \
-     RooMsgService, RooFit, TLatex, TMatrixDSymEigen, RooArgList, RooArgSet
+     RooMsgService, RooFit, TLatex, TMatrixDSymEigen, RooArgList, RooArgSet, \
+     gPad
 from math import sqrt
 
 
@@ -42,10 +45,15 @@ fitterPars = config.theConfig(opts.Nj, opts.e_FSU, opts.e_FMU, opts.mcdir, opts.
 theFitter = RooWjjMjjFitter(fitterPars)
 
 fr = theFitter.fit()
+
 chi2 = Double(0.)
 #ndf = Long(2)
-ndf = Long(fr.floatParsFinal().getSize()/2. + 0.5)
+ndf = Long(3)
 theFitter.computeChi2(chi2, ndf)
+# chi2frame.Draw()
+
+# assert False, "fit done"
+
 mf = theFitter.stackedPlot()
 sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
 pf = theFitter.residualPlot(mf, "h_total", "", True)

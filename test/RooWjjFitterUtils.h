@@ -14,6 +14,7 @@
 #include "RooAddPdf.h"
 
 #include "RooWjjFitterParams.h"
+#include "EffTableLoader.h"
 
 class TH1;
 class RooAbsReal;
@@ -31,12 +32,14 @@ public:
 
   void vars2ws(RooWorkspace& ws) const;
 
-  TH1 * File2Hist(TString fname, TString histName, 
+  TH1 * newEmptyHist(TString histName, double binMult = 1.0) const;
+  TH1 * File2Hist(TString fname, TString histName, bool isElectron, 
 		  int jes_scl = -1, bool noCuts = false, 
 		  double binMult = 1.0, TString cutOverride = "") const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
 		       RooWorkspace& ws) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
+			    bool isElectron,
 			    bool trunc = false,
 			    bool noCuts = false) const;
 //   RooDataSet * File2DatasetNoCuts(TString fname, TString dsName,
@@ -45,11 +48,15 @@ public:
 
   void hist2RandomTree(TH1 * theHist, TString fname) const;
 
+  double * getBinArray() const { return binArray; }
+
   static double computeChi2(RooHist& hist, RooAbsPdf& pdf, RooRealVar& obs, 
 			    int& nbin);
   static TLegend * legend4Plot(RooPlot * plot);
-  static void activateBranches(TTree & t);
+  static void activateBranches(TTree & t, bool isElectron = false);
 
+  static double dijetEff(int Njets, std::vector<double> const& eff30,
+			 std::vector<double> const& eff25n30);
 protected:
 
   void initialize();
@@ -63,7 +70,14 @@ protected:
   RooAbsReal * massVar_;
   RooRealVar * mjj_;
 
+  double * binArray;
+
   TString jetCut_;
+
+  EffTableLoader effEleReco, effEleId, effEle, effEle2;
+  EffTableLoader effMuId, effMu;
+  EffTableLoader effJ30, effJ25NoJ30;
+  EffTableLoader effMHT;
 };
 
 #endif

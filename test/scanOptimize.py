@@ -30,6 +30,8 @@ import pyroot_logon
 config = __import__(opts.modeConfig)
 from ROOT import gROOT
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
+gROOT.ProcessLine('.L EffTableReader.cc+')
+gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+');
 from ROOT import RooWjjMjjFitter, RooFitResult, \

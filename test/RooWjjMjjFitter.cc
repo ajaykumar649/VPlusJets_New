@@ -26,6 +26,8 @@
 #include "RooHist.h"
 #include "RooProdPdf.h"
 #include "RooRandom.h"
+#include "RooAbsBinning.h"
+
 #include "TPad.h"
 
 
@@ -46,12 +48,21 @@ RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
   zjetsNorm_(0.), QCDNorm_(0.), QCDError_(0.),errorType_(RooAbsData::SumW2)
 {
   utils_.vars2ws(ws_);
+  RooRealVar * mass = ws_.var(params_.var);
+  mass->setRange("lowSideBand", params_.minMass, params_.minTrunc);
+  mass->setRange("highSideBand", params_.maxTrunc, params_.maxMass);
+
+  rangeString_ = "";
+  if (params_.truncRange) {
+    // data = loadData(true);
+    rangeString_ = "lowSideBand,highSideBand";
+  }
 }
 
 RooFitResult * RooWjjMjjFitter::fit() {
 
   RooAbsPdf * totalPdf = makeFitter();
-  RooRealVar * mass = ws_.var(params_.var);
+  // RooRealVar * mass = ws_.var(params_.var);
 
   RooAbsData * data = loadData();
   cout << "Made dataset" << endl;
@@ -59,75 +70,70 @@ RooFitResult * RooWjjMjjFitter::fit() {
   std::cout << "-------- Number of expected QCD events: " << QCDNorm_
 	    << std::endl;
 
-   mass->setRange("lowSideBand", params_.minMass, params_.minTrunc);
-   mass->setRange("highSideBand", params_.maxTrunc, params_.maxMass);
-
-   // const char* rangeString = "Range55To250";
-   rangeString_ = "";
-   if (params_.truncRange) {
-     // data = loadData(true);
-     rangeString_ = "lowSideBand,highSideBand";
-   }
-   RooFitResult *fitResult = 0;
-
-   resetYields();
-   RooArgSet * params = totalPdf->getParameters(data);
-   loadParameters(params_.constraintParamsFile);
-
-   RooRealVar * nQCD = ws_.var("nQCD");
-   RooGaussian constQCD("constQCD","constQCD", *nQCD, RooConst(nQCD->getVal()),
-			RooConst(nQCD->getError())) ;
-   RooRealVar * nTTbar = ws_.var("nTTbar");
-   RooGaussian constTTbar("constTTbar","constTTbar", *nTTbar, 
-			  RooConst(nTTbar->getVal()),
-			  RooConst(nTTbar->getError())) ;
-   RooRealVar * nSingleTop = ws_.var("nSingleTop");
-   RooGaussian constSingleTop("constSingleTop","constSingleTop", *nSingleTop, 
-			      RooConst(nSingleTop->getVal()),
-			      RooConst(nSingleTop->getError())) ;
-   RooRealVar * nZjets = ws_.var("nZjets");
-   RooGaussian constZpJ("constZpJ", "constZpJ", *nZjets, 
-			RooConst(nZjets->getVal()), 
-			RooConst(nZjets->getError()));
-   RooRealVar * nDiboson = ws_.var("nDiboson");
-   RooGaussian constDiboson("constDiboson", "constDiboson", *nDiboson,
-			    RooConst(nDiboson->getVal()), 
-			    RooConst(nDiboson->getError()));
-
-   RooArgList ConstrainedVars;
-   RooArgList Constraints;
-
-   if (params_.constrainDiboson) {
-     Constraints.add(constDiboson);
-     ConstrainedVars.add(*nDiboson);
-   }
-   Constraints.add(constQCD);
-   ConstrainedVars.add(*nQCD);
-   Constraints.add(constSingleTop);
-   ConstrainedVars.add(*nSingleTop);
-   Constraints.add(constZpJ);
-   ConstrainedVars.add(*nZjets);
-   Constraints.add(constTTbar);
-   ConstrainedVars.add(*nTTbar);
-
-
-
-   loadParameters(params_.initParamsFile);
-   //cout << "params_.e_fSU=" << params_.e_fSU << endl;
-
-
-   std::cout << "\n***constraints***\n";
-   TIter con(Constraints.createIterator());
-   RooGaussian * tc;
-   while ((tc = (RooGaussian *)con()))
-     tc->Print();
-   std::cout << "*** ***\n\n";
-   
-   Constraints.add(*totalPdf);
-   RooProdPdf fitPdf("fitPdf", "fitPdf", Constraints);
-   fitResult = fitPdf.fitTo(*data, Save(true), 
-			    // ExternalConstraints(exConstraints),
-			    Constrained(),
+  RooFitResult *fitResult = 0;
+  
+  resetYields();
+  RooArgSet * params = totalPdf->getParameters(data);
+  loadParameters(params_.constraintParamsFile);
+  
+  RooRealVar * nQCD = ws_.var("nQCD");
+  RooGaussian constQCD("constQCD","constQCD", *nQCD, RooConst(nQCD->getVal()),
+		       RooConst(nQCD->getError())) ;
+  RooRealVar * nTTbar = ws_.var("nTTbar");
+  RooGaussian constTTbar("constTTbar","constTTbar", *nTTbar, 
+			 RooConst(nTTbar->getVal()),
+			 RooConst(nTTbar->getError())) ;
+  RooRealVar * nSingleTop = ws_.var("nSingleTop");
+  RooGaussian constSingleTop("constSingleTop","constSingleTop", *nSingleTop, 
+			     RooConst(nSingleTop->getVal()),
+			     RooConst(nSingleTop->getError())) ;
+  RooRealVar * nZjets = ws_.var("nZjets");
+  RooGaussian constZpJ("constZpJ", "constZpJ", *nZjets, 
+		       RooConst(nZjets->getVal()), 
+		       RooConst(nZjets->getError()));
+  RooRealVar * nDiboson = ws_.var("nDiboson");
+  RooGaussian constDiboson("constDiboson", "constDiboson", *nDiboson,
+			   RooConst(nDiboson->getVal()), 
+			   RooConst(nDiboson->getError()));
+  
+  RooArgList ConstrainedVars;
+  RooArgList Constraints;
+  
+  if (params_.constrainDiboson) {
+    Constraints.add(constDiboson);
+    ConstrainedVars.add(*nDiboson);
+  }
+  Constraints.add(constQCD);
+  ConstrainedVars.add(*nQCD);
+  Constraints.add(constSingleTop);
+  ConstrainedVars.add(*nSingleTop);
+  Constraints.add(constZpJ);
+  ConstrainedVars.add(*nZjets);
+  Constraints.add(constTTbar);
+  ConstrainedVars.add(*nTTbar);
+  
+  
+  
+  loadParameters(params_.initParamsFile);
+  //cout << "params_.e_fSU=" << params_.e_fSU << endl;
+  
+  
+  std::cout << "\n***constraints***\n";
+  TIter con(Constraints.createIterator());
+  RooGaussian * tc;
+  while ((tc = (RooGaussian *)con()))
+    tc->Print();
+  std::cout << "*** ***\n\n";
+  
+  RooAbsPdf * fitPdf = totalPdf;
+  if (!params_.externalConstraints) {
+    Constraints.add(*totalPdf);
+    fitPdf = new RooProdPdf("fitPdf", "fitPdf", Constraints);
+  }
+  fitResult = fitPdf->fitTo(*data, Save(true), 
+			    ( (params_.externalConstraints) ?
+			      ExternalConstraints(Constraints) :
+			      Constrained() ),
 			    RooFit::Extended(true), 
 			    RooFit::Minos(false), 
 			    RooFit::Hesse(true),
@@ -135,10 +141,10 @@ RooFitResult * RooWjjMjjFitter::fit() {
 			    RooFit::Range(rangeString_),
 			    Warnings(false) 
 			    );
-
-   fitResult->Print("v");
-   params->writeToFile("lastWjjFitParams.txt");
-
+  
+  fitResult->Print("v");
+  params->writeToFile("lastWjjFitParams.txt");
+  
 //    if (params_.fitToyDataset) {
 //      char NJ_char[5];
 //      sprintf(NJ_char,"%i",params_.njets);
@@ -153,44 +159,46 @@ RooFitResult * RooWjjMjjFitter::fit() {
 //      fAll->Close();
 //    }
 
-   delete params;
-   return fitResult;
+  delete params;
+  return fitResult;
 }
 
 RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
 
   RooRealVar * mass = ws_.var(params_.var);
-  RooPlot * chi2frame = mass->frame(params_.minMass, params_.maxMass,
-				    params_.nbins);
-  mass->setRange("RangeForPlot", params_.minMass, params_.maxMass);
+  RooAbsBinning& plotBins =  mass->getBinning("plotBinning");
+  mass->setBinning(plotBins);
+  RooPlot * chi2frame = mass->frame();
   RooAbsData * data = ws_.data("data");
 //   if (params_.truncRange)
 //     data = ws_.data("truncData");
   RooAbsPdf * totalPdf = ws_.pdf("totalPdf");
 
-  data->plotOn(chi2frame, //RooFit::DataError(errorType), 
-	       RooFit::Invisible(),
-	       RooFit::Name("h_data"), RooFit::MarkerColor(kRed));
-  totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
-		   RooFit::Name("h_total"),
-		   RooFit::Invisible(),
-		   ( (rangeString_.Length() > 0)? 
-		     RooFit::NormRange("RangeForPlot") :
-		     RooCmdArg::none() ),
-		   ( (rangeString_.Length() > 0)? 
-		     RooFit::Range("RangeForPlot", false) :
-		     RooCmdArg::none() )
-		   );
-  totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
-		   RooFit::Name("h_fit"),
-		   ( (rangeString_.Length() > 0)? 
-		     RooFit::NormRange(rangeString_) :
-		     RooCmdArg::none() ),
-		   ( (rangeString_.Length() > 0)? 
-		     RooFit::Range(rangeString_) :
-		     RooCmdArg::none() )
-		   );
+//   data->plotOn(chi2frame, //RooFit::DataError(errorType), 
+// 	       RooFit::Invisible(),
+// 	       RooFit::Binning(plotBins),
+// 	       RooFit::Name("h_data"), RooFit::MarkerColor(kRed));
+//   totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
+// 		   RooFit::Name("h_total"),
+// 		   RooFit::Invisible(),
+// 		   ( (rangeString_.Length() > 0)? 
+// 		     RooFit::NormRange("RangeForPlot") :
+// 		     RooCmdArg::none() ),
+// 		   ( (rangeString_.Length() > 0)? 
+// 		     RooFit::Range("RangeForPlot", false) :
+// 		     RooCmdArg::none() )
+// 		   );
+//   totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
+// 		   RooFit::Name("h_fit")//,
+// 		   ( (rangeString_.Length() > 0)? 
+// 		     RooFit::NormRange(rangeString_) :
+// 		     RooCmdArg::none() ),
+// 		   ( (rangeString_.Length() > 0)? 
+// 		     RooFit::Range(rangeString_) :
+// 		     RooCmdArg::none() )
+// 		   );
   data->plotOn( chi2frame, //RooFit::DataError(errorType),
+		RooFit::Binning(plotBins),
 		RooFit::Name("theData"),
 		(rangeString_.Length() > 0)? RooFit::CutRange(rangeString_) :
 		RooCmdArg::none() 
@@ -346,7 +354,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
     if (params_.includeMuons) {
       RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
 					     params_.muonData, "data_muon", 
-					     trunc);
+					     false, trunc);
       mds->Print();
 
       /// Note: for the 2+3 jets we use the 2jet bin coefficients
@@ -363,7 +371,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
     if (params_.includeElectrons) {
       RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
 					     params_.electronData, 
-					     "data_electron", trunc);
+					     "data_electron", true, trunc);
       eds->Print();
       if ( params_.njets==3 ) {
 	QCDNorm_ += rel3jet*eds->sumEntries();
@@ -392,41 +400,40 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
   double WWweight = 53./4225916.;
   double WZweight = 17./4265243.;
   double dibosonScale = 2.;
-  TH1D th1diboson("th1diboson", "th1diboson", 
-		  int(params_.nbins*dibosonScale),
-		  params_.minMass, params_.maxMass);
-  th1diboson.Sumw2();
+  TH1 * th1diboson = utils_.newEmptyHist("th1diboson", dibosonScale);
 
   TH1 * tmpHist;
 
   if (params_.includeMuons) {
     tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW428.root",
-				"hist_ww_mu", 0, false, dibosonScale);
-    th1diboson.Add(tmpHist, WWweight);
+				"hist_ww_mu", false, 0, false, dibosonScale);
+    th1diboson->Add(tmpHist, WWweight);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW428.root",
-			       "hist_wz_mu", 0, false, dibosonScale);
-    th1diboson.Add(tmpHist, WZweight);
+			       "hist_wz_mu", false, 0, false, dibosonScale);
+    th1diboson->Add(tmpHist, WZweight);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW428.root",
-				"hist_ww_el", 0, false, dibosonScale);
-    th1diboson.Add(tmpHist, WWweight);
+				"hist_ww_el", true, 0, false, dibosonScale);
+    th1diboson->Add(tmpHist, WWweight);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW428.root",
-			       "hist_wz_el", 0, false, dibosonScale);
-    th1diboson.Add(tmpHist, WZweight);
+			       "hist_wz_el", true, 0, false, dibosonScale);
+    th1diboson->Add(tmpHist, WZweight);
     delete tmpHist;
   }
 
-  initDiboson_ = th1diboson.Integral() * params_.intLumi;
+  initDiboson_ = th1diboson->Integral() * params_.intLumi;
   cout << "-------- Number of expected WW+WZ events = " 
-       << th1diboson.Integral() << " x " << params_.intLumi 
+       << th1diboson->Integral() << " x " << params_.intLumi 
        << " = " <<  initDiboson_ << endl;
 
-  RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(&th1diboson, "dibosonPdf",
-					    ws_);
+  th1diboson->Scale(1., "width");
+  RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
+					   ws_);
+  delete th1diboson;
   return dibosonPdf;
 }
 
@@ -435,109 +442,123 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf() {
   if (ws_.pdf("WpJPdf"))
     return ws_.pdf("WpJPdf");
 
-  TH1D th1WpJ("th1WpJ", "th1WpJ", params_.nbins,
-	      params_.minMass, params_.maxMass);
-  th1WpJ.Sumw2();
-  TH1D th1WpJMU(th1WpJ);
-  th1WpJMU.SetName("th1WpJMU");
-  TH1D th1WpJMD(th1WpJ);
-  th1WpJMD.SetName("th1WpJMD");
-  TH1D th1WpJSU(th1WpJ);
-  th1WpJSU.SetName("th1WpJSU");
-  TH1D th1WpJSD(th1WpJ);
-  th1WpJSD.SetName("th1WpJSD");
+  TH1 * th1WpJ = utils_.newEmptyHist("th1WpJ");
+  TH1 * th1WpJMU = utils_.newEmptyHist("th1WpJMU");
+  TH1 * th1WpJMD = utils_.newEmptyHist("th1WpJMD");
+  TH1 * th1WpJSU = utils_.newEmptyHist("th1WpJSU");
+  TH1 * th1WpJSD = utils_.newEmptyHist("th1WpJSD");
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.WpJDirectory + "mu_WpJ_CMSSW428.root",
-			       "hist_wpj_mu", 1, params_.toyWpJ);
-    th1WpJ.Add(tmpHist);
+			       "hist_wpj_mu", false, 1, params_.toyWpJ);
+    th1WpJ->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "mu_WpJmatchingup_CMSSW428.root",
-			       "hist_wpj_mu_mu", 1, params_.toyWpJ);
-    th1WpJMU.Add(tmpHist);
+			       "hist_wpj_mu_mu", false, 1, params_.toyWpJ);
+    th1WpJMU->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "mu_WpJmatchingdown_CMSSW428.root",
-			       "hist_wpj_mu_md", 1, params_.toyWpJ);
-    th1WpJMD.Add(tmpHist);
+			       "hist_wpj_mu_md", false, 1, params_.toyWpJ);
+    th1WpJMD->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "mu_WpJscaleup_CMSSW428.root",
-			       "hist_wpj_mu_su", 1, params_.toyWpJ);
-    th1WpJSU.Add(tmpHist);
+			       "hist_wpj_mu_su", false, 1, params_.toyWpJ);
+    th1WpJSU->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "mu_WpJscaledown_CMSSW428.root",
-			       "hist_wpj_mu_sd", 1, params_.toyWpJ);
-    th1WpJSD.Add(tmpHist);
+			       "hist_wpj_mu_sd", false, 1, params_.toyWpJ);
+    th1WpJSD->Add(tmpHist);
     delete tmpHist;
   }
 
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.WpJDirectory + "el_WpJ_CMSSW428.root",
-			       "hist_wpj_el", 1, params_.toyWpJ);
-    th1WpJ.Add(tmpHist);
+			       "hist_wpj_el", true, 1, params_.toyWpJ);
+    th1WpJ->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "el_WpJmatchingup_CMSSW428.root",
-			       "hist_wpj_el_mu", 1, params_.toyWpJ);
-    th1WpJMU.Add(tmpHist);
+			       "hist_wpj_el_mu", true, 1, params_.toyWpJ);
+    th1WpJMU->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "el_WpJmatchingdown_CMSSW428.root",
-			       "hist_wpj_el_md", 1, params_.toyWpJ);
-    th1WpJMD.Add(tmpHist);
+			       "hist_wpj_el_md", true, 1, params_.toyWpJ);
+    th1WpJMD->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "el_WpJscaleup_CMSSW428.root",
-			       "hist_wpj_el_su", 1, params_.toyWpJ);
-    th1WpJSU.Add(tmpHist);
+			       "hist_wpj_el_su", true, 1, params_.toyWpJ);
+    th1WpJSU->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 			       "el_WpJscaledown_CMSSW428.root",
-			       "hist_wpj_el_sd", 1, params_.toyWpJ);
-    th1WpJSD.Add(tmpHist);
+			       "hist_wpj_el_sd", true, 1, params_.toyWpJ);
+    th1WpJSD->Add(tmpHist);
     delete tmpHist;
   }
 
-  initWjets_ = (31314./81352581.) * (th1WpJ.Integral()) * params_.intLumi;
+  initWjets_ = (31314./81352581.) * (th1WpJ->Integral()) * params_.intLumi;
   cout << "-------- Number of expected Wjj events = " <<  initWjets_ << endl;
+
+//   th1WpJ->Draw();
+//   gPad->Update();
+//   gPad->WaitPrimitive();
+
+  th1WpJ->Scale(1, "width");
+  th1WpJMU->Scale(1, "width");
+  th1WpJMD->Scale(1, "width");
+  th1WpJSU->Scale(1, "width");
+  th1WpJSD->Scale(1, "width");
+
+//   th1WpJ->Draw();
+//   gPad->Update();
+//   gPad->WaitPrimitive();
 
   RooArgList pdfs;
   RooArgList coefs;
 
-  RooAbsPdf * WpJPdfSU = utils_.Hist2Pdf(&th1WpJSU, "WpJPdfSU", ws_);
+  RooAbsPdf * WpJPdfSU = utils_.Hist2Pdf(th1WpJSU, "WpJPdfSU", ws_);
   RooRealVar fSU("fSU", "f_{scaleUp}", 0., 0., 1.);
   fSU.setConstant();
   pdfs.add(*WpJPdfSU);
   coefs.add(fSU);
 
-  RooAbsPdf * WpJPdfSD = utils_.Hist2Pdf(&th1WpJSD, "WpJPdfSD", ws_);
+  RooAbsPdf * WpJPdfSD = utils_.Hist2Pdf(th1WpJSD, "WpJPdfSD", ws_);
   RooRealVar fSD("fSD", "f_{scaleDown}", 0., 0., 1.);
   fSD.setConstant();
   pdfs.add(*WpJPdfSD);
   coefs.add(fSD);
 
-  RooAbsPdf * WpJPdfMU = utils_.Hist2Pdf(&th1WpJMU, "WpJPdfMU", ws_);
+  RooAbsPdf * WpJPdfMU = utils_.Hist2Pdf(th1WpJMU, "WpJPdfMU", ws_);
   RooRealVar fMU("fMU", "f_{matchingUp}", 0., 0., 1.);
   fMU.setConstant();
   pdfs.add(*WpJPdfMU);
   coefs.add(fMU);
 
-  RooAbsPdf * WpJPdfMD = utils_.Hist2Pdf(&th1WpJMD, "WpJPdfMD", ws_);
+  RooAbsPdf * WpJPdfMD = utils_.Hist2Pdf(th1WpJMD, "WpJPdfMD", ws_);
   RooRealVar fMD("fMD", "f_{matchingDown}", 0., 0., 1.);
   fMD.setConstant();
   pdfs.add(*WpJPdfMD);
   coefs.add(fMD);
 
-  RooAbsPdf * WpJPdfNom = utils_.Hist2Pdf(&th1WpJ, "WpJPdfNom", ws_);
+  RooAbsPdf * WpJPdfNom = utils_.Hist2Pdf(th1WpJ, "WpJPdfNom", ws_);
   pdfs.add(*WpJPdfNom);
 
   RooAddPdf WpJPdf("WpJPdf","WpJPdf", pdfs, coefs, false);
   ws_.import(WpJPdf);
 
+
+  delete th1WpJSU;
+  delete th1WpJSD;
+  delete th1WpJMU;
+  delete th1WpJMD;
+  delete th1WpJ;
   return ws_.pdf("WpJPdf");
   //return WjetsShape;
 }
@@ -547,35 +568,33 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
   if (ws_.pdf("ttPdf"))
     return ws_.pdf("ttPdf");
 
-  double ttScale = 2.;
-  TH1D th1tt("th1tt", "th1tt", int(params_.nbins*ttScale),
-	      params_.minMass, params_.maxMass);
-  th1tt.Sumw2();
+  double ttScale = 1.;
+  TH1 * th1tt = utils_.newEmptyHist("th1tt", ttScale);
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_TTbar_MG_CMSSW428.root",
-			       "hist_tt_mu", 1, false, ttScale);
-    th1tt.Add(tmpHist);
+			       "hist_tt_mu", false, 1, false, ttScale);
+    th1tt->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_TTbar_MG_CMSSW428.root",
-			       "hist_tt_el", 1, false, ttScale);
-    th1tt.Add(tmpHist);
+			       "hist_tt_el", true, 1, false, ttScale);
+    th1tt->Add(tmpHist);
     delete tmpHist;
   }
 
-  ttbarNorm_ = (157.5/3701947) * th1tt.Integral() * params_.intLumi;
+  ttbarNorm_ = (157.5/3701947) * th1tt->Integral() * params_.intLumi;
   cout << "-------- Number of expected ttbar events = " 
-       << th1tt.Integral() << " x " << params_.intLumi << " = " 
+       << th1tt->Integral() << " x " << params_.intLumi << " = " 
        << ttbarNorm_ << endl;
 
-
-  RooAbsPdf * ttPdf = utils_.Hist2Pdf(&th1tt, "ttPdf", ws_);
-
+  th1tt->Scale(1., "width");
+  RooAbsPdf * ttPdf = utils_.Hist2Pdf(th1tt, "ttPdf", ws_);
+  delete th1tt;
   return ttPdf;
 
 }
@@ -605,99 +624,98 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 	    << " t: " << TWTopWeight
 	    << "\n";
 
-  double stScale = 2.;
+  double stScale = 1.;
 
-  TH1D th1st("th1st", "th1st", int(params_.nbins*stScale),
-	      params_.minMass, params_.maxMass);
-  th1st.Sumw2();
+  TH1 * th1st = utils_.newEmptyHist("th1st", stScale);
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopS_Tbar_CMSSW428.root",
-			       "hist_stbar_mu", 1, false, stScale);
-    th1st.Add(tmpHist, STopBarWeight);
+			       "hist_stbar_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, STopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopS_T_CMSSW428.root",
-			       "hist_st_mu", 1, false, stScale);
-    th1st.Add(tmpHist, STopWeight);
+			       "hist_st_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, STopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopT_Tbar_CMSSW428.root",
-			       "hist_stbar_mu", 1, false, stScale);
-    th1st.Add(tmpHist, TTopBarWeight);
+			       "hist_stbar_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, TTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopT_T_CMSSW428.root",
-			       "hist_st_mu", 1, false, stScale);
-    th1st.Add(tmpHist, TTopWeight);
+			       "hist_st_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, TTopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopTW_Tbar_CMSSW428.root",
-			       "hist_stbar_mu", 1, false, stScale);
-    th1st.Add(tmpHist, TWTopBarWeight);
+			       "hist_stbar_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, TWTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopTW_T_CMSSW428.root",
-			       "hist_st_mu", 1, false, stScale);
-    th1st.Add(tmpHist, TWTopWeight);
+			       "hist_st_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, TWTopWeight);
 //     tmpHist->Print();
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopS_Tbar_CMSSW428.root",
-			       "hist_stbar_el", 1, false, stScale);
-    th1st.Add(tmpHist, STopBarWeight);
+			       "hist_stbar_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, STopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopS_T_CMSSW428.root",
-			       "hist_st_el", 1, false, stScale);
-    th1st.Add(tmpHist, STopWeight);
+			       "hist_st_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, STopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopT_Tbar_CMSSW428.root",
-			       "hist_stbar_el", 1, false, stScale);
-    th1st.Add(tmpHist, TTopBarWeight);
+			       "hist_stbar_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, TTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopT_T_CMSSW428.root",
-			       "hist_st_el", 1, false, stScale);
-    th1st.Add(tmpHist, TTopWeight);
+			       "hist_st_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, TTopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopTW_Tbar_CMSSW428.root",
-			       "hist_stbar_el", 1, false, stScale);
-    th1st.Add(tmpHist, TWTopBarWeight);
+			       "hist_stbar_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, TWTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopTW_T_CMSSW428.root",
-			       "hist_st_el", 1, false, stScale);
-    th1st.Add(tmpHist, TWTopWeight);
+			       "hist_st_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, TWTopWeight);
 //     tmpHist->Print();
     delete tmpHist;
   }
 
-  singleTopNorm_ = th1st.Integral() * params_.intLumi;
+  singleTopNorm_ = th1st->Integral() * params_.intLumi;
 
 //   if (params_.includeElectrons && params_.includeMuons)
 //     singleTopNorm_ *= 2;
   cout << "-------- Number of expected single top events = " << 
-    th1st.Integral() << " x " << params_.intLumi << " = " << singleTopNorm_ << endl;
+    th1st->Integral() << " x " << params_.intLumi << " = " << singleTopNorm_ << endl;
 
-  RooAbsPdf * stPdf = utils_.Hist2Pdf(&th1st, "stPdf", ws_);
-
+  th1st->Scale(1., "width");
+  RooAbsPdf * stPdf = utils_.Hist2Pdf(th1st, "stPdf", ws_);
+  delete th1st;
   return stPdf;
 
 }
@@ -716,27 +734,27 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
 //   double weight4 = 136804./2030033.;
 //   double weight5 = 9360./1082691.;
 
-  TH1D th1qcd("th1qcd", "th1qcd", params_.nbins,
-	      params_.minMass, params_.maxMass);
-  th1qcd.Sumw2();
+  TH1 * th1qcd = utils_.newEmptyHist("th1qcd");
+
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
 			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
-			       "hist_qcd_mu", 1, false);
-    th1qcd.Add(tmpHist);
+			       "hist_qcd_mu", false, 1, false);
+    th1qcd->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
 			       "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
-			       "hist_qcd_el", 1, false);
-    th1qcd.Add(tmpHist);
+			       "hist_qcd_el", true, 1, false);
+    th1qcd->Add(tmpHist);
     delete tmpHist;
   }
 
-  RooAbsPdf* qcdPdf = utils_.Hist2Pdf(&th1qcd,"qcdPdf", ws_);
-    
+  th1qcd->Scale(1., "width");
+  RooAbsPdf* qcdPdf = utils_.Hist2Pdf(th1qcd,"qcdPdf", ws_);
+  delete th1qcd;    
   return qcdPdf;
 }
 
@@ -747,35 +765,34 @@ RooAbsPdf * RooWjjMjjFitter::makeZpJPdf() {
   if (ws_.pdf("ZpJPdf"))
     return ws_.pdf("ZpJPdf");
   
-  double ZpJScale = 2.;
+  double ZpJScale = 1.;
 
-  TH1D th1ZpJ("th1ZpJ", "th1ZpJ", int(params_.nbins*ZpJScale),
-	      params_.minMass, params_.maxMass);
-  th1ZpJ.Sumw2();
+  TH1 * th1ZpJ = utils_.newEmptyHist("th1ZpJ", ZpJScale);
 
   TH1 * tmpHist;
 
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + "mu_ZpJ_CMSSW428.root",
-			       "hist_zpj_mu", 1, false, ZpJScale);
-    th1ZpJ.Add(tmpHist);
+			       "hist_zpj_mu", false, 1, false, ZpJScale);
+    th1ZpJ->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + "el_ZpJ_CMSSW428.root",
-			       "hist_zpj_el", 1, false, ZpJScale);
-    th1ZpJ.Add(tmpHist);
+			       "hist_zpj_el", true, 1, false, ZpJScale);
+    th1ZpJ->Add(tmpHist);
     delete tmpHist;
   }
 
-  zjetsNorm_ = (3048./36277961.) * th1ZpJ.Integral() * params_.intLumi;
+  zjetsNorm_ = (3048./36277961.) * th1ZpJ->Integral() * params_.intLumi;
   cout << "-------- Number of expected zjets events = " 
-       << th1ZpJ.Integral() << " x " << params_.intLumi << " = " 
+       << th1ZpJ->Integral() << " x " << params_.intLumi << " = " 
        << zjetsNorm_ << endl;
 
+  th1ZpJ->Scale(1., "width");
 
-  RooAbsPdf * ZpJPdf = utils_.Hist2Pdf(&th1ZpJ, "ZpJPdf", ws_);
-
+  RooAbsPdf * ZpJPdf = utils_.Hist2Pdf(th1ZpJ, "ZpJPdf", ws_);
+  delete th1ZpJ;
   return ZpJPdf;
 }
 
@@ -784,28 +801,28 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   if (ws_.pdf("NPPdf"))
     return ws_.pdf("NPPdf");
 
-  TH1D th1NP("th1NP", "th1NP", params_.nbins, params_.minMass,
-	     params_.maxMass);
-  th1NP.Sumw2();
+  TH1 * th1NP = utils_.newEmptyHist("th1NP");
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.NewPhysicsDirectory + 
 			       "mu_ZprimeMadGraph_CMSSW428.root",
-			       "hist_np_mu", 1, false);
-    th1NP.Add(tmpHist);
+			       "hist_np_mu", false, 1, false);
+    th1NP->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.NewPhysicsDirectory + 
 			       "el_ZprimeMadGraph_CMSSW428.root",
-			       "hist_np_el", 1, false);
-    th1NP.Add(tmpHist);
+			       "hist_np_el", true, 1, false);
+    th1NP->Add(tmpHist);
     delete tmpHist;
   }
 
-  RooAbsPdf * NPPdf = utils_.Hist2Pdf(&th1NP, "NPPdf", ws_);
+  th1NP->Scale(1., "width");
 
+  RooAbsPdf * NPPdf = utils_.Hist2Pdf(th1NP, "NPPdf", ws_);
+  delete th1NP;
   return NPPdf;
 }
 
@@ -836,9 +853,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   shapesSBLo.makeZpJPdf();
   shapesSBLo.makeDibosonPdf();
 
-  TH1D th1wjets("th1wjets", "th1wjets", params_.nbins, params_.minMass,
-		params_.maxMass);
-  th1wjets.Sumw2();
+  TH1 * th1wjets = utils_.newEmptyHist("th1wjets");
 
   double sumalpha = 0.;
   TH1 * wjets = 0;
@@ -860,7 +875,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 //     wjets->Draw();
 //     gPad->WaitPrimitive();
 
-    th1wjets.Add(wjets, tmpWeight);
+    th1wjets->Add(wjets, tmpWeight);
 
     delete wjets;
   }
@@ -868,18 +883,19 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 //   th1wjets.Print();
 //   th1wjets.Draw();
 //   gPad->WaitPrimitive();
-
-  RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(&th1wjets, "WpJ4BodyPdf", ws_);
-
+  th1wjets->Scale(1, "width");
+  RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", ws_);
+  delete th1wjets;
   return WpJ4BodyPdf;
 }
 
 RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
   ws_.var(params_.var)->setRange("RangeForPlot", params_.minMass, 
 				 params_.maxMass);
-  RooPlot * sframe = ws_.var(params_.var)->frame(params_.minMass, 
-						 params_.maxMass, 
-						 params_.nbins);
+  RooAbsBinning& plotBins =  ws_.var(params_.var)->getBinning("plotBinning");
+  ws_.var(params_.var)->setBinning(plotBins);
+//   ws_.var(params_.var)->Print("v");
+  RooPlot * sframe = ws_.var(params_.var)->frame();
   sframe->SetName("mass_stacked");
   RooAbsData * data = ws_.data("data");
   RooAddPdf * totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf"));
@@ -888,12 +904,20 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
   RooArgList components(totalPdf->pdfList());
 
 //   components.Print("v");
-  data->plotOn(sframe, RooFit::DataError(errorType_), RooFit::Name("h_data"),
+  data->plotOn(sframe, RooFit::DataError(errorType_), 
+	       RooFit::Binning(plotBins),
+	       RooFit::Name("h_data"),
 	       RooFit::Invisible());
 
   int comp(1);
+  double nexp(totalPdf->expectedEvents(RooArgSet(*(ws_.var(params_.var)))));
+  std::cout << "totalPdf expected: " << nexp << '\n'
+	    << "frame NEvt: " << sframe->getFitRangeNEvt() << '\n'
+	    << "frame BinW: " << sframe->getFitRangeBinW() << '\n'
+	    << '\n';
   totalPdf->plotOn(sframe,ProjWData(*data), DrawOption("LF"), FillStyle(1001),
 		   FillColor(kOrange), LineColor(kOrange), Name("h_total"),
+		   NormRange("RangeForPlot"),
 		   VLines(), Range("RangeForPlot"));
   RooCurve * tmpCurve = sframe->getCurve("h_total");
   tmpCurve->SetTitle("WW/WZ");
@@ -914,6 +938,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     totalPdf->plotOn(sframe, ProjWData(*data), FillColor(linec), 
 		     Name(pdfName),
 		     DrawOption("LF"), Range("RangeForPlot"),
+		     NormRange("RangeForPlot"),
 		     Components(RooArgSet(components)), VLines(),
 		     FillStyle(1001), LineColor(linec));
     components.remove(components[0]);
@@ -942,7 +967,8 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     }
     ++comp;
   }
-  data->plotOn(sframe, RooFit::DataError(errorType_), Name("theData"));
+  data->plotOn(sframe, RooFit::DataError(errorType_), Name("theData"),
+	       RooFit::Binning(plotBins));
   RooHist * tmpHist = sframe->getHist("theData");
   tmpHist->SetTitle("data");
   TLegend * legend = RooWjjFitterUtils::legend4Plot(sframe);
@@ -982,19 +1008,18 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf4"));
   RooCurve * tmpCurve;
   if (pdfName.Length() > 0) {
-    data->plotOn(rframe, RooFit::Invisible());
+    data->plotOn(rframe, RooFit::Invisible(), RooFit::Binning("plotBinning"));
     totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
 		     DrawOption("LF"), VLines(), FillStyle(1001),
-		     FillColor(kOrange), Name("h_diboson"), LineColor(kOrange),
-		     Range("RangeForPlot"));
+		     FillColor(kOrange), Name("h_diboson"), 
+		     LineColor(kOrange), Range("RangeForPlot"));
     tmpCurve = rframe->getCurve("h_diboson");
     tmpCurve->SetTitle("WW/WZ");
     if (params_.doNewPhysics) {
       totalPdf->plotOn(rframe, ProjWData(*data), Components("NPPdf"),
 		       DrawOption("LF"), VLines(), FillStyle(1001),
 		       FillColor(kCyan+2), Name("h_NP"),
-		       LineColor(kCyan+2),
-		       Range("RangeForPlot"));
+		       LineColor(kCyan+2), Range("RangeForPlot"));
       tmpCurve = rframe->getCurve("h_NP");
       tmpCurve->SetTitle("new physics");
     }
@@ -1127,32 +1152,32 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //   int tmpBins((xMax-xMin)/(params_.maxMass-params_.minMass)*params_.nbins 
 // 	      + 0.5);
 
-  TH1D th1wpjHi(histName + "_Hi", histName, params_.nbins, 
-		params_.minMass, params_.maxMass);
-  th1wpjHi.Sumw2();
-  TH1D th1wpjLo(histName + "_Lo", histName, params_.nbins, 
-		params_.minMass, params_.maxMass);
-  th1wpjLo.Sumw2();
+  TH1 * th1wpjHi = utils_.newEmptyHist(histName + "_Hi");
+  TH1 * th1wpjLo = utils_.newEmptyHist(histName + "_Lo");
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.muonData, 
-			       histName + "_Hi_mu", 1, false, 1., cutsSBHi);
-    th1wpjHi.Add(tmpHist);
+			       histName + "_Hi_mu", false, 1, false, 1., 
+			       cutsSBHi);
+    th1wpjHi->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.muonData, 
-			       histName + "_Lo_mu", 1, false, 1., cutsSBLo);
-    th1wpjLo.Add(tmpHist);
+			       histName + "_Lo_mu", false, 1, false, 1., 
+			       cutsSBLo);
+    th1wpjLo->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.electronData, 
-			       histName + "_Hi_el", 1, false, 1., cutsSBHi);
-    th1wpjHi.Add(tmpHist);
+			       histName + "_Hi_el", true, 1, false, 1., 
+			       cutsSBHi);
+    th1wpjHi->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.electronData, 
-			       histName + "_Lo_el", 1, false, 1., cutsSBLo);
-    th1wpjLo.Add(tmpHist);
+			       histName + "_Lo_el", true, 1, false, 1., 
+			       cutsSBLo);
+    th1wpjLo->Add(tmpHist);
     delete tmpHist;
   }
 
@@ -1160,7 +1185,7 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //   th1wpjHi.Draw();
 //   gPad->WaitPrimitive();
 
-  subtractHistogram(th1wpjHi, HighSB, xMin, xMax, fitter2body, shapesSBHi);
+  subtractHistogram(*th1wpjHi, HighSB, xMin, xMax, fitter2body, shapesSBHi);
 
 //   th1wpjHi.Print();
 //   th1wpjHi.Draw();
@@ -1170,18 +1195,21 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //   th1wpjLo.Draw();
 //   gPad->WaitPrimitive();
 
-  subtractHistogram(th1wpjLo, LowSB, xMin, xMax, fitter2body, shapesSBLo);
+  subtractHistogram(*th1wpjLo, LowSB, xMin, xMax, fitter2body, shapesSBLo);
 
 //   th1wpjLo.Print();
 //   th1wpjLo.Draw();
 //   gPad->WaitPrimitive();
 
-  th1wpjHi.Scale(1./th1wpjHi.Integral());
-  th1wpjLo.Scale(1./th1wpjLo.Integral());
+  th1wpjHi->Scale(1./th1wpjHi->Integral());
+  th1wpjLo->Scale(1./th1wpjLo->Integral());
 
-  th1wpjHi.Add(&th1wpjLo, &th1wpjHi, alpha, 1. - alpha);
+  th1wpjHi->Add(th1wpjLo, th1wpjHi, alpha, 1. - alpha);
 
-  return dynamic_cast<TH1 *>(th1wpjHi.Clone(histName));
+  delete th1wpjLo;
+  th1wpjHi->SetName(histName);
+
+  return th1wpjHi;
 }
 
 void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
@@ -1204,8 +1232,8 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
   TH1 * tempHist;
 
   int nbins = hist.GetNbinsX(), ibin;
-  double xMin = hist.GetBinLowEdge(1);
-  double xMax = hist.GetBinLowEdge(nbins+1);
+//   double xMin = hist.GetBinLowEdge(1);
+//   double xMax = hist.GetBinLowEdge(nbins+1);
   double x;
   for (int comp = 0; comp < 5; ++comp) {
     switch (comp) {
@@ -1239,9 +1267,7 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
 						   RooFit::NormSet(*mass),
 						   RooFit::Range("sideband"));
     tempHist = 
-      shapesSB.ws_.pdf(pdfName)->createHistogram(pdfName + "_tempHist", *m4b, 
-						 RooFit::Binning(nbins,
-								 xMin, xMax));
+      shapesSB.ws_.pdf(pdfName)->createHistogram(pdfName + "_tempHist", *m4b);
     tempHist->Scale( fitter2body.ws_.var(normName)->getVal()/tempHist->Integral() * SBInt->getVal()/fullInt->getVal() );
     for (ibin = 1; ibin <= nbins; ++ibin) {
       x = tempHist->GetBinCenter(ibin);

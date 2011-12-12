@@ -1,3 +1,4 @@
+// -*- mode: C++ -*-
 #ifndef EffTableLoader_h
 #define EffTableLoader_h
 

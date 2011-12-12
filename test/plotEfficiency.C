@@ -138,12 +138,12 @@ void plotEfficiency(char* inFile, bool computeDijetMHTefficiency) {
     if(isElectronTree) {
       recoSFLep = scaleFactorEleReco.GetEfficiency( lepton_pt, lepton_eta );
       idSFLep = scaleFactorEleId.GetEfficiency( lepton_pt, lepton_eta );
-      hltEffLep = effMu.GetEfficiency( lepton_pt, lepton_eta );
+      hltEffLep = effEle.GetEfficiency( lepton_pt, lepton_eta );
     }
     else {
       recoSFLep = 1.0;
       idSFLep = scaleFactorMuId.GetEfficiency( lepton_pt, lepton_eta );
-      hltEffLep = effEle.GetEfficiency( lepton_pt, lepton_eta );
+      hltEffLep = effMu.GetEfficiency( lepton_pt, lepton_eta );
     }
     recoSFLep_branch->Fill();
     idSFLep_branch->Fill();

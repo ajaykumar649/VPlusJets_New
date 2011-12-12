@@ -36,6 +36,8 @@ import pyroot_logon
 config = __import__(opts.modeConfig)
 from ROOT import TGraph, TF1, gPad, TFile, Double, Long, gROOT
 ## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
+gROOT.ProcessLine('.L EffTableReader.cc+')
+gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+');
 from ROOT import RooWjjMjjFitter, RooFitResult, \
@@ -69,11 +71,12 @@ def optimizeVar (optVar, start, step, iteration, tryFit = True,
 
         fr = theFitter.fit()
         nll = fr.minNll()
-        chi2 = Double(0.)
-        ndf = Long(fr.floatParsFinal().getSize())
-        theFitter.computeChi2(chi2, ndf)
-        print 'chi2:', chi2, 'dof:', ndf, 'nll:',nll
+##         chi2 = Double(0.)
+##         ndf = Long(3)
+##         theFitter.computeChi2(chi2, ndf)
+##         print 'chi2:', chi2, 'dof:', ndf, 'nll:',nll
         FOM = nll
+        print 'nll:',nll
         if FOM < minFOM:
             minFOM = FOM
             minVal = newVal
