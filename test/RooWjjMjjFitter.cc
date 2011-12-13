@@ -328,7 +328,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   if (params_.fitToyDataset) {
     RooDataSet * tds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
 					   params_.toydataFile, 
-					   "data_muon", 
+					   "data_muon",false,
 					   trunc, true);
     tds->Print();
 

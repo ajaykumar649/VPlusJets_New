@@ -214,15 +214,19 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
     return 0;
   }
 
-  activateBranches(*theTree, isElectron);
-  TFile holder("holder_DELETE_ME.root", "recreate");
-  TTree * reducedTree = theTree->CopyTree( ((noCuts) ? "" : fullCuts(trunc)) );
+  TTree * reducedTree = theTree;
+
+  if (!noCuts) {
+    activateBranches(*theTree, isElectron);
+    TFile holder("holder_DELETE_ME.root", "recreate");
+    reducedTree = theTree->CopyTree( fullCuts(trunc) );
+  }
 
   RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
 				   RooArgSet(*mjj_));
 
   delete reducedTree;
-  delete theTree;
+  //  delete theTree;
   delete treeFile;
 
   return ds;
