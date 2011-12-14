@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.10 2011/12/01 20:18:29 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.11 2011/12/04 18:03:33 theofil Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "TTree.h"
 #include "TLorentzVector.h"
 #include "TH1I.h"
+#include "TH1F.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -92,6 +93,9 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 
 //
 // class declaration
@@ -170,6 +174,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       TTree *myTree_;
       // ---- histogram to record the number of events ------------------
       TH1I  *hRecoLeptons_,*hGenLeptons_;
+      TH1F  *hMuMuMass_,*hElElMass_,*hElElEBMass_,*hElMuMass_;
       // ---- simulated in-time pile-up ---------------------------------
       TH1D  *mcPU_;
       // ---- flag to set the JEC uncertainty object --------------------
@@ -182,7 +187,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       bool          mIsMC;
       int           mMinNjets;
       double        mMinJetPt,mMaxJetEta,mMinLepPt,mMaxLepEta,mMaxCombRelIso03,mJetLepIsoR,mMinLLMass;
-      string        mJECservice,mPayloadName;
+      string        mJECserviceMC, mJECserviceDATA, mPayloadName;
       edm::InputTag mJetsName,mSrcRho;
       // ---- tree variables --------------------------------------------
       // ---- event number ----------------------------------------------
@@ -262,6 +267,8 @@ class ZJetsExpress : public edm::EDAnalyzer {
       int   pu_,puINT_,puOOT_;
       // ---- RECO, GEN accepted flags for MC ---------------------------
       int selRECO_,selGEN_;
+      // ---- MC weight
+      float mcWeight_;
 };
 //
 // class omplemetation
@@ -269,7 +276,6 @@ class ZJetsExpress : public edm::EDAnalyzer {
 // ---- constructor -----------------------------------------------------
 ZJetsExpress::ZJetsExpress(const ParameterSet& iConfig)
 {
-  mIsMC             = iConfig.getParameter<bool>          ("isMC");
   mMinNjets         = iConfig.getParameter<int>           ("minNjets");   
   mJetLepIsoR       = iConfig.getParameter<double>        ("jetLepIsoRadius");
   mMinJetPt         = iConfig.getParameter<double>        ("minJetPt");
@@ -280,7 +286,8 @@ ZJetsExpress::ZJetsExpress(const ParameterSet& iConfig)
   mMaxCombRelIso03  = iConfig.getParameter<double>        ("maxCombRelIso03");
   mJetsName         = iConfig.getParameter<edm::InputTag> ("jets");
   mSrcRho           = iConfig.getParameter<edm::InputTag> ("srcRho");
-  mJECservice       = iConfig.getParameter<std::string>   ("jecService");
+  mJECserviceDATA   = iConfig.getParameter<std::string>   ("jecServiceDATA");
+  mJECserviceMC     = iConfig.getParameter<std::string>   ("jecServiceMC");
   mPayloadName      = iConfig.getParameter<std::string>   ("payload");
 }
 // ---- destructor ------------------------------------------------------
@@ -292,9 +299,11 @@ void ZJetsExpress::beginJob()
 {
   // ---- create the objects --------------------------------------------
   hRecoLeptons_ = fTFileService->make<TH1I>("RecoLeptons", "RecoLeptons",6,-1,5);
-  if (mIsMC) {
-    hGenLeptons_ = fTFileService->make<TH1I>("GenLeptons", "GenLeptons",6,-1,5);
-  }
+  hGenLeptons_  = fTFileService->make<TH1I>("GenLeptons", "GenLeptons",6,-1,5);
+  hMuMuMass_    = fTFileService->make<TH1F>("MuMuMass", "MuMuMass",300,50,160);
+  hElElMass_    = fTFileService->make<TH1F>("ElElMass", "ElElMass",300,50,160);
+  hElElEBMass_  = fTFileService->make<TH1F>("ElElEBMass", "ElElEBMass",300,50,160);
+  hElMuMass_    = fTFileService->make<TH1F>("ElMuMass", "ElMuMass",300,50,160);
   mcPU_         = fTFileService->make<TH1D>("mcPU", "mcPU",40,0,40);
   myTree_       = fTFileService->make<TTree>("events", "events");
   // ---- build the tree ------------------------------------------------
@@ -310,10 +319,11 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   // ---- initialize the tree branches ----------------------------------
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
+
   // ----  MC truth block -----------------------------------------------
   vector<GENLEPTON>      myGenLeptons;
   vector<TLorentzVector> myGenJets;  
-  if (mIsMC) {
+  if (!isRealData_) {
     hGenLeptons_->Fill(-1);
     // ---- PU ----------------------------------------------------------
     Handle<vector<PileupSummaryInfo> > pileupInfo;
@@ -329,6 +339,11 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     }// PUI loop
     pu_ = puINT_+puOOT_;
     mcPU_->Fill(puINT_);
+    // --- MC weight
+    Handle<GenEventInfoProduct> geninfo;  
+    iEvent.getByLabel("generator",geninfo);
+    mcWeight_ = geninfo->weight();
+    // --- Gen Jets
     Handle<GenJetCollection> genjets;
     iEvent.getByLabel("ak5GenJets",genjets);
     Handle<GenParticleCollection> gen;
@@ -526,7 +541,8 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(mJetsName,jets_);
   vector<JET> myJets;
   //---- get the jet energy corrector -----------------------------------
-  mJEC = JetCorrector::getJetCorrector(mJECservice,iSetup);
+  if(isRealData_)mJEC = JetCorrector::getJetCorrector(mJECserviceDATA,iSetup);
+  if(!isRealData_)mJEC = JetCorrector::getJetCorrector(mJECserviceMC,iSetup);
   //---- the JEC uncertainty only needs to be set-up once ---------------
   if (!mIsJECuncSet) {
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
@@ -633,12 +649,21 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   nJets_       = int(myJets.size());
   nLeptonsGEN_ = int(myGenLeptons.size()); 
   nJetsGEN_    = int(myGenJets.size()); 
+  // ---- plot some inclusive di-lepton spectra (prior jet requirement)
+  if(nLeptons_>1)
+  {
+    int dileptonId = myLeptons[0].chid*myLeptons[1].chid;
+    if(dileptonId==-4)hMuMuMass_->Fill(llP4.M());
+    if(dileptonId==-1)hElElMass_->Fill(llP4.M());
+    if(dileptonId==-1 && abs(myLeptons[0].p4.Eta())<1.4 && abs(myLeptons[1].p4.Eta())<1.4)hElElEBMass_->Fill(llP4.M());
+    if(dileptonId==-2)hElMuMass_->Fill(llP4.M());
+  }
   // ---- keep only selected events -------------------------------------
   bool selectionRECO = ((nVtx_ > 0) && (nLeptons_ > 1) && (nJets_ >= mMinNjets) && llP4.M()>mMinLLMass);
   bool selection(selectionRECO);
   bool selectionGEN(false);
   selRECO_ = 0;
-  if (mIsMC) {
+  if (!isRealData_) {
     selectionGEN = ((nLeptonsGEN_ > 1) && (nJetsGEN_ >= mMinNjets) && llP4GEN.M()>mMinLLMass); 
     selection +=  selectionGEN;
     selGEN_ = 0;
@@ -647,7 +672,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     eventNum_   = iEvent.id().event();
     runNum_     = iEvent.id().run();
     lumi_       = iEvent.luminosityBlock();
-    isRealData_ = iEvent.isRealData() ? 1:0;
+    isRealData_ = isRealData_; // just pass through 
     rho_        = *rho; 
     pfmet_      = (pfmetCol_->front()).pt();
     pfmetPhi_   = (pfmetCol_->front()).phi();
@@ -827,19 +852,17 @@ void ZJetsExpress::buildTree()
   jetId_             = new std::vector<int>();
   vtxZ_              = new std::vector<float>();
   vtxNdof_           = new std::vector<float>();
-  if (mIsMC) { 
-    lepPtGEN_        = new std::vector<float>();
-    lepEtaGEN_       = new std::vector<float>();
-    lepPhiGEN_       = new std::vector<float>();
-    lepEGEN_         = new std::vector<float>(); 
-    lepChIdGEN_      = new std::vector<int>();
-    jetPtGEN_        = new std::vector<float>(); 
-    jetEtaGEN_       = new std::vector<float>();
-    jetPhiGEN_       = new std::vector<float>();
-    jetEGEN_         = new std::vector<float>();
-    jetYGEN_         = new std::vector<float>();
-    jetllDPhiGEN_    = new std::vector<float>();
-  }
+  lepPtGEN_          = new std::vector<float>();
+  lepEtaGEN_         = new std::vector<float>();
+  lepPhiGEN_         = new std::vector<float>();
+  lepEGEN_           = new std::vector<float>(); 
+  lepChIdGEN_        = new std::vector<int>();
+  jetPtGEN_          = new std::vector<float>(); 
+  jetEtaGEN_         = new std::vector<float>();
+  jetPhiGEN_         = new std::vector<float>();
+  jetEGEN_           = new std::vector<float>();
+  jetYGEN_           = new std::vector<float>();
+  jetllDPhiGEN_      = new std::vector<float>();
   // ---- global event variables ----------------------------------------
   myTree_->Branch("isRealData"       ,&isRealData_        ,"isRealData/I");
   myTree_->Branch("selRECO"          ,&selRECO_           ,"selRECO/I");
@@ -907,45 +930,42 @@ void ZJetsExpress::buildTree()
   // ---- vertex variables ----------------------------------------------
   myTree_->Branch("vtxZ"             ,"vector<float>"     ,&vtxZ_);
   myTree_->Branch("vtxNdof"          ,"vector<float>"     ,&vtxNdof_);
-  // ---- simulated pu variables ----------------------------------------
-  if (mIsMC) { 
-    myTree_->Branch("selGEN"           ,&selGEN_            ,"selGEN/I");
-    myTree_->Branch("pu"               ,&pu_                ,"pu/I");
-    myTree_->Branch("puINT"            ,&puINT_             ,"puINT/I");
-    myTree_->Branch("puOOT"            ,&puOOT_             ,"puOOT/I");
-    myTree_->Branch("nLeptonsGEN"      ,&nLeptonsGEN_       ,"nLeptonsGEN/I");
-    myTree_->Branch("nJetsGEN"         ,&nJetsGEN_          ,"nJetsGEN/I");
-    myTree_->Branch("isZleadGEN"       ,&isZleadGEN_        ,"isZleadGEN/I");
-    myTree_->Branch("mZj1GEN"          ,&mZj1GEN_           ,"mZj1GEN/F");
-    myTree_->Branch("ptZj1GEN"         ,&ptZj1GEN_          ,"ptZj1GEN/F");
-    myTree_->Branch("costhetaZj1GEN"   ,&costhetaZj1GEN_    ,"costhetaZj1GEN/F");
-    myTree_->Branch("mj1j2GEN"         ,&mj1j2GEN_          ,"mj1j2GEN/F");
-    myTree_->Branch("mLepGEN"          ,&mLepGEN_           ,"mLepGEN/F");
-    myTree_->Branch("htLeadGEN"        ,&htLeadGEN_         ,"htLeadGEN/F");
-    myTree_->Branch("j1j2DPhiGEN"      ,&j1j2DPhiGEN_       ,"j1j2DPhiGEN/F");
-    myTree_->Branch("j1j3DPhiGEN"      ,&j1j3DPhiGEN_       ,"j1j3DPhiGEN/F");
-    myTree_->Branch("j2j3DPhiGEN"      ,&j2j3DPhiGEN_       ,"j2j3DPhiGEN/F");
-    myTree_->Branch("j1j2DRGEN"        ,&j1j2DRGEN_         ,"j1j2DRGEN/F");
-    myTree_->Branch("j1j3DRGEN"        ,&j1j3DRGEN_         ,"j1j3DRGEN/F");
-    myTree_->Branch("j2j3DRGEN"        ,&j2j3DRGEN_         ,"j2j3DRGEN/F");
-    myTree_->Branch("jetPtGeMeanGEN"   ,&jetPtGeMeanGEN_    ,"jetPtGeMeanGEN/F");
-    myTree_->Branch("jetPtArMeanGEN"   ,&jetPtArMeanGEN_    ,"jetPtArMeanGEN/F");
-    myTree_->Branch("llMGEN"           ,&llMGEN_            ,"llMGEN/F");
-    myTree_->Branch("llPtGEN"          ,&llPtGEN_           ,"llPtGEN/F");
-    myTree_->Branch("llPhiGEN"         ,&llPhiGEN_          ,"llPhiGEN/F");
-    myTree_->Branch("llDPhiGEN"        ,&llDPhiGEN_         ,"llDPhiGEN/F");
-    myTree_->Branch("llYGEN"           ,&llYGEN_            ,"llYGEN/F");
-    myTree_->Branch("lepPtGEN"         ,"vector<float>"     ,&lepPtGEN_);
-    myTree_->Branch("lepEtaGEN"        ,"vector<float>"     ,&lepEtaGEN_);
-    myTree_->Branch("lepPhiGEN"        ,"vector<float>"     ,&lepPhiGEN_);
-    myTree_->Branch("lepEGEN"          ,"vector<float>"     ,&lepEGEN_);
-    myTree_->Branch("lepChIdGEN"       ,"vector<int>"       ,&lepChIdGEN_);
-    myTree_->Branch("jetPtGEN"         ,"vector<float>"     ,&jetPtGEN_);
-    myTree_->Branch("jetEtaGEN"        ,"vector<float>"     ,&jetEtaGEN_);
-    myTree_->Branch("jetPhiGEN"        ,"vector<float>"     ,&jetPhiGEN_);
-    myTree_->Branch("jetEGEN"          ,"vector<float>"     ,&jetEGEN_);
-    myTree_->Branch("jetllDPhiGEN"     ,"vector<float>"     ,&jetllDPhiGEN_);
-  }
+  myTree_->Branch("pu"               ,&pu_                ,"pu/I");
+  myTree_->Branch("puINT"            ,&puINT_             ,"puINT/I");
+  myTree_->Branch("puOOT"            ,&puOOT_             ,"puOOT/I");
+  myTree_->Branch("nLeptonsGEN"      ,&nLeptonsGEN_       ,"nLeptonsGEN/I");
+  myTree_->Branch("nJetsGEN"         ,&nJetsGEN_          ,"nJetsGEN/I");
+  myTree_->Branch("isZleadGEN"       ,&isZleadGEN_        ,"isZleadGEN/I");
+  myTree_->Branch("mZj1GEN"          ,&mZj1GEN_           ,"mZj1GEN/F");
+  myTree_->Branch("ptZj1GEN"         ,&ptZj1GEN_          ,"ptZj1GEN/F");
+  myTree_->Branch("costhetaZj1GEN"   ,&costhetaZj1GEN_    ,"costhetaZj1GEN/F");
+  myTree_->Branch("mj1j2GEN"         ,&mj1j2GEN_          ,"mj1j2GEN/F");
+  myTree_->Branch("mLepGEN"          ,&mLepGEN_           ,"mLepGEN/F");
+  myTree_->Branch("htLeadGEN"        ,&htLeadGEN_         ,"htLeadGEN/F");
+  myTree_->Branch("j1j2DPhiGEN"      ,&j1j2DPhiGEN_       ,"j1j2DPhiGEN/F");
+  myTree_->Branch("j1j3DPhiGEN"      ,&j1j3DPhiGEN_       ,"j1j3DPhiGEN/F");
+  myTree_->Branch("j2j3DPhiGEN"      ,&j2j3DPhiGEN_       ,"j2j3DPhiGEN/F");
+  myTree_->Branch("j1j2DRGEN"        ,&j1j2DRGEN_         ,"j1j2DRGEN/F");
+  myTree_->Branch("j1j3DRGEN"        ,&j1j3DRGEN_         ,"j1j3DRGEN/F");
+  myTree_->Branch("j2j3DRGEN"        ,&j2j3DRGEN_         ,"j2j3DRGEN/F");
+  myTree_->Branch("jetPtGeMeanGEN"   ,&jetPtGeMeanGEN_    ,"jetPtGeMeanGEN/F");
+  myTree_->Branch("jetPtArMeanGEN"   ,&jetPtArMeanGEN_    ,"jetPtArMeanGEN/F");
+  myTree_->Branch("llMGEN"           ,&llMGEN_            ,"llMGEN/F");
+  myTree_->Branch("llPtGEN"          ,&llPtGEN_           ,"llPtGEN/F");
+  myTree_->Branch("llPhiGEN"         ,&llPhiGEN_          ,"llPhiGEN/F");
+  myTree_->Branch("llDPhiGEN"        ,&llDPhiGEN_         ,"llDPhiGEN/F");
+  myTree_->Branch("llYGEN"           ,&llYGEN_            ,"llYGEN/F");
+  myTree_->Branch("lepPtGEN"         ,"vector<float>"     ,&lepPtGEN_);
+  myTree_->Branch("lepEtaGEN"        ,"vector<float>"     ,&lepEtaGEN_);
+  myTree_->Branch("lepPhiGEN"        ,"vector<float>"     ,&lepPhiGEN_);
+  myTree_->Branch("lepEGEN"          ,"vector<float>"     ,&lepEGEN_);
+  myTree_->Branch("lepChIdGEN"       ,"vector<int>"       ,&lepChIdGEN_);
+  myTree_->Branch("jetPtGEN"         ,"vector<float>"     ,&jetPtGEN_);
+  myTree_->Branch("jetEtaGEN"        ,"vector<float>"     ,&jetEtaGEN_);
+  myTree_->Branch("jetPhiGEN"        ,"vector<float>"     ,&jetPhiGEN_);
+  myTree_->Branch("jetEGEN"          ,"vector<float>"     ,&jetEGEN_);
+  myTree_->Branch("jetllDPhiGEN"     ,"vector<float>"     ,&jetllDPhiGEN_);
+  myTree_->Branch("mcWeight"         ,&mcWeight_          ,"mcWeight/F");
 }
 // ---- method for tree initialization ----------------------------------
 void ZJetsExpress::clearTree()
@@ -1011,46 +1031,45 @@ void ZJetsExpress::clearTree()
   jetId_             ->clear();
   vtxZ_              ->clear();
   vtxNdof_           ->clear();
-  if (mIsMC) {
-    selGEN_            = -999;
-    pu_                = -999;
-    puINT_             = -999;
-    puOOT_             = -999;
-    isRealData_        = -999;
-    nLeptonsGEN_       = -999;
-    nJetsGEN_          = -999;
-    isZleadGEN_        = -999;
-    mZj1GEN_           = -999; 
-    ptZj1GEN_          = -999; 
-    costhetaZj1GEN_    = -999; 
-    mj1j2GEN_          = -999;
-    mLepGEN_           = -999;
-    htLeadGEN_         = -999;
-    jetPtGeMeanGEN_    = -999;
-    jetPtArMeanGEN_    = -999; 
-    j1j2DPhiGEN_       = -999;
-    j1j3DPhiGEN_       = -999; 
-    j2j3DPhiGEN_       = -999;
-    j1j2DRGEN_         = -999;
-    j1j3DRGEN_         = -999; 
-    j2j3DRGEN_         = -999;
-    llMGEN_            = -999;
-    llPtGEN_           = -999; 
-    llPhiGEN_          = -999;
-    llDPhiGEN_         = -999;
-    llYGEN_            = -999;
-    lepPtGEN_          ->clear();
-    lepEtaGEN_         ->clear();
-    lepPhiGEN_         ->clear();
-    lepEGEN_           ->clear();
-    lepChIdGEN_        ->clear();
-    jetPtGEN_          ->clear();
-    jetEtaGEN_         ->clear();
-    jetPhiGEN_         ->clear();
-    jetEGEN_           ->clear();
-    jetYGEN_           ->clear();
-    jetllDPhiGEN_      ->clear();
-  }
+  selGEN_            = -999;
+  pu_                = -999;
+  puINT_             = -999;
+  puOOT_             = -999;
+  isRealData_        = -999;
+  nLeptonsGEN_       = -999;
+  nJetsGEN_          = -999;
+  isZleadGEN_        = -999;
+  mZj1GEN_           = -999; 
+  ptZj1GEN_          = -999; 
+  costhetaZj1GEN_    = -999; 
+  mj1j2GEN_          = -999;
+  mLepGEN_           = -999;
+  htLeadGEN_         = -999;
+  jetPtGeMeanGEN_    = -999;
+  jetPtArMeanGEN_    = -999; 
+  j1j2DPhiGEN_       = -999;
+  j1j3DPhiGEN_       = -999; 
+  j2j3DPhiGEN_       = -999;
+  j1j2DRGEN_         = -999;
+  j1j3DRGEN_         = -999; 
+  j2j3DRGEN_         = -999;
+  llMGEN_            = -999;
+  llPtGEN_           = -999; 
+  llPhiGEN_          = -999;
+  llDPhiGEN_         = -999;
+  llYGEN_            = -999;
+  lepPtGEN_          ->clear();
+  lepEtaGEN_         ->clear();
+  lepPhiGEN_         ->clear();
+  lepEGEN_           ->clear();
+  lepChIdGEN_        ->clear();
+  jetPtGEN_          ->clear();
+  jetEtaGEN_         ->clear();
+  jetPhiGEN_         ->clear();
+  jetEGEN_           ->clear();
+  jetYGEN_           ->clear();
+  jetllDPhiGEN_      ->clear();
+  mcWeight_          = -999;
 }
 // ---- define this as a plug-in ----------------------------------------
 DEFINE_FWK_MODULE(ZJetsExpress);
