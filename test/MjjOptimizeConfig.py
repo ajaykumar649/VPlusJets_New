@@ -5,17 +5,17 @@ from ROOT import RooWjjFitterParams
 
 def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars = RooWjjFitterParams()
-    fitterPars.MCDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.WpJDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
+    fitterPars.MCDirectory = '/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree/RD_'
+    fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = True
-    fitterPars.QCDDirectory = '/uscms_data/d1/kalanand/WjjTrees/NewReducedQCDTrees/'
+    fitterPars.QCDDirectory = '/uscms_data/d2/kalanand/WjjTrees/NewReducedQCDTrees/'
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
-    fitterPars.DataDirectory = '/uscms_data/d1/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_2p1invfb.root'
-    fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_2p1invfb_SinglE_EleH.root'
+    fitterPars.DataDirectory = fitterPars.MCDirectory
+    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
+    fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
     fitterPars.fitToyDataset = False
     fitterPars.ToyDatasetDirectory = '/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSets/'
@@ -23,6 +23,7 @@ def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.minMass = 60.
     fitterPars.maxMass = 400.
     fitterPars.nbins = 34
+    fitterPars.intLumi = 4700.
 
 ##     fitterPars.binEdges.push_back(fitterPars.minMass)
 
@@ -37,31 +38,6 @@ def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
 
     print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
-##     binEdge = fitterPars.minMass + 5.
-##     while (binEdge <= 80.) and (binEdge <= fitterPars.maxMass):
-##         fitterPars.binEdges.push_back(binEdge)
-##         binEdge += 5.
-
-##     binEdge += 5.
-##     while (binEdge <= 170.) and (binEdge <= fitterPars.maxMass):
-##         fitterPars.binEdges.push_back(binEdge)
-##         binEdge += 10.
-
-##     binEdge += 5.
-##     while (binEdge <= 240) and (binEdge <= fitterPars.maxMass):
-##         fitterPars.binEdges.push_back(binEdge)
-##         binEdge += 15.
-    
-##     binEdge += 5.
-##     while (binEdge <= 400) and (binEdge <= fitterPars.maxMass):
-##         fitterPars.binEdges.push_back(binEdge)
-##         binEdge += 20.
-
-##     binEdge += 5.
-##     while (binEdge <= fitterPars.maxMass):
-##         fitterPars.binEdges.push_back(binEdge)
-##         binEdge += 25.
-
     fitterPars.truncRange = True
     fitterPars.minTrunc = 130.
 

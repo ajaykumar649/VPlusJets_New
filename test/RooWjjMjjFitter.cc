@@ -354,7 +354,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
     if (params_.includeMuons) {
       RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
 					     params_.muonData, "data_muon", 
-					     false, trunc);
+					     false, trunc, false);
       mds->Print();
 
       /// Note: for the 2+3 jets we use the 2jet bin coefficients
@@ -371,7 +371,8 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
     if (params_.includeElectrons) {
       RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
 					     params_.electronData, 
-					     "data_electron", true, trunc);
+					     "data_electron", true, trunc, 
+					     false);
       eds->Print();
       if ( params_.njets==3 ) {
 	QCDNorm_ += rel3jet*eds->sumEntries();
@@ -574,14 +575,14 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_TTbar_MG_CMSSW428.root",
+			       "mu_TTbar_CMSSW428.root",
 			       "hist_tt_mu", false, 1, false, ttScale);
     th1tt->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_TTbar_MG_CMSSW428.root",
+			       "el_TTbar_CMSSW428.root",
 			       "hist_tt_el", true, 1, false, ttScale);
     th1tt->Add(tmpHist);
     delete tmpHist;
@@ -1032,8 +1033,8 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   rframe->addObject(legend);
 
   if (!normalize) {
-    rframe->SetMaximum(600.);
-    rframe->SetMinimum(-100.);
+    rframe->SetMaximum(initDiboson_*(0.6));
+    rframe->SetMinimum(initDiboson_*(-0.15));
   } else {
     rframe->SetMaximum(5.);
     rframe->SetMinimum(-5.);

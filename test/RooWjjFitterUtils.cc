@@ -216,17 +216,18 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
 
   TTree * reducedTree = theTree;
 
+  TFile holder("holder_DELETE_ME.root", "recreate");
   if (!noCuts) {
     activateBranches(*theTree, isElectron);
-    TFile holder("holder_DELETE_ME.root", "recreate");
     reducedTree = theTree->CopyTree( fullCuts(trunc) );
+    delete theTree;
   }
 
+  //reducedTree->Print();
   RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
 				   RooArgSet(*mjj_));
 
   delete reducedTree;
-  //  delete theTree;
   delete treeFile;
 
   return ds;
@@ -387,14 +388,10 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("W_pzNu1",    1);
   t.SetBranchStatus("W_pzNu2",    1);
   t.SetBranchStatus("fit_status",    1);
-  t.SetBranchStatus("gdevtt",    1);
+//   t.SetBranchStatus("gdevtt",    1);
   t.SetBranchStatus("fit_chi2",    1);
   t.SetBranchStatus("fit_NDF",    1);
-  t.SetBranchStatus("fi2_chi2",    1);
-  t.SetBranchStatus("fi2_NDF",    1);
   t.SetBranchStatus("fit_mlvjj", 1);
-  t.SetBranchStatus("fi2_mlvjj", 1);
-  t.SetBranchStatus("fi3_mlvjj", 1);
   t.SetBranchStatus("evtNJ",    1);
 
   t.SetBranchStatus("Mass2j_PFCor",    1);
