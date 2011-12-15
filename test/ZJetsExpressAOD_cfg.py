@@ -10,7 +10,7 @@ process.load('RecoJets.Configuration.RecoJets_cff')
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 # ---- format the message service ---------------------------------------
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 # ---- maximum number of events to run over -----------------------------
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 # ---- define the source ------------------------------------------------
@@ -50,6 +50,10 @@ process.accepted = cms.EDAnalyzer('ZJetsExpress',
     jecServiceDATA  = cms.string('ak5PFL1FastL2L3Residual'),
     jecServiceMC    = cms.string('ak5PFL1FastL2L3'),
     payload         = cms.string('AK5PF'),
+    processName     = cms.string('HLT'),
+    triggerName     = cms.vstring('HLT_DoubleMu6_v','HLT_DoubleMu7_v'),
+    triggerResults  = cms.InputTag("TriggerResults","","HLT"),
+    triggerEvent    = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 )
 # ---- duplicate the analyzer with different name -----------------------
 process.rejected = process.accepted.clone()

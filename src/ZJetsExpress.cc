@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.11 2011/12/04 18:03:33 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.12 2011/12/14 16:16:19 theofil Exp $
 //
 //
 
@@ -42,10 +42,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Common/interface/TriggerResultsByName.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -111,6 +117,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob();
+      virtual void beginRun(edm::Run const &, edm::EventSetup const& iSetup);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       // ---- method that builds the tree -------------------------------
@@ -174,7 +181,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       TTree *myTree_;
       // ---- histogram to record the number of events ------------------
       TH1I  *hRecoLeptons_,*hGenLeptons_;
-      TH1F  *hMuMuMass_,*hElElMass_,*hElElEBMass_,*hElMuMass_;
+      TH1F  *hMuMuMass_,*hElElMass_,*hElElEBMass_,*hElMuMass_,*hTriggerNames_,*hTriggerPass_;
       // ---- simulated in-time pile-up ---------------------------------
       TH1D  *mcPU_;
       // ---- flag to set the JEC uncertainty object --------------------
@@ -183,6 +190,15 @@ class ZJetsExpress : public edm::EDAnalyzer {
       const JetCorrector *mJEC;
       // ---- jet energy uncertainty object -----------------------------
       JetCorrectionUncertainty *mJECunc;
+      // ---- trigger ---------------------------------------------------
+      std::string   processName_;
+      std::vector<std::string> triggerNames_,triggerNamesFull_;
+      std::vector<unsigned int> triggerIndex_;
+      edm::InputTag triggerResultsTag_;
+      edm::InputTag triggerEventTag_;
+      edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
+      edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
+      HLTConfigProvider hltConfig_;
       // ---- configurable parameters -----------------------------------
       bool          mIsMC;
       int           mMinNjets;
@@ -198,6 +214,12 @@ class ZJetsExpress : public edm::EDAnalyzer {
       int lumi_;
       // ---- flag to identify real data --------------------------------
       int isRealData_;
+      // ---- trigger decisions -----------------------------------------
+      std::vector<int> *fired_;
+      // ---- L1 prescale -----------------------------------------------
+      std::vector<int> *prescaleL1_;
+      // ---- HLT prescale -----------------------------------------------
+      std::vector<int> *prescaleHLT_;
       // ---- dilepton mass ---------------------------------------------
       float llM_,llMGEN_;
       // ---- dilepton rapidity -----------------------------------------  
@@ -276,19 +298,23 @@ class ZJetsExpress : public edm::EDAnalyzer {
 // ---- constructor -----------------------------------------------------
 ZJetsExpress::ZJetsExpress(const ParameterSet& iConfig)
 {
-  mMinNjets         = iConfig.getParameter<int>           ("minNjets");   
-  mJetLepIsoR       = iConfig.getParameter<double>        ("jetLepIsoRadius");
-  mMinJetPt         = iConfig.getParameter<double>        ("minJetPt");
-  mMaxJetEta        = iConfig.getParameter<double>        ("maxJetEta");
-  mMinLepPt         = iConfig.getParameter<double>        ("minLepPt");
-  mMaxLepEta        = iConfig.getParameter<double>        ("maxLepEta");
-  mMinLLMass        = iConfig.getParameter<double>        ("minLLMass");
-  mMaxCombRelIso03  = iConfig.getParameter<double>        ("maxCombRelIso03");
-  mJetsName         = iConfig.getParameter<edm::InputTag> ("jets");
-  mSrcRho           = iConfig.getParameter<edm::InputTag> ("srcRho");
-  mJECserviceDATA   = iConfig.getParameter<std::string>   ("jecServiceDATA");
-  mJECserviceMC     = iConfig.getParameter<std::string>   ("jecServiceMC");
-  mPayloadName      = iConfig.getParameter<std::string>   ("payload");
+  mMinNjets          = iConfig.getParameter<int>                       ("minNjets");   
+  mJetLepIsoR        = iConfig.getParameter<double>                    ("jetLepIsoRadius");
+  mMinJetPt          = iConfig.getParameter<double>                    ("minJetPt");
+  mMaxJetEta         = iConfig.getParameter<double>                    ("maxJetEta");
+  mMinLepPt          = iConfig.getParameter<double>                    ("minLepPt");
+  mMaxLepEta         = iConfig.getParameter<double>                    ("maxLepEta");
+  mMinLLMass         = iConfig.getParameter<double>                    ("minLLMass");
+  mMaxCombRelIso03   = iConfig.getParameter<double>                    ("maxCombRelIso03");
+  mJetsName          = iConfig.getParameter<edm::InputTag>             ("jets");
+  mSrcRho            = iConfig.getParameter<edm::InputTag>             ("srcRho");
+  mJECserviceDATA    = iConfig.getParameter<std::string>               ("jecServiceDATA");
+  mJECserviceMC      = iConfig.getParameter<std::string>               ("jecServiceMC");
+  mPayloadName       = iConfig.getParameter<std::string>               ("payload");
+  processName_       = iConfig.getParameter<std::string>               ("processName");
+  triggerNames_      = iConfig.getParameter<std::vector<std::string> > ("triggerName");
+  triggerResultsTag_ = iConfig.getParameter<edm::InputTag>             ("triggerResults");
+  triggerEventTag_   = iConfig.getParameter<edm::InputTag>             ("triggerEvent");   
 }
 // ---- destructor ------------------------------------------------------
 ZJetsExpress::~ZJetsExpress()
@@ -298,18 +324,60 @@ ZJetsExpress::~ZJetsExpress()
 void ZJetsExpress::beginJob()
 {
   // ---- create the objects --------------------------------------------
-  hRecoLeptons_ = fTFileService->make<TH1I>("RecoLeptons", "RecoLeptons",6,-1,5);
-  hGenLeptons_  = fTFileService->make<TH1I>("GenLeptons", "GenLeptons",6,-1,5);
-  hMuMuMass_    = fTFileService->make<TH1F>("MuMuMass", "MuMuMass",300,50,160);
-  hElElMass_    = fTFileService->make<TH1F>("ElElMass", "ElElMass",300,50,160);
-  hElElEBMass_  = fTFileService->make<TH1F>("ElElEBMass", "ElElEBMass",300,50,160);
-  hElMuMass_    = fTFileService->make<TH1F>("ElMuMass", "ElMuMass",300,50,160);
-  mcPU_         = fTFileService->make<TH1D>("mcPU", "mcPU",40,0,40);
-  myTree_       = fTFileService->make<TTree>("events", "events");
+  hRecoLeptons_  = fTFileService->make<TH1I>("RecoLeptons", "RecoLeptons",6,-1,5);
+  hGenLeptons_   = fTFileService->make<TH1I>("GenLeptons", "GenLeptons",6,-1,5);
+  hMuMuMass_     = fTFileService->make<TH1F>("MuMuMass", "MuMuMass",300,50,160);
+  hElElMass_     = fTFileService->make<TH1F>("ElElMass", "ElElMass",300,50,160);
+  hElElEBMass_   = fTFileService->make<TH1F>("ElElEBMass", "ElElEBMass",300,50,160);
+  hElMuMass_     = fTFileService->make<TH1F>("ElMuMass", "ElMuMass",300,50,160);
+  hTriggerNames_ = fTFileService->make<TH1F>("TriggerNames","TriggerNames",1,0,1);
+  hTriggerNames_ ->SetBit(TH1::kCanRebin);
+  for(unsigned i=0;i<triggerNames_.size();i++)
+    hTriggerNames_->Fill(triggerNames_[i].c_str(),1);
+  hTriggerPass_  = fTFileService->make<TH1F>("TriggerPass","TriggerPass",1,0,1);
+  hTriggerPass_  ->SetBit(TH1::kCanRebin);
+  mcPU_          = fTFileService->make<TH1D>("mcPU", "mcPU",40,0,40);
+  myTree_        = fTFileService->make<TTree>("events", "events");
   // ---- build the tree ------------------------------------------------
   buildTree();
   // ---- set the jec uncertainty flag ----------------------------------
-  mIsJECuncSet = false;
+  mIsJECuncSet = false; 
+}
+// ---- method called everytime there is a new run ----------------------
+void ZJetsExpress::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+{
+  if (triggerNames_.size() > 0) {
+    bool changed(true);
+    if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
+      if (changed) {
+        triggerNamesFull_.clear();
+        // check if trigger names in (new) config
+        cout<<"New trigger menu found !!!"<<endl;
+        triggerIndex_.clear(); 
+        const unsigned int n(hltConfig_.size());
+        for(unsigned itrig=0;itrig<triggerNames_.size();itrig++) {
+          for(unsigned iName=0;iName<n;iName++) {
+            std::string ss(hltConfig_.triggerName(iName));
+            if (ss.find(triggerNames_[itrig]) == 0) {
+              triggerNamesFull_.push_back(ss);
+              continue;
+            }
+          }  
+          triggerIndex_.push_back(hltConfig_.triggerIndex(triggerNamesFull_[itrig]));
+          cout<<triggerNames_[itrig]<<" "<<triggerNamesFull_[itrig]<<" "<<triggerIndex_[itrig]<<" ";  
+          if (triggerIndex_[itrig] >= n)
+            cout<<"does not exist in the current menu"<<endl;
+          else
+            cout<<"exists"<<endl;
+        }// trigger names loop
+      }
+    } 
+    else {
+      cout << "ProcessedTreeProducer::analyze:"
+           << " config extraction failure with process name "
+           << processName_ << endl;
+    }
+  }
 }
 // ---- event loop ------------------------------------------------------
 void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
@@ -319,7 +387,45 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   // ---- initialize the tree branches ----------------------------------
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
-
+  // ----  Trigger block ------------------------------------------------
+  iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
+  if (!triggerResultsHandle_.isValid()) {
+    cout << "ProcessedTreeProducer::analyze: Error in getting TriggerResults product from Event!" << endl;
+    return;
+  }
+  iEvent.getByLabel(triggerEventTag_,triggerEventHandle_);
+  if (!triggerEventHandle_.isValid()) {
+    cout << "ProcessedTreeProducer::analyze: Error in getting TriggerEvent product from Event!" << endl;
+    return;
+  }
+  // sanity check
+  assert(triggerResultsHandle_->size() == hltConfig_.size());
+  //------ loop over all trigger names ---------
+  for(unsigned itrig=0;itrig<triggerNames_.size();itrig++) {
+    bool accept(false);
+    int preL1(-1);
+    int preHLT(-1);
+    int tmpFired(-1); 
+    
+    if (triggerIndex_[itrig] < hltConfig_.size()) {
+      accept = triggerResultsHandle_->accept(triggerIndex_[itrig]);
+      
+      const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
+      preL1  = prescales.first;
+      preHLT = prescales.second;
+      if (!accept)
+        tmpFired = 0;
+      else {
+        std::string ss(triggerNames_[itrig]); 
+        hTriggerPass_->Fill((ss.erase(ss.find("v")-1,ss.find("v"))).c_str(),1);
+        tmpFired = 1;
+      }
+    }
+    
+    fired_      ->push_back(tmpFired);
+    prescaleL1_ ->push_back(preL1);
+    prescaleHLT_->push_back(preHLT);
+  }
   // ----  MC truth block -----------------------------------------------
   vector<GENLEPTON>      myGenLeptons;
   vector<TLorentzVector> myGenJets;  
@@ -824,6 +930,9 @@ void ZJetsExpress::endJob()
 // ---- method for tree building ----------------------------------------
 void ZJetsExpress::buildTree()
 {
+  fired_             = new std::vector<int>();
+  prescaleL1_        = new std::vector<int>();
+  prescaleHLT_       = new std::vector<int>();
   lepPt_             = new std::vector<float>();
   lepEta_            = new std::vector<float>();
   lepPhi_            = new std::vector<float>();
@@ -899,6 +1008,10 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("llPhi"            ,&llPhi_             ,"llPhi/F");
   myTree_->Branch("llDPhi"           ,&llDPhi_            ,"llDPhi/F");
   myTree_->Branch("llY"              ,&llY_               ,"llY/F");
+  // ---- trigger variables ---------------------------------------------
+  myTree_->Branch("fired"            ,"vector<int>"       ,&fired_);
+  myTree_->Branch("prescaleL1"       ,"vector<int>"       ,&prescaleL1_);
+  myTree_->Branch("prescaleHLT"      ,"vector<int>"       ,&prescaleHLT_);
   // ---- lepton variables ----------------------------------------------
   myTree_->Branch("lepPt"            ,"vector<float>"     ,&lepPt_);
   myTree_->Branch("lepEta"           ,"vector<float>"     ,&lepEta_);
@@ -1003,6 +1116,9 @@ void ZJetsExpress::clearTree()
   llPhi_             = -999;
   llDPhi_            = -999;
   llY_               = -999;
+  fired_             ->clear();
+  prescaleL1_        ->clear();
+  prescaleHLT_       ->clear();
   lepPt_             ->clear();
   lepEta_            ->clear();
   lepPhi_            ->clear();
