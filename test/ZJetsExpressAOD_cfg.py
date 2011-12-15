@@ -51,7 +51,7 @@ process.accepted = cms.EDAnalyzer('ZJetsExpress',
     jecServiceMC    = cms.string('ak5PFL1FastL2L3'),
     payload         = cms.string('AK5PF'),
     processName     = cms.string('HLT'),
-    triggerName     = cms.vstring('HLT_DoubleMu6_v','HLT_DoubleMu7_v'),
+    triggerName     = cms.vstring('HLT_DoubleMu6_v','HLT_DoubleMu7_v','HLT_Mu13_Mu8_v','HLT_Mu17_Mu8_v','HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v','HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v','HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v','HLT_Mu17_Ele8_CaloIdL','HLT_Mu8_Ele17_CaloIdL','HLT_Mu8_Ele17_CaloIdT_CaloIsoVL','HLT_Mu17_Ele8_CaloIdT_CaloIsoVL'),
     triggerResults  = cms.InputTag("TriggerResults","","HLT"),
     triggerEvent    = cms.InputTag("hltTriggerSummaryAOD","","HLT")
 )

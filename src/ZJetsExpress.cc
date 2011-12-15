@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.12 2011/12/14 16:16:19 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.13 2011/12/15 14:45:55 kkousour Exp $
 //
 //
 
@@ -356,13 +356,18 @@ void ZJetsExpress::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup
         triggerIndex_.clear(); 
         const unsigned int n(hltConfig_.size());
         for(unsigned itrig=0;itrig<triggerNames_.size();itrig++) {
+          bool found(false);
           for(unsigned iName=0;iName<n;iName++) {
             std::string ss(hltConfig_.triggerName(iName));
-            if (ss.find(triggerNames_[itrig]) == 0) {
+            if (int(ss.find(triggerNames_[itrig])) > -1) {
               triggerNamesFull_.push_back(ss);
+              found = true;
               continue;
-            }
-          }  
+            } 
+          }
+          if (!found) {
+            triggerNamesFull_.push_back("");
+          }
           triggerIndex_.push_back(hltConfig_.triggerIndex(triggerNamesFull_[itrig]));
           cout<<triggerNames_[itrig]<<" "<<triggerNamesFull_[itrig]<<" "<<triggerIndex_[itrig]<<" ";  
           if (triggerIndex_[itrig] >= n)
@@ -409,13 +414,14 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     
     if (triggerIndex_[itrig] < hltConfig_.size()) {
       accept = triggerResultsHandle_->accept(triggerIndex_[itrig]);
-      
-      const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
-      preL1  = prescales.first;
-      preHLT = prescales.second;
+      if (triggerNamesFull_[itrig] != "") {
+        //const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
+        //preL1  = prescales.first;
+        //preHLT = prescales.second;
+      }  
       if (!accept)
         tmpFired = 0;
-      else {
+      else { 
         std::string ss(triggerNames_[itrig]); 
         hTriggerPass_->Fill((ss.erase(ss.find("v")-1,ss.find("v"))).c_str(),1);
         tmpFired = 1;
