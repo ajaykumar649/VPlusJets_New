@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.13 2011/12/15 14:45:55 kkousour Exp $
+// $Id: ZJetsExpress.cc,v 1.14 2011/12/15 17:58:12 kkousour Exp $
 //
 //
 
@@ -235,7 +235,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       // ---- lepton kinematics -----------------------------------------
       vector<float> *lepPt_,*lepEta_,*lepPhi_,*lepE_,*lepPtGEN_,*lepEtaGEN_,*lepPhiGEN_,*lepEGEN_;
       // ---- lepton properties ----------------------------------------- 
-      vector<int>   *lepChId_,*lepId_,*lepChIdGEN_;
+      vector<int>   *lepChId_,*lepId_,*lepChIdGEN_,*lepMatchedIndex_;
       vector<float> *lepIso_,*lepIsoPF_,*lepIsoRho_;
       // ---- number of leptons -----------------------------------------
       int nLeptons_,nLeptonsGEN_;
@@ -346,6 +346,7 @@ void ZJetsExpress::beginJob()
 // ---- method called everytime there is a new run ----------------------
 void ZJetsExpress::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
+/*
   if (triggerNames_.size() > 0) {
     bool changed(true);
     if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
@@ -383,6 +384,7 @@ void ZJetsExpress::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup
            << processName_ << endl;
     }
   }
+*/
 }
 // ---- event loop ------------------------------------------------------
 void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
@@ -392,6 +394,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   // ---- initialize the tree branches ----------------------------------
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
+/*
   // ----  Trigger block ------------------------------------------------
   iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
@@ -432,6 +435,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     prescaleL1_ ->push_back(preL1);
     prescaleHLT_->push_back(preHLT);
   }
+*/
   // ----  MC truth block -----------------------------------------------
   vector<GENLEPTON>      myGenLeptons;
   vector<TLorentzVector> myGenJets;  
@@ -883,6 +887,14 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
         lepEGEN_      ->push_back(myGenLeptons[l].p4.Energy());
         lepChIdGEN_   ->push_back(myGenLeptons[l].pdgId);
       }   
+      for(unsigned r=0; r < myLeptons.size(); r++)lepMatchedIndex_->push_back(99); //initialize array to the size of reco leptons    
+      for(unsigned r=0; r < myLeptons.size(); r++) {                               //find matched reco lepton, if there's one
+	for(unsigned l = 0; l < myGenLeptons.size(); l++) {
+            float DR = myLeptons[r].p4.DeltaR(myGenLeptons[l].p4);
+            bool isSameFlavor = (abs(myGenLeptons[l].pdgId) == 11 && abs(myLeptons[r].chid)==1) || (abs(myGenLeptons[l].pdgId) == 13 && abs(myLeptons[r].chid)==2);
+    	    if(DR<0.3 && isSameFlavor)lepMatchedIndex_->at(r) = l;                              //store genlepton matched index
+	}
+      }
       mLepGEN_ = lepP4GEN.M(); 
       vector<TLorentzVector> allP4GEN;
       allP4GEN.push_back(llP4GEN);
@@ -947,6 +959,7 @@ void ZJetsExpress::buildTree()
   lepIsoPF_          = new std::vector<float>();
   lepIsoRho_         = new std::vector<float>();
   lepChId_           = new std::vector<int>();
+  lepMatchedIndex_   = new std::vector<int>();
   lepId_             = new std::vector<int>();
   jetPt_             = new std::vector<float>(); 
   jetEta_            = new std::vector<float>();
@@ -1027,6 +1040,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("lepIsoPF"         ,"vector<float>"     ,&lepIsoPF_);
   myTree_->Branch("lepIsoRho"        ,"vector<float>"     ,&lepIsoRho_);
   myTree_->Branch("lepChId"          ,"vector<int>"       ,&lepChId_);
+  myTree_->Branch("lepMatchedIndex"  ,"vector<int>"       ,&lepMatchedIndex_);
   myTree_->Branch("lepId"            ,"vector<int>"       ,&lepId_);
   // ---- jet variables -------------------------------------------------
   myTree_->Branch("jetPt"            ,"vector<float>"     ,&jetPt_);
@@ -1133,6 +1147,7 @@ void ZJetsExpress::clearTree()
   lepIsoPF_          ->clear();
   lepIsoRho_         ->clear();
   lepChId_           ->clear();
+  lepMatchedIndex_   ->clear();
   lepId_             ->clear();
   jetPt_             ->clear();
   jetEta_            ->clear();
