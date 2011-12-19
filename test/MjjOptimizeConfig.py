@@ -5,7 +5,7 @@ from ROOT import RooWjjFitterParams
 
 def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars = RooWjjFitterParams()
-    fitterPars.MCDirectory = '/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree/RD_'
+    fitterPars.MCDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_'
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
@@ -15,27 +15,30 @@ def theConfig(Nj, e_FSU, e_FMU, mcdir = '', initFile = '', toydataFile = ''):
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
+    fitterPars.includeMuons = True
     fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_4p7invfb.root'
+    fitterPars.includeElectrons = True
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
     fitterPars.fitToyDataset = False
     fitterPars.ToyDatasetDirectory = '/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSets/'
     fitterPars.toydataFile = toydataFile
     fitterPars.minMass = 60.
-    fitterPars.maxMass = 400.
-    fitterPars.nbins = 34
+    fitterPars.maxMass = 300.
+    fitterPars.nbins = 36
     fitterPars.intLumi = 4700.
 
-##     fitterPars.binEdges.push_back(fitterPars.minMass)
+    fitterPars.binEdges.push_back(fitterPars.minMass)
 
-##     binEdge = fitterPars.minMass
-##     print binEdge,' ',
-##     while (binEdge <= fitterPars.maxMass):
-##         binEdge += round(0.1*binEdge)
-##         fitterPars.binEdges.push_back(binEdge)
-##         print binEdge,' ',
+    binEdge = fitterPars.minMass
+    print binEdge,' ',
+    while (binEdge <= fitterPars.maxMass):
+        binEdge += round(0.10*binEdge)
+        fitterPars.binEdges.push_back(binEdge)
+        print binEdge,' ',
 
+    fitterPars.binEdges[fitterPars.binEdges.size()-1] = fitterPars.maxMass
 ##     fitterPars.maxMass = fitterPars.binEdges[fitterPars.binEdges.size()-1]
-
+    
     print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
     fitterPars.truncRange = True

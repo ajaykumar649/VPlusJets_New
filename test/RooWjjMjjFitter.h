@@ -23,7 +23,7 @@ public:
   RooFitResult * fit();
   RooPlot * computeChi2(double& chi2, int& ndf);
 
-  RooAbsPdf * makeFitter();
+  RooAbsPdf * makeFitter(bool allOne = false);
   RooAbsPdf * make4BodyPdf(RooWjjMjjFitter & fitter2body);
   RooAbsData * loadData(bool trunc = false);
 

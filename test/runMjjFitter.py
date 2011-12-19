@@ -44,6 +44,9 @@ RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 fitterPars = config.theConfig(opts.Nj, opts.e_FSU, opts.e_FMU, opts.mcdir, opts.startingFile, opts.toydataFile )
 theFitter = RooWjjMjjFitter(fitterPars)
 
+theFitter.makeFitter(True)
+
+#theFitter.getWorkSpace().Print()
 fr = theFitter.fit()
 
 chi2 = Double(0.)
@@ -64,42 +67,42 @@ l.SetNDC()
 l.SetTextSize(0.035);
 l.SetTextFont(42);
 
-c1 = TCanvas("c1", "stacked")
+cstacked = TCanvas("cstacked", "stacked")
 mf.Draw()
 l.DrawLatex(0.22, 0.85,
             '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
                                                               chi2/ndf)
             )
-pyroot_logon.cmsPrelim(c1, fitterPars.intLumi/1000)
-### c1.Print('Wjj_Mjj_{0}jets_Stacked.pdf'.format(opts.Nj))
-### c1.Print('Wjj_Mjj_{0}jets_Stacked.eps'.format(opts.Nj))
-### c1.Print('Wjj_Mjj_{0}jets_Stacked.gif'.format(opts.Nj))
+pyroot_logon.cmsPrelim(cstacked, fitterPars.intLumi/1000)
+cstacked.Print('Wjj_Mjj_{0}jets_Stacked.pdf'.format(opts.Nj))
+cstacked.Print('Wjj_Mjj_{0}jets_Stacked.eps'.format(opts.Nj))
+cstacked.Print('Wjj_Mjj_{0}jets_Stacked.gif'.format(opts.Nj))
 c2 = TCanvas("c2", "stacked_log")
 c2.SetLogy()
 lf.Draw()
 pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-### c2.Print('Wjj_Mjj_{0}jets_Stacked_log.pdf'.format(opts.Nj))
-### c2.Print('Wjj_Mjj_{0}jets_Stacked_log.eps'.format(opts.Nj))
-### c2.Print('Wjj_Mjj_{0}jets_Stacked_log.gif'.format(opts.Nj))
+c2.Print('Wjj_Mjj_{0}jets_Stacked_log.pdf'.format(opts.Nj))
+c2.Print('Wjj_Mjj_{0}jets_Stacked_log.eps'.format(opts.Nj))
+c2.Print('Wjj_Mjj_{0}jets_Stacked_log.gif'.format(opts.Nj))
 c3 = TCanvas("c3", "subtracted")
 sf.Draw()
 pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-### c3.Print('Wjj_Mjj_{0}jets_Subtracted.pdf'.format(opts.Nj))
-### c3.Print('Wjj_Mjj_{0}jets_Subtracted.eps'.format(opts.Nj))
-### c3.Print('Wjj_Mjj_{0}jets_Subtracted.gif'.format(opts.Nj))
+c3.Print('Wjj_Mjj_{0}jets_Subtracted.pdf'.format(opts.Nj))
+c3.Print('Wjj_Mjj_{0}jets_Subtracted.eps'.format(opts.Nj))
+c3.Print('Wjj_Mjj_{0}jets_Subtracted.gif'.format(opts.Nj))
 c4 = TCanvas("c4", "pull")
 pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
-### c4.Print('Wjj_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
-### c4.Print('Wjj_Mjj_{0}jets_Pull.eps'.format(opts.Nj))
-### c4.Print('Wjj_Mjj_{0}jets_Pull.gif'.format(opts.Nj))
+c4.Print('Wjj_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
+c4.Print('Wjj_Mjj_{0}jets_Pull.eps'.format(opts.Nj))
+c4.Print('Wjj_Mjj_{0}jets_Pull.gif'.format(opts.Nj))
 
 h_total = mf.getCurve('h_total')
 theData = mf.getHist('theData')
 
 mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
-yields = RooArgList(theFitter.makeFitter().coefList())
+yields = fr.floatParsFinal()
 iset = RooArgSet(mass)
 sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
 sigFullInt = theFitter.makeFitter().createIntegral(iset)
@@ -120,8 +123,11 @@ ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
 eigen = TMatrixDSymEigen(fr.covarianceMatrix())
 
 sig2 = 0.
+n = 0
 for eigVal in eigen.GetEigenValues():
-    sig2 += eigVal
+    if (yields[n].GetName())[0] == 'n':
+        sig2 += eigVal
+    n += 1
 
 usig2 = 0.
 totalYield = 0.
@@ -131,26 +137,26 @@ print '-------------------------------'
 print 'Yields in signal box'
 print '-------------------------------'
 for i in range(0, yields.getSize()):
-    usig2 += yields.at(i).getError()*yields.at(i).getError()
-    totalYield += yields.at(i).getVal()
-    theIntegral = 1.
     theName = yields.at(i).GetName()
-    if (theName == 'nDiboson'):
-        theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
-    elif (theName == 'nWjets'):
-        theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
-    elif (theName == 'nTTbar'):
-        theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
-    elif (theName == 'nSingleTop'):
-        theIntegral = SingleTopInt.getVal()/SingleTopFullInt.getVal()
-    elif (theName == 'nQCD'):
-        theIntegral = QCDInt.getVal()/QCDFullInt.getVal()
-    elif (theName == 'nZjets'):
-        theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
+    if theName[0] == 'n':
+        totalYield += yields.at(i).getVal()
+        theIntegral = 1.
+        if (theName == 'nDiboson'):
+            theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
+        elif (theName == 'nWjets'):
+            theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
+        elif (theName == 'nTTbar'):
+            theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
+        elif (theName == 'nSingleTop'):
+            theIntegral = SingleTopInt.getVal()/SingleTopFullInt.getVal()
+        elif (theName == 'nQCD'):
+            theIntegral = QCDInt.getVal()/QCDFullInt.getVal()
+        elif (theName == 'nZjets'):
+            theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-    print '{0}: {1:0.0f} +/- {2:0.0f}'.format(theName,
-                                              yields.at(i).getVal()*theIntegral,
-                                              yields.at(i).getError()*theIntegral)
+        print '{0}: {1:0.0f} +/- {2:0.0f}'.format(theName,
+                                                  yields.at(i).getVal()*theIntegral,
+                                                  yields.at(i).getError()*theIntegral)
 
 print '-------------------------------'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))

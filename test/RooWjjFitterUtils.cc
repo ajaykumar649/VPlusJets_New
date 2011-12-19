@@ -55,7 +55,7 @@ void RooWjjFitterUtils::vars2ws(RooWorkspace& ws) const {
 void RooWjjFitterUtils::initialize() {
   updatenjets();
   mjj_ = new RooRealVar(params_.var, "m_{jj}", params_.minMass, 
-			params_.maxMass, "GeV/c^{2}");
+			params_.maxMass, "GeV");
   mjj_->setPlotLabel(mjj_->GetTitle());
   mjj_->setBins(params_.nbins);
   massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));  
@@ -115,6 +115,9 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 		"goff");
   TEventList * list = (TEventList *)gDirectory->Get(histName + "_evtList");
 
+  bool localDoWeights = params_.doEffCorrections && (!noCuts) && 
+    (cutOverride.Length() < 1);
+
   static unsigned int const maxJets = 6;
   activateBranches(*theTree, isElectron);
   Float_t         JetPFCor_Pt[maxJets];
@@ -127,7 +130,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         lepton_eta;
 
   theTree->SetBranchAddress(params_.var, &Mass2j_PFCor);
-  if (!params_.fitToyDataset) {
+  if (localDoWeights) {
     theTree->SetBranchAddress("JetPFCor_Pt",JetPFCor_Pt);
     theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
     theTree->SetBranchAddress("event_nPV", &event_nPV);
@@ -149,7 +152,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   for (int event = 0; event < list->GetN(); ++event) {
     theTree->GetEntry(list->GetEntry(event));
     evtWgt = 1.0;
-    if ((params_.doEffCorrections) && (!params_.fitToyDataset)) {
+    if (localDoWeights) {
       if (isElectron) {
 	evtWgt *= effEleReco.GetEfficiency(lepton_pt, lepton_eta);
 	evtWgt *= effEleId.GetEfficiency(lepton_pt, lepton_eta);
@@ -281,7 +284,6 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
   double x,y,eyl,eyh,exl,exh;
   double avg, pdfSig2;
   double Npdf = pdf.expectedEvents(RooArgSet(obs));
-  std::cout << " *** N_pdf: " << Npdf << " ***\n";
   TString className;
   RooAbsReal * binInt;
   RooAbsReal * fullInt = pdf.createIntegral(obs, RooFit::NormSet(obs));
@@ -310,6 +312,7 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
       pdfSig2 = sig2(tmpPdf, obs, avg);
     }
     
+//     std::cout << "y: " << y << " avg: " << avg << '\n';
     if (y != 0) {
       ++nbin;
       double pull2 = (y-avg)*(y-avg);
@@ -359,11 +362,6 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("JetPFCor_Pz",    1);
   t.SetBranchStatus("JetPFCor_Eta",    1);
   t.SetBranchStatus("JetPFCor_Phi",    1);
-  t.SetBranchStatus("JetPFCor_etaetaMoment",    1);
-  t.SetBranchStatus("JetPFCor_phiphiMoment",    1);
-  t.SetBranchStatus("JetPFCor_ChargedHadronMultiplicity",    1);
-  t.SetBranchStatus("JetPFCor_ChargedHadronEnergyFrac",    1);
-  t.SetBranchStatus("JetPFCor_NeutralHadronMultiplicity",    1);
   t.SetBranchStatus("JetPFCor_bDiscriminator",    1);
   t.SetBranchStatus("JetPFCor_QGLikelihood",    1);
 
@@ -396,8 +394,6 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
 
   t.SetBranchStatus("Mass2j_PFCor",    1);
   t.SetBranchStatus("MassV2j_PFCor",    1);
-  t.SetBranchStatus("cosJacksonAngle2j_PFCor",    1);
-  t.SetBranchStatus("cosJacksonAngleV2j_PFCor",    1);
 }
 
 double RooWjjFitterUtils::dijetEff(int Njets, 

@@ -27,6 +27,7 @@
 #include "RooProdPdf.h"
 #include "RooRandom.h"
 #include "RooAbsBinning.h"
+#include "RooTreeDataStore.h"
 
 #include "TPad.h"
 
@@ -117,7 +118,7 @@ RooFitResult * RooWjjMjjFitter::fit() {
   loadParameters(params_.initParamsFile);
   //cout << "params_.e_fSU=" << params_.e_fSU << endl;
   
-  
+  ws_.Print();
   std::cout << "\n***constraints***\n";
   TIter con(Constraints.createIterator());
   RooGaussian * tc;
@@ -168,44 +169,22 @@ RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
   RooRealVar * mass = ws_.var(params_.var);
   RooAbsBinning& plotBins =  mass->getBinning("plotBinning");
   mass->setBinning(plotBins);
-  RooPlot * chi2frame = mass->frame();
   RooAbsData * data = ws_.data("data");
-//   if (params_.truncRange)
-//     data = ws_.data("truncData");
+
+  TH1 * dataHist = utils_.newEmptyHist("theData");
+  RooTreeDataStore * dataStore = 
+    dynamic_cast<RooTreeDataStore *>(data->store());
+  dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
+					 "theData"),
+			 "", "goff");
+  //dataHist->Scale(1., "width");
+  RooHist h_data(*dataHist, 0., 1, errorType_, 1.0,
+		 false);
   RooAbsPdf * totalPdf = ws_.pdf("totalPdf");
 
-//   data->plotOn(chi2frame, //RooFit::DataError(errorType), 
-// 	       RooFit::Invisible(),
-// 	       RooFit::Binning(plotBins),
-// 	       RooFit::Name("h_data"), RooFit::MarkerColor(kRed));
-//   totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
-// 		   RooFit::Name("h_total"),
-// 		   RooFit::Invisible(),
-// 		   ( (rangeString_.Length() > 0)? 
-// 		     RooFit::NormRange("RangeForPlot") :
-// 		     RooCmdArg::none() ),
-// 		   ( (rangeString_.Length() > 0)? 
-// 		     RooFit::Range("RangeForPlot", false) :
-// 		     RooCmdArg::none() )
-// 		   );
-//   totalPdf->plotOn(chi2frame, RooFit::ProjWData(*data),
-// 		   RooFit::Name("h_fit")//,
-// 		   ( (rangeString_.Length() > 0)? 
-// 		     RooFit::NormRange(rangeString_) :
-// 		     RooCmdArg::none() ),
-// 		   ( (rangeString_.Length() > 0)? 
-// 		     RooFit::Range(rangeString_) :
-// 		     RooCmdArg::none() )
-// 		   );
-  data->plotOn( chi2frame, //RooFit::DataError(errorType),
-		RooFit::Binning(plotBins),
-		RooFit::Name("theData"),
-		(rangeString_.Length() > 0)? RooFit::CutRange(rangeString_) :
-		RooCmdArg::none() 
-		);
+
   int chi2bins;
-  chi2 = RooWjjFitterUtils::computeChi2(*(chi2frame->getHist("theData")),
-					*totalPdf, *mass, chi2bins);
+  chi2 = RooWjjFitterUtils::computeChi2(h_data, *totalPdf, *mass, chi2bins);
 
   chi2bins -= ndf;
   std::cout << "\n *** chi^2/dof = " << chi2 << "/" << chi2bins << " = " 
@@ -213,11 +192,12 @@ RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
 	    << " *** chi^2 probability = " << TMath::Prob(chi2, chi2bins)
 	    << " ***\n\n";
 
+  delete dataHist;
   ndf = chi2bins;
-  return chi2frame;
+  return 0;
 }
 
-RooAbsPdf * RooWjjMjjFitter::makeFitter() {
+RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
 
   if (ws_.pdf("totalPdf"))
     return ws_.pdf("totalPdf");
@@ -244,10 +224,32 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter() {
   RooRealVar nNP("nNP", "N_{new physics}", 0., 0., 10000.);
   nNP.setError(100.);
 
+  RooAbsPdf * WpJPdfMU = ws_.pdf("WpJPdfMU");
+  RooRealVar * fMU = ws_.var("fMU");
+  RooFormulaVar NMU("NMU", "@0*@1*(@1 >= 0.)", RooArgList(nWjets,*fMU));
+  RooAbsPdf * WpJPdfMD = ws_.pdf("WpJPdfMD");
+  RooFormulaVar NMD("NMD", "@0*@1*(-1)*(@1 < 0.)", RooArgList(nWjets,*fMU));
+  RooAbsPdf * WpJPdfSU = ws_.pdf("WpJPdfSU");
+  RooRealVar * fSU = ws_.var("fSU");
+  RooFormulaVar NSU("NSU", "@0*@1*(@1 >= 0.)", RooArgList(nWjets,*fSU));
+  RooAbsPdf * WpJPdfSD = ws_.pdf("WpJPdfSD");
+  RooFormulaVar NSD("NSD", "@0*@1*(-1)*(@1 < 0.)", RooArgList(nWjets,*fSU));
+
+  RooAbsPdf * WpJPdfNom = ws_.pdf("WpJPdfNom");
+  RooFormulaVar NNom("NNom", "@0*(1.-abs(@1)-abs(@2))",
+		     RooArgList(nWjets,*fMU,*fSU));
+
+
   RooArgList components(*dibosonPdf);
   RooArgList yields(nDiboson);
-  components.add(*WpJPdf);
-  yields.add(nWjets);
+  if (allOne) {
+    components.add(RooArgList(*WpJPdfMU,*WpJPdfMD,*WpJPdfSU,
+			      *WpJPdfSD,*WpJPdfNom));
+    yields.add(RooArgList(NMU, NMD, NSU, NSD, NNom));
+  } else {
+    components.add(*WpJPdf);
+    yields.add(nWjets);
+  }
   components.add(RooArgList(*ttPdf, *stPdf, *qcdPdf, *ZpJPdf));
   yields.add(RooArgList(nTTbar, nSingleTop, nQCD, nZjets));
   
@@ -891,42 +893,82 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 }
 
 RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
-  ws_.var(params_.var)->setRange("RangeForPlot", params_.minMass, 
+  RooRealVar * mass = ws_.var(params_.var);
+  mass->setRange("RangeForPlot", params_.minMass, 
 				 params_.maxMass);
-  RooAbsBinning& plotBins =  ws_.var(params_.var)->getBinning("plotBinning");
-  ws_.var(params_.var)->setBinning(plotBins);
+  RooAbsBinning& plotBins =  mass->getBinning("plotBinning");
+  mass->setBinning(plotBins);
 //   ws_.var(params_.var)->Print("v");
-  RooPlot * sframe = ws_.var(params_.var)->frame();
+  RooPlot * sframe = mass->frame();
   sframe->SetName("mass_stacked");
   RooAbsData * data = ws_.data("data");
+
+  TString plotHistName(TString::Format("dataHistPlot_%i", logy));
+  TH1 * dataHist = utils_.newEmptyHist(plotHistName);
+  RooTreeDataStore * dataStore = 
+    dynamic_cast<RooTreeDataStore *>(data->store());
+  dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
+					 plotHistName.Data()),
+			 "", "goff");
+  dataHist->SetTitle("data");
+
+  
+//   dataHist->Draw();
+//   gPad->Update();
+//   gPad->WaitPrimitive();
+  dataHist->Scale(1., "width");
+  RooHist * h_data = new RooHist(*dataHist, 0., 1, errorType_, 1.0,
+				 false);
+  RooHist * theData = new RooHist(*h_data);
+//   dataHist->Draw();
+//   gPad->Update();
+//   gPad->WaitPrimitive();
+  delete dataHist;
+
   RooAddPdf * totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf"));
   if (fm == mlnujj) 
     totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf4"));
   RooArgList components(totalPdf->pdfList());
 
 //   components.Print("v");
-  data->plotOn(sframe, RooFit::DataError(errorType_), 
-	       RooFit::Binning(plotBins),
-	       RooFit::Name("h_data"),
-	       RooFit::Invisible());
+//   h_data->SetName("h_data");
+//   sframe->addPlotable(h_data, "pe", true, true);
+//   data->plotOn(sframe, RooFit::DataError(errorType_), 
+// 	       RooFit::Binning(plotBins),
+// 	       RooFit::Name("h_data"),
+// 	       RooFit::Invisible());
 
   int comp(1);
   double nexp(totalPdf->expectedEvents(RooArgSet(*(ws_.var(params_.var)))));
-  std::cout << "totalPdf expected: " << nexp << '\n'
-	    << "frame NEvt: " << sframe->getFitRangeNEvt() << '\n'
-	    << "frame BinW: " << sframe->getFitRangeBinW() << '\n'
-	    << '\n';
+//   std::cout << "totalPdf expected: " << nexp << '\n'
+// 	    << "frame NEvt: " << sframe->getFitRangeNEvt() << '\n'
+// 	    << "frame BinW: " << sframe->getFitRangeBinW() << '\n'
+// 	    << '\n';
+//   TH1 * pdfHist = totalPdf->createHistogram("pdfHist", *mass,
+// 					    Binning(plotBins),
+// 					    Scaling(false));
+
+//   pdfHist->Scale(nexp);
+//   pdfHist->SetLineColor(kRed);
+//   pdfHist->SetMarkerColor(kRed);
+//   pdfHist->Draw();
+//   dataHist->Draw("same");
+//   gPad->Update();
+//   gPad->WaitPrimitive();
+
   totalPdf->plotOn(sframe,ProjWData(*data), DrawOption("LF"), FillStyle(1001),
 		   FillColor(kOrange), LineColor(kOrange), Name("h_total"),
-		   NormRange("RangeForPlot"),
+ 		   NormRange("RangeForPlot"),
+		   Normalization(nexp, RooAbsReal::Raw),
 		   VLines(), Range("RangeForPlot"));
   RooCurve * tmpCurve = sframe->getCurve("h_total");
   tmpCurve->SetTitle("WW/WZ");
-  components.remove(components[0]);
+  components.remove(*(components.find("dibosonPdf")));
   if (params_.doNewPhysics) {
     totalPdf->plotOn(sframe, ProjWData(*data), DrawOption("LF"), 
 		     FillStyle(1001), Name("h_NP"), VLines(),
 		     FillColor(kCyan+2), LineColor(kCyan+2), 
+		     Normalization(nexp, RooAbsReal::Raw),
 		     Components(RooArgSet(components)),
 		     Range("RangeForPlot"));
     components.remove(*(components.find("NPPdf")));
@@ -935,32 +977,42 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
   }
   int linec(kRed);
   TString pdfName("h_background");
+  RooAbsCollection * removals;
   while (components.getSize() > 0) {
     totalPdf->plotOn(sframe, ProjWData(*data), FillColor(linec), 
-		     Name(pdfName),
+// 		     Name(pdfName),
 		     DrawOption("LF"), Range("RangeForPlot"),
 		     NormRange("RangeForPlot"),
+		     Normalization(nexp, RooAbsReal::Raw),
 		     Components(RooArgSet(components)), VLines(),
 		     FillStyle(1001), LineColor(linec));
-    components.remove(components[0]);
-    tmpCurve = sframe->getCurve(pdfName);
+    tmpCurve = sframe->getCurve();
+    tmpCurve->SetName(pdfName);
+    removals = 0;
     switch (comp) {
     case 1: 
+      removals = components.selectByName("WpJPdf*");
       linec = kBlack; 
       tmpCurve->SetTitle("W+jets");
       break;
     case 2: 
       linec = kGreen;
-      components.remove(components[0]);
+      removals = components.selectByName("ttPdf*,stPdf*");
       tmpCurve->SetTitle("top");
       break;
     case 3: 
       linec = kMagenta; 
+      removals = components.selectByName("qcdPdf*");
       tmpCurve->SetTitle("QCD");
       break;
     default:
       linec = kCyan;
+      removals = components.selectByName("ZpJPdf*");
       tmpCurve->SetTitle("Z+jets");
+    }
+    if (removals) {
+      components.remove(*removals);
+      delete removals;
     }
     if (components.getSize() > 0) {
       pdfName = components[0].GetName();
@@ -968,10 +1020,13 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     }
     ++comp;
   }
-  data->plotOn(sframe, RooFit::DataError(errorType_), Name("theData"),
-	       RooFit::Binning(plotBins));
+  theData->SetName("theData");
+  sframe->addPlotable(theData, "pe");
+//   data->plotOn(sframe, RooFit::DataError(errorType_), Name("theData"),
+// 	       RooFit::Binning(plotBins));
   RooHist * tmpHist = sframe->getHist("theData");
   tmpHist->SetTitle("data");
+//   sframe->addObject(dataHist, "samepe");
   TLegend * legend = RooWjjFitterUtils::legend4Plot(sframe);
   sframe->addObject(legend);
   if (params_.truncRange) {
@@ -995,7 +1050,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     sframe->SetMinimum(0.);
     sframe->SetMaximum(1.5*sframe->GetMaximum());
   }
-
+  sframe->GetYaxis()->SetTitle("Events / GeV");
   return sframe;
 }
 
@@ -1008,9 +1063,11 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   if (fm == mlnujj) 
     totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf4"));
   RooCurve * tmpCurve;
+//   RooHist * theData = new RooHist(*(thePlot->getHist("theData")));
   if (pdfName.Length() > 0) {
-    data->plotOn(rframe, RooFit::Invisible(), RooFit::Binning("plotBinning"));
+    double nexp(totalPdf->expectedEvents(RooArgSet(*(ws_.var(params_.var)))));
     totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
+		     Normalization(nexp, RooAbsReal::Raw),
 		     DrawOption("LF"), VLines(), FillStyle(1001),
 		     FillColor(kOrange), Name("h_diboson"), 
 		     LineColor(kOrange), Range("RangeForPlot"));
@@ -1018,6 +1075,7 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     tmpCurve->SetTitle("WW/WZ");
     if (params_.doNewPhysics) {
       totalPdf->plotOn(rframe, ProjWData(*data), Components("NPPdf"),
+		       Normalization(nexp, RooAbsReal::Raw),
 		       DrawOption("LF"), VLines(), FillStyle(1001),
 		       FillColor(kCyan+2), Name("h_NP"),
 		       LineColor(kCyan+2), Range("RangeForPlot"));
@@ -1025,16 +1083,22 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
       tmpCurve->SetTitle("new physics");
     }
   }
-  RooHist * hresid = thePlot->residHist("h_data", curveName, normalize);
+  RooHist * hresid = thePlot->residHist("theData", curveName, normalize);
   hresid->SetTitle("data");
+//   RooHist * bands = new RooHist(*hresid);
+//   bands->SetName("band");
+//   bands->SetTitle("error bands");
+//   bands->SetFillStyle(1001);
+//   rframe->addPlotable(bands, "e3");
   rframe->addPlotable(hresid, "p");
   
   TLegend * legend = RooWjjFitterUtils::legend4Plot(rframe);
   rframe->addObject(legend);
 
   if (!normalize) {
-    rframe->SetMaximum(initDiboson_*(0.6));
-    rframe->SetMinimum(initDiboson_*(-0.15));
+    rframe->SetMaximum(initDiboson_*(0.1));
+    rframe->SetMinimum(initDiboson_*(-0.05));
+    rframe->GetYaxis()->SetTitle("Events / GeV");
   } else {
     rframe->SetMaximum(5.);
     rframe->SetMinimum(-5.);
