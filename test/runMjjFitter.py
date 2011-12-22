@@ -53,7 +53,7 @@ else:
 
 theFitter = RooWjjMjjFitter(fitterPars)
 
-theFitter.makeFitter(True)
+theFitter.makeFitter(False)
 
 #theFitter.getWorkSpace().Print()
 fr = theFitter.fit()
