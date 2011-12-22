@@ -28,6 +28,7 @@
 #include "RooRandom.h"
 #include "RooAbsBinning.h"
 #include "RooTreeDataStore.h"
+#include "RooGenericPdf.h"
 
 #include "TPad.h"
 
@@ -50,10 +51,11 @@ RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
 {
   utils_.vars2ws(ws_);
   RooRealVar * mass = ws_.var(params_.var);
-  mass->setRange("lowSideBand", params_.minMass, params_.minTrunc);
-  mass->setRange("highSideBand", params_.maxTrunc, params_.maxMass);
+  mass->setRange("lowSideBand", params_.minFit, params_.minTrunc);
+  mass->setRange("highSideBand", params_.maxTrunc, params_.maxFit);
+  mass->setRange("fitRange", params_.minFit, params_.maxFit);
 
-  rangeString_ = "";
+  rangeString_ = "fitRange";
   if (params_.truncRange) {
     // data = loadData(true);
     rangeString_ = "lowSideBand,highSideBand";
@@ -62,7 +64,7 @@ RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
 
 RooFitResult * RooWjjMjjFitter::fit() {
 
-  RooAbsPdf * totalPdf = makeFitter();
+  RooAbsPdf * totalPdf = makeFitter(true);
   // RooRealVar * mass = ws_.var(params_.var);
 
   RooAbsData * data = loadData();
@@ -202,6 +204,7 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
   if (ws_.pdf("totalPdf"))
     return ws_.pdf("totalPdf");
 
+  RooRealVar * mass = ws_.var(params_.var);
   RooAbsPdf * dibosonPdf = makeDibosonPdf();
   RooAbsPdf * WpJPdf = makeWpJPdf();
   RooAbsPdf * ttPdf = makettbarPdf();
@@ -240,15 +243,41 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
 		     RooArgList(nWjets,*fMU,*fSU));
 
 
+  RooRealVar turnOn("turnOn","turnOn", 50.);
+  turnOn.setConstant(false);
+  RooRealVar width("width","width", 5., 0., 100.);
+  RooRealVar seff("seff", "seff", 7000., 0., 10000.);
+  seff.setConstant(true);
+  RooRealVar power("power", "power", 4, 0., 100.);
+  RooRealVar power2("power2", "power2", 2, 0., 100.);
+  RooRealVar decay(power, "decay");
+  RooRealVar fturnon("fturnOn", "fturnOn", 0.5, 0., 1.);
+  RooRealVar width2(width);
+  width2.SetName("width2");
+  RooRealVar turnOn2(turnOn, "turnOn2");
+  RooGenericPdf bkgErfExp("WpJPdfAll","WpJPdfAll",
+// 			  "TMath::Power(1-@0/@5,decay)/TMath::Power(@0,@3+@4*log(@0/@5))"
+ 			  "1./TMath::Power(@0,@3+@4*log(@0/@5))"
+// 			  "1./TMath::Power(@0,@3)"
+// 			  "exp(-@0/@3)"
+//  			  "*(fturnOn*(TMath::Erf((@0-@1)/@2)+1) + "
+// 			  "(1-fturnOn)*(TMath::Erf((@0-@6)/@2)+1))",
+ 			  "*(TMath::Erf((@0-@1)/@2)+1)",
+// 			  "*1./(1+exp(-(@0-@1)/@2))",
+			  RooArgList(*mass, turnOn, width, power, power2,
+				     seff));
+
   RooArgList components(*dibosonPdf);
   RooArgList yields(nDiboson);
   if (allOne) {
+    components.add(bkgErfExp);
+    yields.add(nWjets);
+  } else {
     components.add(RooArgList(*WpJPdfMU,*WpJPdfMD,*WpJPdfSU,
 			      *WpJPdfSD,*WpJPdfNom));
     yields.add(RooArgList(NMU, NMD, NSU, NSD, NNom));
-  } else {
-    components.add(*WpJPdf);
-    yields.add(nWjets);
+//     components.add(*WpJPdf);
+//     yields.add(nWjets);
   }
   components.add(RooArgList(*ttPdf, *stPdf, *qcdPdf, *ZpJPdf));
   yields.add(RooArgList(nTTbar, nSingleTop, nQCD, nZjets));
@@ -428,7 +457,13 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
     delete tmpHist;
   }
 
-  initDiboson_ = th1diboson->Integral() * params_.intLumi;
+//   std::cout << "min bin: " << th1diboson->FindBin(params_.minFit)
+// 	    << " max bin: " << th1diboson->FindBin(params_.maxFit) 
+// 	    << " n bins: " << th1diboson->GetNbinsX()
+// 	    << '\n';
+  initDiboson_ = th1diboson->Integral(th1diboson->FindBin(params_.minFit),
+				      th1diboson->FindBin(params_.maxFit)-1) * 
+    params_.intLumi;
   cout << "-------- Number of expected WW+WZ events = " 
        << th1diboson->Integral() << " x " << params_.intLumi 
        << " = " <<  initDiboson_ << endl;
@@ -506,7 +541,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf() {
     delete tmpHist;
   }
 
-  initWjets_ = (31314./81352581.) * (th1WpJ->Integral()) * params_.intLumi;
+  initWjets_ = (31314./81352581.) * 
+    (th1WpJ->Integral(th1WpJ->FindBin(params_.minFit),
+		      th1WpJ->FindBin(params_.maxFit)-1)) * 
+    params_.intLumi;
   cout << "-------- Number of expected Wjj events = " <<  initWjets_ << endl;
 
 //   th1WpJ->Draw();
@@ -590,7 +628,10 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
     delete tmpHist;
   }
 
-  ttbarNorm_ = (157.5/3701947) * th1tt->Integral() * params_.intLumi;
+  ttbarNorm_ = (157.5/3701947) * 
+    th1tt->Integral(th1tt->FindBin(params_.minFit),
+		    th1tt->FindBin(params_.maxFit)-1) * 
+    params_.intLumi;
   cout << "-------- Number of expected ttbar events = " 
        << th1tt->Integral() << " x " << params_.intLumi << " = " 
        << ttbarNorm_ << endl;
@@ -709,7 +750,9 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
     delete tmpHist;
   }
 
-  singleTopNorm_ = th1st->Integral() * params_.intLumi;
+  singleTopNorm_ = th1st->Integral(th1st->FindBin(params_.minFit),
+				   th1st->FindBin(params_.maxFit)-1) * 
+    params_.intLumi;
 
 //   if (params_.includeElectrons && params_.includeMuons)
 //     singleTopNorm_ *= 2;
@@ -787,7 +830,10 @@ RooAbsPdf * RooWjjMjjFitter::makeZpJPdf() {
     delete tmpHist;
   }
 
-  zjetsNorm_ = (3048./36277961.) * th1ZpJ->Integral() * params_.intLumi;
+  zjetsNorm_ = (3048./36277961.) * 
+    th1ZpJ->Integral(th1ZpJ->FindBin(params_.minFit),
+		     th1ZpJ->FindBin(params_.maxFit)-1) * 
+    params_.intLumi;
   cout << "-------- Number of expected zjets events = " 
        << th1ZpJ->Integral() << " x " << params_.intLumi << " = " 
        << zjetsNorm_ << endl;
@@ -1044,11 +1090,11 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     sframe->addObject(upperLine);
   }
   if (logy) {
-    sframe->SetMinimum(0.1);
-    sframe->SetMaximum(1.0e8);
+    sframe->SetMinimum(0.01);
+    sframe->SetMaximum(1.0e6);
   } else {
-    sframe->SetMinimum(0.);
-    sframe->SetMaximum(1.5*sframe->GetMaximum());
+    sframe->SetMinimum(1e-6);
+    sframe->SetMaximum(1.4*sframe->GetMaximum());
   }
   sframe->GetYaxis()->SetTitle("Events / GeV");
   return sframe;

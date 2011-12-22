@@ -145,7 +145,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     }
   }
 
-  static double const singleElectronCutOffLumi = 200.;
+  static double const singleElectronCutOffLumi = 1000.;
   double evtWgt = 1.0, hltEffJets = 1.0, hltEffMHT = 1.0;
   std::vector<double> eff30(maxJets), eff25n30(maxJets);
   static TRandom3 rnd(987654321);

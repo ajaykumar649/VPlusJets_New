@@ -34,7 +34,7 @@ gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, \
-     RooMsgService, RooFit, TLatex, TMatrixDSymEigen, RooArgList, RooArgSet, \
+     RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, \
      gPad
 from math import sqrt
 
@@ -42,6 +42,15 @@ from math import sqrt
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
 fitterPars = config.theConfig(opts.Nj, opts.e_FSU, opts.e_FMU, opts.mcdir, opts.startingFile, opts.toydataFile )
+if fitterPars.includeMuons and fitterPars.includeElectrons:
+    modeString = ''
+elif fitterPars.includeMuons:
+    modeString = 'Muon'
+elif fitterPars.includeElectrons:
+    modeString = 'Electron'
+else:
+    modeString = ''
+
 theFitter = RooWjjMjjFitter(fitterPars)
 
 theFitter.makeFitter(True)
@@ -74,28 +83,24 @@ l.DrawLatex(0.22, 0.85,
                                                               chi2/ndf)
             )
 pyroot_logon.cmsPrelim(cstacked, fitterPars.intLumi/1000)
-cstacked.Print('Wjj_Mjj_{0}jets_Stacked.pdf'.format(opts.Nj))
-cstacked.Print('Wjj_Mjj_{0}jets_Stacked.eps'.format(opts.Nj))
-cstacked.Print('Wjj_Mjj_{0}jets_Stacked.gif'.format(opts.Nj))
+cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj))
+cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj))
 c2 = TCanvas("c2", "stacked_log")
 c2.SetLogy()
 lf.Draw()
 pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-c2.Print('Wjj_Mjj_{0}jets_Stacked_log.pdf'.format(opts.Nj))
-c2.Print('Wjj_Mjj_{0}jets_Stacked_log.eps'.format(opts.Nj))
-c2.Print('Wjj_Mjj_{0}jets_Stacked_log.gif'.format(opts.Nj))
+c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj))
+c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj))
 c3 = TCanvas("c3", "subtracted")
 sf.Draw()
 pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-c3.Print('Wjj_Mjj_{0}jets_Subtracted.pdf'.format(opts.Nj))
-c3.Print('Wjj_Mjj_{0}jets_Subtracted.eps'.format(opts.Nj))
-c3.Print('Wjj_Mjj_{0}jets_Subtracted.gif'.format(opts.Nj))
+c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString,opts.Nj))
+c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString,opts.Nj))
 c4 = TCanvas("c4", "pull")
 pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
-c4.Print('Wjj_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
-c4.Print('Wjj_Mjj_{0}jets_Pull.eps'.format(opts.Nj))
-c4.Print('Wjj_Mjj_{0}jets_Pull.gif'.format(opts.Nj))
+c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj))
+c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj))
 
 h_total = mf.getCurve('h_total')
 theData = mf.getHist('theData')
@@ -120,14 +125,14 @@ ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, 'signal')
 ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
 ## print "*** yield vars ***"
 ## yields.Print("v")
-eigen = TMatrixDSymEigen(fr.covarianceMatrix())
+covMatrix = TMatrixDSym(fr.covarianceMatrix())
 
 sig2 = 0.
-n = 0
-for eigVal in eigen.GetEigenValues():
-    if (yields[n].GetName())[0] == 'n':
-        sig2 += eigVal
-    n += 1
+for v1 in range(0, covMatrix.GetNrows()):
+    for v2 in range(0, covMatrix.GetNcols()):
+        if ((yields[v1].GetName())[0] == 'n') and \
+               ((yields[v2].GetName())[0] == 'n'):
+            sig2 += covMatrix(v1, v2)
 
 usig2 = 0.
 totalYield = 0.
@@ -169,7 +174,9 @@ print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
 print 'shape file created'
-ShapeFile = TFile('Mjj_{0}Jets_Fit_Shapes.root'.format(opts.Nj), 'recreate')
+ShapeFile = TFile('Mjj_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
+                                                           modeString),
+                  'recreate')
 h_total.Write()
 theData.Write()
 ShapeFile.Close()

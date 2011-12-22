@@ -9,7 +9,7 @@
 class RooWjjFitterParams {
 public:
   RooWjjFitterParams();
-  RooWjjFitterParams(RooWjjFitterParams const& other);
+//   RooWjjFitterParams(RooWjjFitterParams const& other);
   virtual ~RooWjjFitterParams() { }
 
   TString MCDirectory;
@@ -59,6 +59,9 @@ public:
   bool doEffCorrections;
   TString effDir;
 
+  //fitting range
+  double minFit, maxFit;
+
   ///External Parameters
   bool useExternalMorphingPars;
   double e_fSU;
@@ -88,12 +91,14 @@ RooWjjFitterParams::RooWjjFitterParams() :
   minSBLo(55.), maxSBLo(65.), SBLocut(""),
   doEffCorrections(false), 
   effDir("/uscms/home/kalanand/cms/documents/notes/AN-11-266/trunk/"),
+  minFit(minMass), maxFit(maxMass),
   
   useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),
   fitToyDataset(false), ToyDatasetDirectory(""), toydataFile("")
 {
 }
 
+/*
 RooWjjFitterParams::RooWjjFitterParams(RooWjjFitterParams const& other) :
   MCDirectory(other.MCDirectory), WpJDirectory(other.WpJDirectory),
   DataDirectory(other.DataDirectory), 
@@ -125,5 +130,5 @@ RooWjjFitterParams::RooWjjFitterParams(RooWjjFitterParams const& other) :
   fitToyDataset(other.fitToyDataset), ToyDatasetDirectory(other.ToyDatasetDirectory), toydataFile(other.toydataFile)
 {
 }
-
+*/
 #endif
