@@ -477,6 +477,14 @@ double RooWjjFitterUtils::dijetEff(int Njets,
       theEff += tmpEff;
     }
   }
+  if ((theEff > 1.0) || (theEff <= 0.)) {
+    std::cout << "Njets: " << Njets << '\n';
+    for(i=0; i<Njets; ++i)
+      std::cout << "jet " << i << " eff30: " << eff30[i] 
+		<< " eff25n30: " << eff25n30[i]
+		<< '\n';
+    assert(true);
+  }
   return theEff;
 }
 
