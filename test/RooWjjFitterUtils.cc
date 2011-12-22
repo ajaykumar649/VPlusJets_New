@@ -28,7 +28,7 @@ RooWjjFitterUtils::RooWjjFitterUtils()
 }
 
 RooWjjFitterUtils::RooWjjFitterUtils(RooWjjFitterParams & pars) :
-  params_(pars), binArray(0),
+  params_(pars), binArray(0)
 {
   initialize();
 }
@@ -37,6 +37,20 @@ RooWjjFitterUtils::~RooWjjFitterUtils()  {
   delete mjj_; 
   delete massVar_;
   delete binArray;
+
+  unsigned int i;
+  for (i=0; i<effMuId.size(); ++i) {
+    delete effMuId[i];
+    delete effMu[i];
+  }
+  for (i=0; i<effEleId.size(); ++i) {
+    delete effEleId[i];
+    delete effEle[i];
+    delete effEleReco[i];
+    delete effJ30[i];
+    delete effJ25NoJ30[i];
+    delete effMHT[i];
+  }
 }
 
 void RooWjjFitterUtils::vars2ws(RooWorkspace& ws) const {
@@ -67,16 +81,16 @@ void RooWjjFitterUtils::initialize() {
   }
 
   for (i = 0; i < params_.muIdEffFiles.size(); ++i) {
-    effMuId.push_back(EffTableLoader(muIdEffFiles[i].Data()));
-    effMu.push_back(EffTableLoader(muHLTEffFiles[i].Data()));
+    effMuId.push_back(new EffTableLoader(params_.muIdEffFiles[i].Data()));
+    effMu.push_back(new EffTableLoader(params_.muHLTEffFiles[i].Data()));
   }
-  for (i = 0; i < params_.eleIdFiles.size(); ++i) {
-    effEleId.push_back(EffTableLoader(eleIdEffFiles[i].Data()));
-    effEleReco.push_back(EffTableLoader(eleRecoEffFiles[i].Data()));
-    effEle.push_back(EffTableLoader(eleHLTEffFiles[i].Data()));
-    effJ30.push_back(EffTableLoader(eleJ30EffFiles[i].Data()));
-    effJ25NoJ30.push_back(EffTableLoader(eleJ25NoJ30EffFiles[i].Data()));
-    effMHT.push_back(EffTableLoader(eleMHTEffFiles[i].Data()));
+  for (i = 0; i < params_.eleIdEffFiles.size(); ++i) {
+    effEleId.push_back(new EffTableLoader(params_.eleIdEffFiles[i].Data()));
+    effEleReco.push_back(new EffTableLoader(params_.eleRecoEffFiles[i].Data()));
+    effEle.push_back(new EffTableLoader(params_.eleHLTEffFiles[i].Data()));
+    effJ30.push_back(new EffTableLoader(params_.eleJ30EffFiles[i].Data()));
+    effJ25NoJ30.push_back(new EffTableLoader(params_.eleJ25NoJ30EffFiles[i].Data()));
+    effMHT.push_back(new EffTableLoader(params_.eleMHTEffFiles[i].Data()));
   }
 }
 
@@ -150,42 +164,42 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     }
   }
 
+  static TRandom3 rnd(987654321);
   double epochSelector = rnd.Rndm(), sumLumi = 0.;
   int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
     params_.lumiPerEpochMuon.size();
   int epoch = -1;
-  while ( (epochSelector > sumLumi/params_.intLumi) && 
-	  (epoch < lumiSize) ) {
-    epoch++;
-    if (isElectron)
-      sumLumi += params_.lumiPerEpochElectron[epoch];
-    else
-      sumLumi += params_.lumiPerEpochMuon[epoch];
-  }
-  if (epoch < 0) localDoWeights = False;
-
-  double evtWgt = 1.0, hltEffJets = 1.0, hltEffMHT = 1.0;
+  double evtWgt = 1.0/*, hltEffJets = 1.0, hltEffMHT = 1.0*/;
   std::vector<double> eff30(maxJets), eff25n30(maxJets);
-  static TRandom3 rnd(987654321);
   for (int event = 0; event < list->GetN(); ++event) {
     theTree->GetEntry(list->GetEntry(event));
     evtWgt = 1.0;
     if (localDoWeights) {
+      epochSelector = rnd.Rndm();
+      sumLumi = 0.;
+      epoch = -1;
+      while ( (epochSelector > sumLumi/params_.intLumi) && 
+	      (++epoch < lumiSize) ) {
+	if (isElectron)
+	  sumLumi += params_.lumiPerEpochElectron[epoch];
+	else
+	  sumLumi += params_.lumiPerEpochMuon[epoch];
+      }
       if (isElectron) {
 	for (unsigned int i = 0; i < maxJets; ++i) {
-	  eff30[i] = effJ30[epoch].GetEfficiency(JetPFCor_Pt[i], 
+	  eff30[i] = effJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
 						 JetPFCor_Eta[i]);
-	  eff25n30[i] = effJ25NoJ30[epoch].GetEfficiency(JetPFCor_Pt[i], 
+	  eff25n30[i] = effJ25NoJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
 							 JetPFCor_Eta[i]);
 	}
 	evtWgt *= dijetEff(evtNJ, eff30, eff25n30);
-	evtWgt *= effMHT[epoch].GetEfficiency(event_met_pfmet, 0.);
-	evtWgt *= effEleReco[epoch].GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEleId[epoch].GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEle[epoch].GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effMHT[epoch]->GetEfficiency(event_met_pfmet, 0.);
+	evtWgt *= effEleReco[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effEleId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effEle[epoch]->GetEfficiency(lepton_pt, lepton_eta);
       } else {
-	evtWgt *= effMuId[epoch].GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effMu[epoch].GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effMuId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effMu[epoch]->GetEfficiency(lepton_pt, lepton_eta);
       }
     }
     

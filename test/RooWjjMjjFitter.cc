@@ -206,7 +206,7 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
 
   RooRealVar * mass = ws_.var(params_.var);
   RooAbsPdf * dibosonPdf = makeDibosonPdf();
-  RooAbsPdf * WpJPdf = makeWpJPdf();
+  makeWpJPdf();
   RooAbsPdf * ttPdf = makettbarPdf();
   RooAbsPdf * stPdf = makeSingleTopPdf();
   RooAbsPdf * qcdPdf = makeQCDPdf();

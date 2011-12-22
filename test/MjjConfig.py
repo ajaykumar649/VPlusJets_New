@@ -26,8 +26,6 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.ToyDatasetDirectory = '/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSets/'
     fitterPars.toydataFile = toydataFile
 
-    fitterPars.effDir = "/uscms/home/kalanand/cms/documents/notes/AN-11-266/trunk/"
-
     fitterPars.minMass = 30.
     fitterPars.maxMass = 400.
     fitterPars.nbins = 34
@@ -86,6 +84,18 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.constrainDiboson = True
 
     fitterPars.doEffCorrections = True
+    fitterPars.muIdEffFiles.push_back("EffTableDir/muonEffsRecoToIso_ScaleFactors.txt")
+    fitterPars.muHLTEffFiles.push_back("EffTableDir/muonEffsIsoToHLT_data_LP_LWA.txt")
+    fitterPars.lumiPerEpochMuon.push_back(fitterPars.intLumi)
+
+    
+    fitterPars.eleIdEffFiles.push_back("EffTableDir/eleEffsRecoToWP80_ScaleFactors.txt")
+    fitterPars.eleRecoEffFiles.push_back("EffTableDir/eleEffsSCToReco_ScaleFactors.txt")
+    fitterPars.eleHLTEffFiles.push_back("EffTableDir/eleEffsWP80ToHLTEle27_May10ReReco.txt")
+    fitterPars.eleJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
+    fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
+    fitterPars.eleMHTEffFiles.push_back("EffTableDir/FullyEfficient_MHT.txt")
+    fitterPars.lumiPerEpochElectron.push_back(4700)
 
     fitterPars.useExternalMorphingPars = False
        

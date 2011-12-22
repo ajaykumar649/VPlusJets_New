@@ -61,12 +61,12 @@ public:
   std::vector<TString> muIdEffFiles;
   std::vector<TString> muHLTEffFiles;
   std::vector<double> lumiPerEpochMuon;
-  std::vector<TString> eleIdFiles;
-  std::vector<TString> eleRecoFiles;
-  std::vector<TString> eleHLTFiles;
-  std::vector<TString> eleJ30Files;
-  std::vector<TString> eleJ25NoJ30Files;
-  std::vector<TString> eleMHTFiles;
+  std::vector<TString> eleIdEffFiles;
+  std::vector<TString> eleRecoEffFiles;
+  std::vector<TString> eleHLTEffFiles;
+  std::vector<TString> eleJ30EffFiles;
+  std::vector<TString> eleJ25NoJ30EffFiles;
+  std::vector<TString> eleMHTEffFiles;
   std::vector<double> lumiPerEpochElectron;
 
   //fitting range
@@ -100,7 +100,6 @@ RooWjjFitterParams::RooWjjFitterParams() :
   minSBHi(95.), maxSBHi(105.), SBHicut(""), 
   minSBLo(55.), maxSBLo(65.), SBLocut(""),
   doEffCorrections(false), 
-  effDir("/uscms/home/kalanand/cms/documents/notes/AN-11-266/trunk/"),
   minFit(minMass), maxFit(maxMass),
   
   useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),

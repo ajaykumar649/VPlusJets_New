@@ -8,7 +8,7 @@
 
 class EffTableReader;
 class EffTableLoader {
- public:
+public:
   EffTableLoader ();
   EffTableLoader (const std::string& fDataFile);
   virtual ~EffTableLoader ();
@@ -26,8 +26,8 @@ class EffTableLoader {
   std::pair<float, float> GetCellCenter(float fEt, float fEta )const;
   int size(void);
 
- private:
-   EffTableReader* mParameters;
+private:
+  EffTableReader* mParameters;
 };
 
 #endif

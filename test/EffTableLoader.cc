@@ -1,6 +1,7 @@
 #include "EffTableLoader.h"
 #include "EffTableReader.h"
-#include <vector>
+
+#include <iostream>
 
 namespace {
   const unsigned nParameters = 2;
@@ -12,7 +13,9 @@ EffTableLoader::EffTableLoader ()
 
 EffTableLoader::EffTableLoader (const std::string& fDataFile) 
   : mParameters (new EffTableReader (fDataFile)) 
-{}
+{
+  std::cout << fDataFile << '\n';
+}
 
 EffTableLoader::~EffTableLoader () {
   delete mParameters;

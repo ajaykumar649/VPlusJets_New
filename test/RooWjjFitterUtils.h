@@ -75,10 +75,10 @@ protected:
 
   TString jetCut_;
 
-  std::vector<EffTableLoader> effEleReco, effEleId, effEle, effEle2;
-  std::vector<EffTableLoader> effMuId, effMu;
-  std::vector<EffTableLoader> effJ30, effJ25NoJ30;
-  std::vector<EffTableLoader> effMHT;
+  std::vector<EffTableLoader*> effEleReco, effEleId, effEle;
+  std::vector<EffTableLoader*> effMuId, effMu;
+  std::vector<EffTableLoader*> effJ30, effJ25NoJ30;
+  std::vector<EffTableLoader*> effMHT;
 };
 
 #endif
