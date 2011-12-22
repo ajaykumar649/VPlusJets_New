@@ -41,7 +41,7 @@ from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = config.theConfig(opts.Nj, opts.e_FSU, opts.e_FMU, opts.mcdir, opts.startingFile, opts.toydataFile )
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.toydataFile )
 if fitterPars.includeMuons and fitterPars.includeElectrons:
     modeString = ''
 elif fitterPars.includeMuons:
