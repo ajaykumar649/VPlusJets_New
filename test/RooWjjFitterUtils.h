@@ -44,6 +44,7 @@ public:
 			    bool noCuts = false) const;
 //   RooDataSet * File2DatasetNoCuts(TString fname, TString dsName,
 // 				  bool trunc = false) const;
+  TString fitCuts() const;
   TString fullCuts(bool trunc = false) const;
 
   void hist2RandomTree(TH1 * theHist, TString fname) const;
@@ -74,10 +75,10 @@ protected:
 
   TString jetCut_;
 
-  EffTableLoader effEleReco, effEleId, effEle, effEle2;
-  EffTableLoader effMuId, effMu;
-  EffTableLoader effJ30, effJ25NoJ30;
-  EffTableLoader effMHT;
+  std::vector<EffTableLoader> effEleReco, effEleId, effEle, effEle2;
+  std::vector<EffTableLoader> effMuId, effMu;
+  std::vector<EffTableLoader> effJ30, effJ25NoJ30;
+  std::vector<EffTableLoader> effMHT;
 };
 
 #endif

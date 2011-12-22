@@ -29,15 +29,6 @@ RooWjjFitterUtils::RooWjjFitterUtils()
 
 RooWjjFitterUtils::RooWjjFitterUtils(RooWjjFitterParams & pars) :
   params_(pars), binArray(0),
-  effEleReco((params_.effDir + "eleEffsSCToReco_ScaleFactors.txt").Data()),
-  effEleId((params_.effDir + "eleEffsRecoToWP80_ScaleFactors.txt").Data()),
-  effEle((params_.effDir + "eleEffsWP80ToHLTEle27_May10ReReco.txt").Data()),
-  effEle2((params_.effDir + "eleEffsHLTEle2jPfMht_data_LWA_Ele.txt").Data()),
-  effMuId((params_.effDir + "muonEffsRecoToIso_ScaleFactors.txt").Data()),
-  effMu((params_.effDir + "muonEffsIsoToHLT_data_LP_LWA.txt").Data()),
-  effJ30((params_.effDir + "eleEffsHLTEle2jPfMht_data_LWA_Jet30.txt").Data()),
-  effJ25NoJ30((params_.effDir + "eleEffsHLTEle2jPfMht_data_LWA_Jet25Not30.txt").Data()),
-  effMHT((params_.effDir + "eleEffsHLTEle2jPfMht_data_LWA_PfMht.txt").Data())
 {
   initialize();
 }
@@ -60,9 +51,10 @@ void RooWjjFitterUtils::initialize() {
   mjj_->setBins(params_.nbins);
   massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));  
 
+  unsigned int i;
   if (params_.binEdges.size() > 1) {
     binArray = new double[params_.binEdges.size()];
-    for (unsigned int i = 0; i<params_.binEdges.size(); ++i)
+    for (i = 0; i<params_.binEdges.size(); ++i)
       binArray[i] = params_.binEdges[i];
     RooBinning varBins(params_.binEdges.size()-1, binArray, "plotBinning");
     varBins.Print("v");
@@ -72,6 +64,19 @@ void RooWjjFitterUtils::initialize() {
     RooBinning evenBins(params_.nbins, params_.minMass, params_.maxMass); 
     mjj_->setBinning(evenBins, "plotBinning");
     mjj_->setBinning(evenBins);  
+  }
+
+  for (i = 0; i < params_.muIdEffFiles.size(); ++i) {
+    effMuId.push_back(EffTableLoader(muIdEffFiles[i].Data()));
+    effMu.push_back(EffTableLoader(muHLTEffFiles[i].Data()));
+  }
+  for (i = 0; i < params_.eleIdFiles.size(); ++i) {
+    effEleId.push_back(EffTableLoader(eleIdEffFiles[i].Data()));
+    effEleReco.push_back(EffTableLoader(eleRecoEffFiles[i].Data()));
+    effEle.push_back(EffTableLoader(eleHLTEffFiles[i].Data()));
+    effJ30.push_back(EffTableLoader(eleJ30EffFiles[i].Data()));
+    effJ25NoJ30.push_back(EffTableLoader(eleJ25NoJ30EffFiles[i].Data()));
+    effMHT.push_back(EffTableLoader(eleMHTEffFiles[i].Data()));
   }
 }
 
@@ -145,7 +150,20 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     }
   }
 
-  static double const singleElectronCutOffLumi = 1000.;
+  double epochSelector = rnd.Rndm(), sumLumi = 0.;
+  int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
+    params_.lumiPerEpochMuon.size();
+  int epoch = -1;
+  while ( (epochSelector > sumLumi/params_.intLumi) && 
+	  (epoch < lumiSize) ) {
+    epoch++;
+    if (isElectron)
+      sumLumi += params_.lumiPerEpochElectron[epoch];
+    else
+      sumLumi += params_.lumiPerEpochMuon[epoch];
+  }
+  if (epoch < 0) localDoWeights = False;
+
   double evtWgt = 1.0, hltEffJets = 1.0, hltEffMHT = 1.0;
   std::vector<double> eff30(maxJets), eff25n30(maxJets);
   static TRandom3 rnd(987654321);
@@ -154,25 +172,21 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     evtWgt = 1.0;
     if (localDoWeights) {
       if (isElectron) {
-	evtWgt *= effEleReco.GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEleId.GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEle.GetEfficiency(lepton_pt, lepton_eta);
+	for (unsigned int i = 0; i < maxJets; ++i) {
+	  eff30[i] = effJ30[epoch].GetEfficiency(JetPFCor_Pt[i], 
+						 JetPFCor_Eta[i]);
+	  eff25n30[i] = effJ25NoJ30[epoch].GetEfficiency(JetPFCor_Pt[i], 
+							 JetPFCor_Eta[i]);
+	}
+	evtWgt *= dijetEff(evtNJ, eff30, eff25n30);
+	evtWgt *= effMHT[epoch].GetEfficiency(event_met_pfmet, 0.);
+	evtWgt *= effEleReco[epoch].GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effEleId[epoch].GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effEle[epoch].GetEfficiency(lepton_pt, lepton_eta);
       } else {
-	evtWgt *= effMuId.GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effMu.GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effMuId[epoch].GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effMu[epoch].GetEfficiency(lepton_pt, lepton_eta);
       }
-
-      for (unsigned int i = 0; i < maxJets; ++i) {
-	eff30[i] = effJ30.GetEfficiency(JetPFCor_Pt[i], JetPFCor_Eta[i]);
-	eff25n30[i] = effJ25NoJ30.GetEfficiency(JetPFCor_Pt[i], 
-						JetPFCor_Eta[i]);
-      }
-      hltEffJets = dijetEff(evtNJ, eff30, eff25n30);
-      hltEffMHT = effMHT.GetEfficiency(event_met_pfmet, 0.);
-
-      if ( (isElectron) && 
-	   (rnd.Rndm() > singleElectronCutOffLumi/params_.intLumi) )
-	evtWgt *= hltEffJets*hltEffMHT;
     }
     
     theHist->Fill(Mass2j_PFCor*(1.+tmpScale), evtWgt);
@@ -236,17 +250,21 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
   return ds;
 }
 
+TString RooWjjFitterUtils::fitCuts() const {
+  return TString::Format("(((%s>%0.3f) && (%s<%0.3f)) || "
+			 "((%s>%0.3f) && (%s<%0.3f)))",
+			 params_.var.Data(), params_.minFit,
+			 params_.var.Data(), params_.minTrunc,
+			 params_.var.Data(), params_.maxTrunc,
+			 params_.var.Data(), params_.maxFit);
+}
+
 TString RooWjjFitterUtils::fullCuts(bool trunc) const {
   TString theCut = TString::Format("((%s > %0.3f) && (%s < %0.3f))", 
 				    params_.var.Data(), params_.minMass, 
 				    params_.var.Data(), params_.maxMass);
   if (trunc) {
-    theCut = TString::Format("(((%s>%0.3f) && (%s<%0.3f)) || "
-			     "((%s>%0.3f) && (%s<%0.3f)))",
-			     params_.var.Data(), params_.minMass,
-			     params_.var.Data(), params_.minTrunc,
-			     params_.var.Data(), params_.maxTrunc,
-			     params_.var.Data(), params_.maxMass);
+    theCut = fitCuts();
   }
   theCut += TString::Format(" && (%s)", jetCut_.Data());
   if (params_.cuts.Length() > 0)

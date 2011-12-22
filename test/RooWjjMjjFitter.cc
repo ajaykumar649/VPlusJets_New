@@ -178,7 +178,7 @@ RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
     dynamic_cast<RooTreeDataStore *>(data->store());
   dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
 					 "theData"),
-			 "", "goff");
+			 utils_.fitCuts(), "goff");
   //dataHist->Scale(1., "width");
   RooHist h_data(*dataHist, 0., 1, errorType_, 1.0,
 		 false);
@@ -1096,6 +1096,13 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     sframe->SetMinimum(1e-6);
     sframe->SetMaximum(1.4*sframe->GetMaximum());
   }
+  if ((params_.truncRange) && (params_.blind)) {
+    TBox * blind = new TBox(params_.minTrunc,sframe->GetMinimum(),
+			    params_.maxTrunc,sframe->GetMaximum());
+    blind->SetFillColor(kBlack);
+    blind->SetFillStyle(kSolid);
+    sframe->addObject(blind);
+  }
   sframe->GetYaxis()->SetTitle("Events / GeV");
   return sframe;
 }
@@ -1165,6 +1172,13 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     rframe->addObject(lowerLine);
     rframe->addObject(upperLine);
   }  
+  if ((params_.truncRange) && (params_.blind)) {
+    TBox * blind = new TBox(params_.minTrunc,rframe->GetMinimum(),
+			    params_.maxTrunc,rframe->GetMaximum());
+    blind->SetFillColor(kBlack);
+    blind->SetFillStyle(kSolid);
+    rframe->addObject(blind);
+  }
 
   return rframe;
 

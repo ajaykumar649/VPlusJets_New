@@ -10,6 +10,6 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.includeElectrons = True
 
     fitterPars.cuts = fitterPars.cuts + \
-                      '&& (JetPFCor_Pt[1] > 40) '
+                      '&& (JetPFCor_Pt[1] > 30) '
 
     return fitterPars

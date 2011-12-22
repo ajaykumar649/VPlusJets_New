@@ -5,6 +5,7 @@ from ROOT import RooWjjFitterParams
 
 def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars = RooWjjFitterParams()
+
     fitterPars.MCDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_'
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
@@ -12,16 +13,21 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
         fitterPars.toyWpJ = True
     fitterPars.QCDDirectory = '/uscms_data/d2/kalanand/WjjTrees/NewReducedQCDTrees/'
     fitterPars.initParamsFile = initFile
-    # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
+
     fitterPars.DataDirectory = fitterPars.MCDirectory
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeMuons = True
     fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeElectrons = True
+
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
+
     fitterPars.fitToyDataset = False
     fitterPars.ToyDatasetDirectory = '/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSets/'
     fitterPars.toydataFile = toydataFile
+
+    fitterPars.effDir = "/uscms/home/kalanand/cms/documents/notes/AN-11-266/trunk/"
+
     fitterPars.minMass = 30.
     fitterPars.maxMass = 400.
     fitterPars.nbins = 34
@@ -42,6 +48,7 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
     fitterPars.truncRange = True
+    fitterPars.blind = True
     fitterPars.minTrunc = 130.
 
     binMin = fitterPars.minMass
@@ -78,7 +85,7 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.njets = Nj
     fitterPars.constrainDiboson = True
 
-    fitterPars.doEffCorrections = False
+    fitterPars.doEffCorrections = True
 
     fitterPars.useExternalMorphingPars = False
        

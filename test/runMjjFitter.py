@@ -78,7 +78,7 @@ l.SetTextFont(42);
 
 cstacked = TCanvas("cstacked", "stacked")
 mf.Draw()
-l.DrawLatex(0.22, 0.85,
+l.DrawLatex(0.55, 0.60,
             '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
                                                               chi2/ndf)
             )

@@ -28,6 +28,7 @@ public:
   bool truncRange;
   double minTrunc;
   double maxTrunc;
+  bool blind;
   double minWmass;
   double maxWmass;
   bool doNewPhysics;
@@ -57,7 +58,16 @@ public:
 
   //efficiency corrections
   bool doEffCorrections;
-  TString effDir;
+  std::vector<TString> muIdEffFiles;
+  std::vector<TString> muHLTEffFiles;
+  std::vector<double> lumiPerEpochMuon;
+  std::vector<TString> eleIdFiles;
+  std::vector<TString> eleRecoFiles;
+  std::vector<TString> eleHLTFiles;
+  std::vector<TString> eleJ30Files;
+  std::vector<TString> eleJ25NoJ30Files;
+  std::vector<TString> eleMHTFiles;
+  std::vector<double> lumiPerEpochElectron;
 
   //fitting range
   double minFit, maxFit;
@@ -79,7 +89,7 @@ RooWjjFitterParams::RooWjjFitterParams() :
   NewPhysicsDirectory(""),QCDDirectory(""), nbins(24),
   minMass(60.), maxMass(300.), njets(2), JES_scales(2, 0.),
   includeMuons(true), includeElectrons(true),
-  truncRange(false), minTrunc(130.), maxTrunc(170.), 
+  truncRange(false), minTrunc(130.), maxTrunc(170.), blind(false),
   minWmass(65.), maxWmass(95.), doNewPhysics(false),
   doAllPlots(false), initParamsFile(""), constraintParamsFile(""),
   cuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
