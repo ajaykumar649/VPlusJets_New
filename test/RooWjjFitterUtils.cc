@@ -7,6 +7,7 @@
 #include "TEventList.h"
 #include "TRandom3.h"
 #include "TMath.h"
+#include "TTreeFormula.h"
 
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
@@ -142,13 +143,22 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         JetPFCor_Pt[maxJets];
   Float_t         JetPFCor_Eta[maxJets];
   Float_t         Mass2j_PFCor;
+  Float_t         MassV2j_PFCor;
   Float_t         event_met_pfmet;
   Int_t           event_nPV;
   Int_t           evtNJ;
   Float_t         lepton_pt;
   Float_t         lepton_eta;
 
-  theTree->SetBranchAddress(params_.var, &Mass2j_PFCor);
+  TTreeFormula poi("poi", params_.var, theTree);
+
+  theTree->SetBranchAddress("Mass2j_PFCor", &Mass2j_PFCor);
+  theTree->SetBranchAddress("MassV2j_PFCor", &MassV2j_PFCor);
+
+//   int PoiMatch = theTree->SetBranchAddress(params_.var, &poi);
+//   bool goodPoi = true;
+//   if (PoiMatch != 0) goodPoi = false;
+
   if (localDoWeights) {
     theTree->SetBranchAddress("JetPFCor_Pt",JetPFCor_Pt);
     theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
@@ -202,8 +212,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 	evtWgt *= effMu[epoch]->GetEfficiency(lepton_pt, lepton_eta);
       }
     }
-    
-    theHist->Fill(Mass2j_PFCor*(1.+tmpScale), evtWgt);
+    theHist->Fill(poi.EvalInstance()*(1.+tmpScale), evtWgt);
   }
 
   delete theTree;

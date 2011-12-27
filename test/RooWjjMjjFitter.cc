@@ -352,7 +352,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   QCDNorm_ = 0.;
   QCDError_ = 0.;
 
-  double rel2jet = 0.0617, rel3jet = 0.0213, rmu2jet = 0.001625, rmu3jet = 0.;
+  double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
   double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5;
   double ermu2jet = 0.004214, ermu3jet = 0.0040797;
 
