@@ -17,7 +17,8 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.DataDirectory = fitterPars.MCDirectory
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeMuons = True
-    fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_4p7invfb.root'
+    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root'
+##     fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeElectrons = True
 
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
@@ -91,19 +92,19 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     
     fitterPars.eleIdEffFiles.push_back("EffTableDir/eleEffsRecoToWP80_ScaleFactors.txt")
     fitterPars.eleRecoEffFiles.push_back("EffTableDir/eleEffsSCToReco_ScaleFactors.txt")
-    fitterPars.eleHLTEffFiles.push_back("EffTableDir/eleEffsWP80ToHLTEle27_May10ReReco.txt")
+    fitterPars.eleHLTEffFiles.push_back("EffTableDir/eleEffsSingleElectron.txt")
     fitterPars.eleJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
     fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/FullyEfficient_Jet2NoJet1.txt")
     fitterPars.eleMHTEffFiles.push_back("EffTableDir/FullyEfficient_MHT.txt")
-    fitterPars.lumiPerEpochElectron.push_back(1000.)
+    fitterPars.lumiPerEpochElectron.push_back(fitterPars.intLumi)
 
-    fitterPars.eleIdEffFiles.push_back("EffTableDir/eleEffsRecoToWP80_ScaleFactors.txt")
-    fitterPars.eleRecoEffFiles.push_back("EffTableDir/eleEffsSCToReco_ScaleFactors.txt")
-    fitterPars.eleHLTEffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_LWA_Ele.txt")
-    fitterPars.eleJ30EffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_Jet30_FracLumi_post-epsCaloLWA.txt")
-    fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_Jet25Not30_FracLumi_post-epsCaloLWA.txt")
-    fitterPars.eleMHTEffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_LWA_PfMht.txt")
-    fitterPars.lumiPerEpochElectron.push_back(5000)
+##     fitterPars.eleIdEffFiles.push_back("EffTableDir/eleEffsRecoToWP80_ScaleFactors.txt")
+##     fitterPars.eleRecoEffFiles.push_back("EffTableDir/eleEffsSCToReco_ScaleFactors.txt")
+##     fitterPars.eleHLTEffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_LWA_Ele.txt")
+##     fitterPars.eleJ30EffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_Jet30_FracLumi_post-epsCaloLWA.txt")
+##     fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_Jet25Not30_FracLumi_post-epsCaloLWA.txt")
+##     fitterPars.eleMHTEffFiles.push_back("EffTableDir/eleEffsHLTEle2jPfMht_data_LWA_PfMht.txt")
+##     fitterPars.lumiPerEpochElectron.push_back(3700)
 
     fitterPars.useExternalMorphingPars = False
        

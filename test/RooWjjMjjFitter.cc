@@ -1100,7 +1100,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     TBox * blind = new TBox(params_.minTrunc,sframe->GetMinimum(),
 			    params_.maxTrunc,sframe->GetMaximum());
     blind->SetFillColor(kBlack);
-    blind->SetFillStyle(kSolid);
+    blind->SetFillStyle(1001);
     sframe->addObject(blind);
   }
   sframe->GetYaxis()->SetTitle("Events / GeV");
@@ -1122,17 +1122,23 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
 		     Normalization(nexp, RooAbsReal::Raw),
 		     DrawOption("LF"), VLines(), FillStyle(1001),
-		     FillColor(kOrange), Name("h_diboson"), 
-		     LineColor(kOrange), Range("RangeForPlot"));
-    tmpCurve = rframe->getCurve("h_diboson");
+		     FillColor(kOrange), //Name("h_"+ pdfName), 
+		     LineColor(kOrange), 
+		     NormRange("RangeForPlot"),
+		     Range("RangeForPlot"));
+    tmpCurve = rframe->getCurve();
+    tmpCurve->SetName("h_" + pdfName);
     tmpCurve->SetTitle("WW/WZ");
     if (params_.doNewPhysics) {
       totalPdf->plotOn(rframe, ProjWData(*data), Components("NPPdf"),
 		       Normalization(nexp, RooAbsReal::Raw),
 		       DrawOption("LF"), VLines(), FillStyle(1001),
-		       FillColor(kCyan+2), Name("h_NP"),
-		       LineColor(kCyan+2), Range("RangeForPlot"));
-      tmpCurve = rframe->getCurve("h_NP");
+		       FillColor(kCyan+2), //Name("h_NP"),
+		       LineColor(kCyan+2), 
+		       NormRange("RangeForPlot"),
+		       Range("RangeForPlot"));
+      tmpCurve = rframe->getCurve();
+      tmpCurve->SetName("h_NP");
       tmpCurve->SetTitle("new physics");
     }
   }
@@ -1176,7 +1182,7 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     TBox * blind = new TBox(params_.minTrunc,rframe->GetMinimum(),
 			    params_.maxTrunc,rframe->GetMaximum());
     blind->SetFillColor(kBlack);
-    blind->SetFillStyle(kSolid);
+    blind->SetFillStyle(1001);
     rframe->addObject(blind);
   }
 
