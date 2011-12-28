@@ -576,6 +576,8 @@ public :
 				   Float_t            & fit_chi2,
 				   Int_t              & fit_NDF, 
 				   Int_t              & fit_status);
+   virtual void     calculateAngles( TLorentzVector& thep4M11, TLorentzVector& thep4M12, TLorentzVector& thep4M21, TLorentzVector& thep4M22, double& costheta1, double& costheta2, double& phi, double& costhetastar, double& phistar1, double& phistar2);
+   
 };
 
 #endif
@@ -930,6 +932,7 @@ Int_t kanamuon::Cut(Long64_t entry)
 // This function may be called from Loop.
 // returns  1 if entry is accepted.
 // returns -1 otherwise.
+   Long64_t tmp; tmp=entry;
    return 1;
 }
 #endif // #ifdef kanamuon_cxx

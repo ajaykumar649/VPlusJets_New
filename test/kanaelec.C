@@ -5,6 +5,7 @@
 #include <TCanvas.h>
 
 #include "Resolution.h"
+#include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
@@ -15,317 +16,362 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
 
-const TString inDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/DataFile/MergFile/";
-const TString inQCDDir = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample/MergFile/";
-const TString outDataDir = "/uscms_data/d2/kalanand/WjjTrees/NewReducedQCDTrees/";
+#include "ClassifierOut/TMVAClassification_170_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_180_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_190_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_200_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_250_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_300_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_350_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ2_el_Likelihood.class.C"
 
+#include "ClassifierOut/TMVAClassification_170_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_180_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_190_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_200_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_250_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_300_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_350_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ3_el_Likelihood.class.C"
+
+const TString inDataDir  = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/MergFile/";
+const TString inQCDDir   = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample/MergFile/";
+const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeTest/";
 
 void kanaelec::myana(double myflag, bool isQCD)
 {
   TChain * myChain;
-
-//   //QCD from Data or Data itself
-//   myflag = 20110000;
-
-//   //Wjj
-//   myflag = 20111009;
-
-
   cout << "isQCD=" << isQCD << endl;
-
   // 2011 data
   if (myflag == 20110000 || myflag == -100){
     myChain = new TChain("WJet"); 
-
+    
     if ( !isQCD ) {
-      myChain->Add(                    inDataDir + "WenuJets_DataAll_GoldenJSON_2p1invfb.root"); 
-      Init(myChain);Loop( 20110000,outDataDir + "RDStd_WenuJets_DataAll_GoldenJSON_2p1invfb.root");
+      myChain->Add(                    inDataDir + "WenuJets_DataAll_GoldenJSON_4p7invfb.root"); 
+      Init(myChain);Loop( 20110000,outDataDir + "RD_WenuJets_DataAll_GoldenJSON_4p7invfb.root");
     } else {
       myChain->Add(                    inQCDDir + "WenuJets_DataAll_GoldenJSON_2p1invfb.root"); 
       Init(myChain);Loop( 20110000,outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root", isQCD);
     }
   }
-
+  
   if ( !isQCD ) {
+    // Separate Electron Data
+    if (myflag == 20110001 || myflag == -101){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "SingleEleAndEleTwoPFJetTrigger.root"); 
+      Init(myChain);Loop( 20110001,outDataDir + "RD_SingleEleAndEleTwoPFJetTrigger.root");
+    }
+    if (myflag == 20110002 || myflag == -101){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "EleTwoCaloJetTrigger.root"); 
+      Init(myChain);Loop( 20110002,outDataDir + "RD_EleTwoCaloJetTrigger.root");
+    }
+    if (myflag == 20110003 || myflag == -102){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "WenuJets_175832-180252_SingleElectron-Run2011B-PromptReco-v1-trigallcombined.root"); 
+      Init(myChain);Loop( 20110003,outDataDir + "RD_WenuJets_175832-180252_SingleElectron-Run2011B-PromptReco-v1-trigallcombined.root");
+    }
+    if (myflag == 20110004 || myflag == -104){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root"); 
+      Init(myChain);Loop( 20110004,outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root");
+    }
+
     // General Background Samples
-    if (myflag == 20111002 || myflag == -100){
+    if (myflag == 20111002 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopS_Tbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111002,outDataDir + "RD_el_STopS_Tbar_CMSSW428.root");
     }
-    if (myflag == 20111003 || myflag == -100){
+    if (myflag == 20111003 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopS_T_CMSSW428.root"); 
       Init(myChain);Loop( 20111003,outDataDir + "RD_el_STopS_T_CMSSW428.root");
     }
-    if (myflag == 20111004 || myflag == -100){
+    if (myflag == 20111004 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopT_Tbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111004,outDataDir + "RD_el_STopT_Tbar_CMSSW428.root");
     }
-    if (myflag == 20111005 || myflag == -100){
+    if (myflag == 20111005 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopT_T_CMSSW428.root"); 
       Init(myChain);Loop( 20111005,outDataDir + "RD_el_STopT_T_CMSSW428.root");
     }
-    if (myflag == 20111006 || myflag == -100){
+    if (myflag == 20111006 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopTW_Tbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111006,outDataDir + "RD_el_STopTW_Tbar_CMSSW428.root");
     }
-    if (myflag == 20111007 || myflag == -100){
+    if (myflag == 20111007 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopTW_T_CMSSW428.root"); 
       Init(myChain);Loop( 20111007,outDataDir + "RD_el_STopTW_T_CMSSW428.root");
     }
-    if (myflag == 20111008 || myflag == -100){
+    if (myflag == 20111008 || myflag == -200){
       myChain = new TChain("WJet");  
-      myChain->Add(                    inDataDir + "el_TTbar_MG_CMSSW428.root"); 
-      Init(myChain);Loop( 20111008,outDataDir + "RD_el_TTbar_MG_CMSSW428.root");
+      myChain->Add(                    inDataDir + "el_TTbar_CMSSW428.root"); 
+      Init(myChain);Loop( 20111008,outDataDir + "RD_el_TTbar_CMSSW428.root");
     }
-    if (myflag == 20111009 || myflag == -100){
+    if (myflag == 20111009 || myflag == -500){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WpJ_CMSSW428.root"); 
       Init(myChain);Loop( 20111009,outDataDir + "RD_el_WpJ_CMSSW428.root");
     }
-    if (myflag == 20111010 || myflag == -100){
+    if (myflag == 20111010 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WpJmatchingdown_CMSSW428.root"); 
       Init(myChain);Loop( 20111010,outDataDir + "RD_el_WpJmatchingdown_CMSSW428.root");
     }
-    if (myflag == 20111011 || myflag == -100){
+    if (myflag == 20111011 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WpJmatchingup_CMSSW428.root"); 
       Init(myChain);Loop( 20111011,outDataDir + "RD_el_WpJmatchingup_CMSSW428.root");
     }
-    if (myflag == 20111012 || myflag == -100){
+    if (myflag == 20111012 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WpJscaledown_CMSSW428.root"); 
       Init(myChain);Loop( 20111012,outDataDir + "RD_el_WpJscaledown_CMSSW428.root");
     }
-    if (myflag == 20111013 || myflag == -100){
+    if (myflag == 20111013 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WpJscaleup_CMSSW428.root"); 
       Init(myChain);Loop( 20111013,outDataDir + "RD_el_WpJscaleup_CMSSW428.root");
     }
-    if (myflag == 20111014 || myflag == -100){
+    if (myflag == 20111014 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WpJsherpa_CMSSW428.root"); 
       Init(myChain);Loop( 20111014,outDataDir + "RD_el_WpJsherpa_CMSSW428.root");
     }
-    if (myflag == 20111015 || myflag == -100){
+    if (myflag == 20111015 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WW_CMSSW428.root"); 
       Init(myChain);Loop( 20111015,outDataDir + "RD_el_WW_CMSSW428.root");
     }
-    if (myflag == 20111016 || myflag == -100){
+    if (myflag == 20111016 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WZ_CMSSW428.root"); 
       Init(myChain);Loop( 20111016,outDataDir + "RD_el_WZ_CMSSW428.root");
     }
-    if (myflag == 20111017 || myflag == -100){
+    if (myflag == 20111017 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_ZpJ_CMSSW428.root"); 
       Init(myChain);Loop( 20111017,outDataDir + "RD_el_ZpJ_CMSSW428.root");
     }
-    if (myflag == 20111018 || myflag == -100){
+    if (myflag == 20111018 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_QCDEl_BCtoE30to80_CMSSW428.root"); 
       Init(myChain);Loop( 20111018,outDataDir + "RD_el_QCDEl_BCtoE30to80_CMSSW428.root");
     }
-    if (myflag == 20111019 || myflag == -100){
+    if (myflag == 20111019 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_QCDEl_BCtoE80to170_CMSSW428.root"); 
       Init(myChain);Loop( 20111019,outDataDir + "RD_el_QCDEl_BCtoE80to170_CMSSW428.root");
     }
-    if (myflag == 20111020 || myflag == -100){
+    if (myflag == 20111020 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_QCDEl_Pt30to80_CMSSW428.root"); 
       Init(myChain);Loop( 20111020,outDataDir + "RD_el_QCDEl_Pt30to80_CMSSW428.root");
     }
-    if (myflag == 20111021 || myflag == -100){
+    if (myflag == 20111021 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_QCDEl_Pt80to170_CMSSW428.root"); 
       Init(myChain);Loop( 20111021,outDataDir + "RD_el_QCDEl_Pt80to170_CMSSW428.root");
     }
-    if (myflag == 20111022 || myflag ==  999){ // set 999 not run!! no need
+    if (myflag == 20111022 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_TTbar_powheg_CMSSW428.root"); 
       Init(myChain);Loop( 20111022,outDataDir + "RD_el_TTbar_powheg_CMSSW428.root");
     }
 
     // Higgs Signal Samples
-    if (myflag == 20112120 || myflag == -100){
+    if (myflag == 20112120 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH120_CMSSW428.root"); 
       Init(myChain);Loop( 20112120,outDataDir + "RD_el_HWWMH120_CMSSW428.root");
     }
-    if (myflag == 20112130 || myflag == -100){
+    if (myflag == 20112130 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH130_CMSSW428.root"); 
       Init(myChain);Loop( 20112130,outDataDir + "RD_el_HWWMH130_CMSSW428.root");
     }
-    if (myflag == 20112140 || myflag == -100){
+    if (myflag == 20112140 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH140_CMSSW428.root"); 
       Init(myChain);Loop( 20112140,outDataDir + "RD_el_HWWMH140_CMSSW428.root");
     }
-    if (myflag == 20112150 || myflag == -100){
+    if (myflag == 20112150 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH150_CMSSW428.root"); 
       Init(myChain);Loop( 20112150,outDataDir + "RD_el_HWWMH150_CMSSW428.root");
     }
-    if (myflag == 20112160 || myflag == -100){
+    if (myflag == 20112160 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH160_CMSSW428.root"); 
       Init(myChain);Loop( 20112160,outDataDir + "RD_el_HWWMH160_CMSSW428.root");
     }
-    if (myflag == 20112170 || myflag == -100){
+    if (myflag == 20112170 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH170_CMSSW428.root"); 
       Init(myChain);Loop( 20112170,outDataDir + "RD_el_HWWMH170_CMSSW428.root");
     }
-    if (myflag == 20112180 || myflag == -100){
+    if (myflag == 20112180 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH180_CMSSW428.root"); 
       Init(myChain);Loop( 20112180,outDataDir + "RD_el_HWWMH180_CMSSW428.root");
     }
-    if (myflag == 20112190 || myflag == -100){
+    if (myflag == 20112190 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW428.root"); 
       Init(myChain);Loop( 20112190,outDataDir + "RD_el_HWWMH190_CMSSW428.root");
     }
-    if (myflag == 20112200 || myflag == -100){
+    if (myflag == 20112200 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH200_CMSSW428.root"); 
       Init(myChain);Loop( 20112200,outDataDir + "RD_el_HWWMH200_CMSSW428.root");
     }
-    if (myflag == 20112250 || myflag == -100){
+    if (myflag == 20112250 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH250_CMSSW428.root"); 
       Init(myChain);Loop( 20112250,outDataDir + "RD_el_HWWMH250_CMSSW428.root");
     }
-    if (myflag == 20112300 || myflag == -100){
+    if (myflag == 20112300 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH300_CMSSW428.root"); 
       Init(myChain);Loop( 20112300,outDataDir + "RD_el_HWWMH300_CMSSW428.root");
     }
-    if (myflag == 20112350 || myflag == -100){
+    if (myflag == 20112350 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW428.root"); 
       Init(myChain);Loop( 20112350,outDataDir + "RD_el_HWWMH350_CMSSW428.root");
     }
-    if (myflag == 20112400 || myflag == -100){
+    if (myflag == 20112400 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH400_CMSSW428.root"); 
       Init(myChain);Loop( 20112400,outDataDir + "RD_el_HWWMH400_CMSSW428.root");
     }
-    if (myflag == 20112450 || myflag == -100){
+    if (myflag == 20112450 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH450_CMSSW428.root"); 
       Init(myChain);Loop( 20112450,outDataDir + "RD_el_HWWMH450_CMSSW428.root");
     }
-    if (myflag == 20112500 || myflag == -100){
+    if (myflag == 20112500 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH500_CMSSW428.root"); 
       Init(myChain);Loop( 20112500,outDataDir + "RD_el_HWWMH500_CMSSW428.root");
     }
-    if (myflag == 20112550 || myflag == -100){
+    if (myflag == 20112550 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH550_CMSSW428.root"); 
       Init(myChain);Loop( 20112550,outDataDir + "RD_el_HWWMH550_CMSSW428.root");
     }
-    if (myflag == 20112600 || myflag == -100){
+    if (myflag == 20112600 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH600_CMSSW428.root"); 
       Init(myChain);Loop( 20112600,outDataDir + "RD_el_HWWMH600_CMSSW428.root");
     }
 
     // VBF Higgs MC Signal
-    if (myflag == 20113120 || myflag == -100){
+    if (myflag == 20113120 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH120_CMSSW428.root"); 
       Init(myChain);Loop( 20113120,outDataDir + "RD_el_VBFHWWMH120_CMSSW428.root");
     }
-    if (myflag == 20113130 || myflag == -100){
+    if (myflag == 20113130 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH130_CMSSW428.root"); 
       Init(myChain);Loop( 20113130,outDataDir + "RD_el_VBFHWWMH130_CMSSW428.root");
     }
-    if (myflag == 20113140 || myflag == -100){
+    if (myflag == 20113140 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH140_CMSSW428.root"); 
       Init(myChain);Loop( 20113140,outDataDir + "RD_el_VBFHWWMH140_CMSSW428.root");
     }
-    if (myflag == 20113150 || myflag == -100){
+    if (myflag == 20113150 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH150_CMSSW428.root"); 
       Init(myChain);Loop( 20113150,outDataDir + "RD_el_VBFHWWMH150_CMSSW428.root");
     }
-    if (myflag == 20113160 || myflag == -100){
+    if (myflag == 20113160 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH160_CMSSW428.root"); 
       Init(myChain);Loop( 20113160,outDataDir + "RD_el_VBFHWWMH160_CMSSW428.root");
     }
-    if (myflag == 20113170 || myflag == -100){
+    if (myflag == 20113170 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH170_CMSSW428.root"); 
       Init(myChain);Loop( 20113170,outDataDir + "RD_el_VBFHWWMH170_CMSSW428.root");
     }
-    if (myflag == 20113180 || myflag == -100){
+    if (myflag == 20113180 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH180_CMSSW428.root"); 
       Init(myChain);Loop( 20113180,outDataDir + "RD_el_VBFHWWMH180_CMSSW428.root");
     }
-    if (myflag == 20113190 || myflag == -100){
+    if (myflag == 20113190 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH190_CMSSW428.root"); 
       Init(myChain);Loop( 20113190,outDataDir + "RD_el_VBFHWWMH190_CMSSW428.root");
     }
-    if (myflag == 20113200 || myflag == -100){
+    if (myflag == 20113200 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH200_CMSSW428.root"); 
       Init(myChain);Loop( 20113200,outDataDir + "RD_el_VBFHWWMH200_CMSSW428.root");
     }
-    if (myflag == 20113250 || myflag == -100){
+    if (myflag == 20113250 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH250_CMSSW428.root"); 
       Init(myChain);Loop( 20113250,outDataDir + "RD_el_VBFHWWMH250_CMSSW428.root");
     }
-    if (myflag == 20113300 || myflag == -100){
+    if (myflag == 20113300 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH300_CMSSW428.root"); 
       Init(myChain);Loop( 20113300,outDataDir + "RD_el_VBFHWWMH300_CMSSW428.root");
     }
-    if (myflag == 20113350 || myflag == -100){
+    if (myflag == 20113350 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH350_CMSSW428.root"); 
       Init(myChain);Loop( 20113350,outDataDir + "RD_el_VBFHWWMH350_CMSSW428.root");
     }
-    if (myflag == 20113400 || myflag == -100){
+    if (myflag == 20113400 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH400_CMSSW428.root"); 
       Init(myChain);Loop( 20113400,outDataDir + "RD_el_VBFHWWMH400_CMSSW428.root");
     }
-    if (myflag == 20113450 || myflag == -100){
+    if (myflag == 20113450 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH450_CMSSW428.root"); 
       Init(myChain);Loop( 20113450,outDataDir + "RD_el_VBFHWWMH450_CMSSW428.root");
     }
-    if (myflag == 20113500 || myflag == -100){
+    if (myflag == 20113500 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH500_CMSSW428.root"); 
       Init(myChain);Loop( 20113500,outDataDir + "RD_el_VBFHWWMH500_CMSSW428.root");
     }
-    if (myflag == 20113550 || myflag == -100){
+    if (myflag == 20113550 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH550_CMSSW428.root"); 
       Init(myChain);Loop( 20113550,outDataDir + "RD_el_VBFHWWMH550_CMSSW428.root");
     }
-    if (myflag == 20113600 || myflag == -100){
+    if (myflag == 20113600 || myflag == -400){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH600_CMSSW428.root"); 
       Init(myChain);Loop( 20113600,outDataDir + "RD_el_VBFHWWMH600_CMSSW428.root");
+    }
+    
+    // VBF Background samples generated by Qiang and Andre
+    if (myflag == 20114001 || myflag == -400){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_VBF_CMSSW428.root"); 
+      Init(myChain);Loop( 20114001,outDataDir + "RD_el_VBF_CMSSW428.root");
     }
   }
 
@@ -337,14 +383,62 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
   Long64_t nentries = fChain->GetEntries();
   // Out Put File Here
   TFile fresults = TFile(outfilename,"RECREATE");
+  // Disable some variables never used to reduce the size of file
+  fChain->SetBranchStatus("JetPFCor_etaetaMoment",    0);
+  fChain->SetBranchStatus("JetPFCor_phiphiMoment",    0);
+  fChain->SetBranchStatus("JetPFCor_etaphiMoment",    0);
+  fChain->SetBranchStatus("JetPFCor_maxDistance",    0);
+  fChain->SetBranchStatus("JetPFCor_nConstituents",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedHadronEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedHadronEnergyFrac",    0);
+  fChain->SetBranchStatus("JetPFCor_NeutralHadronEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_NeutralHadronEnergyFrac",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedEmEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedEmEnergyFrac",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedMuEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedMuEnergyFrac",    0);
+  fChain->SetBranchStatus("JetPFCor_NeutralEmEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_NeutralEmEnergyFrac",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_NeutralMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_MuonMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_PhotonEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_PhotonEnergyFraction",    0);
+  fChain->SetBranchStatus("JetPFCor_ElectronEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_ElectronEnergyFraction",    0);
+  fChain->SetBranchStatus("JetPFCor_MuonEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_MuonEnergyFraction",    0);
+  fChain->SetBranchStatus("JetPFCor_HFHadronEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_HFHadronEnergyFraction",    0);
+  fChain->SetBranchStatus("JetPFCor_HFEMEnergy",    0);
+  fChain->SetBranchStatus("JetPFCor_HFEMEnergyFraction",    0);
+  fChain->SetBranchStatus("JetPFCor_ChargedHadronMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_NeutralHadronMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_PhotonMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_ElectronMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_HFHadronMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_HFEMMultiplicity",    0);
+  fChain->SetBranchStatus("JetPFCor_SumPtCands",    0);
+  fChain->SetBranchStatus("JetPFCor_SumPt2Cands",    0);
+  fChain->SetBranchStatus("JetPFCor_rmsCands",    0);
+  // Drop most of VBF
+  fChain->SetBranchStatus("*VBFTag*",    0);
+  fChain->SetBranchStatus("JetPFCorVBFTag_Pt",    1);
+  fChain->SetBranchStatus("JetPFCorVBFTag_Eta",    1);
+  fChain->SetBranchStatus("JetPFCorVBFTag_Phi",    1);
+  fChain->SetBranchStatus("JetPFCorVBFTag_E",    1);
+  fChain->SetBranchStatus("JetPFCorVBFTag_bDiscriminator",    1);
+  // Drop gen jet information
+  fChain->SetBranchStatus("*Gen*",    0);
+
   TTree *newtree = fChain->CloneTree();
   char textfn[100]; 
   sprintf(textfn,"%s.txt", outfilename);
   FILE *textfile = fopen(textfn,"w");
   
-  Int_t   gdevtt   =0,   evtNJ     =0;
+  Int_t   ggdevt   =0,   evtNJ     =0;
 
-  TBranch *branch_gdevtt= newtree->Branch("gdevtt",    &gdevtt,     "gdevtt/I");
+  TBranch *branch_ggdevt= newtree->Branch("ggdevt",    &ggdevt,     "ggdevt/I");
   TBranch *branch_evtNJ = newtree->Branch("evtNJ",     &evtNJ,      "evtNJ/I");
 
   Float_t fit_mu_px=0,   fit_mu_py =0,   fit_mu_pz=0,   fit_mu_e=0;
@@ -382,78 +476,88 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
   TBranch *branch_NDF   = newtree->Branch("fit_NDF",   &fit_NDF,    "fit_NDF/I");
   TBranch *branch_status= newtree->Branch("fit_status",&fit_status, "fit_status/I");
 
-  Float_t fi2_mu_px=0,   fi2_mu_py =0,   fi2_mu_pz=0,   fi2_mu_e=0;
-  Float_t fi2_nv_px=0,   fi2_nv_py =0,   fi2_nv_pz=0,   fi2_nv_e=0;
-  Float_t fi2_aj_px=0,   fi2_aj_py =0,   fi2_aj_pz=0,   fi2_aj_e=0;
-  Float_t fi2_bj_px=0,   fi2_bj_py =0,   fi2_bj_pz=0,   fi2_bj_e=0;
-  Float_t fi2_mlvjj=0,   fi2_chi2  =999;  
-  Int_t   fi2_NDF  =999, fi2_status=999;
-  Float_t fi2_mlv  =0,   fi2_mjj   =0;
+  Float_t TopWm=0,   TopWm5j=0;
+  Float_t Tchi2=999, Tchi25j=999;
+  TBranch *branch_TopWm   = newtree->Branch("TopWm",       &TopWm,      "TopWm/F");
+  TBranch *branch_TopWm5j = newtree->Branch("TopWm5j",     &TopWm5j,    "TopWm5j/F");
+  TBranch *branch_Tchi2   = newtree->Branch("Tchi2",       &Tchi2,      "Tchi2/F");
+  TBranch *branch_Tchi25j = newtree->Branch("Tchi25j",     &Tchi25j,    "Tchi25j/F");
 
-  TBranch *branc2_mu_px = newtree->Branch("fi2_el_px", &fi2_mu_px,  "fi2_el_px/F");
-  TBranch *branc2_mu_py = newtree->Branch("fi2_el_py", &fi2_mu_py,  "fi2_el_py/F");
-  TBranch *branc2_mu_pz = newtree->Branch("fi2_el_pz", &fi2_mu_pz,  "fi2_el_pz/F");
-  TBranch *branc2_mu_e  = newtree->Branch("fi2_el_e",  &fi2_mu_e,   "fi2_el_e/F");
-  	   
-  TBranch *branc2_nv_px = newtree->Branch("fi2_nv_px", &fi2_nv_px,  "fi2_nv_px/F");
-  TBranch *branc2_nv_py = newtree->Branch("fi2_nv_py", &fi2_nv_py,  "fi2_nv_py/F");
-  TBranch *branc2_nv_pz = newtree->Branch("fi2_nv_pz", &fi2_nv_pz,  "fi2_nv_pz/F");
-  TBranch *branc2_nv_e  = newtree->Branch("fi2_nv_e",  &fi2_nv_e,   "fi2_nv_e/F");
-  	   
-  TBranch *branc2_aj_px = newtree->Branch("fi2_aj_px", &fi2_aj_px,  "fi2_aj_px/F");
-  TBranch *branc2_aj_py = newtree->Branch("fi2_aj_py", &fi2_aj_py,  "fi2_aj_py/F");
-  TBranch *branc2_aj_pz = newtree->Branch("fi2_aj_pz", &fi2_aj_pz,  "fi2_aj_pz/F");
-  TBranch *branc2_aj_e  = newtree->Branch("fi2_aj_e",  &fi2_aj_e,   "fi2_aj_e/F");
-  	   
-  TBranch *branc2_bj_px = newtree->Branch("fi2_bj_px", &fi2_bj_px,  "fi2_bj_px/F");
-  TBranch *branc2_bj_py = newtree->Branch("fi2_bj_py", &fi2_bj_py,  "fi2_bj_py/F");
-  TBranch *branc2_bj_pz = newtree->Branch("fi2_bj_pz", &fi2_bj_pz,  "fi2_bj_pz/F");
-  TBranch *branc2_bj_e  = newtree->Branch("fi2_bj_e",  &fi2_bj_e,   "fi2_bj_e/F");
+  Float_t ang_ha   = 999, ang_hb = 999, ang_hs = 999, ang_phi = 999, ang_phia = 999, ang_phib = 999;
+  Float_t masslvjj =-999, ptlvjj =-999,  ylvjj = -999,philvjj = -999;
+  TBranch * branch_ha   =  newtree->Branch("ang_ha",   &ang_ha,    "ang_ha/F");
+  TBranch * branch_hb   =  newtree->Branch("ang_hb",   &ang_hb,    "ang_hb/F");
+  TBranch * branch_hs   =  newtree->Branch("ang_hs",   &ang_hs,    "ang_hs/F");
+  TBranch * branch_phi  =  newtree->Branch("ang_phi",  &ang_phi,   "ang_phi/F");
+  TBranch * branch_phia =  newtree->Branch("ang_phia", &ang_phia,  "ang_phia/F");
+  TBranch * branch_phib =  newtree->Branch("ang_phib", &ang_phib,  "ang_phib/F");
+  TBranch * branch_orgm =  newtree->Branch("masslvjj", &masslvjj,  "masslvjj/F");
+  TBranch * branch_orgpt=  newtree->Branch("ptlvjj",   &ptlvjj,    "ptlvjj/F");
+  TBranch * branch_orgy =  newtree->Branch("ylvjj",    &ylvjj,     "ylvjj/F");
+  TBranch * branch_orgph=  newtree->Branch("philvjj",  &philvjj,   "philvjj/F");
+
+  Float_t mva2j160el = 999, mva2j170el = 999, mva2j180el = 999, mva2j190el = 999, mva2j200el = 999, mva2j250el = 999, mva2j300el = 999, mva2j350el = 999, mva2j400el = 999, mva2j450el = 999, mva2j500el = 999, mva2j550el = 999, mva2j600el = 999;
+  Float_t mva3j160el = 999, mva3j170el = 999, mva3j180el = 999, mva3j190el = 999, mva3j200el = 999, mva3j250el = 999, mva3j300el = 999, mva3j350el = 999, mva3j400el = 999, mva3j450el = 999, mva3j500el = 999, mva3j550el = 999, mva3j600el = 999;
   
-  TBranch *branc2_mlvjj = newtree->Branch("fi2_mlvjj", &fi2_mlvjj,  "fi2_mlvjj/F");
-  TBranch *branc2_mlv   = newtree->Branch("fi2_mlv",   &fi2_mlv,    "fi2_mlv/F");
-  TBranch *branc2_mjj   = newtree->Branch("fi2_mjj",   &fi2_mjj,    "fi2_mjj/F");
-  TBranch *branc2_chi2  = newtree->Branch("fi2_chi2",  &fi2_chi2,   "fi2_chi2/F");
-  TBranch *branc2_NDF   = newtree->Branch("fi2_NDF",   &fi2_NDF,    "fi2_NDF/I");
-  TBranch *branc2_status= newtree->Branch("fi2_status",&fi2_status, "fi2_status/I");
+  TBranch * branch_2j160el   =  newtree->Branch("mva2j160el",   &mva2j160el,    "mva2j160el/F");
+  TBranch * branch_2j170el   =  newtree->Branch("mva2j170el",   &mva2j170el,    "mva2j170el/F");
+  TBranch * branch_2j180el   =  newtree->Branch("mva2j180el",   &mva2j180el,    "mva2j180el/F");
+  TBranch * branch_2j190el   =  newtree->Branch("mva2j190el",   &mva2j190el,    "mva2j190el/F");
+  TBranch * branch_2j200el   =  newtree->Branch("mva2j200el",   &mva2j200el,    "mva2j200el/F");
+  TBranch * branch_2j250el   =  newtree->Branch("mva2j250el",   &mva2j250el,    "mva2j250el/F");
+  TBranch * branch_2j300el   =  newtree->Branch("mva2j300el",   &mva2j300el,    "mva2j300el/F");
+  TBranch * branch_2j350el   =  newtree->Branch("mva2j350el",   &mva2j350el,    "mva2j350el/F");
+  TBranch * branch_2j400el   =  newtree->Branch("mva2j400el",   &mva2j400el,    "mva2j400el/F");
+  TBranch * branch_2j450el   =  newtree->Branch("mva2j450el",   &mva2j450el,    "mva2j450el/F");
+  TBranch * branch_2j500el   =  newtree->Branch("mva2j500el",   &mva2j500el,    "mva2j500el/F");
+  TBranch * branch_2j550el   =  newtree->Branch("mva2j500el",   &mva2j550el,    "mva2j550el/F");
+  TBranch * branch_2j600el   =  newtree->Branch("mva2j600el",   &mva2j600el,    "mva2j600el/F");
 
-  Float_t fi3_mu_px=0,   fi3_mu_py =0,   fi3_mu_pz=0,   fi3_mu_e=0;
-  Float_t fi3_nv_px=0,   fi3_nv_py =0,   fi3_nv_pz=0,   fi3_nv_e=0;
-  Float_t fi3_aj_px=0,   fi3_aj_py =0,   fi3_aj_pz=0,   fi3_aj_e=0;
-  Float_t fi3_bj_px=0,   fi3_bj_py =0,   fi3_bj_pz=0,   fi3_bj_e=0;
-  Float_t fi3_mlvjj=0,   fi3_chi2  =999;  
-  Int_t   fi3_NDF  =999, fi3_status=999;
-  Float_t fi3_mlv  =0,   fi3_mjj   =0;
+  TBranch * branch_3j160el   =  newtree->Branch("mva3j160el",   &mva3j160el,    "mva3j160el/F");
+  TBranch * branch_3j170el   =  newtree->Branch("mva3j170el",   &mva3j170el,    "mva3j170el/F");
+  TBranch * branch_3j180el   =  newtree->Branch("mva3j180el",   &mva3j180el,    "mva3j180el/F");
+  TBranch * branch_3j190el   =  newtree->Branch("mva3j190el",   &mva3j190el,    "mva3j190el/F");
+  TBranch * branch_3j200el   =  newtree->Branch("mva3j200el",   &mva3j200el,    "mva3j200el/F");
+  TBranch * branch_3j250el   =  newtree->Branch("mva3j250el",   &mva3j250el,    "mva3j250el/F");
+  TBranch * branch_3j300el   =  newtree->Branch("mva3j300el",   &mva3j300el,    "mva3j300el/F");
+  TBranch * branch_3j350el   =  newtree->Branch("mva3j350el",   &mva3j350el,    "mva3j350el/F");
+  TBranch * branch_3j400el   =  newtree->Branch("mva3j400el",   &mva3j400el,    "mva3j400el/F");
+  TBranch * branch_3j450el   =  newtree->Branch("mva3j450el",   &mva3j450el,    "mva3j450el/F");
+  TBranch * branch_3j500el   =  newtree->Branch("mva3j500el",   &mva3j500el,    "mva3j500el/F");
+  TBranch * branch_3j550el   =  newtree->Branch("mva3j500el",   &mva3j550el,    "mva3j550el/F");
+  TBranch * branch_3j600el   =  newtree->Branch("mva3j600el",   &mva3j600el,    "mva3j600el/F");
 
-  TBranch *branc3_mu_px = newtree->Branch("fi3_el_px", &fi3_mu_px,  "fi3_el_px/F");
-  TBranch *branc3_mu_py = newtree->Branch("fi3_el_py", &fi3_mu_py,  "fi3_el_py/F");
-  TBranch *branc3_mu_pz = newtree->Branch("fi3_el_pz", &fi3_mu_pz,  "fi3_el_pz/F");
-  TBranch *branc3_mu_e  = newtree->Branch("fi3_el_e",  &fi3_mu_e,   "fi3_el_e/F");
-  	   
-  TBranch *branc3_nv_px = newtree->Branch("fi3_nv_px", &fi3_nv_px,  "fi3_nv_px/F");
-  TBranch *branc3_nv_py = newtree->Branch("fi3_nv_py", &fi3_nv_py,  "fi3_nv_py/F");
-  TBranch *branc3_nv_pz = newtree->Branch("fi3_nv_pz", &fi3_nv_pz,  "fi3_nv_pz/F");
-  TBranch *branc3_nv_e  = newtree->Branch("fi3_nv_e",  &fi3_nv_e,   "fi3_nv_e/F");
-  	   
-  TBranch *branc3_aj_px = newtree->Branch("fi3_aj_px", &fi3_aj_px,  "fi3_aj_px/F");
-  TBranch *branc3_aj_py = newtree->Branch("fi3_aj_py", &fi3_aj_py,  "fi3_aj_py/F");
-  TBranch *branc3_aj_pz = newtree->Branch("fi3_aj_pz", &fi3_aj_pz,  "fi3_aj_pz/F");
-  TBranch *branc3_aj_e  = newtree->Branch("fi3_aj_e",  &fi3_aj_e,   "fi3_aj_e/F");
-  	   
-  TBranch *branc3_bj_px = newtree->Branch("fi3_bj_px", &fi3_bj_px,  "fi3_bj_px/F");
-  TBranch *branc3_bj_py = newtree->Branch("fi3_bj_py", &fi3_bj_py,  "fi3_bj_py/F");
-  TBranch *branc3_bj_pz = newtree->Branch("fi3_bj_pz", &fi3_bj_pz,  "fi3_bj_pz/F");
-  TBranch *branc3_bj_e  = newtree->Branch("fi3_bj_e",  &fi3_bj_e,   "fi3_bj_e/F");
+
+  // For MVA analysis
+  const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
+  std::vector<std::string> inputVarsMVA;
+  for (int i=0; i<10; ++i) inputVarsMVA.push_back( inputVars[i] );
+
+  ReadMVA2j170el mvaReader2j170el( inputVarsMVA );  
+  ReadMVA2j180el mvaReader2j180el( inputVarsMVA );  
+  ReadMVA2j190el mvaReader2j190el( inputVarsMVA );  
+  ReadMVA2j200el mvaReader2j200el( inputVarsMVA );  
+  ReadMVA2j250el mvaReader2j250el( inputVarsMVA );  
+  ReadMVA2j300el mvaReader2j300el( inputVarsMVA );  
+  ReadMVA2j350el mvaReader2j350el( inputVarsMVA );  
+  ReadMVA2j400el mvaReader2j400el( inputVarsMVA );  
+  ReadMVA2j450el mvaReader2j450el( inputVarsMVA );  
+  ReadMVA2j500el mvaReader2j500el( inputVarsMVA );  
+  ReadMVA2j550el mvaReader2j550el( inputVarsMVA );  
+  ReadMVA2j600el mvaReader2j600el( inputVarsMVA );  
   
-  TBranch *branc3_mlvjj = newtree->Branch("fi3_mlvjj", &fi3_mlvjj,  "fi3_mlvjj/F");
-  TBranch *branc3_mlv   = newtree->Branch("fi3_mlv",   &fi3_mlv,    "fi3_mlv/F");
-  TBranch *branc3_mjj   = newtree->Branch("fi3_mjj",   &fi3_mjj,    "fi3_mjj/F");
-  TBranch *branc3_chi2  = newtree->Branch("fi3_chi2",  &fi3_chi2,   "fi3_chi2/F");
-  TBranch *branc3_NDF   = newtree->Branch("fi3_NDF",   &fi3_NDF,    "fi3_NDF/I");
-  TBranch *branc3_status= newtree->Branch("fi3_status",&fi3_status, "fi3_status/I");
-
-  Float_t TopWm=0;
-  TBranch *branc3_TopWm = newtree->Branch("TopWm",     &TopWm,      "TopWm/F");
+  ReadMVA3j170el mvaReader3j170el( inputVarsMVA );  
+  ReadMVA3j180el mvaReader3j180el( inputVarsMVA );  
+  ReadMVA3j190el mvaReader3j190el( inputVarsMVA );  
+  ReadMVA3j200el mvaReader3j200el( inputVarsMVA );  
+  ReadMVA3j250el mvaReader3j250el( inputVarsMVA );  
+  ReadMVA3j300el mvaReader3j300el( inputVarsMVA );  
+  ReadMVA3j350el mvaReader3j350el( inputVarsMVA );  
+  ReadMVA3j400el mvaReader3j400el( inputVarsMVA );  
+  ReadMVA3j450el mvaReader3j450el( inputVarsMVA );  
+  ReadMVA3j500el mvaReader3j500el( inputVarsMVA );  
+  ReadMVA3j550el mvaReader3j550el( inputVarsMVA );  
+  ReadMVA3j600el mvaReader3j600el( inputVarsMVA );  
 
   // Parameter Setup
   const unsigned int jetsize         = 6;
@@ -474,7 +578,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 			  2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]));
 
     // Save variable initialization
-    gdevtt    = 0;
+    ggdevt    = 0;
     evtNJ     = 0;
 
     fit_mu_px = 0; fit_mu_py = 0; fit_mu_pz = 0;  fit_mu_e  = 0; 
@@ -484,21 +588,14 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
     fit_mlvjj = 0; fit_chi2  =999;fit_NDF   =999; fit_status=999;
     fit_mlv   = 0; fit_mjj   = 0;
 
-    fi2_mu_px = 0; fi2_mu_py = 0; fi2_mu_pz = 0;  fi2_mu_e  = 0; 
-    fi2_nv_px = 0; fi2_nv_py = 0; fi2_nv_pz = 0;  fi2_nv_e  = 0; 
-    fi2_aj_px = 0; fi2_aj_py = 0; fi2_aj_pz = 0;  fi2_aj_e  = 0; 
-    fi2_bj_px = 0; fi2_bj_py = 0; fi2_bj_pz = 0;  fi2_bj_e  = 0; 
-    fi2_mlvjj = 0; fi2_chi2  =999;fi2_NDF   =999; fi2_status=999;
-    fi2_mlv   = 0; fi2_mjj   = 0;
+    TopWm     = 0; TopWm5j   = 0; Tchi2     =999; Tchi25j   =999;
 
-    fi3_mu_px = 0; fi3_mu_py = 0; fi3_mu_pz = 0;  fi3_mu_e  = 0; 
-    fi3_nv_px = 0; fi3_nv_py = 0; fi3_nv_pz = 0;  fi3_nv_e  = 0; 
-    fi3_aj_px = 0; fi3_aj_py = 0; fi3_aj_pz = 0;  fi3_aj_e  = 0; 
-    fi3_bj_px = 0; fi3_bj_py = 0; fi3_bj_pz = 0;  fi3_bj_e  = 0; 
-    fi3_mlvjj = 0; fi3_chi2  =999;fi3_NDF   =999; fi3_status=999;
-    fi3_mlv   = 0; fi3_mjj   = 0;
-
-    TopWm     = 0;
+    ang_ha  = 999; ang_hb    =999;ang_hs    =999; ang_phi   =999; 
+    ang_phia= 999; ang_phib  =999;
+    masslvjj=-999; ptlvjj    =-999; ylvjj   =-999;philvjj   =-999;
+    
+    mva2j160el = 999; mva2j170el = 999; mva2j180el = 999; mva2j190el = 999; mva2j200el = 999; mva2j250el = 999; mva2j300el = 999; mva2j350el = 999; mva2j400el = 999; mva2j450el = 999; mva2j500el = 999; mva2j550el = 999; mva2j600el = 999;
+    mva3j160el = 999; mva3j170el = 999; mva3j180el = 999; mva3j190el = 999; mva3j200el = 999; mva3j250el = 999; mva3j300el = 999; mva3j350el = 999; mva3j400el = 999; mva3j450el = 999; mva3j500el = 999; mva3j550el = 999; mva3j600el = 999;
 
     // Good Event Selection Requirement for all events
     bool  isgengdevt = 0;
@@ -525,69 +622,107 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
       //keep electrons with 0.1<iso
       if ( !( (0.1<electroniso) ) ) isgengdevt=0;
     }
- 
 
+    // Fill lepton information
+    TLorentzVector  mup, nvp;
+    mup.SetPtEtaPhiE(W_electron_pt,      W_electron_eta,   W_electron_phi,   W_electron_e               );
+    nvp.SetPxPyPzE(event_met_pfmet * cos(event_met_pfmetPhi), event_met_pfmet * sin(event_met_pfmetPhi), 
+		   W_pzNu1, sqrt(event_met_pfmet*event_met_pfmet + W_pzNu1*W_pzNu1)                     );
+    TLorentzVector b_metpt; b_metpt.SetPxPyPzE(event_met_pfmet * cos(event_met_pfmetPhi), event_met_pfmet * sin(event_met_pfmetPhi), 0, sqrt(event_met_pfmet*event_met_pfmet) );
+    METzCalculator b_metpz;
+    b_metpz.SetMET(b_metpt);
+    b_metpz.SetLepton(mup);
+    b_metpz.SetLeptonType("electron");
+    double b_nvpz = b_metpz.Calculate(); // Default one
+    TLorentzVector b_nvp; b_nvp.SetPxPyPzE(b_metpt.Px(), b_metpt.Py(), b_nvpz, sqrt(b_metpt.Px()*b_metpt.Px() + b_metpt.Py()*b_metpt.Py() + b_nvpz*b_nvpz) );
+    if (b_metpz.IsComplex()) {// if this is a complix, change MET
+      double nu_pt1 = b_metpz.getPtneutrino(1);
+      double nu_pt2 = b_metpz.getPtneutrino(2);
+      TLorentzVector tmpp1; tmpp1.SetPxPyPzE(nu_pt1 * cos(event_met_pfmetPhi), nu_pt1 * sin(event_met_pfmetPhi), b_nvpz, sqrt(nu_pt1*nu_pt1 + b_nvpz*b_nvpz) );
+      TLorentzVector tmpp2; tmpp2.SetPxPyPzE(nu_pt2 * cos(event_met_pfmetPhi), nu_pt2 * sin(event_met_pfmetPhi), b_nvpz, sqrt(nu_pt2*nu_pt2 + b_nvpz*b_nvpz) );
+      b_nvp = tmpp1;	if ( fabs((mup+tmpp1).M()-80.4) > fabs((mup+tmpp2).M()-80.4) ) 	b_nvp = tmpp2;
+    }
+    
     // 2 and 3 jet event for Mjj and Hww 
     if (isgengdevt
 	&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
         && fabs(JetPFCor_dphiMET[0])>0.4
-	&& dijetpt>40.)
-      {
-	if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {evtNJ = 2; gdevtt = 1;}
-	if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {evtNJ = 3;}
-	if (evtNJ==2||evtNJ==3) { // Do the kinematic fit for all event!!!
-	  int Aj = 0, Bj = 1;    TLorentzVector  mup, nvp, ajp, bjp; 
-	  mup.SetPtEtaPhiE(W_electron_pt,      W_electron_eta,   W_electron_phi,   W_electron_e               );
-	  nvp.SetPxPyPzE(event_met_pfmet * cos(event_met_pfmetPhi), event_met_pfmet * sin(event_met_pfmetPhi), 
-			 W_pzNu1, sqrt(event_met_pfmet*event_met_pfmet + W_pzNu1*W_pzNu1)                     );
-	  ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
-	  bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
-	  
-	  TLorentzVector fit_mup(0,0,0,0), fit_nvp(0,0,0,0), fit_ajp(0,0,0,0), fit_bjp(0,0,0,0) ; 
-	  doKinematicFit( 1, mup, nvp, ajp, bjp,  fit_mup, fit_nvp, fit_ajp, fit_bjp, fit_chi2, fit_NDF, fit_status);
-	  fit_mu_px = fit_mup.Px(); fit_mu_py = fit_mup.Py(); fit_mu_pz = fit_mup.Pz(); fit_mu_e = fit_mup.E(); 
-	  fit_nv_px = fit_nvp.Px(); fit_nv_py = fit_nvp.Py(); fit_nv_pz = fit_nvp.Pz(); fit_nv_e = fit_nvp.E(); 
-	  fit_aj_px = fit_ajp.Px(); fit_aj_py = fit_ajp.Py(); fit_aj_pz = fit_ajp.Pz(); fit_aj_e = fit_ajp.E(); 
-	  fit_bj_px = fit_bjp.Px(); fit_bj_py = fit_bjp.Py(); fit_bj_pz = fit_bjp.Pz(); fit_bj_e = fit_bjp.E(); 
-	  fit_mlvjj = (fit_mup+fit_nvp+fit_ajp+fit_bjp).M();
-	  fit_mlv   = (fit_mup+fit_nvp).M();
-	  fit_mjj   = (fit_ajp+fit_bjp).M(); 
-	  
-	  TLorentzVector fi2_mup(0,0,0,0), fi2_nvp(0,0,0,0), fi2_ajp(0,0,0,0), fi2_bjp(0,0,0,0) ; 
-	  doKinematicFit( 2, mup, nvp, ajp, bjp,  fi2_mup, fi2_nvp, fi2_ajp, fi2_bjp, fi2_chi2, fi2_NDF, fi2_status);
-	  fi2_mu_px = fi2_mup.Px(); fi2_mu_py = fi2_mup.Py(); fi2_mu_pz = fi2_mup.Pz(); fi2_mu_e = fi2_mup.E(); 
-	  fi2_nv_px = fi2_nvp.Px(); fi2_nv_py = fi2_nvp.Py(); fi2_nv_pz = fi2_nvp.Pz(); fi2_nv_e = fi2_nvp.E(); 
-	  fi2_aj_px = fi2_ajp.Px(); fi2_aj_py = fi2_ajp.Py(); fi2_aj_pz = fi2_ajp.Pz(); fi2_aj_e = fi2_ajp.E(); 
-	  fi2_bj_px = fi2_bjp.Px(); fi2_bj_py = fi2_bjp.Py(); fi2_bj_pz = fi2_bjp.Pz(); fi2_bj_e = fi2_bjp.E(); 
-	  fi2_mlvjj = (fi2_mup+fi2_nvp+fi2_ajp+fi2_bjp).M();
-	  fi2_mlv   = (fi2_mup+fi2_nvp).M();
-	  fi2_mjj   = (fi2_ajp+fi2_bjp).M(); 
+	&& dijetpt>40.){
+      if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {evtNJ = 2;}
+      if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {evtNJ = 3;}
+    }
+    if (isgengdevt) { ggdevt = 4;// Do the kinematic fit for all event!!!
+      if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {ggdevt = 2;}
+      if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {ggdevt = 3;}
+      int Aj = 0, Bj = 1;    TLorentzVector ajp, bjp; 
+      ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
+      bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
+      
+      // Do kinematic fit
+      TLorentzVector fit_mup(0,0,0,0), fit_nvp(0,0,0,0), fit_ajp(0,0,0,0), fit_bjp(0,0,0,0) ;
+      doKinematicFit( 1, mup, b_nvp, ajp, bjp,  fit_mup, fit_nvp, fit_ajp, fit_bjp, fit_chi2, fit_NDF, fit_status);
+      fit_mu_px = fit_mup.Px(); fit_mu_py = fit_mup.Py(); fit_mu_pz = fit_mup.Pz(); fit_mu_e = fit_mup.E(); 
+      fit_nv_px = fit_nvp.Px(); fit_nv_py = fit_nvp.Py(); fit_nv_pz = fit_nvp.Pz(); fit_nv_e = fit_nvp.E(); 
+      fit_aj_px = fit_ajp.Px(); fit_aj_py = fit_ajp.Py(); fit_aj_pz = fit_ajp.Pz(); fit_aj_e = fit_ajp.E(); 
+      fit_bj_px = fit_bjp.Px(); fit_bj_py = fit_bjp.Py(); fit_bj_pz = fit_bjp.Pz(); fit_bj_e = fit_bjp.E(); 
+      fit_mlvjj = (fit_mup+fit_nvp+fit_ajp+fit_bjp).M();
+      fit_mlv   = (fit_mup+fit_nvp).M();
+      fit_mjj   = (fit_ajp+fit_bjp).M(); 
+      fit_aj_px = (mup+b_nvp).M();
+      
+      // Calculate angular distribution
+      masslvjj = (mup+b_nvp+ajp+bjp).M();
+      ptlvjj   = (mup+b_nvp+ajp+bjp).Pt();
+      ylvjj    = (mup+b_nvp+ajp+bjp).Rapidity();
+      philvjj  = (mup+b_nvp+ajp+bjp).Phi();
+      double a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2;
+      if (W_electron_charge < 0){
+	calculateAngles(mup, b_nvp, ajp, bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
+      }
+      else{
+	calculateAngles(b_nvp, mup, ajp, bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
+      }
+      ang_ha = a_costheta1; ang_hb = fabs(a_costheta2); ang_hs = a_costhetastar;  ang_phi = a_phi; ang_phia = a_phistar1; ang_phib = a_phistar2;
 
-	  TLorentzVector fi3_mup(0,0,0,0), fi3_nvp(0,0,0,0), fi3_ajp(0,0,0,0), fi3_bjp(0,0,0,0) ; 
-	  doKinematicFit( 3, mup, nvp, ajp, bjp,  fi3_mup, fi3_nvp, fi3_ajp, fi3_bjp, fi3_chi2, fi3_NDF, fi3_status);
+      // Fill the trained MVA output 
+      std::vector<double> mvaInputVal;
+      mvaInputVal.push_back( ptlvjj );
+      mvaInputVal.push_back( ylvjj );
+      mvaInputVal.push_back( W_electron_charge );   ///////different for electron and muon
+      mvaInputVal.push_back( JetPFCor_QGLikelihood[0] );
+      mvaInputVal.push_back( JetPFCor_QGLikelihood[1] );
+      mvaInputVal.push_back( ang_ha );
+      mvaInputVal.push_back( ang_hb );
+      mvaInputVal.push_back( ang_hs );
+      mvaInputVal.push_back( ang_phi );
+      mvaInputVal.push_back( ang_phib );
 
-	  // For test the code using same method as Dan.
-	  TLorentzVector tamet = nvp + ajp + bjp - fi3_ajp - fi3_bjp;
-	  TLorentzVector tbmet; tbmet.SetPxPyPzE(tamet.Px(), tamet.Py(), 0, sqrt(tamet.Px()*tamet.Px() + tamet.Py()*tamet.Py()) );
-	  METzCalculator metz;
-	  metz.SetMET(tbmet);
-	  metz.SetLepton(mup);
-	  metz.SetLeptonType("electron");
-	  double newnvpz = metz.Calculate();
-	  TLorentzVector nownvp; nownvp.SetPxPyPzE(tamet.Px(), tamet.Py(), newnvpz, sqrt(tamet.Px()*tamet.Px() + tamet.Py()*tamet.Py() + newnvpz*newnvpz) );
-	  fi3_nvp = nownvp;
-	  fi3_mup = mup;
-	  // Re calculate the neutrino
-
-	  fi3_mu_px = fi3_mup.Px(); fi3_mu_py = fi3_mup.Py(); fi3_mu_pz = fi3_mup.Pz(); fi3_mu_e = fi3_mup.E(); 
-	  fi3_nv_px = fi3_nvp.Px(); fi3_nv_py = fi3_nvp.Py(); fi3_nv_pz = fi3_nvp.Pz(); fi3_nv_e = fi3_nvp.E(); 
-	  fi3_aj_px = fi3_ajp.Px(); fi3_aj_py = fi3_ajp.Py(); fi3_aj_pz = fi3_ajp.Pz(); fi3_aj_e = fi3_ajp.E(); 
-	  fi3_bj_px = fi3_bjp.Px(); fi3_bj_py = fi3_bjp.Py(); fi3_bj_pz = fi3_bjp.Pz(); fi3_bj_e = fi3_bjp.E(); 
-	  fi3_mlvjj = (fi3_mup+fi3_nvp+fi3_ajp+fi3_bjp).M();
-	  fi3_mlv   = (fi3_mup+fi3_nvp).M();
-	  fi3_mjj   = (fi3_ajp+fi3_bjp).M(); 
-	}
-      }	 // Only Good event will be performed kinematic fit
+      mva2j170el = (float) mvaReader2j170el.GetMvaValue( mvaInputVal );
+      mva2j180el = (float) mvaReader2j180el.GetMvaValue( mvaInputVal );
+      mva2j190el = (float) mvaReader2j190el.GetMvaValue( mvaInputVal );
+      mva2j200el = (float) mvaReader2j200el.GetMvaValue( mvaInputVal );
+      mva2j250el = (float) mvaReader2j250el.GetMvaValue( mvaInputVal );
+      mva2j300el = (float) mvaReader2j300el.GetMvaValue( mvaInputVal );
+      mva2j350el = (float) mvaReader2j350el.GetMvaValue( mvaInputVal );
+      mva2j400el = (float) mvaReader2j400el.GetMvaValue( mvaInputVal );
+      mva2j450el = (float) mvaReader2j450el.GetMvaValue( mvaInputVal );
+      mva2j500el = (float) mvaReader2j500el.GetMvaValue( mvaInputVal );
+      mva2j550el = (float) mvaReader2j550el.GetMvaValue( mvaInputVal );
+      mva2j600el = (float) mvaReader2j600el.GetMvaValue( mvaInputVal );
+      
+      mva3j170el = (float) mvaReader3j170el.GetMvaValue( mvaInputVal );
+      mva3j180el = (float) mvaReader3j180el.GetMvaValue( mvaInputVal );
+      mva3j190el = (float) mvaReader3j190el.GetMvaValue( mvaInputVal );
+      mva3j200el = (float) mvaReader3j200el.GetMvaValue( mvaInputVal );
+      mva3j250el = (float) mvaReader3j250el.GetMvaValue( mvaInputVal );
+      mva3j300el = (float) mvaReader3j300el.GetMvaValue( mvaInputVal );
+      mva3j350el = (float) mvaReader3j350el.GetMvaValue( mvaInputVal );
+      mva3j400el = (float) mvaReader3j400el.GetMvaValue( mvaInputVal );
+      mva3j450el = (float) mvaReader3j450el.GetMvaValue( mvaInputVal );
+      mva3j500el = (float) mvaReader3j500el.GetMvaValue( mvaInputVal );
+      mva3j550el = (float) mvaReader3j550el.GetMvaValue( mvaInputVal );
+      mva3j600el = (float) mvaReader3j600el.GetMvaValue( mvaInputVal );
+    }
     // For Hadronic W in Top sample
     if (isgengdevt)
       {
@@ -606,6 +741,33 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 	    ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
 	    bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
 	    TopWm   = (ajp+bjp).M(); 
+	    
+	    TLorentzVector fit_mup(0,0,0,0), fit_nvp(0,0,0,0), fit_ajp(0,0,0,0), fit_bjp(0,0,0,0) ; Int_t tmpa =0, tmpb=0;
+	    doKinematicFit( 1, mup, b_nvp, ajp, bjp,  fit_mup, fit_nvp, fit_ajp, fit_bjp, Tchi2, tmpa, tmpb);
+	  }
+	}
+      }
+    if (isgengdevt)
+      {
+	if (JetPFCor_Pt[4] > Jpt && JetPFCor_Pt[5] < Jpt){
+	  int nbjet = 0;
+	  int nbnot = 0;
+	  int Aj    = -999;
+	  int Bj    = -999;
+	  if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
+	  if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
+	  if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
+	  if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
+	  if (JetPFCor_bDiscriminator[4]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=4; if (nbnot==2) Bj=4;}
+	  
+	  if (nbjet==2 && nbnot==3 && Aj!=-999 && Bj!=-999){
+	    TLorentzVector  ajp, bjp; 
+	    ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
+	    bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
+	    TopWm5j = (ajp+bjp).M(); 
+	    
+	    TLorentzVector fit_mup(0,0,0,0), fit_nvp(0,0,0,0), fit_ajp(0,0,0,0), fit_bjp(0,0,0,0) ; Int_t tmpa =0, tmpb=0;
+	    doKinematicFit( 1, mup, b_nvp, ajp, bjp,  fit_mup, fit_nvp, fit_ajp, fit_bjp, Tchi25j, tmpa, tmpb);
 	  }
 	}
       }
@@ -646,7 +808,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 	}
 	// For VBF Analysis ! Currently Gd Event Selection same as Hww
       }
-    branch_gdevtt->Fill();
+    branch_ggdevt->Fill();
     branch_evtNJ ->Fill();
     
     branch_mu_px->Fill();
@@ -676,61 +838,50 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
     branch_NDF  ->Fill();
     branch_status->Fill();
 
-    branc2_mu_px->Fill();
-    branc2_mu_py->Fill();
-    branc2_mu_pz->Fill();
-    branc2_mu_e ->Fill();
-    
-    branc2_nv_px->Fill();
-    branc2_nv_py->Fill();
-    branc2_nv_pz->Fill();
-    branc2_nv_e ->Fill();
-    
-    branc2_aj_px->Fill();
-    branc2_aj_py->Fill();
-    branc2_aj_pz->Fill();
-    branc2_aj_e ->Fill();
-    
-    branc2_bj_px->Fill();
-    branc2_bj_py->Fill();
-    branc2_bj_pz->Fill();
-    branc2_bj_e ->Fill();
-   
-    branc2_mlvjj->Fill();
-    branc2_mlv  ->Fill();
-    branc2_mjj  ->Fill();
-    branc2_chi2 ->Fill();
-    branc2_NDF  ->Fill();
-    branc2_status->Fill();
+    branch_TopWm->Fill();
+    branch_TopWm5j->Fill();
+    branch_Tchi2->Fill();
+    branch_Tchi25j->Fill();
 
-    branc3_mu_px->Fill();
-    branc3_mu_py->Fill();
-    branc3_mu_pz->Fill();
-    branc3_mu_e ->Fill();
-    
-    branc3_nv_px->Fill();
-    branc3_nv_py->Fill();
-    branc3_nv_pz->Fill();
-    branc3_nv_e ->Fill();
-    
-    branc3_aj_px->Fill();
-    branc3_aj_py->Fill();
-    branc3_aj_pz->Fill();
-    branc3_aj_e ->Fill();
-    
-    branc3_bj_px->Fill();
-    branc3_bj_py->Fill();
-    branc3_bj_pz->Fill();
-    branc3_bj_e ->Fill();
-   
-    branc3_mlvjj->Fill();
-    branc3_mlv  ->Fill();
-    branc3_mjj  ->Fill();
-    branc3_chi2 ->Fill();
-    branc3_NDF  ->Fill();
-    branc3_status->Fill();
+    branch_ha->Fill();   
+    branch_hb->Fill();   
+    branch_hs->Fill();  
+    branch_phi->Fill(); 
+    branch_phia->Fill();
+    branch_phib->Fill();
+    branch_orgm->Fill();
+    branch_orgpt->Fill();
+    branch_orgy->Fill();
+    branch_orgph->Fill();
 
-    branc3_TopWm->Fill();
+    branch_2j160el->Fill();
+    branch_2j170el->Fill();
+    branch_2j180el->Fill();
+    branch_2j190el->Fill();
+    branch_2j200el->Fill();
+    branch_2j250el->Fill();
+    branch_2j300el->Fill();
+    branch_2j350el->Fill();
+    branch_2j400el->Fill();
+    branch_2j450el->Fill();
+    branch_2j500el->Fill();
+    branch_2j550el->Fill();
+    branch_2j600el->Fill();
+
+    branch_3j160el->Fill();
+    branch_3j170el->Fill();
+    branch_3j180el->Fill();
+    branch_3j190el->Fill();
+    branch_3j200el->Fill();
+    branch_3j250el->Fill();
+    branch_3j300el->Fill();
+    branch_3j350el->Fill();
+    branch_3j400el->Fill();
+    branch_3j450el->Fill();
+    branch_3j500el->Fill();
+    branch_3j550el->Fill();
+    branch_3j600el->Fill();
+
   } // end event loop
   fresults.cd();
   newtree->Write("WJet");
@@ -809,10 +960,12 @@ bool kanaelec::doKinematicFit(Int_t                 fflage,
   TFitParticleEtEtaPhi* particle4 = new TFitParticleEtEtaPhi( "Jetb",     "Jetb",     &tmp_bjp,    &m4 );
 
   // Constraint
-  TFitConstraintM *mCons1 = new TFitConstraintM( "WMassConstrainta", "WMass-Constrainta", 0, 0 , 80.4);
+  TFitConstraintMGaus* mCons1 = new TFitConstraintMGaus( "W1MassConstraint", "W1Mass-Constraint", 0, 0 , 80.399, 2.085);
+  //TFitConstraintM *mCons1 = new TFitConstraintM( "WMassConstrainta", "WMass-Constrainta", 0, 0 , 80.4);
   mCons1->addParticles1( particle1, particle2 );
 
-  TFitConstraintM *mCons2 = new TFitConstraintM( "WMassConstraintb", "WMass-Constraintb", 0, 0 , 80.4);
+  TFitConstraintMGaus* mCons2 = new TFitConstraintMGaus( "W2MassConstraint", "W2Mass-Constraint", 0, 0 , 80.399, 2.085);
+  //TFitConstraintM *mCons2 = new TFitConstraintM( "WMassConstraintb", "WMass-Constraintb", 0, 0 , 80.4);
   mCons2->addParticles1( particle3, particle4 );
 
   TFitConstraintEp *pxCons = new TFitConstraintEp( "PxConstraint", "Px-Constraint", 0, TFitConstraintEp::pX , (mup+nvp+ajp+bjp).Px() );
@@ -828,14 +981,17 @@ bool kanaelec::doKinematicFit(Int_t                 fflage,
     fitter->addMeasParticle( particle2 );
     fitter->addMeasParticle( particle3 );
     fitter->addMeasParticle( particle4 );
-    fitter->addConstraint( pxCons );
-    fitter->addConstraint( pyCons );
     fitter->addConstraint( mCons1 );
     fitter->addConstraint( mCons2 );
   }else   if(fflage == 2 ){
     fitter->addMeasParticle( particle1 );
     fitter->addMeasParticle( particle2 );
+    fitter->addMeasParticle( particle3 );
+    fitter->addMeasParticle( particle4 );
+    fitter->addConstraint( pxCons );
+    fitter->addConstraint( pyCons );
     fitter->addConstraint( mCons1 );
+    fitter->addConstraint( mCons2 );
   }else   if(fflage == 3 ){
     fitter->addMeasParticle( particle3 );
     fitter->addMeasParticle( particle4 );
@@ -843,9 +999,9 @@ bool kanaelec::doKinematicFit(Int_t                 fflage,
   }else {return false;}
 
   //Set convergence criteria
-  fitter->setMaxNbIter( 500 );
+  fitter->setMaxNbIter( 50 );
   fitter->setMaxDeltaS( 1e-2 );
-  fitter->setMaxF( 1e-2 );
+  fitter->setMaxF( 1e-1 );
   fitter->setVerbosity(1);
   fitter->fit();
 
@@ -872,3 +1028,156 @@ bool kanaelec::doKinematicFit(Int_t                 fflage,
 
   return OK;
 }
+
+void kanaelec::calculateAngles(TLorentzVector& thep4M11, TLorentzVector& thep4M12, TLorentzVector& thep4M21, TLorentzVector& thep4M22, double& costheta1, double& costheta2, double& phi, double& costhetastar, double& phistar1, double& phistar2){
+  
+    
+    TLorentzVector thep4H = thep4M11 + thep4M12 + thep4M21 + thep4M22;
+    TLorentzVector thep4Z1 = thep4M11 + thep4M12;
+    TLorentzVector thep4Z2 = thep4M21 + thep4M22;
+    
+    double norm;
+    
+    TVector3 boostX = -(thep4H.BoostVector());
+    TLorentzVector thep4Z1inXFrame( thep4Z1 );
+    TLorentzVector thep4Z2inXFrame( thep4Z2 );      
+    thep4Z1inXFrame.Boost( boostX );
+    thep4Z2inXFrame.Boost( boostX );
+    TVector3 theZ1X_p3 = TVector3( thep4Z1inXFrame.X(), thep4Z1inXFrame.Y(), thep4Z1inXFrame.Z() );
+    TVector3 theZ2X_p3 = TVector3( thep4Z2inXFrame.X(), thep4Z2inXFrame.Y(), thep4Z2inXFrame.Z() );
+    
+    // calculate phi1, phi2, costhetastar
+    ///phi1 = theZ1X_p3.Phi();
+    ///phi2 = theZ2X_p3.Phi();
+    
+    ///////////////////////////////////////////////
+    // check for z1/z2 convention, redefine all 4 vectors with convention
+    /////////////////////////////////////////////// 
+    TLorentzVector p4H, p4Z1, p4M11, p4M12, p4Z2, p4M21, p4M22;
+    p4Z1 = thep4Z1; p4M11 = thep4M11; p4M12 = thep4M12;
+    p4Z2 = thep4Z2; p4M21 = thep4M21; p4M22 = thep4M22;
+    costhetastar = theZ1X_p3.CosTheta();
+    
+    // now helicity angles................................
+    // ...................................................
+    TVector3 boostZ1 = -(p4Z1.BoostVector());
+    TLorentzVector p4Z2Z1(p4Z2);
+    p4Z2Z1.Boost(boostZ1);
+    //find the decay axis
+    /////TVector3 unitx_1 = -Hep3Vector(p4Z2Z1);
+    TVector3 unitx_1( -p4Z2Z1.X(), -p4Z2Z1.Y(), -p4Z2Z1.Z() );
+    norm = 1/(unitx_1.Mag());
+    unitx_1*=norm;
+    //boost daughters of z2
+    TLorentzVector p4M21Z1(p4M21);
+    TLorentzVector p4M22Z1(p4M22);
+    p4M21Z1.Boost(boostZ1);
+    p4M22Z1.Boost(boostZ1);
+    //create z and y axes
+    /////TVector3 unitz_1 = Hep3Vector(p4M21Z1).cross(Hep3Vector(p4M22Z1));
+    TVector3 p4M21Z1_p3( p4M21Z1.X(), p4M21Z1.Y(), p4M21Z1.Z() );
+    TVector3 p4M22Z1_p3( p4M22Z1.X(), p4M22Z1.Y(), p4M22Z1.Z() );
+    TVector3 unitz_1 = p4M21Z1_p3.Cross( p4M22Z1_p3 );
+    norm = 1/(unitz_1.Mag());
+    unitz_1 *= norm;
+    TVector3 unity_1 = unitz_1.Cross(unitx_1);
+    
+    //caculate theta1
+    TLorentzVector p4M11Z1(p4M11);
+    p4M11Z1.Boost(boostZ1);
+    TVector3 p3M11( p4M11Z1.X(), p4M11Z1.Y(), p4M11Z1.Z() );
+    TVector3 unitM11 = p3M11.Unit();
+    double x_m11 = unitM11.Dot(unitx_1); double y_m11 = unitM11.Dot(unity_1); double z_m11 = unitM11.Dot(unitz_1);
+    TVector3 M11_Z1frame(y_m11, z_m11, x_m11);
+    costheta1 = M11_Z1frame.CosTheta();
+    //std::cout << "theta1: " << M11_Z1frame.Theta() << std::endl;
+    //////-----------------------old way of calculating phi---------------/////////
+    phi = M11_Z1frame.Phi();
+    
+    //set axes for other system
+    TVector3 boostZ2 = -(p4Z2.BoostVector());
+    TLorentzVector p4Z1Z2(p4Z1);
+    p4Z1Z2.Boost(boostZ2);
+    TVector3 unitx_2( -p4Z1Z2.X(), -p4Z1Z2.Y(), -p4Z1Z2.Z() );
+    norm = 1/(unitx_2.Mag());
+    unitx_2*=norm;
+    //boost daughters of z2
+    TLorentzVector p4M11Z2(p4M11);
+    TLorentzVector p4M12Z2(p4M12);
+    p4M11Z2.Boost(boostZ2);
+    p4M12Z2.Boost(boostZ2);
+    TVector3 p4M11Z2_p3( p4M11Z2.X(), p4M11Z2.Y(), p4M11Z2.Z() );
+    TVector3 p4M12Z2_p3( p4M12Z2.X(), p4M12Z2.Y(), p4M12Z2.Z() );
+    TVector3 unitz_2 = p4M11Z2_p3.Cross( p4M12Z2_p3 );
+    norm = 1/(unitz_2.Mag());
+    unitz_2*=norm;
+    TVector3 unity_2 = unitz_2.Cross(unitx_2);
+    //calcuate theta2
+    TLorentzVector p4M21Z2(p4M21);
+    p4M21Z2.Boost(boostZ2);
+    TVector3 p3M21( p4M21Z2.X(), p4M21Z2.Y(), p4M21Z2.Z() );
+    TVector3 unitM21 = p3M21.Unit();
+    double x_m21 = unitM21.Dot(unitx_2); double y_m21 = unitM21.Dot(unity_2); double z_m21 = unitM21.Dot(unitz_2);
+    TVector3 M21_Z2frame(y_m21, z_m21, x_m21);
+    costheta2 = M21_Z2frame.CosTheta();
+        
+    // calculate phi
+    //calculating phi_n
+    TLorentzVector n_p4Z1inXFrame( p4Z1 );
+    TLorentzVector n_p4M11inXFrame( p4M11 );
+    n_p4Z1inXFrame.Boost( boostX );
+    n_p4M11inXFrame.Boost( boostX );        
+    TVector3 n_p4Z1inXFrame_unit = n_p4Z1inXFrame.Vect().Unit();
+    TVector3 n_p4M11inXFrame_unit = n_p4M11inXFrame.Vect().Unit();  
+    TVector3 n_unitz_1( n_p4Z1inXFrame_unit );
+    //// y-axis is defined by neg lepton cross z-axis
+    //// the subtle part is here...
+    //////////TVector3 n_unity_1 = n_p4M11inXFrame_unit.Cross( n_unitz_1 );
+    TVector3 n_unity_1 = n_unitz_1.Cross( n_p4M11inXFrame_unit );
+    TVector3 n_unitx_1 = n_unity_1.Cross( n_unitz_1 );
+    
+    TLorentzVector n_p4M21inXFrame( p4M21 );
+    n_p4M21inXFrame.Boost( boostX );
+    TVector3 n_p4M21inXFrame_unit = n_p4M21inXFrame.Vect().Unit();
+    //rotate into other plane
+    TVector3 n_p4M21inXFrame_unitprime( n_p4M21inXFrame_unit.Dot(n_unitx_1), n_p4M21inXFrame_unit.Dot(n_unity_1), n_p4M21inXFrame_unit.Dot(n_unitz_1) );
+    
+    ///////-----------------new way of calculating phi-----------------///////
+    //double phi_n =  n_p4M21inXFrame_unitprime.Phi();
+    /*
+     std::cout << "---------------------------" << std::endl;
+     std::cout << "phi: " << phi << std::endl;
+     std::cout << "phi_n: " << phi_n << std::endl;
+     std::cout << "phi + phi_n: " << (phi+phi_n) << std::endl;
+     */
+    /// and then calculate phistar1
+    TVector3 n_p4PartoninXFrame_unit( 0.0, 0.0, 1.0 );
+    TVector3 n_p4PartoninXFrame_unitprime( n_p4PartoninXFrame_unit.Dot(n_unitx_1), n_p4PartoninXFrame_unit.Dot(n_unity_1), n_p4PartoninXFrame_unit.Dot(n_unitz_1) );
+    // negative sign is for arrow convention in paper
+    phistar1 = (n_p4PartoninXFrame_unitprime.Phi());
+    
+    // and the calculate phistar2
+    TLorentzVector n_p4Z2inXFrame( p4Z2 );
+    n_p4Z2inXFrame.Boost( boostX );
+    TVector3 n_p4Z2inXFrame_unit = n_p4Z2inXFrame.Vect().Unit();
+    ///////TLorentzVector n_p4M21inXFrame( p4M21 );
+    //////n_p4M21inXFrame.Boost( boostX );        
+    ////TVector3 n_p4M21inXFrame_unit = n_p4M21inXFrame.Vect().Unit();  
+    TVector3 n_unitz_2( n_p4Z2inXFrame_unit );
+    //// y-axis is defined by neg lepton cross z-axis
+    //// the subtle part is here...
+    //////TVector3 n_unity_2 = n_p4M21inXFrame_unit.Cross( n_unitz_2 );
+    TVector3 n_unity_2 = n_unitz_2.Cross( n_p4M21inXFrame_unit );
+    TVector3 n_unitx_2 = n_unity_2.Cross( n_unitz_2 );
+    TVector3 n_p4PartoninZ2PlaneFrame_unitprime( n_p4PartoninXFrame_unit.Dot(n_unitx_2), n_p4PartoninXFrame_unit.Dot(n_unity_2), n_p4PartoninXFrame_unit.Dot(n_unitz_2) );
+    phistar2 = (n_p4PartoninZ2PlaneFrame_unitprime.Phi());
+    
+    /*
+    double phistar12_0 = phistar1 + phistar2;
+    if (phistar12_0 > TMath::Pi()) phistar12 = phistar12_0 - 2*TMath::Pi();
+    else if (phistar12_0 < (-1.)*TMath::Pi()) phistar12 = phistar12_0 + 2*TMath::Pi();
+    else phistar12 = phistar12_0;
+     */
+
+}
+
