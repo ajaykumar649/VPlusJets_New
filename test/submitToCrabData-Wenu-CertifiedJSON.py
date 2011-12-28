@@ -19,7 +19,8 @@ dataset    = [
     "/ElectronHad/Run2011B-PromptReco-v1/AOD",
     "/ElectronHad/Run2011B-PromptReco-v1/AOD",
     "/ElectronHad/Run2011B-PromptReco-v1/AOD",
-    "/ElectronHad/Run2011B-PromptReco-v1/AOD"]
+    "/ElectronHad/Run2011B-PromptReco-v1/AOD",
+    "/SingleElectron/Run2011B-PromptReco-v1/AOD"]
 channels   = [
     "EG-Run2010A-Apr21ReReco-v1-trigv2010",
     "Electron-Run2010B-Apr21ReReco-v1-trigv2010",
@@ -33,7 +34,8 @@ channels   = [
     "ElectronHad-Run2011B-PromptReco-v1-trigv3E33v20",
     "ElectronHad-Run2011B-PromptReco-v1-trigv3E33v23",
     "ElectronHad-Run2011B-PromptReco-v1-trigv5E33v14",
-    "ElectronHad-Run2011B-PromptReco-v1-trigv5E33v22"]
+    "ElectronHad-Run2011B-PromptReco-v1-trigv5E33v22",
+    "SingleElectron-Run2011B-PromptReco-v1-trigallcombined"]
 trigname   = [
     "'HLT_Ele10_*','HLT_Ele15_*','HLT_Ele17_*'",
     "'HLT_Ele10_*','HLT_Ele15_*','HLT_Ele17_*'",
@@ -47,7 +49,8 @@ trigname   = [
     "'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v2'",
     "'HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v1'",
     "'HLT_Ele27_WP80_DiCentralPFJet25_PFMHT15_v4'",
-    "'HLT_Ele27_WP80_DiCentralPFJet25_PFMHT15_v5'"]
+    "'HLT_Ele27_WP80_DiCentralPFJet25_PFMHT15_v5'",
+    "'HLT_Ele*'"]
 RunRange   = [
     "136033-149442",
     "136033-149442",
@@ -61,7 +64,8 @@ RunRange   = [
     "175832-176460",
     "176461-178419",
     "178420-179958",
-    "179959-180252"]
+    "179959-180252",
+    "175832-180252"]
 JSON       = [
     "Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON.txt",
     "Cert_136033-149442_7TeV_Apr21ReReco_Collisions10_JSON.txt",
@@ -75,8 +79,9 @@ JSON       = [
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt",
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt",
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt",
+    "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt",
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"]
-condor     = [1,1,1,1,1,1,1,1,1,1,1,1,1] # Total jobs 13 now
+condor     = [1,1,1,1,1,1,1,1,1,1,1,1,1,1] # Total jobs 14 now
 
 MyResilientArea = "/yangf/CMSSW428/" +physMode
 
@@ -130,7 +135,7 @@ for i in range(len(channels)):
     changeCrabTemplateFile(channels[i],i,JSON[i],RunRange[i])
 
 for i in range(len(channels)):
-    #if i<9: continue
+    if i<13: continue
     submitcommand = "crab -create -cfg " + physMode + "cb_" + channels[i] + ".cfg"
     child   = os.system(submitcommand)
     child2   = os.system("crab -submit")
