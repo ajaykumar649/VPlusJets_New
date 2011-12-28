@@ -274,12 +274,17 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
 }
 
 TString RooWjjFitterUtils::fitCuts() const {
-  return TString::Format("(((%s>%0.3f) && (%s<%0.3f)) || "
-			 "((%s>%0.3f) && (%s<%0.3f)))",
-			 params_.var.Data(), params_.minFit,
-			 params_.var.Data(), params_.minTrunc,
-			 params_.var.Data(), params_.maxTrunc,
-			 params_.var.Data(), params_.maxFit);
+  if (params_.truncRange)
+    return TString::Format("(((%s>%0.3f) && (%s<%0.3f)) || "
+			   "((%s>%0.3f) && (%s<%0.3f)))",
+			   params_.var.Data(), params_.minFit,
+			   params_.var.Data(), params_.minTrunc,
+			   params_.var.Data(), params_.maxTrunc,
+			   params_.var.Data(), params_.maxFit);
+  else
+    return TString::Format("((%s>%0.3f) && (%s<%0.3f))",
+			   params_.var.Data(), params_.minFit,
+			   params_.var.Data(), params_.maxFit);
 }
 
 TString RooWjjFitterUtils::fullCuts(bool trunc) const {

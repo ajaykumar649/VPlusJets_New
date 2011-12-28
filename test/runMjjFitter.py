@@ -22,6 +22,8 @@ parser.add_option('-m', '--mode', default="MjjOptimizeConfig",
                   dest='modeConfig',
                   help='which config to select look at HWWconfig.py for an '+ \
                   'example.  Use the file name minus the .py extension.')
+parser.add_option('-q', action='store_true', dest='qplot', default=False,
+                  help='make Q plot also.')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -60,7 +62,12 @@ fr = theFitter.fit()
 
 chi2 = Double(0.)
 #ndf = Long(2)
-ndf = Long(3)
+extraNdf = 0
+if (fitterPars.doNewPhysics):
+    extraNdf += 1
+if not fitterPars.constrainDiboson:
+    extraNdf += 1
+ndf = Long(3+extraNdf)
 theFitter.computeChi2(chi2, ndf)
 # chi2frame.Draw()
 
@@ -78,7 +85,7 @@ l.SetTextFont(42);
 
 cstacked = TCanvas("cstacked", "stacked")
 mf.Draw()
-l.DrawLatex(0.55, 0.60,
+l.DrawLatex(0.55, 0.55,
             '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
                                                               chi2/ndf)
             )
@@ -137,6 +144,7 @@ for v1 in range(0, covMatrix.GetNrows()):
 usig2 = 0.
 totalYield = 0.
 
+sigYieldsFile = open('lastMjjSigYield.txt', 'w')
 print
 print '-------------------------------'
 print 'Yields in signal box'
@@ -159,14 +167,28 @@ for i in range(0, yields.getSize()):
         elif (theName == 'nZjets'):
             theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-        print '{0}: {1:0.0f} +/- {2:0.0f}'.format(theName,
+        yieldString = '{0} = {1:0.0f} +/- {2:0.0f}'.format(theName,
                                                   yields.at(i).getVal()*theIntegral,
                                                   yields.at(i).getError()*theIntegral)
-
+        print yieldString
+    else:
+        yieldString = '{0} = {1:0.3f} +/- {2:0.3f}'.format(theName,
+                                                           yields.at(i).getVal(),
+                                                           yields.at(i).getError())
+    sigYieldsFile.write(yieldString + '\n')
 print '-------------------------------'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
 print '-------------------------------'
 
+sigYieldsFile.close()
+
+if opts.qplot:
+    import makeQPlot
+    qplotPars = makeQPlot.theConfig(fitterPars, 'lastMjjSigYield.txt')
+    (cq, shapeHist, totalHist) = makeQPlot.qPlot(qplotPars)
+    pyroot_logon.cmsPrelim(cq, fitterPars.intLumi/1000)
+    cq.Print('Wjj_Mjj_{0}_{1}jets_Q.pdf'.format(modeString, opts.Nj))
+    cq.Print('Wjj_Mjj_{0}_{1}jets_Q.png'.format(modeString, opts.Nj))
 
 fr.Print()
 nll=fr.minNll()

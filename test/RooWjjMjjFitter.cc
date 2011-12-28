@@ -2,6 +2,7 @@
 
 #include "TFile.h"
 #include "TH1.h"
+#include "TF1.h"
 #include "TTree.h"
 #include "TMath.h"
 #include "TLine.h"
@@ -852,22 +853,26 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
 
   TH1 * th1NP = utils_.newEmptyHist("th1NP");
 
-  TH1 * tmpHist;
-  if (params_.includeMuons) {
-    tmpHist = utils_.File2Hist(params_.NewPhysicsDirectory + 
-			       "mu_ZprimeMadGraph_CMSSW428.root",
-			       "hist_np_mu", false, 1, false);
-    th1NP->Add(tmpHist);
-    delete tmpHist;
-  }
-  if (params_.includeElectrons) {
-    tmpHist = utils_.File2Hist(params_.NewPhysicsDirectory + 
-			       "el_ZprimeMadGraph_CMSSW428.root",
-			       "hist_np_el", true, 1, false);
-    th1NP->Add(tmpHist);
-    delete tmpHist;
-  }
+//   TH1 * tmpHist;
+//   if (params_.includeMuons) {
+//     tmpHist = utils_.File2Hist(params_.NewPhysicsDirectory + 
+// 			       "mu_ZprimeMadGraph_CMSSW428.root",
+// 			       "hist_np_mu", false, 1, false);
+//     th1NP->Add(tmpHist);
+//     delete tmpHist;
+//   }
+//   if (params_.includeElectrons) {
+//     tmpHist = utils_.File2Hist(params_.NewPhysicsDirectory + 
+// 			       "el_ZprimeMadGraph_CMSSW428.root",
+// 			       "hist_np_el", true, 1, false);
+//     th1NP->Add(tmpHist);
+//     delete tmpHist;
+//   }
 
+  TF1 genGaussian("genGaussian", "TMath::Gaus(x, [0], [1])",
+		  params_.minMass, params_.maxMass);
+  genGaussian.SetParameters(150., 15.);
+  th1NP->FillRandom("genGaussian", 100000);
   th1NP->Scale(1., "width");
 
   RooAbsPdf * NPPdf = utils_.Hist2Pdf(th1NP, "NPPdf", ws_);
@@ -1012,14 +1017,17 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
   components.remove(*(components.find("dibosonPdf")));
   if (params_.doNewPhysics) {
     totalPdf->plotOn(sframe, ProjWData(*data), DrawOption("LF"), 
-		     FillStyle(1001), Name("h_NP"), VLines(),
+		     FillStyle(1001), //Name("h_NP"), 
+		     VLines(),
 		     FillColor(kCyan+2), LineColor(kCyan+2), 
 		     Normalization(nexp, RooAbsReal::Raw),
 		     Components(RooArgSet(components)),
+		     NormRange("RangeForPlot"),
 		     Range("RangeForPlot"));
+    tmpCurve = sframe->getCurve();
+    tmpCurve->SetName("h_NP");
+    tmpCurve->SetTitle("Gaussian signal");
     components.remove(*(components.find("NPPdf")));
-    tmpCurve = sframe->getCurve("h_NP");
-    tmpCurve->SetTitle("new physics");
   }
   int linec(kRed);
   TString pdfName("h_background");
@@ -1132,14 +1140,14 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     if (params_.doNewPhysics) {
       totalPdf->plotOn(rframe, ProjWData(*data), Components("NPPdf"),
 		       Normalization(nexp, RooAbsReal::Raw),
-		       DrawOption("LF"), VLines(), FillStyle(1001),
-		       FillColor(kCyan+2), //Name("h_NP"),
+		       //DrawOption("LF"), VLines(), FillStyle(1001),
+		       //FillColor(kCyan+2), //Name("h_NP"),
 		       LineColor(kCyan+2), 
 		       NormRange("RangeForPlot"),
 		       Range("RangeForPlot"));
       tmpCurve = rframe->getCurve();
       tmpCurve->SetName("h_NP");
-      tmpCurve->SetTitle("new physics");
+      tmpCurve->SetTitle("Gaussian signal");
     }
   }
   RooHist * hresid = thePlot->residHist("theData", curveName, normalize);
