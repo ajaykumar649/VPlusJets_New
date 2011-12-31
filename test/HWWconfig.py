@@ -11,7 +11,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = False
-    fitterPars.QCDDirectory = "/uscms_data/d1/kalanand/WjjTrees/NewReducedQCDTrees/"
+    fitterPars.QCDDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/"
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory 
