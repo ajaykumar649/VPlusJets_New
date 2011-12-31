@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+#######################################################
+## ---> Run using the command line like: 
+##       python runHWWFitter.py -m HWWMuonsConfig -j 2 -H 300
+######################################################
+
+
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -15,6 +21,8 @@ parser.add_option('-d', '--dir', dest='mcdir', default='',
 parser.add_option('-m', '--mode', default="HWWconfig", dest='modeConfig',
                   help='which config to select look at HWWconfig.py for an '+ \
                   'example.  Use the file name minus the .py extension.')
+parser.add_option('-H', '--mH', dest='mH', default=400, type='int',
+                  help='Higgs Mass Point')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -24,17 +32,32 @@ config = __import__(opts.modeConfig)
 #import HWWwideSideband
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
-## gROOT.ProcessLine('.L RooWjjFitterParams.h+');
-gROOT.ProcessLine('.L RooWjjFitterUtils.cc+');
-gROOT.ProcessLine('.L RooWjjMjjFitter.cc+');
+gROOT.ProcessLine('.L RooWjjFitterParams.h+');
+gROOT.ProcessLine('.L EffTableReader.cc+')
+gROOT.ProcessLine('.L EffTableLoader.cc+')
+gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
+gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, \
-     RooMsgService, RooFit, TLatex, TMatrixDSymEigen, RooArgList, RooArgSet
+     RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad
 from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.mH)
 
-fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile)
+if fitterPars.includeMuons and fitterPars.includeElectrons:
+    modeString = ''
+elif fitterPars.includeMuons:
+    modeString = 'Muon'
+elif fitterPars.includeElectrons:
+    modeString = 'Electron'
+else:
+    modeString = ''
+
+
 theFitter = RooWjjMjjFitter(fitterPars)
+
+#theFitter.getWorkSpace().Print()
+theFitter.makeFitter(False)
 
 fr = theFitter.fit()
 chi2 = Double(0.)
@@ -58,24 +81,37 @@ l.DrawLatex(0.22, 0.85,
                                                               chi2/ndf)
             )
 pyroot_logon.cmsPrelim(c1, fitterPars.intLumi/1000)
-c1.Print('HWW_Mjj_{0}jets_Stacked.pdf'.format(opts.Nj))
+c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
+c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
+
+
 c2 = TCanvas("c2", "stacked_log")
 c2.SetLogy()
 lf.Draw()
 pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-c2.Print('HWW_Mjj_{0}jets_Stacked_log.pdf'.format(opts.Nj))
+c2.Print('H{2}_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj, opts.mH))
+c2.Print('H{2}_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
+
+
 c3 = TCanvas("c3", "subtracted")
 sf.Draw()
 pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-c3.Print('HWW_Mjj_{0}jets_Subtracted.pdf'.format(opts.Nj))
+c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString, opts.Nj, opts.mH))
+c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString, opts.Nj, opts.mH))
+
 c4 = TCanvas("c4", "pull")
 pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
-c4.Print('HWW_Mjj_{0}jets_Pull.pdf'.format(opts.Nj))
+c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
+c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
+
+
+h_total = mf.getCurve('h_total')
+theData = mf.getHist('theData')
 
 mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
-yields = RooArgList(theFitter.makeFitter().coefList())
+yields = fr.floatParsFinal()
 iset = RooArgSet(mass)
 sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
 sigFullInt = theFitter.makeFitter().createIntegral(iset)
@@ -93,64 +129,118 @@ ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, 'signal')
 ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
 ## print "*** yield vars ***"
 ## yields.Print("v")
-eigen = TMatrixDSymEigen(fr.covarianceMatrix())
+covMatrix = TMatrixDSym(fr.covarianceMatrix())
 
 sig2 = 0.
-for eigVal in eigen.GetEigenValues():
-    sig2 += eigVal
+for v1 in range(0, covMatrix.GetNrows()):
+    for v2 in range(0, covMatrix.GetNcols()):
+        if ((yields[v1].GetName())[0] == 'n') and \
+               ((yields[v2].GetName())[0] == 'n'):
+            sig2 += covMatrix(v1, v2)
 
 usig2 = 0.
 totalYield = 0.
 
-yieldLines = []
+sigYieldsFile = open('lastSigYield.txt', 'w')
+
 print
 print '-------------------------------'
 print 'Yields in signal box'
 print '-------------------------------'
 for i in range(0, yields.getSize()):
-    usig2 += yields.at(i).getError()*yields.at(i).getError()
-    totalYield += yields.at(i).getVal()
-    theIntegral = 1.
     theName = yields.at(i).GetName()
-    if (theName == 'nDiboson'):
-        theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
-    elif (theName == 'nWjets'):
-        theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
-    elif (theName == 'nTTbar'):
-        theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
-    elif (theName == 'nSingleTop'):
-        theIntegral = SingleTopInt.getVal()/SingleTopFullInt.getVal()
-    elif (theName == 'nQCD'):
-        theIntegral = QCDInt.getVal()/QCDFullInt.getVal()
-    elif (theName == 'nZjets'):
-        theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
+    if theName[0] == 'n':
+        totalYield += yields.at(i).getVal()
+        theIntegral = 1.
+        if (theName == 'nDiboson'):
+            theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
+        elif (theName == 'nWjets'):
+            theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
+        elif (theName == 'nTTbar'):
+            theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
+        elif (theName == 'nSingleTop'):
+            theIntegral = SingleTopInt.getVal()/SingleTopFullInt.getVal()
+        elif (theName == 'nQCD'):
+            theIntegral = QCDInt.getVal()/QCDFullInt.getVal()
+        elif (theName == 'nZjets'):
+            theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-    theLine = '{0} = {1:0.0f} +/- {2:0.0f}'.format(theName,
-                                                   yields.at(i).getVal()*theIntegral,
-                                                   yields.at(i).getError()*theIntegral)
-    print theLine
-    yieldLines.append(theLine + '\n')
-
+        yieldString = '{0} = {1:0.0f} +/- {2:0.0f}'.format(theName,
+                                                  yields.at(i).getVal()*theIntegral,
+                                                  yields.at(i).getError()*theIntegral)
+        print yieldString
+    else:
+        yieldString = '{0} = {1:0.3f} +/- {2:0.3f}'.format(theName,
+                                                           yields.at(i).getVal(),
+                                                           yields.at(i).getError())
+    sigYieldsFile.write(yieldString + '\n')
 print '-------------------------------'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
 print '-------------------------------'
 
+sigYieldsFile.close()
+
 
 fr.Print()
+nll=fr.minNll()
+print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-open('lastSigYield.txt', 'w').writelines(yieldLines)
 
 cdebug = TCanvas('cdebug', 'debug')
-pars4 = config.the4BodyConfig(opts.Nj, opts.mcdir, 'lastSigYield.txt')
+pars4 = config.the4BodyConfig(opts.Nj, opts.mcdir, 'lastSigYield.txt', opts.mH)
 fitter4 = RooWjjMjjFitter(pars4)
+fitter4.makeFitter(False)
 
 fitter4.make4BodyPdf(theFitter)
 fitter4.loadData()
 fitter4.loadParameters(pars4.initParamsFile)
 
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+sf4 = theFitter4.residualPlot(mf4, "h_background", "dibosonPdf", False)
+pf4 = theFitter4.residualPlot(mf4, "h_total", "", True)
+lf4 = theFitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
+
 
 c4body = TCanvas('c4body', '4 body stacked')
 mf4.Draw()
 pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
+c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Q.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Q.png'.format(modeString, opts.Nj, opts.mH))
+
+
+c4body2 = TCanvas("c4body2", "4 body stacked_log")
+c4body2.SetLogy()
+lf4.Draw()
+pyroot_logon.cmsPrelim(c4body2, pars4.intLumi/1000)
+c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
+
+
+c4body3 = TCanvas("c4body3", "4 body subtracted")
+sf4.Draw()
+pyroot_logon.cmsPrelim(c4body3, pars4.intLumi/1000)
+c4body3.Print('H{2}_Mlvjj_{0}_{1}jets_Subtracted.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body3.Print('H{2}_Mlvjj_{0}_{1}jets_Subtracted.png'.format(modeString, opts.Nj, opts.mH))
+
+
+c4body4 = TCanvas("c4body4", "4 body pull")
+pf4.Draw()
+pyroot_logon.cmsPrelim(c4body4, pars4.intLumi/1000)
+c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
+
+
+
+print 'shape file created'
+ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
+                                                           modeString,
+                                                           opts.mH),
+                  'recreate')
+
+h_total = mf4.getCurve('h_total')
+theData = mf4.getHist('theData')
+
+h_total.Write()
+theData.Write()
+ShapeFile.Close()

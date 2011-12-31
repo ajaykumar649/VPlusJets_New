@@ -422,9 +422,57 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   if (isElectron) {
     t.SetBranchStatus("W_electron_pt", 1);
     t.SetBranchStatus("W_electron_eta", 1);
+    t.SetBranchStatus("mva2j170el", 1);
+    t.SetBranchStatus("mva2j180el", 1);
+    t.SetBranchStatus("mva2j190el", 1);
+    t.SetBranchStatus("mva2j200el", 1);
+    t.SetBranchStatus("mva2j250el", 1);
+    t.SetBranchStatus("mva2j300el", 1);
+    t.SetBranchStatus("mva2j350el", 1);
+    t.SetBranchStatus("mva2j400el", 1);
+    t.SetBranchStatus("mva2j450el", 1);
+    t.SetBranchStatus("mva2j500el", 1);
+    t.SetBranchStatus("mva2j550el", 1);
+    t.SetBranchStatus("mva2j600el", 1);
+    t.SetBranchStatus("mva3j170el", 1);
+    t.SetBranchStatus("mva3j180el", 1);
+    t.SetBranchStatus("mva3j190el", 1);
+    t.SetBranchStatus("mva3j200el", 1);
+    t.SetBranchStatus("mva3j250el", 1);
+    t.SetBranchStatus("mva3j300el", 1);
+    t.SetBranchStatus("mva3j350el", 1);
+    t.SetBranchStatus("mva3j400el", 1);
+    t.SetBranchStatus("mva3j450el", 1);
+    t.SetBranchStatus("mva3j500el", 1);
+    t.SetBranchStatus("mva3j550el", 1);
+    t.SetBranchStatus("mva3j600el", 1);
   } else {
     t.SetBranchStatus("W_muon_pt", 1);
     t.SetBranchStatus("W_muon_eta", 1);
+    t.SetBranchStatus("mva2j170mu", 1);
+    t.SetBranchStatus("mva2j180mu", 1);
+    t.SetBranchStatus("mva2j190mu", 1);
+    t.SetBranchStatus("mva2j200mu", 1);
+    t.SetBranchStatus("mva2j250mu", 1);
+    t.SetBranchStatus("mva2j300mu", 1);
+    t.SetBranchStatus("mva2j350mu", 1);
+    t.SetBranchStatus("mva2j400mu", 1);
+    t.SetBranchStatus("mva2j450mu", 1);
+    t.SetBranchStatus("mva2j500mu", 1);
+    t.SetBranchStatus("mva2j550mu", 1);
+    t.SetBranchStatus("mva2j600mu", 1);
+    t.SetBranchStatus("mva3j170mu", 1);
+    t.SetBranchStatus("mva3j180mu", 1);
+    t.SetBranchStatus("mva3j190mu", 1);
+    t.SetBranchStatus("mva3j200mu", 1);
+    t.SetBranchStatus("mva3j250mu", 1);
+    t.SetBranchStatus("mva3j300mu", 1);
+    t.SetBranchStatus("mva3j350mu", 1);
+    t.SetBranchStatus("mva3j400mu", 1);
+    t.SetBranchStatus("mva3j450mu", 1);
+    t.SetBranchStatus("mva3j500mu", 1);
+    t.SetBranchStatus("mva3j550mu", 1);
+    t.SetBranchStatus("mva3j600mu", 1);
   }
 
   t.SetBranchStatus("W_mt",    1);
@@ -432,7 +480,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("W_pzNu1",    1);
   t.SetBranchStatus("W_pzNu2",    1);
   t.SetBranchStatus("fit_status",    1);
-//   t.SetBranchStatus("gdevtt",    1);
+  t.SetBranchStatus("ggdevt",    1);
   t.SetBranchStatus("fit_chi2",    1);
   t.SetBranchStatus("fit_NDF",    1);
   t.SetBranchStatus("fit_mlvjj", 1);
