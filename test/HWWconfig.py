@@ -3,7 +3,6 @@ from ROOT import gROOT
 gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 from ROOT import RooWjjFitterParams
 
-
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_"
@@ -107,7 +106,10 @@ def the4BodyConfig(Nj, mcdir = '', initFile = '', alpha=1.):
 
     for line in ranges:
         fitterPars.minMasses.push_back(line[0])
-        if len(line) > 1:
-            fitterPars.falphas.push_back(line[1])
+        fitterPars.maxMasses.push_back(line[1])
+        fitterPars.alphas.push_back(line[2])
+        fitterPars.falphas.push_back(line[3])
+##         if len(line) > 1:
+##             fitterPars.falphas.push_back(line[1])
 
     return fitterPars

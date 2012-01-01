@@ -1,7 +1,6 @@
 import pyroot_logon
 import HWWconfig
 
-
 mvaVarNames2jMu  = ["mva2j170mu","mva2j180mu","mva2j190mu",
                     "mva2j200mu","mva2j250mu","mva2j300mu",
                     "mva2j350mu","mva2j400mu","mva2j450mu",
@@ -37,18 +36,26 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
     index = HiggsMassPointIndex(mH)  
     mvaVarNames  = mvaVarNames2jMu[index]
     mvaCutValues = mvaCutValues2jMu[index]
-    if(Nj==3): mvaVarNames = mvaVarNames3jMu[index]
-    if(Nj==3): mvaCutValues = mvaCutValues3jMu[index]
+    if(Nj==3):
+        mvaVarNames = mvaVarNames3jMu[index]
+        mvaCutValues = mvaCutValues3jMu[index]
     fitterPars.cuts += '&& (({0} > {1:f}))'.format(mvaVarNames,mvaCutValues)
     return fitterPars
 
 def the4BodyConfig(Nj, mcdir = '', initFile = '', mH=400):
     index = HiggsMassPointIndex(mH)    
     alpha = alphaValues2jMu[index]
-    if(Nj==3): alpha = alphaValues3jMu[index]   
+    mvaVarNames  = mvaVarNames2jMu[index]
+    mvaCutValues = mvaCutValues2jMu[index]
+    if(Nj==3):
+        alpha = alphaValues3jMu[index]   
+        mvaVarNames = mvaVarNames3jMu[index]
+        mvaCutValues = mvaCutValues3jMu[index]
     fitterPars = HWWconfig.the4BodyConfig(Nj, mcdir, initFile, alpha)
     fitterPars.includeMuons = True
-    fitterPars.includeElectrons = False    
+    fitterPars.includeElectrons = False
+    fitterPars.cuts += '&& ({0} > {1:f}) '.format(mvaVarNames, mvaCutValues)
+##     fitterpars.cuts += '&& (Mass2j_PFCor > {0:f})'.format(fitterPars.
     return fitterPars
 
 

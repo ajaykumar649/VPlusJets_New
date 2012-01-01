@@ -32,7 +32,7 @@ config = __import__(opts.modeConfig)
 #import HWWwideSideband
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
-gROOT.ProcessLine('.L RooWjjFitterParams.h+');
+#gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 gROOT.ProcessLine('.L EffTableReader.cc+')
 gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
@@ -59,10 +59,12 @@ theFitter = RooWjjMjjFitter(fitterPars)
 #theFitter.getWorkSpace().Print()
 theFitter.makeFitter(False)
 
+#theFitter.getWorkSpace().Print()
+
 fr = theFitter.fit()
 chi2 = Double(0.)
 #ndf = Long(2)
-ndf = Long(fr.floatParsFinal().getSize()/2. + 0.5)
+ndf = Long(3)
 theFitter.computeChi2(chi2, ndf)
 mf = theFitter.stackedPlot()
 sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
@@ -83,7 +85,6 @@ l.DrawLatex(0.22, 0.85,
 pyroot_logon.cmsPrelim(c1, fitterPars.intLumi/1000)
 c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
 c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
-
 
 c2 = TCanvas("c2", "stacked_log")
 c2.SetLogy()
@@ -186,20 +187,23 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-
 cdebug = TCanvas('cdebug', 'debug')
 pars4 = config.the4BodyConfig(opts.Nj, opts.mcdir, 'lastSigYield.txt', opts.mH)
 fitter4 = RooWjjMjjFitter(pars4)
-fitter4.makeFitter(False)
+#fitter4.makeFitter(False)
 
 fitter4.make4BodyPdf(theFitter)
 fitter4.loadData()
 fitter4.loadParameters(pars4.initParamsFile)
 
+fitter4.getWorkSpace().Print()
+
+## assert(False)
+
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
-sf4 = theFitter4.residualPlot(mf4, "h_background", "dibosonPdf", False)
-pf4 = theFitter4.residualPlot(mf4, "h_total", "", True)
-lf4 = theFitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
+## sf4 = theFitter4.residualPlot(mf4, "h_background", "dibosonPdf", False)
+## pf4 = theFitter4.residualPlot(mf4, "h_total", "", True)
+## lf4 = theFitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 
 
 c4body = TCanvas('c4body', '4 body stacked')
@@ -207,7 +211,6 @@ mf4.Draw()
 pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
 c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Q.pdf'.format(modeString, opts.Nj, opts.mH))
 c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Q.png'.format(modeString, opts.Nj, opts.mH))
-
 
 c4body2 = TCanvas("c4body2", "4 body stacked_log")
 c4body2.SetLogy()

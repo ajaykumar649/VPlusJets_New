@@ -925,19 +925,19 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     } else
       tmpWeight = 1.-sumalpha;
 
-//     wjets->Print();
-//     wjets->Draw();
-//     gPad->WaitPrimitive();
+    wjets->Print();
+    wjets->Draw();
+    gPad->WaitPrimitive();
 
     th1wjets->Add(wjets, tmpWeight);
 
     delete wjets;
   }
 
-//   th1wjets.Print();
-//   th1wjets.Draw();
-//   gPad->WaitPrimitive();
   th1wjets->Scale(1, "width");
+  th1wjets->Print();
+  th1wjets->Draw();
+  gPad->WaitPrimitive();
   RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", ws_);
   delete th1wjets;
   return WpJ4BodyPdf;
