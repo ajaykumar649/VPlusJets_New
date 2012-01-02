@@ -206,8 +206,8 @@ lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 c4body = TCanvas('c4body', '4 body stacked')
 mf4.Draw()
 pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
-c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Q.pdf'.format(modeString, opts.Nj, opts.mH))
-c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Q.png'.format(modeString, opts.Nj, opts.mH))
+c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
 
 ## assert(False)
 
