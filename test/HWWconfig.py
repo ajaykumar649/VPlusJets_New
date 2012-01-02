@@ -32,7 +32,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.maxTrunc = 95.
     fitterPars.minWmass = fitterPars.minTrunc
     fitterPars.maxWmass = fitterPars.maxTrunc
-    fitterPars.minFit = 60
+    fitterPars.minFit = 50
     fitterPars.maxFit = fitterPars.maxMass
     
     print 'truncate:',fitterPars.truncRange,':', fitterPars.minTrunc,'-',\
@@ -63,9 +63,10 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     
     return fitterPars
 
-def the4BodyConfig(Nj, mcdir = '', initFile = '', alpha=1.):
-    fitterPars = theConfig(Nj, mcdir, initFile)
+def the4BodyConfig(twoBodyConfig, alpha=1.):
+##     fitterPars = theConfig(Nj, mcdir, initFile)
 
+    fitterPars = RooWjjFitterParams(twoBodyConfig)
     fitterPars.do4body = True
     twoBCut = fitterPars.cuts
     print twoBCut
@@ -99,7 +100,7 @@ def the4BodyConfig(Nj, mcdir = '', initFile = '', alpha=1.):
     twoJets = [(fitterPars.minMass, fitterPars.maxMass, alpha, 1.)]
     threeJets = [(fitterPars.minMass, fitterPars.maxMass, alpha, 1.)]
 
-    if Nj == 3:
+    if fitterPars.njets == 3:
         ranges = threeJets
     else:
         ranges = twoJets
