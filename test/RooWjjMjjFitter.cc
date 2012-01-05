@@ -254,31 +254,29 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
 
   RooRealVar turnOn("turnOn","turnOn", 50.);
   turnOn.setConstant(false);
-  RooRealVar width("width","width", 5., 0., 100.);
+  RooRealVar width("width","width", 8, 0., 100.);
+  width.setError(2.);
   RooRealVar seff("seff", "seff", 7000., 0., 10000.);
   seff.setConstant(true);
-  RooRealVar power("power", "power", 2, -10., 100.);
+  RooRealVar power("power", "power", 5, -10., 100.);
   RooRealVar power2("power2", "power2", 1, -10., 100.);
   RooRealVar decay(power, "decay");
   RooRealVar fturnon("fturnOn", "fturnOn", 0.5, 0., 1.);
   RooRealVar width2(width);
   width2.SetName("width2");
+  width2.setVal(45);
   RooRealVar turnOn2(turnOn, "turnOn2");
-  RooRealVar mean("mean", "peak", 80);
+  RooRealVar mean("mean", "peak", 67);
   mean.setConstant(false);
-  RooRealVar alpha("alpha", "alpha", 1.0);
+  RooRealVar alpha("alpha", "alpha", -1.0);
   alpha.setConstant(false);
   RooCBShape WpJPdfCB("WpJPdfCB", "WpJPdfCP", *mass, mean, width2, 
 		      alpha, power);
   RooGenericPdf bkgErf("WpJPdfErf","WpJPdfErf",
-		       //"TMath::Power(1-@0/@5,decay)/TMath::Power(@0,@3+@4*log(@0/@5))"
-		       //"1./TMath::Power(@0,@3+@4*log(@0/@5))"
-		       //"1./TMath::Power(@0,@3)"
-		       //"exp(-@0/@3)"
-		       //"*(fturnOn*(TMath::Erf((@0-@1)/@2)+1) + "
+		       //"(fturnOn*(TMath::Erf((@0-@1)/@2)+1) + "
 		       //"(1-fturnOn)*(TMath::Erf((@0-@6)/@2)+1))",
-		       "*(TMath::Erf((@0-@1)/@2)+1)",
-		       //"*1./(1+exp(-(@0-@1)/@2))",
+		       "(TMath::Erf((@0-@1)/@2)+1)",
+		       //"1./(1+exp(-(@0-@1)/@2))",
 		       RooArgList(*mass, turnOn, width));
   RooProdPdf WpJPdfAll("WpJPdfAll", "WpJPdfAll", RooArgList(WpJPdfCB, bkgErf), 
 		       1e-6);
@@ -1149,7 +1147,7 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     double nexp(totalPdf->expectedEvents(RooArgSet(*(ws_.var(params_.var)))));
     totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
 		     Normalization(nexp, RooAbsReal::Raw),
-		     DrawOption("LF"), VLines(), FillStyle(1001),
+		     //DrawOption("L"), FillStyle(1001), VLines(),
 		     FillColor(kOrange), //Name("h_"+ pdfName), 
 		     LineColor(kOrange), 
 		     NormRange("RangeForPlot"),

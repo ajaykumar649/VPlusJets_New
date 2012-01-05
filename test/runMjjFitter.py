@@ -24,6 +24,10 @@ parser.add_option('-m', '--mode', default="MjjOptimizeConfig",
                   'example.  Use the file name minus the .py extension.')
 parser.add_option('-q', action='store_true', dest='qplot', default=False,
                   help='make Q plot also.')
+parser.add_option('--NP', action='store_true', dest='NP', default=False,
+                  help='put NP on the plot')
+parser.add_option('--Err', dest='Err', default=-1., type='float',
+                  help='error band level')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -37,7 +41,7 @@ gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, \
-     gPad
+     gPad, RooAbsReal, kBlue, kCyan, kRed
 from math import sqrt
 
 
@@ -73,15 +77,79 @@ theFitter.computeChi2(chi2, ndf)
 
 # assert False, "fit done"
 
+yields = fr.floatParsFinal()
+mass = theFitter.getWorkSpace().var(fitterPars.var)
+iset = RooArgSet(mass)
+covMatrix = TMatrixDSym(fr.covarianceMatrix())
+
+sig2 = 0.
+for v1 in range(0, covMatrix.GetNrows()):
+    for v2 in range(0, covMatrix.GetNcols()):
+        if ((yields[v1].GetName())[0] == 'n') and \
+               ((yields[v2].GetName())[0] == 'n'):
+            sig2 += covMatrix(v1, v2)
+
 mf = theFitter.stackedPlot()
 sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
 pf = theFitter.residualPlot(mf, "h_total", "", True)
 lf = theFitter.stackedPlot(True)
 
+
+if opts.Err > 0:
+    totalPdf = theFitter.getWorkSpace().pdf('totalPdf')
+    ## Ntotal = totalPdf.expectedEvents(iset)
+
+    ## print 'Ntotal:',Ntotal
+
+    totalPdf.plotOn(sf,
+                    RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
+                    RooFit.Normalization(opts.Err, RooAbsReal.Raw),
+                    RooFit.AddTo('h_dibosonPdf', 1., 1.),
+                    RooFit.Name('h_ErrUp'),
+                    RooFit.LineColor(kRed), RooFit.LineStyle(3))
+    totalPdf.plotOn(sf,
+                    RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
+                    RooFit.Normalization(opts.Err, RooAbsReal.Raw),
+                    RooFit.AddTo('h_dibosonPdf', -1., 1.),
+                    RooFit.Name('h_ErrDown'),
+                    RooFit.LineColor(kRed), RooFit.LineStyle(3))
+    sf.drawBefore('h_ErrUp', 'h_dibosonPdf')
+    sf.drawBefore('h_ErrDown', 'h_dibosonPdf')
+    h_ErrUp = sf.getCurve('h_ErrUp')
+    sf.findObject('theLegend').AddEntry(h_ErrUp, 'Uncertainty', 'L')
+
+if opts.NP:
+    NPPdf = theFitter.makeNPPdf();
+    NPNorm = 4.*0.11*46.8/12.*fitterPars.intLumi
+
+    if (modeString == 'Electron'):
+        if opts.Nj == 2:
+            NPNorm *= 0.037
+        elif opts.Nj == 3:
+            NPNorm *= 0.012
+    else:
+        if opts.Nj == 2:
+            NPNorm *= 0.051
+        elif opts.Nj == 3:
+            NPNomr *= 0.016
+
+    print '**** N_NP:', NPNorm,'****'
+
+    NPPdf.plotOn(sf, RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
+                 RooFit.Normalization(NPNorm, RooAbsReal.Raw),
+                 RooFit.Name('h_NP'),
+                 RooFit.LineColor(kCyan+2), RooFit.LineStyle(2))
+
+    h_NP = sf.getCurve('h_NP')
+
+    sf.drawBefore('h_NP', 'theData')
+
+    sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Gaussian", "L")
+
 l = TLatex()
 l.SetNDC()
-l.SetTextSize(0.035);
-l.SetTextFont(42);
+l.SetTextSize(0.035)
+l.SetTextFont(42)
 
 cstacked = TCanvas("cstacked", "stacked")
 mf.Draw()
@@ -112,10 +180,7 @@ c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj))
 h_total = mf.getCurve('h_total')
 theData = mf.getHist('theData')
 
-mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
-yields = fr.floatParsFinal()
-iset = RooArgSet(mass)
 sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
 sigFullInt = theFitter.makeFitter().createIntegral(iset)
 dibosonInt = theFitter.makeDibosonPdf().createIntegral(iset, 'signal')
@@ -132,14 +197,6 @@ ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, 'signal')
 ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
 ## print "*** yield vars ***"
 ## yields.Print("v")
-covMatrix = TMatrixDSym(fr.covarianceMatrix())
-
-sig2 = 0.
-for v1 in range(0, covMatrix.GetNrows()):
-    for v2 in range(0, covMatrix.GetNcols()):
-        if ((yields[v1].GetName())[0] == 'n') and \
-               ((yields[v2].GetName())[0] == 'n'):
-            sig2 += covMatrix(v1, v2)
 
 usig2 = 0.
 totalYield = 0.
