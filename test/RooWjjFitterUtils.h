@@ -32,12 +32,12 @@ public:
 
   void vars2ws(RooWorkspace& ws) const;
 
-  TH1 * newEmptyHist(TString histName, double binMult = 1.0) const;
+  TH1 * newEmptyHist(TString histName, int binMult = 1) const;
   TH1 * File2Hist(TString fname, TString histName, bool isElectron, 
 		  int jes_scl = -1, bool noCuts = false, 
-		  double binMult = 1.0, TString cutOverride = "") const;
+		  int binMult = 1, TString cutOverride = "") const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
-		       RooWorkspace& ws) const;
+		       RooWorkspace& ws, int order = 0) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
 			    bool isElectron,
 			    bool trunc = false,

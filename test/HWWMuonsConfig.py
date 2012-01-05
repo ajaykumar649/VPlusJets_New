@@ -39,7 +39,7 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
     if(Nj==3):
         mvaVarNames = mvaVarNames3jMu[index]
         mvaCutValues = mvaCutValues3jMu[index]
-    fitterPars.cuts += '&& (({0} > {1:f}))'.format(mvaVarNames,mvaCutValues)
+    fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues)
     return fitterPars
 
 def the4BodyConfig(twoBodyConfig, mH=400):

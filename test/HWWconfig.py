@@ -3,6 +3,9 @@ from ROOT import gROOT
 gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 from ROOT import RooWjjFitterParams
 
+minMlvjj = 140.
+maxMlvjj = 800.
+
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_"
@@ -20,20 +23,76 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.minMass = 50.
-    fitterPars.maxMass = 120.
-    fitterPars.nbins = 14
+    fitterPars.minMass = 45.
+    fitterPars.maxMass = 200.
+    fitterPars.nbins = 30
     fitterPars.intLumi = 4700.
 
+    
+    fitterPars.binEdges.push_back(fitterPars.minMass)
+    fitterPars.binEdges.push_back(50.)
+    fitterPars.binEdges.push_back(55.)
+    fitterPars.binEdges.push_back(60.)
+    fitterPars.binEdges.push_back(65.)
+    fitterPars.binEdges.push_back(70.)
+    fitterPars.binEdges.push_back(75.)
+    fitterPars.binEdges.push_back(80.)
+    fitterPars.binEdges.push_back(85.)
+    fitterPars.binEdges.push_back(95.)
+    fitterPars.binEdges.push_back(105.)
+    fitterPars.binEdges.push_back(115.)
+    fitterPars.binEdges.push_back(125.)
+    fitterPars.binEdges.push_back(135.)
+    fitterPars.binEdges.push_back(145.)
+    fitterPars.binEdges.push_back(160.)
+    fitterPars.binEdges.push_back(175.)
+    fitterPars.binEdges.push_back(200.)
+
+##     binEdge = fitterPars.minMass
+##     print binEdge,' ',
+##     while (binEdge <= fitterPars.maxMass):
+##         binEdge += round(0.14*binEdge)
+##         fitterPars.binEdges.push_back(binEdge)
+##         print binEdge,' ',
+
+##     fitterPars.binEdges[fitterPars.binEdges.size()-1] = fitterPars.maxMass
+
+    print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
     fitterPars.truncRange = True
     fitterPars.blind = False
     fitterPars.minTrunc = 65.
-    fitterPars.maxTrunc = 95.
+
+    binMin = fitterPars.minMass
+    for binEdge in fitterPars.binEdges:
+        if binEdge > fitterPars.minTrunc:
+            fitterPars.minTrunc = binMin
+            break
+        binMin = binEdge
+
+    fitterPars.maxTrunc = 94.
+    for binEdge in fitterPars.binEdges:
+        if binEdge > fitterPars.maxTrunc:
+            fitterPars.maxTrunc = binEdge
+            break
+
+    fitterPars.minFit = fitterPars.minMass
+    binMin = fitterPars.minMass
+    for binEdge in fitterPars.binEdges:
+        if binEdge > fitterPars.minFit:
+            fitterPars.minFit = binMin
+            break
+        binMin = binEdge
+
+    fitterPars.maxFit = fitterPars.maxMass
+    for binEdge in fitterPars.binEdges:
+        if binEdge > fitterPars.maxFit:
+            fitterPars.maxFit = binEdge
+            break
+
+
     fitterPars.minWmass = fitterPars.minTrunc
     fitterPars.maxWmass = fitterPars.maxTrunc
-    fitterPars.minFit = 50
-    fitterPars.maxFit = fitterPars.maxMass
     
     print 'truncate:',fitterPars.truncRange,':', fitterPars.minTrunc,'-',\
           fitterPars.maxTrunc
@@ -59,7 +118,15 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     fitterPars.constrainDiboson = True
     fitterPars.useExternalMorphingPars = False
-    fitterPars.cuts = '(fit_status==0) && (ggdevt==%d) ' %(Nj)
+
+    jetCut = '(ggdevt == %i)' % (Nj)
+    if (Nj < 2):
+        jetCut = '((ggdevt == 2) || (ggdevt == 3))'
+
+    fitterPars.cuts = '(fit_status==0) ' + \
+                      '&& %s ' % (jetCut) + \
+                      '&& (fit_mlvjj > %0.1f) && (fit_mlvjj < %0.1f) ' % \
+                      (minMlvjj, maxMlvjj)
     
     return fitterPars
 
@@ -67,6 +134,7 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
 ##     fitterPars = theConfig(Nj, mcdir, initFile)
 
     fitterPars = RooWjjFitterParams(twoBodyConfig)
+    fitterPars.binEdges.clear()
     fitterPars.do4body = True
     twoBCut = fitterPars.cuts
     print twoBCut
@@ -91,9 +159,9 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
     print 'SBLocut',fitterPars.SBLocut
 
     fitterPars.var = 'fit_mlvjj'
-    fitterPars.minMass = 140.
-    fitterPars.maxMass = 800.
-    fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/10 + 0.5)
+    fitterPars.minMass = minMlvjj
+    fitterPars.maxMass = maxMlvjj
+    fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/20 + 0.5)
     fitterPars.truncRange = False
 
 

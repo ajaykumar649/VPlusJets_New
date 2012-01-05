@@ -79,6 +79,7 @@ private:
   RooAbsData::ErrorType errorType_;
 
   TString rangeString_;
+  int histOrder;
 };
 
 #endif

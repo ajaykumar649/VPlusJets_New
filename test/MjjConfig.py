@@ -107,8 +107,13 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
 ##     fitterPars.lumiPerEpochElectron.push_back(3700)
 
     fitterPars.useExternalMorphingPars = False
+
+    jetCut = '(evtNJ == {0})'.format(Nj)
+    if (Nj < 2):
+        jetCut = '((evtNJ == 2) || (evtNJ == 3))'
        
     fitterPars.cuts = '(W_mt > 50.) ' + \
+                      '&& {0} '.format(jetCut) + \
                       '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.2) ' + \
                       '&& (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>45.) ' + \
                       '&& (JetPFCor_Pt[1]/Mass2j_PFCor>0.3) ' + \

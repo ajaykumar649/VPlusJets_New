@@ -30,6 +30,7 @@
 #include "RooAbsBinning.h"
 #include "RooTreeDataStore.h"
 #include "RooGenericPdf.h"
+#include "RooCBShape.h"
 
 #include "TPad.h"
 
@@ -41,14 +42,16 @@ using namespace RooFit;
 RooWjjMjjFitter::RooWjjMjjFitter() :
   ws_("ws", "ws"), initWjets_(0.), initDiboson_(0.),
   ttbarNorm_(0.), singleTopNorm_(0.), zjetsNorm_(0.),
-  QCDNorm_(0.), QCDError_(0.), errorType_(RooAbsData::SumW2)
+  QCDNorm_(0.), QCDError_(0.), errorType_(RooAbsData::SumW2),
+  histOrder(0)
 {
 }
 
 RooWjjMjjFitter::RooWjjMjjFitter(RooWjjFitterParams & pars) :
   ws_("ws", "ws"), params_(pars), utils_(pars),
   initWjets_(0.), initDiboson_(0.), ttbarNorm_(0.), singleTopNorm_(0.), 
-  zjetsNorm_(0.), QCDNorm_(0.), QCDError_(0.),errorType_(RooAbsData::SumW2)
+  zjetsNorm_(0.), QCDNorm_(0.), QCDError_(0.),errorType_(RooAbsData::SumW2),
+  histOrder(0)
 {
   utils_.vars2ws(ws_);
   RooRealVar * mass = ws_.var(params_.var);
@@ -121,7 +124,7 @@ RooFitResult * RooWjjMjjFitter::fit() {
   loadParameters(params_.initParamsFile);
   //cout << "params_.e_fSU=" << params_.e_fSU << endl;
   
-  ws_.Print();
+  //ws_.Print();
   std::cout << "\n***constraints***\n";
   TIter con(Constraints.createIterator());
   RooGaussian * tc;
@@ -219,14 +222,19 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
   nDiboson.setError(initDiboson_*0.15);
   RooRealVar nTTbar("nTTbar","", ttbarNorm_);
   nTTbar.setError(ttbarNorm_*0.063);
+  nTTbar.setConstant(false);
   RooRealVar nSingleTop("nSingleTop","", singleTopNorm_);
   nSingleTop.setError(singleTopNorm_*0.05);
+  nSingleTop.setConstant(false);
   RooRealVar nQCD("nQCD","nQCD", QCDNorm_);
   nQCD.setError(QCDError_);
+  nQCD.setConstant(false);
   RooRealVar nZjets("nZjets","nZjets", zjetsNorm_);
   nZjets.setError(zjetsNorm_*0.043);
+  nZjets.setConstant(false);
   RooRealVar nNP("nNP", "N_{new physics}", 0., 0., 10000.);
   nNP.setError(100.);
+  nNP.setConstant(false);
 
   RooAbsPdf * WpJPdfMU = ws_.pdf("WpJPdfMU");
   RooRealVar * fMU = ws_.var("fMU");
@@ -249,29 +257,36 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
   RooRealVar width("width","width", 5., 0., 100.);
   RooRealVar seff("seff", "seff", 7000., 0., 10000.);
   seff.setConstant(true);
-  RooRealVar power("power", "power", 4, 0., 100.);
-  RooRealVar power2("power2", "power2", 2, 0., 100.);
+  RooRealVar power("power", "power", 2, -10., 100.);
+  RooRealVar power2("power2", "power2", 1, -10., 100.);
   RooRealVar decay(power, "decay");
   RooRealVar fturnon("fturnOn", "fturnOn", 0.5, 0., 1.);
   RooRealVar width2(width);
   width2.SetName("width2");
   RooRealVar turnOn2(turnOn, "turnOn2");
-  RooGenericPdf bkgErfExp("WpJPdfAll","WpJPdfAll",
-// 			  "TMath::Power(1-@0/@5,decay)/TMath::Power(@0,@3+@4*log(@0/@5))"
- 			  "1./TMath::Power(@0,@3+@4*log(@0/@5))"
-// 			  "1./TMath::Power(@0,@3)"
-// 			  "exp(-@0/@3)"
-//  			  "*(fturnOn*(TMath::Erf((@0-@1)/@2)+1) + "
-// 			  "(1-fturnOn)*(TMath::Erf((@0-@6)/@2)+1))",
- 			  "*(TMath::Erf((@0-@1)/@2)+1)",
-// 			  "*1./(1+exp(-(@0-@1)/@2))",
-			  RooArgList(*mass, turnOn, width, power, power2,
-				     seff));
+  RooRealVar mean("mean", "peak", 80);
+  mean.setConstant(false);
+  RooRealVar alpha("alpha", "alpha", 1.0);
+  alpha.setConstant(false);
+  RooCBShape WpJPdfCB("WpJPdfCB", "WpJPdfCP", *mass, mean, width2, 
+		      alpha, power);
+  RooGenericPdf bkgErf("WpJPdfErf","WpJPdfErf",
+		       //"TMath::Power(1-@0/@5,decay)/TMath::Power(@0,@3+@4*log(@0/@5))"
+		       //"1./TMath::Power(@0,@3+@4*log(@0/@5))"
+		       //"1./TMath::Power(@0,@3)"
+		       //"exp(-@0/@3)"
+		       //"*(fturnOn*(TMath::Erf((@0-@1)/@2)+1) + "
+		       //"(1-fturnOn)*(TMath::Erf((@0-@6)/@2)+1))",
+		       "*(TMath::Erf((@0-@1)/@2)+1)",
+		       //"*1./(1+exp(-(@0-@1)/@2))",
+		       RooArgList(*mass, turnOn, width));
+  RooProdPdf WpJPdfAll("WpJPdfAll", "WpJPdfAll", RooArgList(WpJPdfCB, bkgErf), 
+		       1e-6);
 
   RooArgList components(*dibosonPdf);
   RooArgList yields(nDiboson);
   if (allOne) {
-    components.add(bkgErfExp);
+    components.add(WpJPdfAll);
     yields.add(nWjets);
   } else {
     components.add(RooArgList(*WpJPdfMU,*WpJPdfMD,*WpJPdfSU,
@@ -432,7 +447,7 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 
   double WWweight = 53./4225916.;
   double WZweight = 17./4265243.;
-  double dibosonScale = 2.;
+  int dibosonScale = 1;
   TH1 * th1diboson = utils_.newEmptyHist("th1diboson", dibosonScale);
 
   TH1 * tmpHist;
@@ -471,7 +486,7 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 
   th1diboson->Scale(1., "width");
   RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
-					   ws_);
+					   ws_, histOrder);
   delete th1diboson;
   return dibosonPdf;
 }
@@ -565,31 +580,31 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf() {
   RooArgList pdfs;
   RooArgList coefs;
 
-  RooAbsPdf * WpJPdfSU = utils_.Hist2Pdf(th1WpJSU, "WpJPdfSU", ws_);
-  RooRealVar fSU("fSU", "f_{scaleUp}", 0., 0., 1.);
-  fSU.setConstant();
+  RooAbsPdf * WpJPdfSU = utils_.Hist2Pdf(th1WpJSU, "WpJPdfSU", ws_, histOrder);
+  RooRealVar fSU("fSU", "f_{scaleUp}", 0., -1., 1.);
+  //fSU.setConstant();
   pdfs.add(*WpJPdfSU);
   coefs.add(fSU);
 
-  RooAbsPdf * WpJPdfSD = utils_.Hist2Pdf(th1WpJSD, "WpJPdfSD", ws_);
+  RooAbsPdf * WpJPdfSD = utils_.Hist2Pdf(th1WpJSD, "WpJPdfSD", ws_, histOrder);
   RooRealVar fSD("fSD", "f_{scaleDown}", 0., 0., 1.);
   fSD.setConstant();
   pdfs.add(*WpJPdfSD);
   coefs.add(fSD);
 
-  RooAbsPdf * WpJPdfMU = utils_.Hist2Pdf(th1WpJMU, "WpJPdfMU", ws_);
-  RooRealVar fMU("fMU", "f_{matchingUp}", 0., 0., 1.);
-  fMU.setConstant();
+  RooAbsPdf * WpJPdfMU = utils_.Hist2Pdf(th1WpJMU, "WpJPdfMU", ws_, histOrder);
+  RooRealVar fMU("fMU", "f_{matchingUp}", 0., -1., 1.);
+  //fMU.setConstant();
   pdfs.add(*WpJPdfMU);
   coefs.add(fMU);
 
-  RooAbsPdf * WpJPdfMD = utils_.Hist2Pdf(th1WpJMD, "WpJPdfMD", ws_);
+  RooAbsPdf * WpJPdfMD = utils_.Hist2Pdf(th1WpJMD, "WpJPdfMD", ws_, histOrder);
   RooRealVar fMD("fMD", "f_{matchingDown}", 0., 0., 1.);
   fMD.setConstant();
   pdfs.add(*WpJPdfMD);
   coefs.add(fMD);
 
-  RooAbsPdf * WpJPdfNom = utils_.Hist2Pdf(th1WpJ, "WpJPdfNom", ws_);
+  RooAbsPdf * WpJPdfNom = utils_.Hist2Pdf(th1WpJ, "WpJPdfNom", ws_, histOrder);
   pdfs.add(*WpJPdfNom);
 
   RooAddPdf WpJPdf("WpJPdf","WpJPdf", pdfs, coefs, false);
@@ -610,7 +625,7 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
   if (ws_.pdf("ttPdf"))
     return ws_.pdf("ttPdf");
 
-  double ttScale = 1.;
+  int ttScale = 1;
   TH1 * th1tt = utils_.newEmptyHist("th1tt", ttScale);
 
   TH1 * tmpHist;
@@ -638,7 +653,7 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
        << ttbarNorm_ << endl;
 
   th1tt->Scale(1., "width");
-  RooAbsPdf * ttPdf = utils_.Hist2Pdf(th1tt, "ttPdf", ws_);
+  RooAbsPdf * ttPdf = utils_.Hist2Pdf(th1tt, "ttPdf", ws_, histOrder);
   delete th1tt;
   return ttPdf;
 
@@ -669,7 +684,7 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 	    << " t: " << TWTopWeight
 	    << "\n";
 
-  double stScale = 1.;
+  int stScale = 1;
 
   TH1 * th1st = utils_.newEmptyHist("th1st", stScale);
 
@@ -761,7 +776,7 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
     th1st->Integral() << " x " << params_.intLumi << " = " << singleTopNorm_ << endl;
 
   th1st->Scale(1., "width");
-  RooAbsPdf * stPdf = utils_.Hist2Pdf(th1st, "stPdf", ws_);
+  RooAbsPdf * stPdf = utils_.Hist2Pdf(th1st, "stPdf", ws_, histOrder);
   delete th1st;
   return stPdf;
 
@@ -800,7 +815,7 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
   }
 
   th1qcd->Scale(1., "width");
-  RooAbsPdf* qcdPdf = utils_.Hist2Pdf(th1qcd,"qcdPdf", ws_);
+  RooAbsPdf* qcdPdf = utils_.Hist2Pdf(th1qcd,"qcdPdf", ws_, histOrder);
   delete th1qcd;    
   return qcdPdf;
 }
@@ -841,7 +856,7 @@ RooAbsPdf * RooWjjMjjFitter::makeZpJPdf() {
 
   th1ZpJ->Scale(1., "width");
 
-  RooAbsPdf * ZpJPdf = utils_.Hist2Pdf(th1ZpJ, "ZpJPdf", ws_);
+  RooAbsPdf * ZpJPdf = utils_.Hist2Pdf(th1ZpJ, "ZpJPdf", ws_, histOrder);
   delete th1ZpJ;
   return ZpJPdf;
 }
@@ -875,7 +890,7 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   th1NP->FillRandom("genGaussian", 100000);
   th1NP->Scale(1., "width");
 
-  RooAbsPdf * NPPdf = utils_.Hist2Pdf(th1NP, "NPPdf", ws_);
+  RooAbsPdf * NPPdf = utils_.Hist2Pdf(th1NP, "NPPdf", ws_, histOrder);
   delete th1NP;
   return NPPdf;
 }
@@ -936,11 +951,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   }
 
   th1wjets->Scale(1, "width");
-  th1wjets->Print();
-  th1wjets->Draw();
-  gPad->Update();
+//   th1wjets->Print();
+//   th1wjets->Draw();
+//   gPad->Update();
 //   gPad->WaitPrimitive();
-  RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", ws_);
+  RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
+					    ws_, histOrder);
   //delete th1wjets;
   return WpJ4BodyPdf;
 }
@@ -976,7 +992,6 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
 //   dataHist->Draw();
 //   gPad->Update();
 //   gPad->WaitPrimitive();
-  delete dataHist;
 
   RooAddPdf * totalPdf = dynamic_cast<RooAddPdf *>(ws_.pdf("totalPdf"));
   if (fm == mlnujj) 
@@ -994,10 +1009,12 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
 
   int comp(1);
   double nexp(totalPdf->expectedEvents(RooArgSet(*(ws_.var(params_.var)))));
-//   std::cout << "totalPdf expected: " << nexp << '\n'
+  std::cout << totalPdf->GetName() << " expected: " << nexp << '\n'
+	    << "data normalization: " << dataHist->GetEntries() << '\n'
 // 	    << "frame NEvt: " << sframe->getFitRangeNEvt() << '\n'
 // 	    << "frame BinW: " << sframe->getFitRangeBinW() << '\n'
-// 	    << '\n';
+ 	    << '\n';
+  delete dataHist;
 //   TH1 * pdfHist = totalPdf->createHistogram("pdfHist", *mass,
 // 					    Binning(plotBins),
 // 					    Scaling(false));

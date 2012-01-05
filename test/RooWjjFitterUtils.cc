@@ -95,13 +95,34 @@ void RooWjjFitterUtils::initialize() {
   }
 }
 
-TH1 * RooWjjFitterUtils::newEmptyHist(TString histName, double binMult) const {
+TH1 * RooWjjFitterUtils::newEmptyHist(TString histName, int binMult) const {
   TH1D * theHist;
-  if (binArray)
-    theHist = new TH1D(histName, histName, 
-		       params_.binEdges.size()-1, binArray);
-  else
-    theHist = new TH1D(histName, histName, int(params_.nbins*binMult), 
+  if (binArray) {
+    double * allBins = binArray;
+    int multBins = (params_.binEdges.size()-1)*binMult + 1;
+    if (binMult > 1) {
+      allBins = new double[multBins];
+      int binI = 0;
+      double binW = 0.;
+      for (unsigned int i = 0; i<params_.binEdges.size(); ++i) {
+	if (i+1 < params_.binEdges.size())
+	  binW = params_.binEdges[i+1] - params_.binEdges[i];
+	else
+	  binW = 0.;
+	for (int j = 0; j < binMult; ++j)
+	  if (binI < multBins)
+	    allBins[binI++] = params_.binEdges[i]+j*binW/binMult;
+      }
+    }
+
+//     std::cout << "binning ";
+//     for (int i = 0; i < multBins; ++i) {
+//       std::cout << allBins[i] << ",";
+//     }
+//     std::cout << '\n';
+    theHist = new TH1D(histName, histName, multBins-1, allBins);
+  } else
+    theHist = new TH1D(histName, histName, params_.nbins*binMult, 
 		       params_.minMass, params_.maxMass);
   theHist->Sumw2();
   return theHist;
@@ -110,7 +131,7 @@ TH1 * RooWjjFitterUtils::newEmptyHist(TString histName, double binMult) const {
 TH1 * RooWjjFitterUtils::File2Hist(TString fname, 
 				   TString histName, bool isElectron,
 				   int jes_scl, bool noCuts, 
-				   double binMult, TString cutOverride) const {
+				   int binMult, TString cutOverride) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);
@@ -226,7 +247,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 }
 
 RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
-					 RooWorkspace& ws) const {
+					RooWorkspace& ws, int order) const {
   if (ws.pdf(pdfName))
     return ws.pdf(pdfName);
 
@@ -235,7 +256,7 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
   ws.import(newHist);
 
   RooHistPdf thePdf = RooHistPdf(pdfName, pdfName, RooArgSet(*massVar_),
-				 RooArgSet(*mjj_), newHist);
+				 RooArgSet(*mjj_), newHist, order);
   //thePdf.Print();
   ws.import(thePdf, RooFit::RecycleConflictNodes(), RooFit::Silence());
 
@@ -259,6 +280,7 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
   TFile holder("holder_DELETE_ME.root", "recreate");
   if (!noCuts) {
     activateBranches(*theTree, isElectron);
+    std::cout << "full cuts: " << fullCuts(trunc) << '\n';
     reducedTree = theTree->CopyTree( fullCuts(trunc) );
     delete theTree;
   }
@@ -282,19 +304,19 @@ TString RooWjjFitterUtils::fitCuts() const {
 			   params_.var.Data(), params_.maxTrunc,
 			   params_.var.Data(), params_.maxFit);
   else
-    return TString::Format("((%s>%0.3f) && (%s<%0.3f))",
+    return TString::Format("(%s>%0.3f) && (%s<%0.3f)",
 			   params_.var.Data(), params_.minFit,
 			   params_.var.Data(), params_.maxFit);
 }
 
 TString RooWjjFitterUtils::fullCuts(bool trunc) const {
-  TString theCut = TString::Format("((%s > %0.3f) && (%s < %0.3f))", 
+  TString theCut = TString::Format("(%s > %0.3f) && (%s < %0.3f)", 
 				    params_.var.Data(), params_.minMass, 
 				    params_.var.Data(), params_.maxMass);
   if (trunc) {
     theCut = fitCuts();
   }
-  theCut += TString::Format(" && (%s)", jetCut_.Data());
+  //theCut += TString::Format(" && (%s)", jetCut_.Data());
   if (params_.cuts.Length() > 0)
     theCut +=  TString::Format(" && (%s)", params_.cuts.Data());
   return "(" + theCut + ")";

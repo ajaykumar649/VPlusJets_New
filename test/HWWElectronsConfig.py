@@ -38,19 +38,19 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
     index = HiggsMassPointIndex(mH)  
     mvaVarNames  = mvaVarNames2jEl[index]
     mvaCutValues = mvaCutValues2jEl[index]
-    if(Nj==3): mvaVarNames = mvaVarNames3jEl[index]
-    if(Nj==3): mvaCutValues = mvaCutValues3jEl[index]
-    fitterPars.cuts += '&& (({0} > {1:f}))'.format(mvaVarNames,mvaCutValues)
-    fitterPars.cuts += '&& (W_electron_pt > 35) '     
+    if(Nj==3):
+        mvaVarNames = mvaVarNames3jEl[index]
+        mvaCutValues = mvaCutValues3jEl[index]
+    fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues) + \
+                       '&& (W_electron_pt > 35) '
     return fitterPars
 
-def the4BodyConfig(Nj, mcdir = '', initFile = '', mH=400):
+def the4BodyConfig(twoBodyConfig, mH=400):
     index = HiggsMassPointIndex(mH)    
     alpha = alphaValues2jEl[index]
-    if(Nj==3): alpha = alphaValues3jEl[index]
-    fitterPars = HWWconfig.the4BodyConfig(Nj, mcdir, initFile, alpha)
-    fitterPars.includeMuons = False
-    fitterPars.includeElectrons = True    
+    if(Nj==3):
+        alpha = alphaValues3jEl[index]
+    fitterPars = HWWconfig.the4BodyConfig(twoBodyConfig, alpha)
     return fitterPars
 
 
