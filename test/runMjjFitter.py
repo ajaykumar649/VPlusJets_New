@@ -92,10 +92,11 @@ for v1 in range(0, covMatrix.GetNrows()):
 
 from plotMjjFit import plot2BodyDist
 
-(mf, sf, pf, lf) = plot2BodyDist(theFitter, chi2, ndf, opts.Err, opts.NP)
+(plots, cans) = plot2BodyDist(theFitter, fitterPars, chi2, ndf,
+                              opts.Err, opts.NP)
 
-h_total = mf.getCurve('h_total')
-theData = mf.getHist('theData')
+h_total = plots[0].getCurve('h_total')
+theData = plots[0].getHist('theData')
 
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
 sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
@@ -177,8 +178,6 @@ ShapeFile = TFile('Mjj_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
 h_total.Write()
 theData.Write()
 fr.Write()
-mf.Write()
-sf.Write()
-pf.Write()
-lf.Write()
+for frame in plots:
+    frame.Write()
 ShapeFile.Close()

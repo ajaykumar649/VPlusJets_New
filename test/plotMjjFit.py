@@ -1,8 +1,19 @@
 #! /usr/bin/env python
+import pyroot_logon
 
-def plot2BodyDist(theFitter, chi2, ndf, Err = -1, NP = False):
-    from ROOT import gPad, TLatex, kRed, kCyan, kBlue, \
+def plot2BodyDist(theFitter, pars, chi2, ndf, 
+                  Err = -1, NP = False):
+    from ROOT import gPad, TLatex, TCanvas, kRed, kCyan, kBlue, \
          RooFit, RooPlot, RooCurve, RooAbsReal
+
+    if pars.includeMuons and pars.includeElectrons:
+        modeString = ''
+    elif pars.includeMuons:
+        modeString = 'Muon'
+    elif pars.includeElectrons:
+        modeString = 'Electron'
+    else:
+        modeString = ''
 
     mf = theFitter.stackedPlot()
     mf.SetName("Mjj_Stacked");
@@ -30,7 +41,7 @@ def plot2BodyDist(theFitter, chi2, ndf, Err = -1, NP = False):
                         RooFit.LineColor(kRed), RooFit.LineStyle(3))
         h_ErrUp = sf.getCurve('h_ErrUp')
         sf.remove('h_ErrUp', False)
-        h_ErrUp.Draw("al")
+##         h_ErrUp.Draw("al")
 ##         h_ErrUp.GetXaxis().Set(36, 40., 400.)
 ##         h_ErrUp1.Draw("l")
         gPad.Update()
@@ -51,20 +62,18 @@ def plot2BodyDist(theFitter, chi2, ndf, Err = -1, NP = False):
         sf.findObject('theLegend').AddEntry(h_ErrUp, 'Uncertainty', 'L')
 
     if NP:
-
-
         NPPdf = theFitter.makeNPPdf();
-        NPNorm = 4.*0.11*46.8/12.*fitterPars.intLumi
+        NPNorm = 4.*0.11*46.8/12.*pars.intLumi
 
         if (modeString == 'Electron'):
-            if opts.Nj == 2:
+            if pars.njets == 2:
                 NPNorm *= 0.037
-            elif opts.Nj == 3:
+            elif pars.njets == 3:
                 NPNorm *= 0.012
         else:
-            if opts.Nj == 2:
+            if pars.njets == 2:
                 NPNorm *= 0.051
-            elif opts.Nj == 3:
+            elif pars.njets == 3:
                 NPNomr *= 0.016
 
         print '**** N_NP:', NPNorm,'****'
@@ -91,27 +100,33 @@ def plot2BodyDist(theFitter, chi2, ndf, Err = -1, NP = False):
                 '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
                                                                   chi2/ndf)
                 )
-    pyroot_logon.cmsPrelim(cstacked, fitterPars.intLumi/1000)
-    cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj))
-    cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj))
+    pyroot_logon.cmsPrelim(cstacked, pars.intLumi/1000)
+    cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString,
+                                                            pars.njets))
+    cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.png'.format(modeString,
+                                                            pars.njets))
     c2 = TCanvas("c2", "stacked_log")
     c2.SetLogy()
     lf.Draw()
-    pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-    c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj))
-    c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj))
+    pyroot_logon.cmsPrelim(c2, pars.intLumi/1000)
+    c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString,
+                                                          pars.njets))
+    c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString,
+                                                          pars.njets))
     c3 = TCanvas("c3", "subtracted")
     sf.Draw()
-    pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-    c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString,opts.Nj))
-    c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString,opts.Nj))
+    pyroot_logon.cmsPrelim(c3, pars.intLumi/1000)
+    c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString,
+                                                         pars.njets))
+    c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString,
+                                                         pars.njets))
     c4 = TCanvas("c4", "pull")
     pf.Draw()
-    pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
-    c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj))
-    c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj))
+    pyroot_logon.cmsPrelim(c4, pars.intLumi/1000)
+    c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, pars.njets))
+    c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.png'.format(modeString, pars.njets))
 
-    return (mf,sf,pf,lf)
+    return ([mf,sf,pf,lf],[cstacked,c2,c3,c4])
 
 if __name__ == '__main__':
     from optparse import OptionParser
@@ -161,14 +176,6 @@ if __name__ == '__main__':
 
     fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile,
                                   opts.toydataFile )
-    if fitterPars.includeMuons and fitterPars.includeElectrons:
-        modeString = ''
-    elif fitterPars.includeMuons:
-        modeString = 'Muon'
-    elif fitterPars.includeElectrons:
-        modeString = 'Electron'
-    else:
-        modeString = ''
 
     theFitter = RooWjjMjjFitter(fitterPars)
 
@@ -177,4 +184,5 @@ if __name__ == '__main__':
 
     theFitter.loadParameters(opts.startingFile)
 
-    (mf, sf, pf, lf) = plot2BodyDist(theFitter, 0, 3, opts.Err, opts.NP)
+    (mf, sf, pf, lf) = plot2BodyDist(theFitter, fitterPars,
+                                     0, 3, opts.Err, opts.NP)

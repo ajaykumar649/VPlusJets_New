@@ -137,7 +137,7 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
     fitterPars = RooWjjFitterParams(twoBodyConfig)
     fitterPars.binEdges.clear()
     fitterPars.smoothingOrder = 1
-    fitterPars.smoothWpJ = 2
+    fitterPars.smoothWpJ = 0
     fitterPars.do4body = True
     twoBCut = fitterPars.cuts
     print twoBCut
@@ -165,7 +165,7 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
     fitterPars.var = 'fit_mlvjj'
     fitterPars.minMass = minMlvjj
     fitterPars.maxMass = maxMlvjj
-    fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/20 + 0.5)
+    fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/40 + 0.5)
     if (fitterPars.nbins < 8):
         fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/10 + \
                                0.5)

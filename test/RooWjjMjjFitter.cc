@@ -31,6 +31,7 @@
 #include "RooTreeDataStore.h"
 #include "RooGenericPdf.h"
 #include "RooCBShape.h"
+#include "RooExponential.h"
 
 #include "TPad.h"
 
@@ -972,13 +973,20 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 
   th1wjets->Scale(1, "width");
   th1wjets->Print();
+  th1wjets->Fit("expo");
   th1wjets->Draw();
   gPad->Update();
+  TF1 * expo = th1wjets->GetFunction("expo");
 //   gPad->WaitPrimitive();
-  RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
-					    ws_, histOrder);
+//   RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
+// 					    ws_, histOrder);
+  RooRealVar * mass = ws_.var(params_.var);
+  RooRealVar tau("tau", "tau", expo->GetParameter(1));
+  RooExponential exp("WpJ4BodyPdf", "exp", *mass, tau);
+
+  ws_.import(exp);
   //delete th1wjets;
-  return WpJ4BodyPdf;
+  return ws_.pdf("WpJ4BodyPdf");
 }
 
 RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
@@ -1394,7 +1402,8 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //   gPad->Update();
 //   gPad->WaitPrimitive();
 
-  th1wpjHi->Smooth(params_.smoothWpJ);
+  if (params_.smoothWpJ > 0)
+    th1wpjHi->Smooth(params_.smoothWpJ);
 
   th1wpjHi->Print();
 //   th1wpjHi->Draw();
