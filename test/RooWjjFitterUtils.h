@@ -56,7 +56,7 @@ public:
   static TLegend * legend4Plot(RooPlot * plot);
   static void activateBranches(TTree & t, bool isElectron = false);
 
-  static double dijetEff(int Njets, std::vector<double> const& eff30,
+  static double dijetEff(unsigned int Njets, std::vector<double> const& eff30,
 			 std::vector<double> const& eff25n30);
 protected:
 

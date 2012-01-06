@@ -3,11 +3,12 @@ from ROOT import gROOT
 gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 from ROOT import RooWjjFitterParams
 
-minMlvjj = 140.
-maxMlvjj = 800.
+minMlvjj = 170.
+maxMlvjj = 770.
 
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
+    fitterPars.smoothingOrder = 1
     fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_"
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
@@ -127,7 +128,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
                       '&& %s ' % (jetCut) + \
                       '&& (fit_mlvjj > %0.1f) && (fit_mlvjj < %0.1f) ' % \
                       (minMlvjj, maxMlvjj)
-    
+
     return fitterPars
 
 def the4BodyConfig(twoBodyConfig, alpha=1.):
@@ -135,6 +136,8 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
 
     fitterPars = RooWjjFitterParams(twoBodyConfig)
     fitterPars.binEdges.clear()
+    fitterPars.smoothingOrder = 1
+    fitterPars.smoothWpJ = 2
     fitterPars.do4body = True
     twoBCut = fitterPars.cuts
     print twoBCut
@@ -158,10 +161,14 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
     fitterPars.SBLocut += '(({0} > {1:f}) && ({0} < {2:f}))'.format(fitterPars.var,fitterPars.minSBLo, fitterPars.maxSBLo)
     print 'SBLocut',fitterPars.SBLocut
 
+    print 'minMlvjj:',minMlvjj,'maxMlvjj',maxMlvjj
     fitterPars.var = 'fit_mlvjj'
     fitterPars.minMass = minMlvjj
     fitterPars.maxMass = maxMlvjj
     fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/20 + 0.5)
+    if (fitterPars.nbins < 8):
+        fitterPars.nbins = int((fitterPars.maxMass-fitterPars.minMass)/10 + \
+                               0.5)
     fitterPars.truncRange = False
 
 

@@ -55,6 +55,7 @@ public:
   std::vector<double> maxMasses;
   std::vector<double> alphas;
   std::vector<double> falphas;
+  int smoothWpJ;
 
   //efficiency corrections
   bool doEffCorrections;
@@ -82,6 +83,9 @@ public:
   TString ToyDatasetDirectory;
   TString toydataFile;
 
+  //histogram smoothing
+  int smoothingOrder;
+
 };
 
 RooWjjFitterParams::RooWjjFitterParams() :
@@ -98,12 +102,13 @@ RooWjjFitterParams::RooWjjFitterParams() :
   intLumi(2100.), constrainDiboson(true), externalConstraints(true),
   do4body(false),
   minSBHi(95.), maxSBHi(105.), SBHicut(""), 
-  minSBLo(55.), maxSBLo(65.), SBLocut(""),
+  minSBLo(55.), maxSBLo(65.), SBLocut(""), smoothWpJ(1),
   doEffCorrections(false), 
   minFit(minMass), maxFit(maxMass),
   
   useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),
-  fitToyDataset(false), ToyDatasetDirectory(""), toydataFile("")
+  fitToyDataset(false), ToyDatasetDirectory(""), toydataFile(""),
+  smoothingOrder(0)
 {
 }
 

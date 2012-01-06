@@ -20,7 +20,7 @@ public:
   RooWjjMjjFitter(RooWjjFitterParams & pars);
   virtual ~RooWjjMjjFitter() { }
 
-  RooFitResult * fit();
+  RooFitResult * fit(bool repeat = false);
   RooPlot * computeChi2(double& chi2, int& ndf);
 
   RooAbsPdf * makeFitter(bool allOne = false);

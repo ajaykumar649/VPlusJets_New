@@ -41,7 +41,7 @@ gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, \
-     gPad, RooAbsReal, kBlue, kCyan, kRed
+     gPad, RooAbsReal, kBlue, kCyan, kRed, RooCurve, RooPlot
 from math import sqrt
 
 
@@ -87,95 +87,12 @@ for v1 in range(0, covMatrix.GetNrows()):
     for v2 in range(0, covMatrix.GetNcols()):
         if ((yields[v1].GetName())[0] == 'n') and \
                ((yields[v2].GetName())[0] == 'n'):
+            #print v1, yields[v1].GetName(),',', v2, yields[v2].GetName()
             sig2 += covMatrix(v1, v2)
 
-mf = theFitter.stackedPlot()
-sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
-pf = theFitter.residualPlot(mf, "h_total", "", True)
-lf = theFitter.stackedPlot(True)
+from plotMjjFit import plot2BodyDist
 
-
-if opts.Err > 0:
-    totalPdf = theFitter.getWorkSpace().pdf('totalPdf')
-    ## Ntotal = totalPdf.expectedEvents(iset)
-
-    ## print 'Ntotal:',Ntotal
-
-    totalPdf.plotOn(sf,
-                    RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
-                    RooFit.Normalization(opts.Err, RooAbsReal.Raw),
-                    RooFit.AddTo('h_dibosonPdf', 1., 1.),
-                    RooFit.Name('h_ErrUp'),
-                    RooFit.LineColor(kRed), RooFit.LineStyle(3))
-    totalPdf.plotOn(sf,
-                    RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
-                    RooFit.Normalization(opts.Err, RooAbsReal.Raw),
-                    RooFit.AddTo('h_dibosonPdf', -1., 1.),
-                    RooFit.Name('h_ErrDown'),
-                    RooFit.LineColor(kRed), RooFit.LineStyle(3))
-    sf.drawBefore('h_ErrUp', 'h_dibosonPdf')
-    sf.drawBefore('h_ErrDown', 'h_dibosonPdf')
-    h_ErrUp = sf.getCurve('h_ErrUp')
-    sf.findObject('theLegend').AddEntry(h_ErrUp, 'Uncertainty', 'L')
-
-if opts.NP:
-    NPPdf = theFitter.makeNPPdf();
-    NPNorm = 4.*0.11*46.8/12.*fitterPars.intLumi
-
-    if (modeString == 'Electron'):
-        if opts.Nj == 2:
-            NPNorm *= 0.037
-        elif opts.Nj == 3:
-            NPNorm *= 0.012
-    else:
-        if opts.Nj == 2:
-            NPNorm *= 0.051
-        elif opts.Nj == 3:
-            NPNomr *= 0.016
-
-    print '**** N_NP:', NPNorm,'****'
-
-    NPPdf.plotOn(sf, RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
-                 RooFit.Normalization(NPNorm, RooAbsReal.Raw),
-                 RooFit.Name('h_NP'),
-                 RooFit.LineColor(kCyan+2), RooFit.LineStyle(2))
-
-    h_NP = sf.getCurve('h_NP')
-
-    sf.drawBefore('h_NP', 'theData')
-
-    sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Gaussian", "L")
-
-l = TLatex()
-l.SetNDC()
-l.SetTextSize(0.035)
-l.SetTextFont(42)
-
-cstacked = TCanvas("cstacked", "stacked")
-mf.Draw()
-l.DrawLatex(0.55, 0.55,
-            '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
-                                                              chi2/ndf)
-            )
-pyroot_logon.cmsPrelim(cstacked, fitterPars.intLumi/1000)
-cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj))
-cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj))
-c2 = TCanvas("c2", "stacked_log")
-c2.SetLogy()
-lf.Draw()
-pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj))
-c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj))
-c3 = TCanvas("c3", "subtracted")
-sf.Draw()
-pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString,opts.Nj))
-c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString,opts.Nj))
-c4 = TCanvas("c4", "pull")
-pf.Draw()
-pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
-c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj))
-c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj))
+(mf, sf, pf, lf) = plot2BodyDist(theFitter, chi2, ndf, opts.Err, opts.NP)
 
 h_total = mf.getCurve('h_total')
 theData = mf.getHist('theData')
@@ -247,6 +164,7 @@ if opts.qplot:
     cq.Print('Wjj_Mjj_{0}_{1}jets_Q.pdf'.format(modeString, opts.Nj))
     cq.Print('Wjj_Mjj_{0}_{1}jets_Q.png'.format(modeString, opts.Nj))
 
+fr.SetName('nll')
 fr.Print()
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
@@ -258,4 +176,9 @@ ShapeFile = TFile('Mjj_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
                   'recreate')
 h_total.Write()
 theData.Write()
+fr.Write()
+mf.Write()
+sf.Write()
+pf.Write()
+lf.Write()
 ShapeFile.Close()

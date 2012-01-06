@@ -465,7 +465,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("MassV2j_PFCor",    1);
 }
 
-double RooWjjFitterUtils::dijetEff(int Njets, 
+double RooWjjFitterUtils::dijetEff(unsigned int Njets, 
 				   std::vector<double> const& eff30,
 				   std::vector<double> const& eff25n30) {
 

@@ -63,6 +63,13 @@ theFitter.makeFitter(True)
 theFitter.getWorkSpace().var('nDiboson').setConstant(True)
 
 fr = theFitter.fit()
+
+tries = 1
+while (fr.covQual() != 3) and (tries < 4):
+    print "Fit didn't converge well.  Will try again."
+    fr = theFitter.fit(True)
+    tries += 1
+
 chi2 = Double(0.)
 #ndf = Long(2)
 ndf = Long(3)
@@ -86,6 +93,10 @@ l.DrawLatex(0.22, 0.85,
 pyroot_logon.cmsPrelim(c1, fitterPars.intLumi/1000)
 c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
 c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
+
+if (fr.covQual() != 3):
+    print "Fit did not converge with a good error matrix. Bailing out."
+    assert(False)
 
 ## c2 = TCanvas("c2", "stacked_log")
 ## c2.SetLogy()
@@ -203,13 +214,13 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-#cdebug = TCanvas('cdebug', 'debug')
+cdebug = TCanvas('cdebug', 'debug')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH)
 fitter4 = RooWjjMjjFitter(pars4)
-#fitter4.makeFitter(False)
 
-fitter4.make4BodyPdf(theFitter)
+fitter4.makeFitter()
 fitter4.loadData()
+fitter4.make4BodyPdf(theFitter)
 fitter4.loadParameters('lastSigYield.txt')
 
 ## fitter4.getWorkSpace().Print()
@@ -217,7 +228,7 @@ fitter4.loadParameters('lastSigYield.txt')
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 ## sf4 = fitter4.residualPlot(mf4, "h_background", "dibosonPdf", False)
 pf4 = fitter4.residualPlot(mf4, "h_total", "", True)
-## lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
+lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 
 c4body = TCanvas('c4body', '4 body stacked')
 mf4.Draw()
@@ -227,12 +238,12 @@ c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, op
 
 ## assert(False)
 
-## c4body2 = TCanvas("c4body2", "4 body stacked_log")
-## c4body2.SetLogy()
-## lf4.Draw()
-## pyroot_logon.cmsPrelim(c4body2, pars4.intLumi/1000)
-## c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj, opts.mH))
-## c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
+c4body2 = TCanvas("c4body2", "4 body stacked_log")
+c4body2.SetLogy()
+lf4.Draw()
+pyroot_logon.cmsPrelim(c4body2, pars4.intLumi/1000)
+c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
 
 
 ## c4body3 = TCanvas("c4body3", "4 body subtracted")

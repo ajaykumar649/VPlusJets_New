@@ -1,18 +1,23 @@
 import pyroot_logon
 import HWWconfig
 
-mvaVarNames2jMu  = ["mva2j170mu","mva2j180mu","mva2j190mu",
-                    "mva2j200mu","mva2j250mu","mva2j300mu",
-                    "mva2j350mu","mva2j400mu","mva2j450mu",
-                    "mva2j500mu","mva2j550mu","mva2j600mu"]
-mvaCutValues2jMu = [0.630,0.760,0.820,0.820,0.870,0.850,
-                    0.870,0.850,0.850,0.760,0.890,0.890]
-alphaValues2jMu  = [0.130,0.000,0.010,0.000,0.050,0.170,
-                    0.150,0.220,0.210,0.200,0.120,0.120]
-alphaDown2jMu    = [0.100,0.000,0.000,0.000,0.000,0.140,
-                    0.110,0.180,0.160,0.170,0.060,0.070]
-alphaUp2jMu      = [0.150,0.040,0.070,0.120,0.130,0.210,
-                    0.200,0.260,0.250,0.220,0.170,0.170]
+#list of tuples that have the optimized inputs for each mass point
+#tuple is (mass, mvaVariableName, mvaCut, min4bodymass, max4bodymass,
+#          alpha, alphaDown, alphaUp)
+optimalPars2 = [
+    (170, "mva2j170mu", 0.630, 170., 250., 0.130, 0.100, 0.150),
+    (180, "mva2j180mu", 0.760, 170., 250., 0.000, 0.000, 0.040),
+    (190, "mva2j190mu", 0.820, 170., 250., 0.010, 0.000, 0.070),
+    (200, "mva2j200mu", 0.820, 170., 250., 0.000, 0.000, 0.120),
+    (250, "mva2j250mu", 0.870, 200., 500., 0.050, 0.000, 0.130),
+    (300, "mva2j300mu", 0.850, 200., 500., 0.170, 0.140, 0.210),
+    (350, "mva2j350mu", 0.870, 260., 780., 0.150, 0.110, 0.200),
+    (400, "mva2j400mu", 0.850, 280., 780., 0.220, 0.180, 0.260),
+    (450, "mva2j450mu", 0.850, 280., 780., 0.210, 0.160, 0.250),
+    (500, "mva2j500mu", 0.760, 280., 780., 0.200, 0.170, 0.220),
+    (550, "mva2j550mu", 0.890, 280., 780., 0.120, 0.060, 0.170),
+    (600, "mva2j500mu", 0.890, 260., 780., 0.280, 0.100, 0.560)
+    ]
 
 mvaVarNames3jMu  = ["mva3j170mu","mva3j180mu","mva3j190mu",
                     "mva3j200mu","mva3j250mu","mva3j300mu",
@@ -29,22 +34,30 @@ alphaUp3jMu      = [0.290,0.330,0.370,0.330,0.480,0.560,
 
 
 def theConfig(Nj, mcdir = '', initFile = '', mH=400):
+    index = HiggsMassPointIndex(mH)
+    mvaVarNames  = optimalPars2[index][1]
+    mvaCutValues = optimalPars2[index][2]
+    HWWconfig.minMlvjj = optimalPars2[index][3]
+    HWWconfig.maxMlvjj = optimalPars2[index][4]
+    if(Nj==3):
+        mvaVarNames = mvaVarNames3jMu[index]
+        mvaCutValues = mvaCutValues3jMu[index]
+
     fitterPars = HWWconfig.theConfig(Nj, mcdir, initFile)
     fitterPars.includeMuons = True
     fitterPars.includeElectrons = False
     
-    index = HiggsMassPointIndex(mH)  
-    mvaVarNames  = mvaVarNames2jMu[index]
-    mvaCutValues = mvaCutValues2jMu[index]
-    if(Nj==3):
-        mvaVarNames = mvaVarNames3jMu[index]
-        mvaCutValues = mvaCutValues3jMu[index]
     fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues)
+
+    print '2-body cuts:', fitterPars.cuts
+    
     return fitterPars
 
 def the4BodyConfig(twoBodyConfig, mH=400):
     index = HiggsMassPointIndex(mH)    
-    alpha = alphaValues2jMu[index]
+    HWWconfig.minMlvjj = optimalPars2[index][3]
+    HWWconfig.maxMlvjj = optimalPars2[index][4]
+    alpha = optimalPars2[index][5]
     if(twoBodyConfig.njets == 3):
         alpha = alphaValues3jMu[index]   
     fitterPars = HWWconfig.the4BodyConfig(twoBodyConfig, alpha)
