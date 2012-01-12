@@ -44,7 +44,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 ##         h_ErrUp.Draw("al")
 ##         h_ErrUp.GetXaxis().Set(36, 40., 400.)
 ##         h_ErrUp1.Draw("l")
-        gPad.Update()
+##         gPad.Update()
 ##         gPad.WaitPrimitive()
         h_UpBand = RooCurve("h_UpBand", "Uncertainty", h_dibosonPdf, h_ErrUp,
                             1., 1.)
@@ -80,12 +80,15 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 
         NPPdf.plotOn(sf, RooFit.ProjWData(theFitter.getWorkSpace().data('data')),
                      RooFit.Normalization(NPNorm, RooAbsReal.Raw),
+                     RooFit.AddTo('h_dibosonPdf', 1., 1.),
                      RooFit.Name('h_NP'),
+                     RooFit.Range('RangeForPlot'),
+                     RooFit.NormRange('RangeForPlot'),
                      RooFit.LineColor(kCyan+2), RooFit.LineStyle(2))
 
         h_NP = sf.getCurve('h_NP')
 
-        sf.drawAfter('h_NP', 'theData')
+        sf.drawBefore('h_dibosonPdf', 'h_NP')
         #sf.Print("v")
         sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Gaussian", "L")
 
@@ -184,5 +187,5 @@ if __name__ == '__main__':
 
     theFitter.loadParameters(opts.startingFile)
 
-    (mf, sf, pf, lf) = plot2BodyDist(theFitter, fitterPars,
-                                     0, 3, opts.Err, opts.NP)
+    (frames, cans) = plot2BodyDist(theFitter, fitterPars,
+                                   0, 3, opts.Err, opts.NP)

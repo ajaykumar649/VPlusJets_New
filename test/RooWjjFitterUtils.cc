@@ -223,7 +223,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 	  eff25n30[i] = effJ25NoJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
 							 JetPFCor_Eta[i]);
 	}
-	evtWgt *= dijetEff(evtNJ, eff30, eff25n30);
+	evtWgt *= dijetEff(params_.njets, eff30, eff25n30);
 	evtWgt *= effMHT[epoch]->GetEfficiency(event_met_pfmet, 0.);
 	evtWgt *= effEleReco[epoch]->GetEfficiency(lepton_pt, lepton_eta);
 	evtWgt *= effEleId[epoch]->GetEfficiency(lepton_pt, lepton_eta);

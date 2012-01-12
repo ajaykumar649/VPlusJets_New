@@ -28,7 +28,7 @@ public:
   RooAbsData * loadData(bool trunc = false);
 
   RooAbsPdf * makeDibosonPdf();
-  RooAbsPdf * makeWpJPdf();
+  RooAbsPdf * makeWpJPdf(bool allOne = false);
   RooAbsPdf * makettbarPdf();
   RooAbsPdf * makeSingleTopPdf();
   RooAbsPdf * makeQCDPdf();

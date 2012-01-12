@@ -24,13 +24,15 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.minMass = 45.
+    fitterPars.minMass = 35.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 30
     fitterPars.intLumi = 4700.
 
     
     fitterPars.binEdges.push_back(fitterPars.minMass)
+    fitterPars.binEdges.push_back(40.)
+    fitterPars.binEdges.push_back(45.)
     fitterPars.binEdges.push_back(50.)
     fitterPars.binEdges.push_back(55.)
     fitterPars.binEdges.push_back(60.)
@@ -189,3 +191,32 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
 ##             fitterPars.falphas.push_back(line[1])
 
     return fitterPars
+
+
+def NgenHiggs(mH, includeElectron, includeMuon):
+    Ngen = {160 : 109992,
+            170 : 109989,
+            180 : 109325,
+            190 : 109986,
+            200 : 109315,
+            250 : 109992,
+            300 : 109990,
+            350 : 109313,
+            400 : 107879,
+            450 : 107158,
+            500 : 107169,
+            550 : 107870,
+            600 : 108561}
+
+    retVal = 0
+    if includeElectron:
+        retVal += Ngen[mH]/2
+    if includeMuon:
+        retVal += Ngen[mH]/2
+
+    return retVal
+
+def getOptimalPars(mH, parList):
+    for pars in parList:
+        if mH == pars[0]:
+            return pars

@@ -23,11 +23,18 @@ parser.add_option('-m', '--mode', default="HWWconfig", dest='modeConfig',
                   'example.  Use the file name minus the .py extension.')
 parser.add_option('-H', '--mH', dest='mH', default=400, type='int',
                   help='Higgs Mass Point')
+parser.add_option('-s', '--syst', dest='syst', type='int', default=0,
+                   help='alpha systematic 0: none, 1: down, 2: up')
+parser.add_option('-W', '--WpJ', dest='ParamWpJ', action='store_true',
+                  default=False, help='parameterize the W+jets Mjj shape')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
 
 config = __import__(opts.modeConfig)
+
+assert (opts.syst >= 0)
+assert (opts.syst <= 2)
 
 #import HWWwideSideband
 
@@ -37,7 +44,7 @@ gROOT.ProcessLine('.L EffTableReader.cc+')
 gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
-from ROOT import RooWjjMjjFitter, RooFitResult, \
+from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad
 from math import sqrt
 
@@ -57,25 +64,25 @@ else:
 theFitter = RooWjjMjjFitter(fitterPars)
 
 #theFitter.getWorkSpace().Print()
-theFitter.makeFitter(True)
+theFitter.makeFitter(opts.ParamWpJ)
 
 #theFitter.getWorkSpace().Print()
-theFitter.getWorkSpace().var('nDiboson').setConstant(True)
+theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 
 fr = theFitter.fit()
 
 tries = 1
-while (fr.covQual() != 3) and (tries < 4):
+while (fr.covQual() != 3) and (tries < 2):
     print "Fit didn't converge well.  Will try again."
     fr = theFitter.fit(True)
     tries += 1
 
 chi2 = Double(0.)
 #ndf = Long(2)
-ndf = Long(3)
+ndf = Long(fr.floatParsFinal().getSize()-5)
 theFitter.computeChi2(chi2, ndf)
 mf = theFitter.stackedPlot()
-sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
+## sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
 pf = theFitter.residualPlot(mf, "h_total", "", True)
 ## lf = theFitter.stackedPlot(True)
 
@@ -96,7 +103,7 @@ c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH)
 
 if (fr.covQual() != 3):
     print "Fit did not converge with a good error matrix. Bailing out."
-    assert(False)
+##     assert(False)
 
 ## c2 = TCanvas("c2", "stacked_log")
 ## c2.SetLogy()
@@ -106,21 +113,17 @@ if (fr.covQual() != 3):
 ## c2.Print('H{2}_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
 
 
-c3 = TCanvas("c3", "subtracted")
-sf.Draw()
-pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString, opts.Nj, opts.mH))
-c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString, opts.Nj, opts.mH))
+## c3 = TCanvas("c3", "subtracted")
+## sf.Draw()
+## pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
+## c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString, opts.Nj, opts.mH))
+## c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString, opts.Nj, opts.mH))
 
 c4 = TCanvas("c4", "pull")
 pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
-
-
-h_total = mf.getCurve('h_total')
-theData = mf.getHist('theData')
 
 mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
@@ -129,20 +132,28 @@ finalPars = fr.floatParsFinal()
 yields = RooArgList(finalPars)
 yields.add(fr.constPars())
 iset = RooArgSet(mass)
-sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
-sigFullInt = theFitter.makeFitter().createIntegral(iset)
-dibosonInt = theFitter.makeDibosonPdf().createIntegral(iset, 'signal')
-dibosonFullInt = theFitter.makeDibosonPdf().createIntegral(iset)
-WpJInt = theFitter.makeWpJPdf().createIntegral(iset, 'signal')
-WpJFullInt = theFitter.makeWpJPdf().createIntegral(iset)
-ttbarInt = theFitter.makettbarPdf().createIntegral(iset, 'signal')
-ttbarFullInt = theFitter.makettbarPdf().createIntegral(iset)
-SingleTopInt = theFitter.makeSingleTopPdf().createIntegral(iset, 'signal')
-SingleTopFullInt = theFitter.makeSingleTopPdf().createIntegral(iset)
-QCDInt = theFitter.makeQCDPdf().createIntegral(iset, 'signal')
-QCDFullInt = theFitter.makeQCDPdf().createIntegral(iset)
-ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, 'signal')
-ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
+sigInt = theFitter.makeFitter().createIntegral(iset,iset,'signal')
+sigFullInt = theFitter.makeFitter().createIntegral(iset,iset)
+print "allBkg","sigInt",sigInt.getVal(),"fullInt",sigFullInt.getVal(),\
+      "ratio",sigInt.getVal()/sigFullInt.getVal()
+dibosonInt = theFitter.makeDibosonPdf().createIntegral(iset,iset,'signal')
+dibosonFullInt = theFitter.makeDibosonPdf().createIntegral(iset,iset)
+WpJPdf = theFitter.makeWpJPdf()
+WpJInt = WpJPdf.createIntegral(iset, iset, 'signal')
+WpJFullInt = WpJPdf.createIntegral(iset, iset)
+#WpJPdf.Print("v")
+print "WpJ","sigInt",WpJInt.getVal(),"fullInt",WpJFullInt.getVal(),\
+      "ratio",WpJInt.getVal()/WpJFullInt.getVal()
+ttbarInt = theFitter.makettbarPdf().createIntegral(iset, iset, 'signal')
+ttbarFullInt = theFitter.makettbarPdf().createIntegral(iset, iset)
+SingleTopInt = theFitter.makeSingleTopPdf().createIntegral(iset, iset, 'signal')
+SingleTopFullInt = theFitter.makeSingleTopPdf().createIntegral(iset, iset)
+QCDInt = theFitter.makeQCDPdf().createIntegral(iset, iset, 'signal')
+QCDFullInt = theFitter.makeQCDPdf().createIntegral(iset, iset)
+ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, iset, 'signal')
+ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset, iset)
+print "ZpJ","sigInt",ZpJInt.getVal(),"fullInt",ZpJFullInt.getVal(),\
+      "ratio",ZpJInt.getVal()/ZpJFullInt.getVal()
 ## print "*** yield vars ***"
 ## yields.Print("v")
 covMatrix = TMatrixDSym(fr.covarianceMatrix())
@@ -197,16 +208,16 @@ for i in range(0, yields.getSize()):
 
 sigYieldsFile.close()
 
-sigSig2 = 0.
-for v1 in sigErrs:
-    for v2 in sigErrs:
-        if finalPars.find(v1) and finalPars.find(v2):
-            sigSig2 += sigErrs[v1]*sigErrs[v2]*fr.correlation(v1, v2)
+sigSig2 = (sqrt(sig2-totalYield)/totalYield*sigYield)**2
+sigSig2 += sigYield
 
 print '-------------------------------'
-print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(sigYield, sqrt(sigSig2))
+print 'total yield = {0:0.0f} +/- {1:0.0f}'.format(sigYield, sqrt(sigSig2))
 print '-------------------------------'
-
+sigSig2 -= sigYield
+## print 'sig box all:',totalYield*sigInt.getVal()/sigFullInt.getVal(),\
+##       'err:',sqrt(sig2)*sigInt.getVal()/sigFullInt.getVal()
+print 'fractional error on background yield not from Poisson stats = %0.3f' % (sqrt(sigSig2)/sigYield)
 
 
 fr.Print()
@@ -214,11 +225,13 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
+#assert(False)
+
 cdebug = TCanvas('cdebug', 'debug')
-pars4 = config.the4BodyConfig(fitterPars, opts.mH)
+pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst)
 fitter4 = RooWjjMjjFitter(pars4)
 
-fitter4.makeFitter()
+fitter4.makeFitter(True)
 fitter4.loadData()
 fitter4.make4BodyPdf(theFitter)
 fitter4.loadParameters('lastSigYield.txt')
@@ -259,6 +272,42 @@ pyroot_logon.cmsPrelim(c4body4, pars4.intLumi/1000)
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
 
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
+                                                   opts.Nj))
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
+                                                   opts.Nj))
+
+#assert(False)
+
+fitUtils = RooWjjFitterUtils(pars4)
+HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
+
+tau = fitter4.getWorkSpace().var('tau')
+tauNom = tau.getVal()
+
+tau.setVal(tauNom + tau.getError())
+mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+
+tau.setVal(tauNom - tau.getError())
+mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+
+if pars4.includeMuons:
+    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+                                 'mu_HWWMH%i_CMSSW428.root' % (opts.mH),
+                                 'HWW%i_mu' % (opts.mH), False, 1, False)
+    HiggsHist.Add(thehist)
+
+if pars4.includeElectrons:
+    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+                                 'el_HWWMH%i_CMSSW428.root' % (opts.mH),
+                                 'HWW%i_el' % (opts.mH), True, 1, False)
+    HiggsHist.Add(thehist)
+
+Ngen = config.NgenHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
+HiggsHist.Scale(1./float(Ngen), 'width')
+
+print "Ngen Higgs:",Ngen
+HiggsHist.Print()
 
 
 print 'shape file created'
@@ -268,8 +317,19 @@ ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
                   'recreate')
 
 h_total = mf4.getCurve('h_total')
+h_total_up = mf4_up.getCurve('h_total')
+h_total_up.SetName('h_total_up')
+h_total_down = mf4_down.getCurve('h_total')
+h_total_down.SetName('h_total_down')
+
 theData = mf4.getHist('theData')
+
 
 h_total.Write()
 theData.Write()
+
+h_total_up.Write();
+h_total_down.Write();
+
+HiggsHist.Write()
 ShapeFile.Close()

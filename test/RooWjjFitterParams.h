@@ -56,6 +56,7 @@ public:
   std::vector<double> alphas;
   std::vector<double> falphas;
   int smoothWpJ;
+  int model;
 
   //efficiency corrections
   bool doEffCorrections;
@@ -102,7 +103,7 @@ RooWjjFitterParams::RooWjjFitterParams() :
   intLumi(2100.), constrainDiboson(true), externalConstraints(true),
   do4body(false),
   minSBHi(95.), maxSBHi(105.), SBHicut(""), 
-  minSBLo(55.), maxSBLo(65.), SBLocut(""), smoothWpJ(1),
+  minSBLo(55.), maxSBLo(65.), SBLocut(""), smoothWpJ(1), model(1),
   doEffCorrections(false), 
   minFit(minMass), maxFit(maxMass),
   
