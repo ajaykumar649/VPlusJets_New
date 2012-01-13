@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.15 2011/12/16 00:02:16 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.16 2012/01/12 18:49:42 theofil Exp $
 //
 //
 
@@ -122,6 +122,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       virtual void beginRun(edm::Run const &, edm::EventSetup const& iSetup);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
+      virtual bool checkTriggerName(string,std::vector<string>); //checks if string belongs to any of the vector<string>
       // ---- method that builds the tree -------------------------------
       void buildTree();
       // ---- method that re-initializes the tree branches --------------
@@ -199,6 +200,10 @@ class ZJetsExpress : public edm::EDAnalyzer {
       // ---- trigger ---------------------------------------------------
       std::string   processName_;
       std::vector<std::string> triggerNames_,triggerNamesFull_;
+      std::vector<std::string> triggerFamily1_;
+      std::vector<std::string> triggerFamily2_;
+      std::vector<std::string> triggerFamily3_;
+      std::vector<std::string> triggerFamily4_;
       std::vector<unsigned int> triggerIndex_;
       edm::InputTag triggerResultsTag_;
       edm::InputTag triggerEventTag_;
@@ -222,6 +227,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       int isRealData_;
       // ---- trigger decisions -----------------------------------------
       std::vector<int> *fired_;
+      int isTriggered_;
       // ---- L1 prescale -----------------------------------------------
       std::vector<int> *prescaleL1_;
       // ---- HLT prescale -----------------------------------------------
@@ -340,6 +346,10 @@ ZJetsExpress::ZJetsExpress(const ParameterSet& iConfig)
   mPayloadName       = iConfig.getParameter<std::string>               ("payload");
   processName_       = iConfig.getParameter<std::string>               ("processName");
   triggerNames_      = iConfig.getParameter<std::vector<std::string> > ("triggerName");
+  triggerFamily1_    = iConfig.getParameter<std::vector<std::string> > ("triggerFamily1");
+  triggerFamily2_    = iConfig.getParameter<std::vector<std::string> > ("triggerFamily2");
+  triggerFamily3_    = iConfig.getParameter<std::vector<std::string> > ("triggerFamily3");
+  triggerFamily4_    = iConfig.getParameter<std::vector<std::string> > ("triggerFamily4");
   triggerResultsTag_ = iConfig.getParameter<edm::InputTag>             ("triggerResults");
   triggerEventTag_   = iConfig.getParameter<edm::InputTag>             ("triggerEvent");   
 }
@@ -347,6 +357,17 @@ ZJetsExpress::ZJetsExpress(const ParameterSet& iConfig)
 ZJetsExpress::~ZJetsExpress()
 {
 }
+// ---
+bool ZJetsExpress::checkTriggerName(string aString,std::vector<string> aFamily)
+{
+  bool result(false);	
+  for(unsigned int i=0;i<aFamily.size();i++) // checks if any of the aFamily strings contains aString
+  {
+    size_t found = aFamily[i].find(aString);
+    if(found!=string::npos)result=true;
+  }
+  return result;
+} 
 // ---- method called once each job just before starting event loop -----
 void ZJetsExpress::beginJob()
 {
@@ -373,7 +394,6 @@ void ZJetsExpress::beginJob()
 // ---- method called everytime there is a new run ----------------------
 void ZJetsExpress::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
-/*
   if (triggerNames_.size() > 0) {
     bool changed(true);
     if (hltConfig_.init(iRun,iSetup,processName_,changed)) {
@@ -411,7 +431,6 @@ void ZJetsExpress::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup
            << processName_ << endl;
     }
   }
-*/
 }
 // ---- event loop ------------------------------------------------------
 void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
@@ -421,7 +440,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   // ---- initialize the tree branches ----------------------------------
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
-/*
+
   // ----  Trigger block ------------------------------------------------
   iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
   if (!triggerResultsHandle_.isValid()) {
@@ -442,19 +461,27 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     int preHLT(-1);
     int tmpFired(-1); 
     
+
     if (triggerIndex_[itrig] < hltConfig_.size()) {
       accept = triggerResultsHandle_->accept(triggerIndex_[itrig]);
       if (triggerNamesFull_[itrig] != "") {
-        //const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
-        //preL1  = prescales.first;
-        //preHLT = prescales.second;
+        const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
+        preL1  = prescales.first;
+        preHLT = prescales.second;
       }  
-      if (!accept)
+      if (!accept) {
         tmpFired = 0;
+        isTriggered = 0;
+      }
       else { 
         std::string ss(triggerNames_[itrig]); 
         hTriggerPass_->Fill((ss.erase(ss.find("v")-1,ss.find("v"))).c_str(),1);
         tmpFired = 1;
+        // save trigger bit (0001) if family1 has fired 
+        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily1_) << 0;
+        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily2_) << 1;
+        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily3_) << 2;
+        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily4_) << 3;
       }
     }
     
@@ -462,7 +489,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     prescaleL1_ ->push_back(preL1);
     prescaleHLT_->push_back(preHLT);
   }
-*/
+
   // ----  MC truth block -----------------------------------------------
   vector<GENPARTICLE>      myGenLeptons;
   vector<TLorentzVector> myGenJets;  
@@ -723,12 +750,12 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       if(photonID==0)continue;
 
 
-      float hcalTowerSumEtConeDR04            = it->hcalTowerSumEtConeDR04(); // hcalTowerSumEtConeDR04
-      float ecalRecHitSumEtConeDR04           = it->ecalRecHitSumEtConeDR04(); // ecalRecHitSumEtConeDR04
-      float nTrkSolidConeDR04                 = it->nTrkSolidConeDR04();
-      float trkSumPtSolidConeDR04             = it->trkSumPtSolidConeDR04();
-      float nTrkHollowConeDR04                = it->nTrkHollowConeDR04();
-      float trkSumPtHollowConeDR04            = it->trkSumPtHollowConeDR04();
+      float hcalTowerSumEtConeDR03            = it->hcalTowerSumEtConeDR03(); // hcalTowerSumEtConeDR03
+      float ecalRecHitSumEtConeDR03           = it->ecalRecHitSumEtConeDR03(); // ecalRecHitSumEtConeDR03
+      float nTrkSolidConeDR03                 = it->nTrkSolidConeDR03();
+      float trkSumPtSolidConeDR03             = it->trkSumPtSolidConeDR03();
+      float nTrkHollowConeDR03                = it->nTrkHollowConeDR03();
+      float trkSumPtHollowConeDR03            = it->trkSumPtHollowConeDR03();
       float sigmaIetaIeta                     = it->sigmaIetaIeta();
       float phoHasConvTrks                    = it->hasConversionTracks();
       float r9                                = it->r9();
@@ -737,9 +764,13 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       bool  isPhotonISO = false;
       float gammaPt = aPhoton.Pt();
 
-      if(ecalRecHitSumEtConeDR04 < 4.2 + 0.006*gammaPt)
-      if(hcalTowerSumEtConeDR04  < 2.2 + 0.0025*gammaPt)
-      if(nTrkHollowConeDR04      < 3.5 + 0.001*gammaPt)isPhotonISO=true;
+      //if(ecalRecHitSumEtConeDR04 < 4.2 + 0.006*gammaPt)  
+      //if(hcalTowerSumEtConeDR04  < 2.2 + 0.0025*gammaPt)
+      //if(nTrkHollowConeDR04      < 3.5 + 0.001*gammaPt)isPhotonISO=true;
+
+      if(ecalRecHitSumEtConeDR03 < 6.0 + 0.012*gammaPt) // requirement of _IsoVL_ type photon triggers 
+      if(hcalTowerSumEtConeDR03  < 4.0 + 0.005*gammaPt)
+      if(trkSumPtHollowConeDR03  < 4.0 + 0.002*gammaPt)isPhotonISO=true;
 
       // photon near masked region
       float gammaEta = aPhoton.Eta();
@@ -786,7 +817,6 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
 
-//      std::cout << "pt = " << it->pt() << " eta = " << it->eta() ;
 
       PARTICLE gamma; // define pseudo lepton half of the p4 of the real photon
       gamma.p4    = aPhoton;
@@ -796,12 +826,12 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       gamma.isoPF = 0; 
       gamma.bit   = photonBit;
       // ok, now close your eyes what follows is a scandal
-      gamma.parameters.push_back(hcalTowerSumEtConeDR04);     // 0   need to remember the ordering offline
-      gamma.parameters.push_back(ecalRecHitSumEtConeDR04);    // 1  
-      gamma.parameters.push_back(nTrkSolidConeDR04);          // 2  
-      gamma.parameters.push_back(trkSumPtSolidConeDR04);      // 3 
-      gamma.parameters.push_back(nTrkHollowConeDR04);         // 4 
-      gamma.parameters.push_back(trkSumPtHollowConeDR04);     // 5
+      gamma.parameters.push_back(hcalTowerSumEtConeDR03);     // 0   need to remember the ordering offline
+      gamma.parameters.push_back(ecalRecHitSumEtConeDR03);    // 1  
+      gamma.parameters.push_back(nTrkSolidConeDR03);          // 2  
+      gamma.parameters.push_back(trkSumPtSolidConeDR03);      // 3 
+      gamma.parameters.push_back(nTrkHollowConeDR03);         // 4 
+      gamma.parameters.push_back(trkSumPtHollowConeDR03);     // 5
       gamma.parameters.push_back(sigmaIetaIeta);              // 6  
       gamma.parameters.push_back(phoHasConvTrks);             // 7  
       gamma.parameters.push_back(r9);                         // 8  
@@ -1268,6 +1298,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("fired"            ,"vector<int>"       ,&fired_);
   myTree_->Branch("prescaleL1"       ,"vector<int>"       ,&prescaleL1_);
   myTree_->Branch("prescaleHLT"      ,"vector<int>"       ,&prescaleHLT_);
+  myTree_->Branch("isTriggered"      ,&isTriggered_        ,"isTriggered/I");
   // ---- lepton variables ----------------------------------------------
   myTree_->Branch("lepPt"            ,"vector<float>"     ,&lepPt_);
   myTree_->Branch("lepEta"           ,"vector<float>"     ,&lepEta_);
@@ -1393,6 +1424,7 @@ void ZJetsExpress::clearTree()
   pfhadPhoPt_        = -999;
   mPhotonj1_         = -999;
   ptPhotonj1_        = -999;
+  isTriggered_       = -999;
   jetPhotonDPhi_     ->clear();
   photonPar_         ->clear();
   fired_             ->clear();
@@ -1432,6 +1464,7 @@ void ZJetsExpress::clearTree()
   puINT_             = -999;
   puOOT_             = -999;
   isRealData_        = -999;
+  isTriggered_       = -999;
   nLeptonsGEN_       = -999;
   nJetsGEN_          = -999;
   isZleadGEN_        = -999;
