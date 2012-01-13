@@ -471,17 +471,17 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       }  
       if (!accept) {
         tmpFired = 0;
-        isTriggered = 0;
+        isTriggered_ = 0;
       }
       else { 
         std::string ss(triggerNames_[itrig]); 
         hTriggerPass_->Fill((ss.erase(ss.find("v")-1,ss.find("v"))).c_str(),1);
         tmpFired = 1;
         // save trigger bit (0001) if family1 has fired 
-        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily1_) << 0;
-        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily2_) << 1;
-        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily3_) << 2;
-        isTriggered |= checkTriggerName(triggerNames_[itrig],triggerFamily4_) << 3;
+        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily1_) << 0;
+        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily2_) << 1;
+        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily3_) << 2;
+        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily4_) << 3;
       }
     }
     
