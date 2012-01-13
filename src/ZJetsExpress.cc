@@ -441,54 +441,6 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   clearTree();
   isRealData_ = iEvent.isRealData() ? 1:0;
 
-  // ----  Trigger block ------------------------------------------------
-  iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
-  if (!triggerResultsHandle_.isValid()) {
-    cout << "ProcessedTreeProducer::analyze: Error in getting TriggerResults product from Event!" << endl;
-    return;
-  }
-  iEvent.getByLabel(triggerEventTag_,triggerEventHandle_);
-  if (!triggerEventHandle_.isValid()) {
-    cout << "ProcessedTreeProducer::analyze: Error in getting TriggerEvent product from Event!" << endl;
-    return;
-  }
-  // sanity check
-  assert(triggerResultsHandle_->size() == hltConfig_.size());
-  //------ loop over all trigger names ---------
-  for(unsigned itrig=0;itrig<triggerNames_.size();itrig++) {
-    bool accept(false);
-    int preL1(-1);
-    int preHLT(-1);
-    int tmpFired(-1); 
-    
-
-    if (triggerIndex_[itrig] < hltConfig_.size()) {
-      accept = triggerResultsHandle_->accept(triggerIndex_[itrig]);
-      if (triggerNamesFull_[itrig] != "") {
-        const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
-        preL1  = prescales.first;
-        preHLT = prescales.second;
-      }  
-      if (!accept) {
-        tmpFired = 0;
-        isTriggered_ = 0;
-      }
-      else { 
-        std::string ss(triggerNames_[itrig]); 
-        hTriggerPass_->Fill((ss.erase(ss.find("v")-1,ss.find("v"))).c_str(),1);
-        tmpFired = 1;
-        // save trigger bit (0001) if family1 has fired 
-        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily1_) << 0;
-        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily2_) << 1;
-        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily3_) << 2;
-        isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily4_) << 3;
-      }
-    }
-    
-    fired_      ->push_back(tmpFired);
-    prescaleL1_ ->push_back(preL1);
-    prescaleHLT_->push_back(preHLT);
-  }
 
   // ----  MC truth block -----------------------------------------------
   vector<GENPARTICLE>      myGenLeptons;
@@ -1114,6 +1066,59 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       for(int i=0;i<TMath::Min(int(allP4.size()),2);i++) {
         htLead_ += allP4[i].Pt();
       }
+
+      // ----  Trigger block: Bother for trigger info only if event is selected (saves time)-------------
+      iEvent.getByLabel(triggerResultsTag_,triggerResultsHandle_);
+      if (!triggerResultsHandle_.isValid()) {
+        cout << "ProcessedTreeProducer::analyze: Error in getting TriggerResults product from Event!" << endl;
+        return;
+      }
+      iEvent.getByLabel(triggerEventTag_,triggerEventHandle_);
+      if (!triggerEventHandle_.isValid()) {
+        cout << "ProcessedTreeProducer::analyze: Error in getting TriggerEvent product from Event!" << endl;
+        return;
+      }
+      // sanity check
+      assert(triggerResultsHandle_->size() == hltConfig_.size());
+      //------ loop over all trigger names ---------
+      for(unsigned itrig=0;itrig<triggerNames_.size();itrig++) {
+        bool accept(false);
+        int preL1(-1);
+        int preHLT(-1);
+        int tmpFired(-1); 
+        
+    
+        if (triggerIndex_[itrig] < hltConfig_.size()) {
+          accept = triggerResultsHandle_->accept(triggerIndex_[itrig]);
+          if (triggerNamesFull_[itrig] != "") {
+            const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNamesFull_[itrig]));
+            preL1  = prescales.first;
+            preHLT = prescales.second;
+          }  
+          if (!accept) {
+            tmpFired = 0;
+          }
+          else { 
+            std::string ss(triggerNames_[itrig]); 
+            hTriggerPass_->Fill((ss.erase(ss.find("v")-1,ss.find("v"))).c_str(),1);
+            tmpFired = 1;
+            // save trigger bit (0001) if family1 has fired, (0100) if family 3 has triggered
+            isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily1_) << 0; // if true 0001
+            isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily2_) << 1; // if true 0010
+            isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily3_) << 2; // if true 0100
+            isTriggered_ |= checkTriggerName(triggerNames_[itrig],triggerFamily4_) << 3; // if true 1000
+//          std::cout << "f1 " << checkTriggerName(triggerNames_[itrig],triggerFamily1_) << " " <<triggerNames_[itrig] << " " << isTriggered_ << std::endl;
+//          std::cout << "f2 " << checkTriggerName(triggerNames_[itrig],triggerFamily2_) << " " <<triggerNames_[itrig] << " " << isTriggered_ << std::endl;
+//          std::cout << "f3 " << checkTriggerName(triggerNames_[itrig],triggerFamily3_) << " " <<triggerNames_[itrig] << " " << isTriggered_ << std::endl;
+//          std::cout << "f4 " << checkTriggerName(triggerNames_[itrig],triggerFamily4_) << " " <<triggerNames_[itrig] << " " << isTriggered_ << std::endl;
+          }
+        }
+        
+        fired_      ->push_back(tmpFired);
+        prescaleL1_ ->push_back(preL1);
+        prescaleHLT_->push_back(preHLT);
+      }
+    
     }// if selection GEN 
     if (selectionGEN) {
       selGEN_ = 1;
@@ -1420,11 +1425,11 @@ void ZJetsExpress::clearTree()
   photonPhi_         = -999;
   photonIso_         = -999;
   photonID_          = -999;
-  photonBit_         = -999;
+  photonBit_         =    0; // please keep this 0
   pfhadPhoPt_        = -999;
   mPhotonj1_         = -999;
   ptPhotonj1_        = -999;
-  isTriggered_       = -999;
+  isTriggered_       =    0; // please keep this 0
   jetPhotonDPhi_     ->clear();
   photonPar_         ->clear();
   fired_             ->clear();
@@ -1464,7 +1469,6 @@ void ZJetsExpress::clearTree()
   puINT_             = -999;
   puOOT_             = -999;
   isRealData_        = -999;
-  isTriggered_       = -999;
   nLeptonsGEN_       = -999;
   nJetsGEN_          = -999;
   isZleadGEN_        = -999;
