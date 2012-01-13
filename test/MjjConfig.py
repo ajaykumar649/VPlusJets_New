@@ -6,12 +6,13 @@ from ROOT import RooWjjFitterParams
 def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars = RooWjjFitterParams()
 
+    fitterPars.smoothingOrder = 0
     fitterPars.MCDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_'
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = True
-    fitterPars.QCDDirectory = '/uscms_data/d2/kalanand/WjjTrees/NewReducedQCDTrees/'
+    fitterPars.QCDDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/'
     fitterPars.initParamsFile = initFile
 
     fitterPars.DataDirectory = fitterPars.MCDirectory

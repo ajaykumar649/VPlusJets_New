@@ -67,14 +67,14 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 
         if (modeString == 'Electron'):
             if pars.njets == 2:
-                NPNorm *= 0.037
+                NPNorm *= 0.0356
             elif pars.njets == 3:
-                NPNorm *= 0.012
+                NPNorm *= 0.0115
         else:
             if pars.njets == 2:
-                NPNorm *= 0.051
+                NPNorm *= 0.0471
             elif pars.njets == 3:
-                NPNomr *= 0.016
+                NPNorm *= 0.0150
 
         print '**** N_NP:', NPNorm,'****'
 

@@ -456,7 +456,8 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 
   th1diboson->Scale(1., "width");
   RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
-					   ws_, histOrder);
+					   ws_, (histOrder==1)? histOrder+1 : 
+					   histOrder);
   delete th1diboson;
   return dibosonPdf;
 }
@@ -880,7 +881,7 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   if (ws_.pdf("NPPdf"))
     return ws_.pdf("NPPdf");
 
-  TH1 * th1NP = utils_.newEmptyHist("th1NP");
+  TH1 * th1NP = utils_.newEmptyHist("th1NP", 1.);
 
 //   TH1 * tmpHist;
 //   if (params_.includeMuons) {
@@ -904,7 +905,8 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   th1NP->FillRandom("genGaussian", 100000);
   th1NP->Scale(1., "width");
 
-  RooAbsPdf * NPPdf = utils_.Hist2Pdf(th1NP, "NPPdf", ws_, histOrder);
+  RooAbsPdf * NPPdf = utils_.Hist2Pdf(th1NP, "NPPdf", ws_, 
+				      (histOrder==1)? histOrder+1 : histOrder);
   delete th1NP;
   return NPPdf;
 }

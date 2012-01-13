@@ -14,7 +14,7 @@ parser.add_option('--fMU', dest='e_FMU', default=-100.0, type='float',
 parser.add_option('--TD', dest='toydataFile', default='',
                   help='a file corresponding to a toy dataset')
 parser.add_option('-i', '--init', dest='startingFile',
-                  default='MjjNominal2Jets.txt',
+                  default='',
                   help='File to use as the initial template')
 parser.add_option('-d', '--dir', dest='mcdir', default='',
                   help='directory to pick up the W+jets shapes')
