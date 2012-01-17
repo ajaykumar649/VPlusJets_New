@@ -146,17 +146,17 @@ for i in range(0, yields.getSize()):
         elif (theName == 'nZjets'):
             theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-        yieldString = '{0} = {1:0.0f} +/- {2:0.0f}'.format(theName,
-                                                  yields.at(i).getVal()*theIntegral,
-                                                  yields.at(i).getError()*theIntegral)
+        yieldString = '%s = %0.0f +/- %0.0f' % (theName,
+                                                yields.at(i).getVal()*theIntegral,
+                                                yields.at(i).getError()*theIntegral)
         print yieldString
     else:
-        yieldString = '{0} = {1:0.3f} +/- {2:0.3f}'.format(theName,
-                                                           yields.at(i).getVal(),
-                                                           yields.at(i).getError())
+        yieldString = '%s = %0.3f +/- %0.3f' % (theName,
+                                                yields.at(i).getVal(),
+                                                yields.at(i).getError())
     sigYieldsFile.write(yieldString + '\n')
 print '-------------------------------'
-print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
+print 'total yield: %0.0f +/- %0.0f%' % (totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
 print '-------------------------------'
 
 sigYieldsFile.close()
@@ -166,18 +166,17 @@ if opts.qplot:
     qplotPars = makeQPlot.theConfig(fitterPars, 'lastMjjSigYield.txt')
     (cq, shapeHist, totalHist) = makeQPlot.qPlot(qplotPars)
     pyroot_logon.cmsPrelim(cq, fitterPars.intLumi/1000)
-    cq.Print('Wjj_Mjj_{0}_{1}jets_Q.pdf'.format(modeString, opts.Nj))
-    cq.Print('Wjj_Mjj_{0}_{1}jets_Q.png'.format(modeString, opts.Nj))
+    cq.Print('Wjj_Mjj_%s_%ijets_Q.pdf' % (modeString, opts.Nj))
+    cq.Print('Wjj_Mjj_%s_%ijets_Q.png' % (modeString, opts.Nj))
 
 fr.SetName('nll')
 fr.Print()
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
-print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
+print 'total yield: 0.0f +/- 0.0f' % (totalYield, sqrt(sig2))
 
 print 'shape file created'
-ShapeFile = TFile('Mjj_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
-                                                           modeString),
+ShapeFile = TFile('Mjj_%s_%iJets_Fit_Shapes.root' % (opts.Nj, modeString),
                   'recreate')
 h_total.Write()
 theData.Write()

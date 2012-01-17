@@ -472,7 +472,7 @@ double RooWjjFitterUtils::dijetEff(unsigned int Njets,
 //   if (Njets == 2) {
 //     return (eff30[0]*eff30[1]+eff30[0]*eff25n30[1]+eff30[1]*eff25n30[0]);
 //   }
-  int N = TMath::Power(3, Njets), n, t, oneCnt, twoCnt;
+  int N = int(TMath::Power(3, int(Njets))), n, t, oneCnt, twoCnt;
   unsigned int i;
   std::vector<int> digits(Njets, 0);
   double theEff(0.), tmpEff(1.0);

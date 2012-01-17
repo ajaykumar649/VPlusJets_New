@@ -842,7 +842,7 @@ RooAbsPdf * RooWjjMjjFitter::makeZpJPdf() {
   if (ws_.pdf("ZpJPdf"))
     return ws_.pdf("ZpJPdf");
   
-  double ZpJScale = 1.;
+  int ZpJScale = 1;
 
   TH1 * th1ZpJ = utils_.newEmptyHist("th1ZpJ", ZpJScale);
 
@@ -881,7 +881,7 @@ RooAbsPdf * RooWjjMjjFitter::makeNPPdf() {
   if (ws_.pdf("NPPdf"))
     return ws_.pdf("NPPdf");
 
-  TH1 * th1NP = utils_.newEmptyHist("th1NP", 1.);
+  TH1 * th1NP = utils_.newEmptyHist("th1NP", 1);
 
 //   TH1 * tmpHist;
 //   if (params_.includeMuons) {
@@ -1454,24 +1454,24 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.muonData, 
-			       histName + "_Hi_mu", false, 1, false, 1., 
+			       histName + "_Hi_mu", false, 1, false, 1, 
 			       cutsSBHi);
     th1wpjHi->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.muonData, 
-			       histName + "_Lo_mu", false, 1, false, 1., 
+			       histName + "_Lo_mu", false, 1, false, 1, 
 			       cutsSBLo);
     th1wpjLo->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.electronData, 
-			       histName + "_Hi_el", true, 1, false, 1., 
+			       histName + "_Hi_el", true, 1, false, 1, 
 			       cutsSBHi);
     th1wpjHi->Add(tmpHist);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.DataDirectory + params_.electronData, 
-			       histName + "_Lo_el", true, 1, false, 1., 
+			       histName + "_Lo_el", true, 1, false, 1, 
 			       cutsSBLo);
     th1wpjLo->Add(tmpHist);
     delete tmpHist;

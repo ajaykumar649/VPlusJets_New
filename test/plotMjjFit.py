@@ -22,7 +22,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     pf = theFitter.residualPlot(mf, "h_total", "", True)
     pf.SetName("Mjj_Pull")
     lf = theFitter.stackedPlot(True)
-    lf.SetName("Mjj_Stacked+Log");
+    lf.SetName("Mjj_Stacked_Log");
 
     if Err > 0:
         totalPdf = theFitter.getWorkSpace().pdf('totalPdf')
@@ -100,34 +100,27 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     cstacked = TCanvas("cstacked", "stacked")
     mf.Draw()
     l.DrawLatex(0.55, 0.55,
-                '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
-                                                                  chi2/ndf)
+                '#chi^{2}/dof = %0.3f/%d = %0.3f' % (chi2, ndf, chi2/ndf)
                 )
     pyroot_logon.cmsPrelim(cstacked, pars.intLumi/1000)
-    cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString,
-                                                            pars.njets))
-    cstacked.Print('Wjj_Mjj_{0}_{1}jets_Stacked.png'.format(modeString,
-                                                            pars.njets))
+    cstacked.Print('Wjj_Mjj_%s_%ijets_Stacked.pdf' % (modeString, pars.njets))
+    cstacked.Print('Wjj_Mjj_%s_%ijets_Stacked.png' % (modeString, pars.njets))
     c2 = TCanvas("c2", "stacked_log")
     c2.SetLogy()
     lf.Draw()
     pyroot_logon.cmsPrelim(c2, pars.intLumi/1000)
-    c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString,
-                                                          pars.njets))
-    c2.Print('Wjj_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString,
-                                                          pars.njets))
+    c2.Print('Wjj_Mjj_%s_%ijets_Stacked_log.pdf' % (modeString, pars.njets))
+    c2.Print('Wjj_Mjj_%s_%ijets_Stacked_log.png' % (modeString, pars.njets))
     c3 = TCanvas("c3", "subtracted")
     sf.Draw()
     pyroot_logon.cmsPrelim(c3, pars.intLumi/1000)
-    c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString,
-                                                         pars.njets))
-    c3.Print('Wjj_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString,
-                                                         pars.njets))
+    c3.Print('Wjj_Mjj_%s_%ijets_Subtracted.pdf' % (modeString, pars.njets))
+    c3.Print('Wjj_Mjj_%s_%ijets_Subtracted.png' % (modeString, pars.njets))
     c4 = TCanvas("c4", "pull")
     pf.Draw()
     pyroot_logon.cmsPrelim(c4, pars.intLumi/1000)
-    c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, pars.njets))
-    c4.Print('Wjj_Mjj_{0}_{1}jets_Pull.png'.format(modeString, pars.njets))
+    c4.Print('Wjj_Mjj_%s_%ijets_Pull.pdf' % (modeString, pars.njets))
+    c4.Print('Wjj_Mjj_%s_%ijets_Pull.png' % (modeString, pars.njets))
 
     return ([mf,sf,pf,lf],[cstacked,c2,c3,c4])
 
