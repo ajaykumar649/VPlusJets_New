@@ -112,6 +112,8 @@ if __name__ == "__main__":
         outPlot.Draw()
         pyroot_logon.cmsPrelim(can, 4700)
         gPad.Update()
+        can.Print('%s_combined.png' % (plot))
+        can.Print('%s_combined.pdf' % (plot))
         # gPad.WaitPrimitive()
 
         outPlot.Write()
