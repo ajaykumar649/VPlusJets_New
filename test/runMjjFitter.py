@@ -11,6 +11,10 @@ parser.add_option('--fSU', dest='e_FSU', default=-100.0, type='float',
                   help='Externally set scaling up fraction. It is the scaling down fraction when -1.0<fSU<0.0; and it is taken from the input file when fSU<-10.0.')
 parser.add_option('--fMU', dest='e_FMU', default=-100.0, type='float',
                   help='Externally set matching up fraction. It is the matching down fraction when -1.0<fMU<0.0; and it is taken from the input file when fMU<-10.0.')
+parser.add_option('--minT', dest='e_minT', default=-1.0, type='float',
+                  help='Externally set minimum for the region to exclude from the fit')
+parser.add_option('--maxT', dest='e_maxT', default=-1.0, type='float',
+                  help='Externally set maximum for the region to exclude from the fit')
 parser.add_option('--TD', dest='toydataFile', default='',
                   help='a file corresponding to a toy dataset')
 parser.add_option('-i', '--init', dest='startingFile',
@@ -47,7 +51,7 @@ from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.toydataFile )
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.toydataFile, opts.e_minT, opts.e_maxT)
 if fitterPars.includeMuons and fitterPars.includeElectrons:
     modeString = ''
 elif fitterPars.includeMuons:

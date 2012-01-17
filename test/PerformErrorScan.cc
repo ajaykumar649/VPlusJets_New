@@ -9,6 +9,7 @@
  *   Osipenkov, Ilya, Texas A&M - ilyao@fnal.gov
  *
  * Description: A few macros to scan over Matching and Scale values
+ * Also, a few macros to scan over various exclusion ranges
  *
  ********************************************************************/
 
@@ -31,6 +32,152 @@ using namespace std;
 
 const char* defaultlogprefix="/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/logs/WideScan_";
 const char* defaultsummaryfile="/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/WideScanSummary_3j.root";
+
+const char* exclusionlogDir="/uscms_data/d3/ilyao/KinematicFitterS11/ErrorScans/ExclusionScans/ScanLogs/";
+
+//python runMjjFitter.py -j 2 -m MjjMuonsConfig -i MjjMuons2Jets.txt --minT 110 --maxT 150
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------//
+void runExclusionScan(int NJets, double StartMin, double StepSize, int NSteps, const char* leptonPrefix = "mu_", const char* logdir=exclusionlogDir) 
+//// Performs the fit with exclusion ranges in Min=StartMin to Min=StartMin+StepSize*(NSteps-1), Max=Min+40
+//// leptonPrefix="mu_" or "el_"
+{
+  TString Command,LogName,ConfigName,ParamfileName;
+  //  char I_char[5];
+  char NJ_char[5];
+  char Min_char[5];
+  char Max_char[5];
+
+  sprintf(NJ_char,"%i",NJets);
+  TString NJ_str=NJ_char;
+  TString L_str="";
+  TString leptonPrefix_str=leptonPrefix;
+  if ( leptonPrefix_str == "mu_" ) {
+    L_str="Muons";
+  }
+  if ( leptonPrefix_str == "el_" ) {
+    L_str="Electrons";
+  }
+
+  for (Int_t i=0; i<NSteps; i++) {
+
+    //make the log file
+    sprintf(Min_char,"%.1f",StartMin+StepSize*i);
+    sprintf(Max_char,"%.1f",StartMin+StepSize*i+40);
+    LogName=".log";
+    LogName=Max_char+LogName;
+    LogName="to"+LogName;
+    LogName=Min_char+LogName;
+    LogName="j_Exclude"+LogName;
+    LogName=NJ_char+LogName;
+    LogName=L_str+LogName;
+    LogName="ExclusionScan_"+LogName;
+    LogName=logdir+LogName;
+
+
+    ///Run The Fit
+    Command=" >& "+LogName;
+    Command=Max_char+Command;
+    Command=" --maxT "+Command;
+    Command=Min_char+Command;
+    Command="Jets.txt --minT "+Command;
+    Command=NJ_char+Command;
+    Command=L_str+Command;
+    Command="Config -i Mjj"+Command;
+    Command=L_str+Command;
+    Command=" -m Mjj"+Command;
+    Command=NJ_char+Command;
+    Command="python runMjjFitter.py -j "+Command;
+    cout << "Command=" << Command << endl;
+    system(Command);
+
+  }
+
+}
+
+// -----------------------------------------------------------------------------------------------------------------------------------------------------------//
+void listTotalYields(int NJets, double StartMin, double StepSize, int NSteps, const char* SaveName = 0, int linecolor=2, const char* leptonPrefix = "mu_", const char* logdir=exclusionlogDir) 
+//// Performs the fit with exclusion ranges in Min=StartMin to Min=StartMin+StepSize*(NSteps-1), Max=Min+40
+//// leptonPrefix="mu_" or "el_"
+{
+  TString Command,LogName,ConfigName,ParamfileName;
+  TString sPar1, sPar2, sPar3, sPar4;
+  double totalYield, totalError;
+  char logline[2000];
+  //  char I_char[5];
+  char NJ_char[5];
+  char Min_char[5];
+  char Max_char[5];
+
+  sprintf(NJ_char,"%i",NJets);
+  TString NJ_str=NJ_char;
+  TString L_str="";
+  TString leptonPrefix_str=leptonPrefix;
+  if ( leptonPrefix_str == "mu_" ) {
+    L_str="Muons";
+  }
+  if ( leptonPrefix_str == "el_" ) {
+    L_str="Electrons";
+  }
+
+  TCanvas *cnv1 = new TCanvas("cnv","cnv",10,10,900,600);
+  TH1D* hist = new TH1D("hist","Exclusion Range Scan : " + L_str + " - " + NJ_str + "J Bin",NSteps,StartMin-1,StartMin+NSteps*StepSize-1);
+  gStyle->SetOptStat(0);
+  gStyle->SetTitleX(0.18);
+  gStyle->SetTitleY(0.97);
+  hist->SetXTitle("Exclusion Region Minimum");
+  hist->SetYTitle("Event Yield");
+  hist->GetYaxis()->SetTitleOffset(1.25);
+  hist->SetLineWidth(2);
+  hist->SetLineColor(linecolor);
+
+  cout << "Min  |  Total Yield  |  Total Error" << endl;
+  for (Int_t i=0; i<NSteps; i++) {
+
+    //make the log file
+    sprintf(Min_char,"%.1f",StartMin+StepSize*i);
+    sprintf(Max_char,"%.1f",StartMin+StepSize*i+40);
+    LogName=".log";
+    LogName=Max_char+LogName;
+    LogName="to"+LogName;
+    LogName=Min_char+LogName;
+    LogName="j_Exclude"+LogName;
+    LogName=NJ_char+LogName;
+    LogName=L_str+LogName;
+    LogName="ExclusionScan_"+LogName;
+    LogName=logdir+LogName;
+
+
+    ifstream inLogFile(LogName);
+    //cout << "4" << endl;
+    // Parse the log file and extract the desired parameters
+    while ( inLogFile.good() ) {
+      inLogFile.getline(logline,2000);
+      istrstream str(logline);
+      //cout << "5" << endl;
+      str >> sPar1 >> sPar2 >> sPar3;
+      
+      //get the parameters and errors returned by the fit
+      if ( (sPar1=="total")&&(sPar2=="yield:") ) {
+	totalYield = atof(sPar3);
+	str >> sPar4 >> totalError;
+	//istrstream str1(logline);
+      }
+    }
+
+    hist->SetBinContent(i+1,totalYield);
+    hist->SetBinError(i+1,totalError);
+    cout << Min_char << "  " << totalYield << "  " << totalError << endl;
+    //cout << "  " << totalYield << "  " << endl;
+  }
+
+  hist->Draw();
+  /// Save the output
+  if ( SaveName!=0 ) {
+    cnv1->SaveAs(SaveName);
+  }
+
+
+}
 
 
 // -----------------------------------------------------------------------------------------------------------------------------------------------------------//

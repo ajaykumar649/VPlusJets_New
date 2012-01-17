@@ -4,8 +4,8 @@
 import MjjConfig
 #from ROOT import RooWjjFitterParams
 
-def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
-    fitterPars = MjjConfig.theConfig(Nj, mcdir, initFile, toydataFile)
+def theConfig(Nj, mcdir = '', initFile = '', toydataFile = '', e_minT=-1, e_maxT=-1):
+    fitterPars = MjjConfig.theConfig(Nj, mcdir, initFile, toydataFile, e_minT, e_maxT)
     fitterPars.includeMuons = False
     fitterPars.includeElectrons = True
 

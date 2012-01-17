@@ -3,7 +3,7 @@ from ROOT import gROOT
 gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 from ROOT import RooWjjFitterParams
 
-def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
+def theConfig(Nj, mcdir = '', initFile = '', toydataFile = '', e_minT = -1.0, e_maxT = -1.0):
     fitterPars = RooWjjFitterParams()
 
     fitterPars.smoothingOrder = 0
@@ -37,10 +37,46 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
 
     binEdge = fitterPars.minMass
     print binEdge,' ',
+
+## ### Scan between Min=120-140 (Max=160-180)
+##     while (binEdge < 120.0):
+##         binEdge += round(0.15*binEdge)
+##         fitterPars.binEdges.push_back(binEdge)
+##         print binEdge,' ',
+
+##     binEdge=120;
+##     fitterPars.binEdges[fitterPars.binEdges.size()-1] = binEdge;
+##     print 'replaced with ',binEdge,' '
+
+##     while (binEdge < 140.0):
+##         binEdge += 2.0
+##         fitterPars.binEdges.push_back(binEdge)
+##         print binEdge,' ',
+
+##     binEdge=140;
+##     fitterPars.binEdges[fitterPars.binEdges.size()-1] = binEdge;
+##     print 'replaced with ', binEdge,' ',
+
+##     binEdge=160;
+##     fitterPars.binEdges.push_back(binEdge)
+##     print binEdge,' ',
+    
+##     while (binEdge < 182.0):
+##         binEdge += 2.0
+##         fitterPars.binEdges.push_back(binEdge)
+##         print binEdge,' ',
+
+##     binEdge=182;
+##     fitterPars.binEdges[fitterPars.binEdges.size()-1] = binEdge;
+##     print 'replaced with ',binEdge,' ',
+    
     while (binEdge <= fitterPars.maxMass):
         binEdge += round(0.15*binEdge)
         fitterPars.binEdges.push_back(binEdge)
         print binEdge,' ',
+
+
+
 
     fitterPars.binEdges[fitterPars.binEdges.size()-1] = fitterPars.maxMass
 ##     fitterPars.maxMass = fitterPars.binEdges[fitterPars.binEdges.size()-1]
@@ -50,6 +86,8 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
     fitterPars.truncRange = True
     fitterPars.blind = False
     fitterPars.minTrunc = 130.
+    if e_minT>0:
+        fitterPars.minTrunc = e_minT
 
     binMin = fitterPars.minMass
     for binEdge in fitterPars.binEdges:
@@ -59,6 +97,9 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = ''):
         binMin = binEdge
 
     fitterPars.maxTrunc = 170.
+    if e_maxT>0:
+        fitterPars.maxTrunc = e_maxT
+    
     for binEdge in fitterPars.binEdges:
         if binEdge > fitterPars.maxTrunc:
             fitterPars.maxTrunc = binEdge
