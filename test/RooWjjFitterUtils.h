@@ -79,6 +79,7 @@ protected:
   std::vector<EffTableLoader*> effMuId, effMu;
   std::vector<EffTableLoader*> effJ30, effJ25NoJ30;
   std::vector<EffTableLoader*> effMHT;
+  std::vector<EffTableLoader*> effEleWMt;
 };
 
 #endif

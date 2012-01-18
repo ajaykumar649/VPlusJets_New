@@ -92,6 +92,7 @@ void RooWjjFitterUtils::initialize() {
     effJ30.push_back(new EffTableLoader(params_.eleJ30EffFiles[i].Data()));
     effJ25NoJ30.push_back(new EffTableLoader(params_.eleJ25NoJ30EffFiles[i].Data()));
     effMHT.push_back(new EffTableLoader(params_.eleMHTEffFiles[i].Data()));
+    effEleWMt.push_back(new EffTableLoader(params_.eleWMtEffFiles[i].Data()));
   }
 }
 
@@ -170,6 +171,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Int_t           evtNJ;
   Float_t         lepton_pt;
   Float_t         lepton_eta;
+  Float_t         W_mt;
 
   TTreeFormula poi("poi", params_.var, theTree);
 
@@ -193,6 +195,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
       theTree->SetBranchAddress("W_muon_pt", &lepton_pt);
       theTree->SetBranchAddress("W_muon_eta", &lepton_eta);
     }
+    theTree->SetBranchAddress("W_mt", &W_mt);
   }
 
   static TRandom3 rnd(987654321);
@@ -228,6 +231,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 	evtWgt *= effEleReco[epoch]->GetEfficiency(lepton_pt, lepton_eta);
 	evtWgt *= effEleId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
 	evtWgt *= effEle[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+	evtWgt *= effEleWMt[epoch]->GetEfficiency(W_mt, lepton_eta);
       } else {
 	evtWgt *= effMuId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
 	evtWgt *= effMu[epoch]->GetEfficiency(lepton_pt, lepton_eta);

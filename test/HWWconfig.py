@@ -117,6 +117,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.eleJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
     fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/FullyEfficient_Jet2NoJet1.txt")
     fitterPars.eleMHTEffFiles.push_back("EffTableDir/FullyEfficient_MHT.txt")
+    fitterPars.eleWMtEffFiles.push_back("EffTableDir/WMt50TriggerEfficiency.txt")
     fitterPars.lumiPerEpochElectron.push_back(fitterPars.intLumi)
 
     fitterPars.constrainDiboson = True

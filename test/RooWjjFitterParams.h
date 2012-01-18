@@ -69,6 +69,7 @@ public:
   std::vector<TString> eleJ30EffFiles;
   std::vector<TString> eleJ25NoJ30EffFiles;
   std::vector<TString> eleMHTEffFiles;
+  std::vector<TString> eleWMtEffFiles;
   std::vector<double> lumiPerEpochElectron;
 
   //fitting range

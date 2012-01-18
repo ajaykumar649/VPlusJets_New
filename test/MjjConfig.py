@@ -138,6 +138,7 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = '', e_minT = -1.0, e_
     fitterPars.eleJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
     fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/FullyEfficient_Jet2NoJet1.txt")
     fitterPars.eleMHTEffFiles.push_back("EffTableDir/FullyEfficient_MHT.txt")
+    fitterPars.eleWMtEffFiles.push_back("EffTableDir/WMt50TriggerEfficiency.txt")
     fitterPars.lumiPerEpochElectron.push_back(fitterPars.intLumi)
 
 ##     fitterPars.eleIdEffFiles.push_back("EffTableDir/eleEffsRecoToWP80_ScaleFactors.txt")

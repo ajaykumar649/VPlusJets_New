@@ -34,6 +34,11 @@
 #include "RooExponential.h"
 #include "TVirtualFitter.h"
 #include "Math/MinimizerOptions.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+#include "TMatrixT.h"
+#include "TVectorT.h"
+#include "TMatrixDSymEigen.h"
 
 #include "TPad.h"
 
@@ -1023,9 +1028,11 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   }
 
   TVirtualFitter::SetMaxIterations(10000);
+  TFitResultPtr fr;
   if (fitf) {
     //fitf->Print();
-    th1wjets->Fit("fitf", "wlr");
+    fr = th1wjets->Fit("fitf", "wlrsq");
+    fr->Print("v");
   }
 
   th1wjets->Draw();
@@ -1088,6 +1095,44 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   default:
     utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", ws_, histOrder);
   }
+
+  if (fr >= 0) {
+    TMatrixDSymEigen eigen(fr->GetCovarianceMatrix());
+    TVectorD errs2(eigen.GetEigenValues());
+    //upVals.Print();
+    //downVals.Print();
+    TMatrixD V(eigen.GetEigenVectors());
+    //V.Print();
+    TMatrixD Vt(V.T());
+    for (int i = 0; i<errs2.GetNrows(); ++i) {
+      TMatrixD upVals(fitf->GetNpar(), 1, fitf->GetParameters());
+      TMatrixD downVals(fitf->GetNpar(), 1, fitf->GetParameters());
+      TMatrixD upValsp(upVals);
+      TMatrixD downValsp(downVals);
+      upValsp.Mult(Vt, upVals);
+      downValsp.Mult(Vt, downVals);
+      upValsp[i][0] += sqrt(errs2[i]);
+      downValsp[i][0] -= sqrt(errs2[i]);
+      //upValsp.Print();
+      upVals.Mult(upValsp.T(), V);
+      downVals.Mult(downValsp.T(), V);
+      //upVals.Print();
+      //downVals.Print();
+      TF1 * fitf_up = new TF1(*fitf);
+      fitf_up->SetName("fitf_up");
+      fitf_up->SetParameter(0, upVals[0][0]);
+      fitf_up->SetParameter(1, upVals[1][0]);
+      fitf_up->SetLineColor(kBlue);
+      fitf_up->Draw("lsame");
+      TF1 * fitf_down = new TF1(*fitf);
+      fitf_down->SetName("fitf_down");
+      fitf_down->SetParameter(0, downVals[0][0]);
+      fitf_down->SetParameter(1, downVals[1][0]);
+      fitf_down->SetLineColor(kBlue);
+      fitf_down->Draw("lsame");
+    }
+  }
+  
 
 //   if (fitf)
 //     delete fitf;
