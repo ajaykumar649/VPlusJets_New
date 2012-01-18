@@ -97,7 +97,7 @@ for model in models:
     
     hists.append(tmpHist)
 
-f = TFile('Mjj_{1}_{0}Jets_NewPhysics_1fb.root'.format(opts.Nj, modeString),
+f = TFile('Mjj_%s_%iJets_NewPhysics_1fb.root' % (modeString, opts.Nj),
           'recreate')
 for hist in hists:
     hist.Print()

@@ -145,14 +145,20 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
     print twoBCut
     if len(fitterPars.cuts) > 0:
         fitterPars.cuts += " && "
-    fitterPars.cuts += '(({0} > {1:f}) && ({0} < {2:f}))'.format(fitterPars.var,fitterPars.minTrunc, fitterPars.maxTrunc)
+    fitterPars.cuts += '((%s > %f) && (%s < %f))' % (fitterPars.var,
+                                                     fitterPars.minTrunc,
+                                                     fitterPars.var,
+                                                     fitterPars.maxTrunc)
 
     fitterPars.minSBHi = fitterPars.maxWmass
     fitterPars.maxSBHi = fitterPars.maxWmass + 20.
     fitterPars.SBHicut = twoBCut
     if len(twoBCut) > 0:
         fitterPars.SBHicut += " && "
-    fitterPars.SBHicut += '(({0} > {1:f}) && ({0} < {2:f}))'.format(fitterPars.var,fitterPars.minSBHi, fitterPars.maxSBHi)
+    fitterPars.SBHicut += '((%s > %f) && (%s < %f))' % (fitterPars.var,
+                                                        fitterPars.minSBHi,
+                                                        fitterPars.var,
+                                                        fitterPars.maxSBHi)
     print 'SBHicut',fitterPars.SBHicut
     
     fitterPars.minSBLo = fitterPars.minWmass - 10.
@@ -160,7 +166,10 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
     fitterPars.SBLocut = twoBCut
     if len(twoBCut) > 0:
         fitterPars.SBLocut += " && "
-    fitterPars.SBLocut += '(({0} > {1:f}) && ({0} < {2:f}))'.format(fitterPars.var,fitterPars.minSBLo, fitterPars.maxSBLo)
+    fitterPars.SBLocut += '((%s > %f) && (%s < %f))' % (fitterPars.var,
+                                                        fitterPars.minSBLo,
+                                                        fitterPars.var,
+                                                        fitterPars.maxSBLo)
     print 'SBLocut',fitterPars.SBLocut
 
     print 'minMlvjj:',minMlvjj,'maxMlvjj',maxMlvjj

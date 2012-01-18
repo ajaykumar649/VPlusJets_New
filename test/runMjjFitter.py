@@ -7,10 +7,6 @@ parser.add_option('-b', action='store_true', dest='noX', default=False,
                   help='no X11 windows')
 parser.add_option('-j', '--Njets', dest='Nj', default=2, type='int',
                   help='Number of jets.')
-parser.add_option('--fSU', dest='e_FSU', default=-100.0, type='float',
-                  help='Externally set scaling up fraction. It is the scaling down fraction when -1.0<fSU<0.0; and it is taken from the input file when fSU<-10.0.')
-parser.add_option('--fMU', dest='e_FMU', default=-100.0, type='float',
-                  help='Externally set matching up fraction. It is the matching down fraction when -1.0<fMU<0.0; and it is taken from the input file when fMU<-10.0.')
 parser.add_option('--minT', dest='e_minT', default=-1.0, type='float',
                   help='Externally set minimum for the region to exclude from the fit')
 parser.add_option('--maxT', dest='e_maxT', default=-1.0, type='float',
@@ -156,7 +152,7 @@ for i in range(0, yields.getSize()):
                                                 yields.at(i).getError())
     sigYieldsFile.write(yieldString + '\n')
 print '-------------------------------'
-print 'total yield: %0.0f +/- %0.0f%' % (totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
+print 'total yield: %0.0f +/- %0.0f' % (totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
 print '-------------------------------'
 
 sigYieldsFile.close()
@@ -173,10 +169,10 @@ fr.SetName('nll')
 fr.Print()
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
-print 'total yield: 0.0f +/- 0.0f' % (totalYield, sqrt(sig2))
+print 'total yield: %0.0f +/- %0.0f' % (totalYield, sqrt(sig2))
 
 print 'shape file created'
-ShapeFile = TFile('Mjj_%s_%iJets_Fit_Shapes.root' % (opts.Nj, modeString),
+ShapeFile = TFile('Mjj_%s_%iJets_Fit_Shapes.root' % (modeString, opts.Nj),
                   'recreate')
 h_total.Write()
 theData.Write()

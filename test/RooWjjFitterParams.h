@@ -108,8 +108,8 @@ RooWjjFitterParams::RooWjjFitterParams() :
   minSBLo(55.), maxSBLo(65.), SBLocut(""), smoothWpJ(1), model(1),
   doEffCorrections(false), 
   minFit(minMass), maxFit(maxMass),
-  useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),
   fitToyDataset(false), ToyDatasetDirectory(""), toydataFile(""),
+  useExternalMorphingPars(false), e_fSU(-100.0), e_fMU(-100.0),
   e_minT(-1.0), e_maxT(-1.0),
   smoothingOrder(0)
 {

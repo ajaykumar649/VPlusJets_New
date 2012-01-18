@@ -3,7 +3,7 @@ def addPlots(plots):
     from ROOT import RooCurve, RooHist, TLine, TLegend, RooPlot, RooAbsData, \
          SetOwnership
     #print plots
-    outplot = plots[0].emptyClone(plots[0].GetName() + '_combined')
+    outplot = plots[0].emptyClone(plots[0].GetName())
     newMax = 0.
     for item in range(0, int(plots[0].numItems())):
         itemName = plots[0].nameOf(item)
@@ -42,6 +42,10 @@ def addPlots(plots):
             
         if (type(firstItem) == TLegend):
             newLeg = TLegend(firstItem)
+            newLeg.SetY1NDC(0.92 - \
+                            0.05*newLeg.GetListOfPrimitives().GetSize() - \
+                            0.02)
+            newLeg.SetY1(newLeg.GetY1NDC())
             SetOwnership(newLeg, False)
             outplot.addObject(newLeg)
 
@@ -49,6 +53,7 @@ def addPlots(plots):
         newMax += plot.GetMaximum()
 
     outplot.SetMaximum(outplot.GetMaximum()*1.3)
+    outplot.GetYaxis().SetTitle("Events / GeV")
 ##     outplot.SetMaximum(newMax)
 ##         outplot.Print("v")
 
