@@ -27,8 +27,10 @@
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ3_mu_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_550_nJ3_mu_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_600_nJ3_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_nJ2_mu_BDT.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_nJ3_mu_BDT.class.C+");
   gROOT->ProcessLine(".L kanamuon.C+");
   gROOT->ProcessLine("kanamuon runover");
   ///Set true/false for isQCD
-  gROOT->ProcessLine("runover.myana(-101,false)");
+  gROOT->ProcessLine("runover.myana(-100,false)");
 }

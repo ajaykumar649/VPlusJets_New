@@ -27,8 +27,10 @@
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ3_el_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_550_nJ3_el_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_600_nJ3_el_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_nJ2_el_BDT.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_nJ3_el_BDT.class.C+");
   gROOT->ProcessLine(".L kanaelec.C+");
   gROOT->ProcessLine("kanaelec runover");
   ///Set true/false for isQCD
-  gROOT->ProcessLine("runover.myana(-104,false)");
+  gROOT->ProcessLine("runover.myana(20111015,false)");
 }

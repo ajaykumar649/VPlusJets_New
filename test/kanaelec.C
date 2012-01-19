@@ -42,6 +42,9 @@
 #include "ClassifierOut/TMVAClassification_550_nJ3_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ3_el_Likelihood.class.C"
 
+#include "ClassifierOut/TMVAClassification_nJ2_el_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_nJ3_el_BDT.class.C"
+
 const TString inDataDir  = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/MergFile/";
 const TString inQCDDir   = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample/MergFile/";
 const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeTest/";
@@ -498,6 +501,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 
   Float_t mva2j160el = 999, mva2j170el = 999, mva2j180el = 999, mva2j190el = 999, mva2j200el = 999, mva2j250el = 999, mva2j300el = 999, mva2j350el = 999, mva2j400el = 999, mva2j450el = 999, mva2j500el = 999, mva2j550el = 999, mva2j600el = 999;
   Float_t mva3j160el = 999, mva3j170el = 999, mva3j180el = 999, mva3j190el = 999, mva3j200el = 999, mva3j250el = 999, mva3j300el = 999, mva3j350el = 999, mva3j400el = 999, mva3j450el = 999, mva3j500el = 999, mva3j550el = 999, mva3j600el = 999;
+  Float_t mva2jdibosonel = 999,mva3jdibosonel = 999;
   
   TBranch * branch_2j160el   =  newtree->Branch("mva2j160el",   &mva2j160el,    "mva2j160el/F");
   TBranch * branch_2j170el   =  newtree->Branch("mva2j170el",   &mva2j170el,    "mva2j170el/F");
@@ -527,6 +531,8 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
   TBranch * branch_3j550el   =  newtree->Branch("mva3j500el",   &mva3j550el,    "mva3j550el/F");
   TBranch * branch_3j600el   =  newtree->Branch("mva3j600el",   &mva3j600el,    "mva3j600el/F");
 
+  TBranch * branch_2jdibosonel   =  newtree->Branch("mva2jdibosonel",   &mva2jdibosonel,    "mva2jdibosonel/F");
+  TBranch * branch_3jdibosonel   =  newtree->Branch("mva3jdibosonel",   &mva3jdibosonel,    "mva3jdibosonel/F");
 
   // For MVA analysis
   const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
@@ -558,6 +564,12 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
   ReadMVA3j500el mvaReader3j500el( inputVarsMVA );  
   ReadMVA3j550el mvaReader3j550el( inputVarsMVA );  
   ReadMVA3j600el mvaReader3j600el( inputVarsMVA );  
+
+  const char* DB_inputVars[] = { "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_hs", "ang_phib", "fit_chi2", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))", "JetPFCor_Pt[1]/Mass2j_PFCor" };
+  std::vector<std::string> DB_inputVarsMVA;
+  for (int i=0; i<9; ++i)  DB_inputVarsMVA.push_back( DB_inputVars[i] );
+  ReadMVA2jdibosonel mvaReader2jdibosonel( DB_inputVarsMVA ); 
+  ReadMVA3jdibosonel mvaReader3jdibosonel( DB_inputVarsMVA ); 
 
   // Parameter Setup
   const unsigned int jetsize         = 6;
@@ -596,7 +608,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
     
     mva2j160el = 999; mva2j170el = 999; mva2j180el = 999; mva2j190el = 999; mva2j200el = 999; mva2j250el = 999; mva2j300el = 999; mva2j350el = 999; mva2j400el = 999; mva2j450el = 999; mva2j500el = 999; mva2j550el = 999; mva2j600el = 999;
     mva3j160el = 999; mva3j170el = 999; mva3j180el = 999; mva3j190el = 999; mva3j200el = 999; mva3j250el = 999; mva3j300el = 999; mva3j350el = 999; mva3j400el = 999; mva3j450el = 999; mva3j500el = 999; mva3j550el = 999; mva3j600el = 999;
-
+    mva2jdibosonel = 999; mva3jdibosonel = 999;
     // Good Event Selection Requirement for all events
     bool  isgengdevt = 0;
     if (JetPFCor_Pt[0]>Jpt 
@@ -722,6 +734,20 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
       mva3j500el = (float) mvaReader3j500el.GetMvaValue( mvaInputVal );
       mva3j550el = (float) mvaReader3j550el.GetMvaValue( mvaInputVal );
       mva3j600el = (float) mvaReader3j600el.GetMvaValue( mvaInputVal );
+
+      std::vector<double> DB_mvaInputVal;
+      DB_mvaInputVal.push_back( W_electron_charge );    ///////different for electron and muon
+      DB_mvaInputVal.push_back( JetPFCor_QGLikelihood[0] );
+      DB_mvaInputVal.push_back( JetPFCor_QGLikelihood[1] );
+      DB_mvaInputVal.push_back( ang_hs );
+      DB_mvaInputVal.push_back( ang_phib );
+      DB_mvaInputVal.push_back( fit_chi2 );
+      DB_mvaInputVal.push_back( fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1]) );
+      DB_mvaInputVal.push_back( sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+JetPFCor_Pt[1]*JetPFCor_Pt[1]+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1])) );
+      DB_mvaInputVal.push_back( JetPFCor_Pt[1]/Mass2j_PFCor );
+
+      mva2jdibosonel = (float) mvaReader2jdibosonel.GetMvaValue( DB_mvaInputVal );
+      mva3jdibosonel = (float) mvaReader3jdibosonel.GetMvaValue( DB_mvaInputVal );
     }
     // For Hadronic W in Top sample
     if (isgengdevt)
@@ -881,6 +907,9 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
     branch_3j500el->Fill();
     branch_3j550el->Fill();
     branch_3j600el->Fill();
+
+    branch_2jdibosonel->Fill();
+    branch_3jdibosonel->Fill();
 
   } // end event loop
   fresults.cd();
