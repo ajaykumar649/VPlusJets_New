@@ -92,6 +92,9 @@ for v1 in range(0, covMatrix.GetNrows()):
 
 from plotMjjFit import plot2BodyDist
 
+if (opts.Err >= 0) and (opts.Err < 1):
+    opts.Err = sqrt(sig2)
+
 (plots, cans) = plot2BodyDist(theFitter, fitterPars, chi2, ndf,
                               opts.Err, opts.NP)
 

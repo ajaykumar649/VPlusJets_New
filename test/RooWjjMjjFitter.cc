@@ -7,6 +7,8 @@
 #include "TMath.h"
 #include "TLine.h"
 #include "TLegend.h"
+#include "TGraphAsymmErrors.h"
+#include "TGraph.h"
 
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
@@ -1031,12 +1033,14 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   TFitResultPtr fr;
   if (fitf) {
     //fitf->Print();
-    fr = th1wjets->Fit("fitf", "wlrsq");
+    fr = th1wjets->Fit("fitf", "wlrsq0");
     fr->Print("v");
   }
 
+  th1wjets->SetStats(false);
   th1wjets->Draw();
-  gPad->Update();
+  th1wjets->SetXTitle("m_{l#nujj} (GeV)");
+  th1wjets->SetYTitle("Events / GeV");
 //   gPad->WaitPrimitive();
 //   RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
 // 					    ws_, histOrder);
@@ -1099,39 +1103,55 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   if (fr >= 0) {
     TMatrixDSymEigen eigen(fr->GetCovarianceMatrix());
     TVectorD errs2(eigen.GetEigenValues());
-    //upVals.Print();
-    //downVals.Print();
     TMatrixD V(eigen.GetEigenVectors());
-    //V.Print();
     TMatrixD Vt(V.T());
+    TGraph * fitGraph = new TGraph(fitf);
+    fitGraph->SetLineColor(kRed+1);
+    fitGraph->SetLineWidth(3);
+    TGraphAsymmErrors * errGraph = 
+      new TGraphAsymmErrors(fitGraph->GetN(), fitGraph->GetX(),
+			    fitGraph->GetY());
+    errGraph->SetFillColor(kBlue+1);
+    errGraph->SetLineColor(kBlue+1);
+    errGraph->SetFillStyle(3002);
+    double diff;
     for (int i = 0; i<errs2.GetNrows(); ++i) {
-      TMatrixD upVals(fitf->GetNpar(), 1, fitf->GetParameters());
-      TMatrixD downVals(fitf->GetNpar(), 1, fitf->GetParameters());
-      TMatrixD upValsp(upVals);
-      TMatrixD downValsp(downVals);
-      upValsp.Mult(Vt, upVals);
-      downValsp.Mult(Vt, downVals);
-      upValsp[i][0] += sqrt(errs2[i]);
-      downValsp[i][0] -= sqrt(errs2[i]);
-      //upValsp.Print();
-      upVals.Mult(upValsp.T(), V);
-      downVals.Mult(downValsp.T(), V);
-      //upVals.Print();
-      //downVals.Print();
-      TF1 * fitf_up = new TF1(*fitf);
-      fitf_up->SetName("fitf_up");
-      fitf_up->SetParameter(0, upVals[0][0]);
-      fitf_up->SetParameter(1, upVals[1][0]);
-      fitf_up->SetLineColor(kBlue);
-      fitf_up->Draw("lsame");
-      TF1 * fitf_down = new TF1(*fitf);
-      fitf_down->SetName("fitf_down");
-      fitf_down->SetParameter(0, downVals[0][0]);
-      fitf_down->SetParameter(1, downVals[1][0]);
-      fitf_down->SetLineColor(kBlue);
-      fitf_down->Draw("lsame");
+      for (int updown = -1; updown<= 1; updown+=2) {
+	TMatrixD newVals(fitf->GetNpar(), 1, fitf->GetParameters());
+	TMatrixD newValsp(newVals);
+	newValsp.Mult(Vt, newVals);
+	newValsp[i][0] += updown*sqrt(errs2[i]);
+	newVals.Mult(newValsp.T(), V);
+	TF1 * fitf_new = new TF1(*fitf);
+	fitf_new->SetName( TString::Format( "fitf%d_%s",i,
+					    ((updown<0)?"down":"up") ) );
+	fitf_new->SetParameter(0, newVals[0][0]);
+	fitf_new->SetParameter(1, newVals[1][0]);
+	//fitf_new->SetLineColor(kBlue);
+	//fitf_new->Draw("lsame");
+	for (int xi = 0; xi < fitGraph->GetN(); ++xi) {
+	  diff = (*fitf_new)(fitGraph->GetX()[xi]) - 
+	    (*fitf)(fitGraph->GetX()[xi]);
+	  if (diff > 0)
+	    errGraph->SetPointEYhigh(xi, 
+				     errGraph->GetErrorYhigh(xi) + diff*diff);
+	  else
+	    errGraph->SetPointEYlow(xi, 
+				    errGraph->GetErrorYlow(xi) + diff*diff);
+	}
+	delete fitf_new;
+      }
     }
+    fitf->SetLineWidth(3);
+    for (int xi=0; xi < errGraph->GetN(); ++xi) {
+      errGraph->SetPointEYhigh(xi, sqrt(errGraph->GetErrorYhigh(xi)));
+      errGraph->SetPointEYlow(xi, sqrt(errGraph->GetErrorYlow(xi)));
+    }
+    errGraph->Draw("3");
+    fitGraph->Draw("l");
+    th1wjets->Draw("same");
   }
+  gPad->Update();
   
 
 //   if (fitf)

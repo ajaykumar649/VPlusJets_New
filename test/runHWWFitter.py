@@ -276,6 +276,8 @@ cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
                                                    opts.Nj))
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
                                                    opts.Nj))
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
+                                                   opts.Nj))
 
 #assert(False)
 

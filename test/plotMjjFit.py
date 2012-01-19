@@ -4,7 +4,7 @@ import pyroot_logon
 def plot2BodyDist(theFitter, pars, chi2, ndf, 
                   Err = -1, NP = False):
     from ROOT import gPad, TLatex, TCanvas, kRed, kCyan, kBlue, \
-         RooFit, RooPlot, RooCurve, RooAbsReal
+         RooFit, RooPlot, RooCurve, RooAbsReal, TGraphErrors, NULL
 
     if pars.includeMuons and pars.includeElectrons:
         modeString = ''
@@ -41,25 +41,45 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
                         RooFit.LineColor(kRed), RooFit.LineStyle(3))
         h_ErrUp = sf.getCurve('h_ErrUp')
         sf.remove('h_ErrUp', False)
+
+        ErrBand = TGraphErrors(h_dibosonPdf.GetN(), h_dibosonPdf.GetX(),
+                               h_dibosonPdf.GetY())
+        for pt in range(1, ErrBand.GetN()):
+            ErrBand.SetPointError(pt, 0, h_ErrUp.GetY()[pt-1])
+        ErrBand.SetName("ErrBand")
+        ErrBand.SetTitle("Uncertainty")
+        ErrBand.SetLineColor(kRed+1)
+##         ErrBand.SetLineWidth(0)
+##         ErrBand.SetLineStyle(0)
+        ErrBand.SetFillColor(kRed+1)
+        ErrBand.SetFillStyle(3002)
+
+        #ErrBand.Draw('ap3')
+        #h_ErrUp.Draw('lp')
+        #gPad.Update()
+        #gPad.WaitPrimitive()
 ##         h_ErrUp.Draw("al")
 ##         h_ErrUp.GetXaxis().Set(36, 40., 400.)
-##         h_ErrUp1.Draw("l")
 ##         gPad.Update()
 ##         gPad.WaitPrimitive()
-        h_UpBand = RooCurve("h_UpBand", "Uncertainty", h_dibosonPdf, h_ErrUp,
-                            1., 1.)
-        h_UpBand.SetLineStyle(3)
-        h_UpBand.SetLineColor(kRed+1)
-        h_DownBand = RooCurve("h_DownBand", "Uncertainty", h_dibosonPdf, h_ErrUp,
-                              1., -1.)
-        h_DownBand.SetLineStyle(3)
-        h_DownBand.SetLineColor(kRed+1)
+##         h_UpBand = RooCurve("h_UpBand", "Uncertainty", h_dibosonPdf, h_ErrUp,
+##                             1., 1.)
+##         h_UpBand.SetLineStyle(3)
+##         h_UpBand.SetLineColor(kBlue+1)
+##         h_DownBand = RooCurve("h_DownBand", "Uncertainty", h_dibosonPdf, h_ErrUp,
+##                               1., -1.)
+##         h_DownBand.SetLineStyle(3)
+##         h_DownBand.SetLineColor(kBlue+1)
 
-        sf.addPlotable(h_UpBand, "L")
-        sf.addPlotable(h_DownBand, "L")
-        sf.drawAfter('h_UpBand', 'h_dibosonPdf')
-        sf.drawAfter('h_DownBand', 'theData')
-        sf.findObject('theLegend').AddEntry(h_ErrUp, 'Uncertainty', 'L')
+##         sf.addPlotable(h_UpBand, "L")
+##         sf.addPlotable(h_DownBand, "L")
+        sf.addObject(ErrBand, "3")
+        #sf.Print("v")
+        sf.drawAfter('h_dibosonPdf', 'ErrBand')
+        #sf.Print("v")
+        sf.drawAfter('ErrBand', 'theData')
+        #sf.Print("v")
+        sf.findObject('theLegend').AddEntry(ErrBand, 'Uncertainty', 'f')
 
     if NP:
         NPPdf = theFitter.makeNPPdf();
@@ -67,14 +87,14 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 
         if (modeString == 'Electron'):
             if pars.njets == 2:
-                NPNorm *= 0.0356
+                NPNorm *= 0.0381
             elif pars.njets == 3:
-                NPNorm *= 0.0115
+                NPNorm *= 0.0123
         else:
             if pars.njets == 2:
-                NPNorm *= 0.0471
+                NPNorm *= 0.0550
             elif pars.njets == 3:
-                NPNorm *= 0.0150
+                NPNorm *= 0.0176
 
         print '**** N_NP:', NPNorm,'****'
 
@@ -90,7 +110,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 
         sf.drawBefore('h_dibosonPdf', 'h_NP')
         #sf.Print("v")
-        sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Gaussian", "L")
+        sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Signal", "L")
 
     l = TLatex()
     l.SetNDC()
@@ -99,9 +119,10 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 
     cstacked = TCanvas("cstacked", "stacked")
     mf.Draw()
-    l.DrawLatex(0.55, 0.55,
-                '#chi^{2}/dof = %0.3f/%d = %0.3f' % (chi2, ndf, chi2/ndf)
-                )
+    if (chi2 > 0):
+        l.DrawLatex(0.55, 0.55,
+                    '#chi^{2}/dof = %0.3f/%d = %0.3f' % (chi2, ndf, chi2/ndf)
+                    )
     pyroot_logon.cmsPrelim(cstacked, pars.intLumi/1000)
     cstacked.Print('Wjj_Mjj_%s_%ijets_Stacked.pdf' % (modeString, pars.njets))
     cstacked.Print('Wjj_Mjj_%s_%ijets_Stacked.png' % (modeString, pars.njets))
@@ -132,10 +153,6 @@ if __name__ == '__main__':
                       help='no X11 windows')
     parser.add_option('-j', '--Njets', dest='Nj', default=2, type='int',
                       help='Number of jets.')
-    parser.add_option('--fSU', dest='e_FSU', default=-100.0, type='float',
-                      help='Externally set scaling up fraction. It is the scaling down fraction when -1.0<fSU<0.0; and it is taken from the input file when fSU<-10.0.')
-    parser.add_option('--fMU', dest='e_FMU', default=-100.0, type='float',
-                      help='Externally set matching up fraction. It is the matching down fraction when -1.0<fMU<0.0; and it is taken from the input file when fMU<-10.0.')
     parser.add_option('--TD', dest='toydataFile', default='',
                       help='a file corresponding to a toy dataset')
     parser.add_option('-i', '--init', dest='startingFile',
@@ -147,8 +164,6 @@ if __name__ == '__main__':
                       dest='modeConfig',
                       help='which config to select look at HWWconfig.py for '+\
                       'an example.  Use the file name minus the .py extension.')
-    parser.add_option('-q', action='store_true', dest='qplot', default=False,
-                      help='make Q plot also.')
     parser.add_option('--NP', action='store_true', dest='NP', default=False,
                       help='put NP on the plot')
     parser.add_option('--Err', dest='Err', default=-1., type='float',
