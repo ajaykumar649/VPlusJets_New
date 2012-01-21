@@ -163,20 +163,6 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   
   fitResult->Print("v");
   params->writeToFile("lastWjjFitParams.txt");
-  
-//    if (params_.fitToyDataset) {
-//      char NJ_char[5];
-//      sprintf(NJ_char,"%i",params_.njets);
-//      TString NJ_str=NJ_char;
-
-//      TFile *fAll = new TFile("/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/ToyValidation_results/FitSummary_1K_"+NJ_str+"j.root", "UPDATE");
-//      fAll->cd();
-//      TString fRname;
-//      fRname=params_.toydataFile;
-//      fRname="fit_"+fRname;
-//      fitResult->Write(fRname);
-//      fAll->Close();
-//    }
 
   delete params;
   return fitResult;
@@ -228,8 +214,9 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
   RooAbsPdf * qcdPdf = makeQCDPdf();
   RooAbsPdf * ZpJPdf =  makeZpJPdf();
 
+  //// Initialization only, the actual values are set by resetYields()
   RooRealVar nDiboson("nDiboson","nDiboson",  initDiboson_, 0.0, 10000.);
-  nDiboson.setError(initDiboson_*0.15);
+  nDiboson.setError(initDiboson_*0.10);
   RooRealVar nTTbar("nTTbar","", ttbarNorm_);
   nTTbar.setError(ttbarNorm_*0.063);
   nTTbar.setConstant(false);
@@ -418,12 +405,16 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
 
 RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 
-  //Scale the trees by the Crossection/Ngenerated (43/4225916=1.01753087377979123e-05 for WW and 18/4265243=4.22015814808206740e-06 for WZ).
+  //Scale the trees by the Crossection/Ngenerated (43/4225916=1.01753087377979123e-05 for WW and 18.2/4265243=4.22015814808206740e-06 for WZ).
   if (ws_.pdf("dibosonPdf"))
     return ws_.pdf("dibosonPdf");
+  //   //CMS Preliminary:
+//   double WWweight = 53./4225916.;
+//   double WZweight = 17./4265243.;
+//NLO Predictions
+  double WWweight = 43./4225916.;
+  double WZweight = 18.2/4265243.;
 
-  double WWweight = 53./4225916.;
-  double WZweight = 17./4265243.;
   int dibosonScale = 1;
   TH1 * th1diboson = utils_.newEmptyHist("th1diboson", dibosonScale);
 
@@ -1438,7 +1429,7 @@ void RooWjjMjjFitter::resetYields() {
   ws_.var("nWjets")->setVal(initWjets_);
   ws_.var("nWjets")->setError(TMath::Sqrt(initWjets_));
   ws_.var("nDiboson")->setVal(initDiboson_);
-  ws_.var("nDiboson")->setError(initDiboson_*0.15);
+  ws_.var("nDiboson")->setError(initDiboson_*0.10);
   ws_.var("nTTbar")->setVal(ttbarNorm_);
   ws_.var("nTTbar")->setError(ttbarNorm_*0.063);
   ws_.var("nSingleTop")->setVal(singleTopNorm_);

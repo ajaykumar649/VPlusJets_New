@@ -399,7 +399,8 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
 TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
   TObject * theObj;
   TString objName, objTitle;
-  TLegend * theLeg = new TLegend(0.70, 0.65, 0.92, 0.92, "", "NDC");
+  //  TLegend * theLeg = new TLegend(0.70, 0.65, 0.92, 0.92, "", "NDC");
+  TLegend * theLeg = new TLegend(0.65, 0.55, 0.92, 0.92, "", "NDC");
   theLeg->SetName("theLegend");
 
   theLeg->SetBorderSize(0);
@@ -409,6 +410,8 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
   theLeg->SetLineWidth(0);
   theLeg->SetLineStyle(0);
   theLeg->SetTextFont(42);
+  theLeg->SetTextSize(.03);
+
   int entryCnt = 0;
   for(int obj=0; obj < plot->numItems(); ++obj) {
     objName = plot->nameOf(obj);
@@ -421,7 +424,7 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
       ++entryCnt;
     }
   }
-  theLeg->SetY1NDC(0.92 - 0.04*entryCnt - 0.02);
+  theLeg->SetY1NDC(0.92 - 0.02*entryCnt - 0.15);
   theLeg->SetY1(theLeg->GetY1NDC());
   return theLeg;
 }

@@ -52,8 +52,9 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
 ##         ErrBand.SetLineWidth(0)
 ##         ErrBand.SetLineStyle(0)
         ErrBand.SetFillColor(kRed+1)
-        ErrBand.SetFillStyle(3002)
+        ErrBand.SetFillStyle(3353)
 
+        
         #ErrBand.Draw('ap3')
         #h_ErrUp.Draw('lp')
         #gPad.Update()
