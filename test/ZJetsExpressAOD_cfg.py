@@ -12,11 +12,33 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 # ---- maximum number of events to run over -----------------------------
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20962))
+#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 # ---- define the source ------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    '/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/873/80730A1C-85DD-E011-A7B2-BCAEC53296F9.root'
+#    '/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/873/80730A1C-85DD-E011-A7B2-BCAEC53296F9.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/916/B6C571DF-50DC-E011-88FC-003048D2BBF0.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/910/6E5E6A3C-EBDC-E011-BAD4-003048F11CF0.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/906/AC1E2DC1-E1DC-E011-81E8-003048F1BF66.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/906/6233A259-B2DE-E011-A8BA-003048D2C020.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/906/345F5965-F3DC-E011-808C-BCAEC5329718.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/896/8675A2DE-41DC-E011-B99B-001D09F24EE3.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/888/78F83C1C-A4DC-E011-A6CC-003048D2BE08.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/888/640F06D3-71DC-E011-8DD2-BCAEC5329708.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/888/481D452F-6CDC-E011-BF73-BCAEC532972C.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/888/3A73136A-70DC-E011-ACF1-BCAEC518FF6B.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/888/26127467-78DC-E011-9ADD-003048D2BB90.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/887/B80453D6-8CDC-E011-923E-001D09F251D1.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/887/2A8C72FC-56DD-E011-892B-001D09F23A34.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/886/F65FBB7B-B3DC-E011-AB7B-001D09F276CF.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/886/D4C0EAF2-4BDC-E011-9792-BCAEC532971C.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/886/C461BAAD-4EDC-E011-B69B-BCAEC53296FD.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/886/8626F8A1-4ADC-E011-BEDD-003048F1BF66.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/881/CC7549C5-36DC-E011-93A1-003048F1C424.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/881/82F18A2F-31DC-E011-8285-003048F11DE2.root'
+#,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/881/8243FB04-94DC-E011-8E79-BCAEC53296F4.root'
+
 #'/store/data/Run2011A/Photon/AOD/PromptReco-v4/000/165/205/2208F0DF-E682-E011-BA61-000423D996C8.root'
 #,'/store/data/Run2011A/Photon/AOD/PromptReco-v4/000/165/205/12A90001-CA82-E011-BC0A-001617C3B5E4.root'
 #,'/store/data/Run2011A/Photon/AOD/PromptReco-v4/000/165/205/125B6282-C682-E011-B4C7-001D09F2305C.root'
@@ -46,15 +68,27 @@ process.source = cms.Source("PoolSource",
 #,'/store/data/Run2011A/Photon/AOD/PromptReco-v4/000/165/071/5A2512AD-C37F-E011-AB7D-001D09F2932B.root'
 
 # or MC
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06C8E521-62A4-E011-A5E9-0022198F5B1E.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0669C32E-B69C-E011-8551-E0CB4E553643.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06634156-5FA4-E011-BEA2-003048D293B4.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0660AC04-B59C-E011-BEC7-E0CB4E19F9B4.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/062DC08D-AF9C-E011-B713-90E6BA0D09B9.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/061080FF-A99C-E011-90CD-0030487CDB24.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/04F65B00-A89C-E011-978E-E0CB4E5536EF.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/04B76CEA-AF9C-E011-8526-E0CB4E1A116A.root',
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/047CEEC1-57A4-E011-86DC-0030487C6A1E.root'
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06C8E521-62A4-E011-A5E9-0022198F5B1E.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0669C32E-B69C-E011-8551-E0CB4E553643.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06634156-5FA4-E011-BEA2-003048D293B4.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0660AC04-B59C-E011-BEC7-E0CB4E19F9B4.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/062DC08D-AF9C-E011-B713-90E6BA0D09B9.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/061080FF-A99C-E011-90CD-0030487CDB24.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/04F65B00-A89C-E011-978E-E0CB4E5536EF.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/04B76CEA-AF9C-E011-8526-E0CB4E1A116A.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/047CEEC1-57A4-E011-86DC-0030487C6A1E.root'
+
+    #'/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/06B46752-04CD-E011-B8B9-0015178C4994.root'
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/06883EDE-09CD-E011-899C-00A0D1EEE660.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/066F1232-05CD-E011-A14B-00A0D1EE8F34.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/065D3A98-0BCD-E011-8325-00A0D1EE95CC.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/0648740D-FECC-E011-A2C5-0024E876636C.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/063052DF-FCCC-E011-976C-00A0D1EE8A20.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/04920741-0DCD-E011-84FC-0024E8769B05.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/04437AFF-07CD-E011-8675-001D09676BAB.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/02A456DD-F8CC-E011-B0DF-00151796D680.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/02A3A00C-FECC-E011-82CC-0015178C0100.root',
+   # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/027A27F3-FFCC-E011-8210-00266CF97FF4.root'
     )
 )
 
@@ -67,10 +101,14 @@ process.TFileService = cms.Service("TFileService",
 process.accepted = cms.EDAnalyzer('ZJetsExpress',
     jets            = cms.InputTag('ak5PFJets'),
     srcRho          = cms.InputTag('kt6PFJets','rho'),
+    srcRho25        = cms.InputTag('kt6PFJets25','rho'),
     minNjets        = cms.int32(1),
     jetLepIsoRadius = cms.double(0.4),
+    jetLepPhoRadius = cms.double(0.4),
     minJetPt        = cms.double(30),
     maxJetEta       = cms.double(2.5),
+    minPhoPt        = cms.double(70),
+    maxPhoEta       = cms.double(3.0),
     minLepPt        = cms.double(20),
     maxLepEta       = cms.double(2.4),
     maxCombRelIso03 = cms.double(0.15),
@@ -116,7 +154,12 @@ process.accepted = cms.EDAnalyzer('ZJetsExpress',
                                   'HLT_Photon90_CaloIdVL_IsoL_v',
                                   'HLT_Photon125_v',
                                   'HLT_Photon135_v'),
-    
+
+    prescaleDontAsk = cms.vstring('HLT_Mu17_Ele8_CaloIdL_v', # don't ask for L1 prescales for these bits
+                                  'HLT_Mu8_Ele17_CaloIdL_v',
+                                  'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v',
+                                  'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v'),
+
 )
 # ---- duplicate the analyzer with different name -----------------------
 process.rejected = process.accepted.clone()
@@ -145,11 +188,14 @@ process.kt6PFJets.doRhoFastjet = True
 process.kt6PFJets.Rho_EtaMax = cms.double(5.0)
 process.ak5PFJets.doAreaFastjet = True
 process.ak5PFJets.Rho_EtaMax = cms.double(5.0)
+############# turn-on the fastjet area in |eta|<2.5 needed for the photonISO #############
+process.kt6PFJets25 = process.kt6PFJets.clone( doRhoFastjet = True )
+process.kt6PFJets25.Rho_EtaMax = cms.double(2.5)
 ############# slimming the PFJet collection by raising the pt cut #################
 process.ak5PFJets.jetPtMin = cms.double(15.0)
 
 # ---- save all events for any trigger ---------------------
-process.s0 = cms.Sequence(process.kt6PFJets + process.ak5PFJets + process.accepted)
+process.s0 = cms.Sequence(process.kt6PFJets + process.ak5PFJets + process.kt6PFJets25 + process.accepted)
 process.p0 = cms.Path(process.s0)
 process.schedule = cms.Schedule(process.p0)
 
