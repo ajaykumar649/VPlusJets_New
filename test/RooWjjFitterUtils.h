@@ -51,6 +51,10 @@ public:
 
   double * getBinArray() const { return binArray; }
 
+  double effWeight(float lepton_pt, float lepton_eta, float W_mt, 
+		   float * JetPFCor_Pt, float * JetPFCor_Eta, int Njets,
+		   float event_met, bool isElectron) const;
+
   static double computeChi2(RooHist& hist, RooAbsPdf& pdf, RooRealVar& obs, 
 			    int& nbin);
   static TLegend * legend4Plot(RooPlot * plot);
@@ -80,6 +84,7 @@ protected:
   std::vector<EffTableLoader*> effJ30, effJ25NoJ30;
   std::vector<EffTableLoader*> effMHT;
   std::vector<EffTableLoader*> effEleWMt;
+  
 };
 
 #endif

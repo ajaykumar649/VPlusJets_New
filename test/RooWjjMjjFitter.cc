@@ -408,10 +408,11 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
   //Scale the trees by the Crossection/Ngenerated (43/4225916=1.01753087377979123e-05 for WW and 18.2/4265243=4.22015814808206740e-06 for WZ).
   if (ws_.pdf("dibosonPdf"))
     return ws_.pdf("dibosonPdf");
-  //   //CMS Preliminary:
+//   //CMS Preliminary:
 //   double WWweight = 53./4225916.;
 //   double WZweight = 17./4265243.;
-//NLO Predictions
+  //NLO Predictions
+  int const NgenWW = 4225916, NgenWZ = 4265243;
   double WWweight = 43./4225916.;
   double WZweight = 18.2/4265243.;
 
@@ -420,23 +421,34 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 
   TH1 * tmpHist;
 
+  double sumWW = 0., sumWZ = 0.;
+  double NWW = 0, NWZ = 0;
+
   if (params_.includeMuons) {
     tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW428.root",
 				"hist_ww_mu", false, 0, false, dibosonScale);
+    sumWW += tmpHist->Integral();
+    NWW += NgenWW/2.;
     th1diboson->Add(tmpHist, WWweight);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW428.root",
 			       "hist_wz_mu", false, 0, false, dibosonScale);
+    sumWZ += tmpHist->Integral();
+    NWZ += NgenWZ/2.;
     th1diboson->Add(tmpHist, WZweight);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW428.root",
 				"hist_ww_el", true, 0, false, dibosonScale);
+    sumWW += tmpHist->Integral();
+    NWW += NgenWW/2.;
     th1diboson->Add(tmpHist, WWweight);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW428.root",
 			       "hist_wz_el", true, 0, false, dibosonScale);
+    sumWZ += tmpHist->Integral();
+    NWZ += NgenWZ/2.;
     th1diboson->Add(tmpHist, WZweight);
     delete tmpHist;
   }
@@ -450,7 +462,11 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
     params_.intLumi;
   cout << "-------- Number of expected WW+WZ events = " 
        << th1diboson->Integral() << " x " << params_.intLumi 
-       << " = " <<  initDiboson_ << endl;
+       << " = " <<  initDiboson_ << '\n';
+
+  cout <<"----------- WW: acc x eff = " << sumWW/NWW << '\n';
+  cout <<"----------- WZ: acc x eff = " << sumWZ/NWZ << '\n';
+  cout.flush();
 
   th1diboson->Scale(1., "width");
   RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
@@ -584,34 +600,65 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   power.setError(0.2);
   RooRealVar power2("power2", "power2", 0., -100., 1000.);
   power2.setError(0.2);
-  RooRealVar decay(power, "decay");
-  RooRealVar width2(width);
-  width2.SetName("width2");
-  width2.setVal(45);
   RooRealVar mean("mean", "peak", 67);
   mean.setConstant(false);
   RooRealVar alpha("alpha", "alpha", -1.0);
   alpha.setConstant(false);
-  RooCBShape WpJPdfCB("WpJPdfCB", "WpJPdfCP", *mass, mean, width2, 
-		      alpha, power);
   RooGenericPdf WpJPdfPower("WpJPdfPower", "WpJPdfPower",
 			    "1./TMath::Power(@0,@1+@2*log(@0/@3))",
 			    RooArgList(*mass,power,power2,seff));
   RooGenericPdf bkgErf("WpJPdfErf","WpJPdfErf",
-		       //"(fturnOn*(TMath::Erf((@0-@1)/@2)+1) + "
-		       //"(1-fturnOn)*(TMath::Erf((@0-@6)/@2)+1))",
 		       "(TMath::Erf((@0-@1)/@2)+1)",
-		       //"1./(1+exp(-(@0-@1)/@2))",
 		       RooArgList(*mass, turnOn, width));
+  RooGenericPdf bkgFermi("WpJPdfFermi","WpJPdfFermi",
+		       "1./(1+exp(-(@0-@1)/@2))",
+		       RooArgList(*mass, turnOn, width));
+  RooRealVar tau("tau", "tau", -0.02);
+  tau.setConstant(false);
+  RooExponential WpJPdfExp("WpJPdfExp", "WpJPdfExp", *mass, tau);
 
   if (allOne) {
-    RooProdPdf WpJPdf("WpJPdf", "WpJPdf", RooArgList(WpJPdfPower, bkgErf),
- 		      1e-6);
-    ws_.import(WpJPdf);
+    switch (params_.WpJfunction) {
+    case 1:
+      power2.setVal(0.);
+      power2.setConstant(true);
+      turnOn.setVal(45.);
+      width.setVal(20.);
+      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
+			    RooArgList(WpJPdfPower,WpJPdfExp,bkgErf), 
+			    1e-5));
+      break;
+    case 2:
+      width.setVal(10);
+      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
+			    RooArgList(WpJPdfPower, bkgFermi), 1e-5));
+      break;
+    case 3:
+      width.setVal(10);
+      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
+			    RooArgList(WpJPdfExp, bkgFermi), 1e-5));
+      break;
+    case 4:
+      power2.setVal(0.);
+      power2.setConstant(true);      
+    case 5:
+      power.setVal(-4.);
+      tau.setVal(-0.033);
+      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
+			    RooArgList(WpJPdfExp,WpJPdfPower), 1e-5));
+      break;
+    case 6:
+      power2.setVal(0.);
+      power2.setConstant(true);
+    case 0:
+    default:
+      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
+			    RooArgList(WpJPdfPower, bkgErf), 1e-5));
 //     WpJPdfPower.SetName("WpJPdf");
 //     ws_.import(WpJPdfPower);
 //     WpJPdfCB.SetName("WpJPdf");
 //     ws_.import(WpJPdfCB);
+    }
     ws_.import(nWjets);
   } else {
 
@@ -976,7 +1023,11 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     delete shapes[range];
   }
 
+  double n2bWpJ = ws_.var("nWjets")->getVal();
   double const KinSwitch = 150.; 
+  std::cout << "n2bWpJ: " << n2bWpJ << '\n';
+  th1wjets->Print();
+  th1wjets->Scale(n2bWpJ/th1wjets->Integral());
   th1wjets->Scale(1., "width");
   th1wjets->Print();
 
@@ -1000,7 +1051,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	    << th1wjets->GetBinError(localBin)
 	    << '\n';
   if (params_.model == 1) {
-    TString fitString("expo(0)");
+    TString fitString("exp([0]+[1]*x)");
     if (params_.minMass < KinSwitch)
       fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
@@ -1032,14 +1083,19 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   th1wjets->Draw();
   th1wjets->SetXTitle("m_{l#nujj} (GeV)");
   th1wjets->SetYTitle("Events / GeV");
+  gPad->Update();
+  if (th1wjets->GetMinimum() > 1.) {
+    th1wjets->SetMinimum(0.);
+  }
 //   gPad->WaitPrimitive();
 //   RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
 // 					    ws_, histOrder);
   switch (params_.model) {
   case 1: {
-    RooRealVar tau("tau", "tau", fitf->GetParameter(1));
-    tau.setError(fitf->GetParError(1));
-    RooExponential expPdf("WpJ4BodyExp", "exp", *mass, tau);
+    RooRealVar c("c", "c", fitf->GetParameter(1));
+    c.setError(fitf->GetParError(1));
+    c.Print();
+    RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
     RooRealVar turnOn("turnOn4", "turnOn4", 165.);
     RooRealVar width("width4", "width4", 21.);
     RooGenericPdf erf("WpJ4BodyErf","erf",
@@ -1058,6 +1114,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
       
     } else {
       expPdf.SetName("WpJ4BodyPdf");
+      expPdf.Print("v");
       ws_.import(expPdf);
     }
   }
@@ -1148,6 +1205,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 //   if (fitf)
 //     delete fitf;
   //delete th1wjets;
+  
   return ws_.pdf("WpJ4BodyPdf");
 }
 
@@ -1376,8 +1434,8 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   rframe->addObject(legend);
 
   if (!normalize) {
-    rframe->SetMaximum(initDiboson_*(0.05));
-    rframe->SetMinimum(initDiboson_*(-0.015));
+    rframe->SetMaximum(ws_.var("nDiboson")->getVal()*(0.1));
+    rframe->SetMinimum(ws_.var("nDiboson")->getVal()*(-0.03));
     rframe->GetYaxis()->SetTitle("Events / GeV");
   } else {
     rframe->SetMaximum(5.);
@@ -1412,8 +1470,8 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
 }
 
 void RooWjjMjjFitter::loadParameters(TString fname) {
-  
   if (fname.Length() > 0) {
+    std::cout << "loading parameters from file " << fname << "\n";
     RooArgSet obs(*(ws_.var(params_.var)));
     RooArgSet * params = ws_.pdf("totalPdf")->getParameters(obs);
     params->readFromFile(fname);

@@ -101,7 +101,10 @@ f = TFile('Mjj_%s_%iJets_NewPhysics_1fb.root' % (modeString, opts.Nj),
           'recreate')
 for hist in hists:
     hist.Print()
-    hist.Draw()
+    hist.Draw('hist')
+    hist.SetXTitle("m_{jj} (GeV)")
+    hist.SetYTitle("Arbitrary Units")
+    gPad.Update()
     gPad.Print("Mjj_%s_%iJets_%s.pdf" % (modeString, opts.Nj, hist.GetName()))
     gPad.Print("Mjj_%s_%iJets_%s.png" % (modeString, opts.Nj, hist.GetName()))
     hist.Write()

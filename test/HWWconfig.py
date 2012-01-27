@@ -3,8 +3,8 @@ from ROOT import gROOT
 gROOT.ProcessLine('.L RooWjjFitterParams.h+');
 from ROOT import RooWjjFitterParams
 
-minMlvjj = 170.
-maxMlvjj = 770.
+minMlvjj = 160.
+maxMlvjj = 780.
 
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
@@ -24,14 +24,14 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.minMass = 35.
+    fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 30
     fitterPars.intLumi = 4700.
 
     
     fitterPars.binEdges.push_back(fitterPars.minMass)
-    fitterPars.binEdges.push_back(40.)
+    #fitterPars.binEdges.push_back(40.)
     fitterPars.binEdges.push_back(45.)
     fitterPars.binEdges.push_back(50.)
     fitterPars.binEdges.push_back(55.)
@@ -134,7 +134,8 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     return fitterPars
 
-def the4BodyConfig(twoBodyConfig, alpha=1.):
+def the4BodyConfig(twoBodyConfig, alpha=1., lowSideBand = (55., 65.),
+                   highSideBand = (95., 115)):
 ##     fitterPars = theConfig(Nj, mcdir, initFile)
 
     fitterPars = RooWjjFitterParams(twoBodyConfig)
@@ -151,8 +152,8 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
                                                      fitterPars.var,
                                                      fitterPars.maxTrunc)
 
-    fitterPars.minSBHi = fitterPars.maxWmass
-    fitterPars.maxSBHi = fitterPars.maxWmass + 20.
+    fitterPars.minSBHi = highSideBand[0]
+    fitterPars.maxSBHi = highSideBand[1]
     fitterPars.SBHicut = twoBCut
     if len(twoBCut) > 0:
         fitterPars.SBHicut += " && "
@@ -162,8 +163,8 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
                                                         fitterPars.maxSBHi)
     print 'SBHicut',fitterPars.SBHicut
     
-    fitterPars.minSBLo = fitterPars.minWmass - 10.
-    fitterPars.maxSBLo = fitterPars.minWmass
+    fitterPars.minSBLo = lowSideBand[0]
+    fitterPars.maxSBLo = lowSideBand[1]
     fitterPars.SBLocut = twoBCut
     if len(twoBCut) > 0:
         fitterPars.SBLocut += " && "
@@ -202,29 +203,6 @@ def the4BodyConfig(twoBodyConfig, alpha=1.):
 
     return fitterPars
 
-
-def NgenHiggs(mH, includeElectron, includeMuon):
-    Ngen = {160 : 109992,
-            170 : 109989,
-            180 : 109325,
-            190 : 109986,
-            200 : 109315,
-            250 : 109992,
-            300 : 109990,
-            350 : 109313,
-            400 : 107879,
-            450 : 107158,
-            500 : 107169,
-            550 : 107870,
-            600 : 108561}
-
-    retVal = 0
-    if includeElectron:
-        retVal += Ngen[mH]/2
-    if includeMuon:
-        retVal += Ngen[mH]/2
-
-    return retVal
 
 def getOptimalPars(mH, parList):
     for pars in parList:

@@ -5,6 +5,53 @@
 ##       python runHWWFitter.py -m HWWMuonsConfig -j 2 -H 300
 ######################################################
 
+def NgenHiggs(mH, includeElectron, includeMuon):
+    Ngen = {160 : 109992,
+            170 : 109989,
+            180 : 109325,
+            190 : 109986,
+            200 : 109315,
+            250 : 109992,
+            300 : 109990,
+            350 : 109313,
+            400 : 107879,
+            450 : 107158,
+            500 : 107169,
+            550 : 107870,
+            600 : 108561}
+
+    retVal = 0
+    if includeElectron:
+        retVal += Ngen[mH]/2
+    if includeMuon:
+        retVal += Ngen[mH]/2
+
+    return retVal
+
+def NgenVBFHiggs(mH, includeElectron, includeMuon):
+    Ngen = {160 : 219714,
+            170 : 212126,
+            180 : 219703,
+            190 : 213503,
+            200 : 217880,
+            250 : 219128,
+            300 : 217873,
+            350 : 214082,
+            400 : 205271,
+            450 : 214876,
+            500 : 218921,
+            550 : 216326,
+            600 : 214858
+            }
+
+    retVal = 0
+    if includeElectron:
+        retVal += Ngen[mH]/2
+    if includeMuon:
+        retVal += Ngen[mH]/2
+
+    return retVal
+
 
 from optparse import OptionParser
 
@@ -25,8 +72,8 @@ parser.add_option('-H', '--mH', dest='mH', default=400, type='int',
                   help='Higgs Mass Point')
 parser.add_option('-s', '--syst', dest='syst', type='int', default=0,
                    help='alpha systematic 0: none, 1: down, 2: up')
-parser.add_option('-W', '--WpJ', dest='ParamWpJ', action='store_true',
-                  default=False, help='parameterize the W+jets Mjj shape')
+parser.add_option('-W', '--WpJ', dest='ParamWpJ', type='int',
+                  default=-1, help='parameterization to use for the W+jets Mjj shape, -1 means use histograms.')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -51,6 +98,12 @@ from math import sqrt
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.mH)
 
+fitterPars.WpJfunction = opts.ParamWpJ
+#fitterPars.truncRange = True
+if opts.ParamWpJ<0:
+    fitterPars.smoothingOrder = 0
+    
+
 if fitterPars.includeMuons and fitterPars.includeElectrons:
     modeString = ''
 elif fitterPars.includeMuons:
@@ -64,7 +117,7 @@ else:
 theFitter = RooWjjMjjFitter(fitterPars)
 
 #theFitter.getWorkSpace().Print()
-theFitter.makeFitter(opts.ParamWpJ)
+theFitter.makeFitter((opts.ParamWpJ>=0))
 
 #theFitter.getWorkSpace().Print()
 theFitter.getWorkSpace().var('nDiboson').setConstant(False)
@@ -157,20 +210,33 @@ print "ZpJ","sigInt",ZpJInt.getVal(),"fullInt",ZpJFullInt.getVal(),\
 ## print "*** yield vars ***"
 ## yields.Print("v")
 covMatrix = TMatrixDSym(fr.covarianceMatrix())
+corMatrix = TMatrixDSym(fr.correlationMatrix())
 
 sig2 = 0.
+## print '\nCorrelation matrix\n%-10s' % (' '),
+## for v1 in range(0, finalPars.getSize()):
+##     if finalPars[v1].GetName()[0] == 'n':
+##         print '%10s' % (finalPars[v1].GetName()),
+## print
 for v1 in range(0, covMatrix.GetNrows()):
+##     if finalPars[v1].GetName()[0] == 'n':
+##         print '%-10s' % (finalPars[v1].GetName()),
     for v2 in range(0, covMatrix.GetNcols()):
         if ((finalPars[v1].GetName())[0] == 'n') and \
                ((finalPars[v2].GetName())[0] == 'n'):
+##             print '% 10.2g' % (corMatrix(v1, v2)),
             sig2 += covMatrix(v1, v2)
+##     print
 
+print 'sig2:', sig2
 usig2 = 0.
 totalYield = 0.
 sigYield = 0.
 sigErrs = {}
 
 sigYieldsFile = open('lastSigYield.txt', 'w')
+
+WpJNonPoissonError = 0
 
 print
 print '-------------------------------'
@@ -185,6 +251,8 @@ for i in range(0, yields.getSize()):
             theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
         elif (theName == 'nWjets'):
             theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
+            WpJNonPoissonError = sqrt(yields.at(i).getError()**2 - \
+                                      yields.at(i).getVal())*theIntegral
         elif (theName == 'nTTbar'):
             theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
         elif (theName == 'nSingleTop'):
@@ -194,44 +262,67 @@ for i in range(0, yields.getSize()):
         elif (theName == 'nZjets'):
             theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-        yieldString = '{0} = {1:0.0f} +/- {2:0.0f}'.format(theName,
-                                                  yields.at(i).getVal()*theIntegral,
-                                                  yields.at(i).getError()*theIntegral)
+        y = yields.at(i).getVal()*theIntegral
+        if (theName == 'nWjets') and \
+               (yields.at(i).getError()**2 > yields.at(i).getVal()):
+            yerr = sqrt(yields.at(i).getError()**2 - yields.at(i).getVal())
+            yerr *= theIntegral
+            yerr = sqrt(yerr**2 + y)
+            #print '*',
+        else:
+            yerr = yields.at(i).getError()*theIntegral
+        yieldString = '%s = %0.0f +/- %0.0f' % (theName, y, yerr)
         print yieldString
-        sigErrs[theName] = yields.at(i).getError()*theIntegral
-        sigYield += yields.at(i).getVal()*theIntegral
+        sigErrs[theName] = yerr
+        sigYield += y
     else:
-        yieldString = '{0} = {1:0.3f} +/- {2:0.3f}'.format(theName,
-                                                           yields.at(i).getVal(),
-                                                           yields.at(i).getError())
+        yieldString = '%s = %0.3f +/- %0.3f' % (theName,
+                                                yields.at(i).getVal(),
+                                                yields.at(i).getError())
     sigYieldsFile.write(yieldString + '\n')
 
 sigYieldsFile.close()
 
-sigSig2 = (sqrt(sig2-totalYield)/totalYield*sigYield)**2
+if (sig2 - totalYield) > 0:
+    sigSig2 = (sqrt(sig2-totalYield)/totalYield*sigYield)**2
+else:
+    sigSig2 = 0.
 sigSig2 += sigYield
+print '-------------------------------'
+print 'total yield = %0.0f +/- %0.0f' % (sigYield, sqrt(sigSig2))
+print '-------------------------------'
 
-print '-------------------------------'
-print 'total yield = {0:0.0f} +/- {1:0.0f}'.format(sigYield, sqrt(sigSig2))
-print '-------------------------------'
+print 'total Signal yield by fraction: %.0f +/- %.0f' % (totalYield*sigInt.getVal()/sigFullInt.getVal(), sqrt(sigSig2))
 sigSig2 -= sigYield
 ## print 'sig box all:',totalYield*sigInt.getVal()/sigFullInt.getVal(),\
 ##       'err:',sqrt(sig2)*sigInt.getVal()/sigFullInt.getVal()
 print 'fractional error on background yield not from Poisson stats = %0.3f' % (sqrt(sigSig2)/sigYield)
+print 'fractional error on background yield not from using W+jets only = %0.3f' % (WpJNonPoissonError/sigYield)
 
+print '\nCorrelation matrix\n%-10s' % (' '),
+for v1 in sigErrs:
+    print '%10s' % v1,
+print
+for v1 in sigErrs:
+    print '%-10s' % (v1),
+    for v2 in sigErrs:
+        print '% 10.2g' % (fr.correlation(v1,v2)),
+    print
 
 fr.Print()
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-#assert(False)
+assert(False)
 
 cdebug = TCanvas('cdebug', 'debug')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst)
+pars4.model = 1
+pars4.initParamsFile = 'lastSigYield.txt'
 fitter4 = RooWjjMjjFitter(pars4)
 
-fitter4.makeFitter(True)
+fitter4.makeFitter((opts.ParamWpJ>=0))
 fitter4.loadData()
 fitter4.make4BodyPdf(theFitter)
 fitter4.loadParameters('lastSigYield.txt')
@@ -283,14 +374,16 @@ cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
 
 fitUtils = RooWjjFitterUtils(pars4)
 HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
+VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
+                                                            modeString))
 
-tau = fitter4.getWorkSpace().var('tau')
-tauNom = tau.getVal()
+c = fitter4.getWorkSpace().var('c')
+cNom = c.getVal()
 
-tau.setVal(tauNom + tau.getError())
+c.setVal(cNom + c.getError())
 mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 
-tau.setVal(tauNom - tau.getError())
+c.setVal(cNom - c.getError())
 mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 
 if pars4.includeMuons:
@@ -298,18 +391,31 @@ if pars4.includeMuons:
                                  'mu_HWWMH%i_CMSSW428.root' % (opts.mH),
                                  'HWW%i_mu' % (opts.mH), False, 1, False)
     HiggsHist.Add(thehist)
+    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+                                 'mu_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
+                                 'VBFHWW%i_mu' % (opts.mH), False, 1, False)
+    VBFHiggsHist.Add(thehist)
 
 if pars4.includeElectrons:
     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
                                  'el_HWWMH%i_CMSSW428.root' % (opts.mH),
                                  'HWW%i_el' % (opts.mH), True, 1, False)
     HiggsHist.Add(thehist)
+    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+                                 'el_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
+                                 'VBFHWW%i_el' % (opts.mH), True, 1, False)
+    VBFHiggsHist.Add(thehist)
 
-Ngen = config.NgenHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
+
+Ngen = NgenHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
 HiggsHist.Scale(1./float(Ngen), 'width')
 
-print "Ngen Higgs:",Ngen
+NgenVBF = NgenVBFHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
+VBFHiggsHist.Scale(1./float(NgenVBF),'width')
+
+print "Ngen Higgs:",Ngen,"VBF Higgs:",NgenVBF
 HiggsHist.Print()
+VBFHiggsHist.Print()
 
 
 print 'shape file created'
@@ -334,4 +440,5 @@ h_total_up.Write();
 h_total_down.Write();
 
 HiggsHist.Write()
+VBFHiggsHist.Write()
 ShapeFile.Close()

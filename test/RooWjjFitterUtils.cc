@@ -23,6 +23,8 @@
 #include "RooPlot.h"
 #include "RooBinning.h"
 
+static const unsigned int maxJets = 6;
+
 RooWjjFitterUtils::RooWjjFitterUtils()
 {
   initialize();
@@ -160,7 +162,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   bool localDoWeights = params_.doEffCorrections && (!noCuts) && 
     (cutOverride.Length() < 1);
 
-  static unsigned int const maxJets = 6;
+  //static unsigned int const maxJets = 6;
   activateBranches(*theTree, isElectron);
   Float_t         JetPFCor_Pt[maxJets];
   Float_t         JetPFCor_Eta[maxJets];
@@ -187,7 +189,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
     theTree->SetBranchAddress("event_nPV", &event_nPV);
     theTree->SetBranchAddress("event_met_pfmet", &event_met_pfmet);
-    theTree->SetBranchAddress("evtNJ", &evtNJ);
+    theTree->SetBranchAddress("ggdevt", &evtNJ);
     if(isElectron) {
       theTree->SetBranchAddress("W_electron_pt", &lepton_pt);
       theTree->SetBranchAddress("W_electron_eta", &lepton_eta);
@@ -198,44 +200,20 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     theTree->SetBranchAddress("W_mt", &W_mt);
   }
 
-  static TRandom3 rnd(987654321);
-  double epochSelector = rnd.Rndm(), sumLumi = 0.;
-  int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
-    params_.lumiPerEpochMuon.size();
-  int epoch = -1;
+//   static TRandom3 rnd(987654321);
+//   double epochSelector = rnd.Rndm(), sumLumi = 0.;
+//   int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
+//     params_.lumiPerEpochMuon.size();
+//   int epoch = -1;
   double evtWgt = 1.0/*, hltEffJets = 1.0, hltEffMHT = 1.0*/;
-  std::vector<double> eff30(maxJets), eff25n30(maxJets);
+//   std::vector<double> eff30(maxJets), eff25n30(maxJets);
   for (int event = 0; event < list->GetN(); ++event) {
     theTree->GetEntry(list->GetEntry(event));
     evtWgt = 1.0;
     if (localDoWeights) {
-      epochSelector = rnd.Rndm();
-      sumLumi = 0.;
-      epoch = -1;
-      while ( (epochSelector > sumLumi/params_.intLumi) && 
-	      (++epoch < lumiSize) ) {
-	if (isElectron)
-	  sumLumi += params_.lumiPerEpochElectron[epoch];
-	else
-	  sumLumi += params_.lumiPerEpochMuon[epoch];
-      }
-      if (isElectron) {
-	for (unsigned int i = 0; i < maxJets; ++i) {
-	  eff30[i] = effJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
-						 JetPFCor_Eta[i]);
-	  eff25n30[i] = effJ25NoJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
-							 JetPFCor_Eta[i]);
-	}
-	evtWgt *= dijetEff(params_.njets, eff30, eff25n30);
-	evtWgt *= effMHT[epoch]->GetEfficiency(event_met_pfmet, 0.);
-	evtWgt *= effEleReco[epoch]->GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEleId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEle[epoch]->GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effEleWMt[epoch]->GetEfficiency(W_mt, lepton_eta);
-      } else {
-	evtWgt *= effMuId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
-	evtWgt *= effMu[epoch]->GetEfficiency(lepton_pt, lepton_eta);
-      }
+      evtWgt = effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
+			 JetPFCor_Eta, evtNJ, event_met_pfmet,
+			 isElectron);
     }
     theHist->Fill(poi.EvalInstance()*(1.+tmpScale), evtWgt);
   }
@@ -339,6 +317,49 @@ void RooWjjFitterUtils::hist2RandomTree(TH1 * theHist,
   }
   WJet.Write();
   treeFile.Close();
+}
+
+double RooWjjFitterUtils::effWeight(float lepton_pt, float lepton_eta, 
+				    float W_mt, float * JetPFCor_Pt, 
+				    float * JetPFCor_Eta, int Njets,
+				    float event_met,
+				    bool isElectron) const {
+
+  static TRandom3 rnd(987654321);
+  static std::vector<double> eff30(maxJets);
+  static std::vector<double> eff25n30(maxJets);
+  double epochSelector = rnd.Rndm(), sumLumi = 0.;
+  int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
+    params_.lumiPerEpochMuon.size();
+  int epoch = -1;
+  double evtWgt = 1.0;
+
+  while ( (epochSelector > sumLumi/params_.intLumi) && 
+	  (++epoch < lumiSize) ) {
+    if (isElectron)
+      sumLumi += params_.lumiPerEpochElectron[epoch];
+    else
+      sumLumi += params_.lumiPerEpochMuon[epoch];
+  }
+  if (isElectron) {
+    for (unsigned int i = 0; i < maxJets; ++i) {
+      eff30[i] = effJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
+					      JetPFCor_Eta[i]);
+      eff25n30[i] = effJ25NoJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
+						      JetPFCor_Eta[i]);
+    }
+    evtWgt *= dijetEff(Njets, eff30, eff25n30);
+    evtWgt *= effMHT[epoch]->GetEfficiency(event_met, 0.);
+    evtWgt *= effEleReco[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    evtWgt *= effEleId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    evtWgt *= effEle[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    evtWgt *= effEleWMt[epoch]->GetEfficiency(W_mt, lepton_eta);
+  } else {
+    evtWgt *= effMuId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    evtWgt *= effMu[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+  }
+
+  return evtWgt;
 }
 
 void RooWjjFitterUtils::updatenjets() {
