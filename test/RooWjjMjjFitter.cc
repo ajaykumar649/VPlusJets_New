@@ -1161,7 +1161,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 			    fitGraph->GetY());
     errGraph->SetFillColor(kBlue+1);
     errGraph->SetLineColor(kBlue+1);
-    errGraph->SetFillStyle(3002);
+    errGraph->SetFillStyle(3353);
     double diff;
     for (int i = 0; i<errs2.GetNrows(); ++i) {
       for (int updown = -1; updown<= 1; updown+=2) {

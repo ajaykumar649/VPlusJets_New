@@ -314,7 +314,7 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-assert(False)
+#assert(False)
 
 cdebug = TCanvas('cdebug', 'debug')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst)
