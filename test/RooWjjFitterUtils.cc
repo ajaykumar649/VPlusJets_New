@@ -478,6 +478,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   }
 
   t.SetBranchStatus("mva*", 1);
+  t.SetBranchStatus("ang*", 1);
   t.SetBranchStatus("W_mt",    1);
   t.SetBranchStatus("W_pt",    1);
   t.SetBranchStatus("W_pzNu1",    1);

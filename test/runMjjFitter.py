@@ -102,25 +102,26 @@ h_total = plots[0].getCurve('h_total')
 theData = plots[0].getHist('theData')
 
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
-sigInt = theFitter.makeFitter().createIntegral(iset, 'signal')
-sigFullInt = theFitter.makeFitter().createIntegral(iset)
-dibosonInt = theFitter.makeDibosonPdf().createIntegral(iset, 'signal')
-dibosonFullInt = theFitter.makeDibosonPdf().createIntegral(iset)
-WpJInt = theFitter.makeWpJPdf().createIntegral(iset, 'signal')
-WpJFullInt = theFitter.makeWpJPdf().createIntegral(iset)
-ttbarInt = theFitter.makettbarPdf().createIntegral(iset, 'signal')
-ttbarFullInt = theFitter.makettbarPdf().createIntegral(iset)
-SingleTopInt = theFitter.makeSingleTopPdf().createIntegral(iset, 'signal')
-SingleTopFullInt = theFitter.makeSingleTopPdf().createIntegral(iset)
-QCDInt = theFitter.makeQCDPdf().createIntegral(iset, 'signal')
-QCDFullInt = theFitter.makeQCDPdf().createIntegral(iset)
-ZpJInt = theFitter.makeZpJPdf().createIntegral(iset, 'signal')
-ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset)
+sigInt = theFitter.makeFitter().createIntegral(iset,iset,'signal')
+sigFullInt = theFitter.makeFitter().createIntegral(iset,iset)
+dibosonInt = theFitter.makeDibosonPdf().createIntegral(iset,iset,'signal')
+dibosonFullInt = theFitter.makeDibosonPdf().createIntegral(iset,iset)
+WpJInt = theFitter.makeWpJPdf().createIntegral(iset,iset,'signal')
+WpJFullInt = theFitter.makeWpJPdf().createIntegral(iset,iset)
+ttbarInt = theFitter.makettbarPdf().createIntegral(iset,iset,'signal')
+ttbarFullInt = theFitter.makettbarPdf().createIntegral(iset,iset)
+SingleTopInt = theFitter.makeSingleTopPdf().createIntegral(iset,iset,'signal')
+SingleTopFullInt = theFitter.makeSingleTopPdf().createIntegral(iset,iset)
+QCDInt = theFitter.makeQCDPdf().createIntegral(iset,iset,'signal')
+QCDFullInt = theFitter.makeQCDPdf().createIntegral(iset,iset)
+ZpJInt = theFitter.makeZpJPdf().createIntegral(iset,iset,'signal')
+ZpJFullInt = theFitter.makeZpJPdf().createIntegral(iset,iset)
 ## print "*** yield vars ***"
 ## yields.Print("v")
 
 usig2 = 0.
 totalYield = 0.
+sigYield = 0.
 
 sigYieldsFile = open('lastMjjSigYield.txt', 'w')
 print
@@ -145,20 +146,36 @@ for i in range(0, yields.getSize()):
         elif (theName == 'nZjets'):
             theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
-        yieldString = '%s = %0.0f +/- %0.0f' % (theName,
-                                                yields.at(i).getVal()*theIntegral,
-                                                yields.at(i).getError()*theIntegral)
+        y = yields.at(i).getVal()*theIntegral
+        if (theName == 'nWjets') and \
+               (yields.at(i).getError()**2 > yields.at(i).getVal()):
+            yerr = sqrt(yields.at(i).getError()**2 - yields.at(i).getVal())
+            yerr *= theIntegral
+            yerr = sqrt(yerr**2 + y)
+            #print '*',
+        else:
+            yerr = yields.at(i).getError()*theIntegral
+        yieldString = '%s = %0.0f +/- %0.0f' % (theName, y, yerr)
         print yieldString
+        sigYield += y
     else:
         yieldString = '%s = %0.3f +/- %0.3f' % (theName,
                                                 yields.at(i).getVal(),
                                                 yields.at(i).getError())
     sigYieldsFile.write(yieldString + '\n')
-print '-------------------------------'
-print 'total yield: %0.0f +/- %0.0f' % (totalYield*sigInt.getVal()/sigFullInt.getVal(), sigInt.getVal()*sqrt(sig2))
-print '-------------------------------'
 
 sigYieldsFile.close()
+
+if (sig2 - totalYield) > 0:
+    sigSig2 = (sqrt(sig2-totalYield)/totalYield*sigYield)**2
+else:
+    sigSig2 = 0.
+sigSig2 += sigYield
+print '-------------------------------'
+print 'total yield = %0.0f +/- %0.0f' % (sigYield, sqrt(sigSig2))
+print '-------------------------------'
+
+print 'data in signal box:',theFitter.getWorkSpace().data('data').reduce(RooFit.CutRange('signal')).numEntries()
 
 if opts.qplot:
     import makeQPlot

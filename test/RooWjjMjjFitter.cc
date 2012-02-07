@@ -9,6 +9,16 @@
 #include "TLegend.h"
 #include "TGraphAsymmErrors.h"
 #include "TGraph.h"
+#include "TGraphErrors.h"
+#include "TVirtualFitter.h"
+#include "Math/MinimizerOptions.h"
+#include "TFitResult.h"
+#include "TFitResultPtr.h"
+#include "TMatrixT.h"
+#include "TVectorT.h"
+#include "TMatrixDSymEigen.h"
+
+#include "TPad.h"
 
 #ifndef __CINT__
 #include "RooGlobalFunc.h"
@@ -34,15 +44,6 @@
 #include "RooGenericPdf.h"
 #include "RooCBShape.h"
 #include "RooExponential.h"
-#include "TVirtualFitter.h"
-#include "Math/MinimizerOptions.h"
-#include "TFitResult.h"
-#include "TFitResultPtr.h"
-#include "TMatrixT.h"
-#include "TVectorT.h"
-#include "TMatrixDSymEigen.h"
-
-#include "TPad.h"
 
 
 // #include "ComputeChi2.C"
@@ -215,7 +216,8 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
   RooAbsPdf * ZpJPdf =  makeZpJPdf();
 
   //// Initialization only, the actual values are set by resetYields()
-  RooRealVar nDiboson("nDiboson","nDiboson",  initDiboson_, 0.0, 10000.);
+  RooRealVar nDiboson("nDiboson","nDiboson",  initDiboson_);
+  nDiboson.setConstant(false);
   nDiboson.setError(initDiboson_*0.10);
   RooRealVar nTTbar("nTTbar","", ttbarNorm_);
   nTTbar.setError(ttbarNorm_*0.063);
@@ -413,8 +415,8 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 //   double WZweight = 17./4265243.;
   //NLO Predictions
   int const NgenWW = 4225916, NgenWZ = 4265243;
-  double WWweight = 43./4225916.;
-  double WZweight = 18.2/4265243.;
+  double WWweight = 43./NgenWW;
+  double WZweight = 18.2/NgenWZ;
 
   int dibosonScale = 1;
   TH1 * th1diboson = utils_.newEmptyHist("th1diboson", dibosonScale);
@@ -470,8 +472,7 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
 
   th1diboson->Scale(1., "width");
   RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
-					   ws_, (histOrder==1)? histOrder+1 : 
-					   histOrder);
+					   ws_, histOrder);
   delete th1diboson;
   return dibosonPdf;
 }
@@ -565,7 +566,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   RooArgList pdfs;
   RooArgList coefs;
 
-  RooRealVar nWjets("nWjets","nWjets", initWjets_, 0.0, 100000.);
+  RooRealVar nWjets("nWjets","nWjets", initWjets_);
+  nWjets.setConstant(false);
   nWjets.setError(TMath::Sqrt(initWjets_));
 
   RooAbsPdf * WpJPdfSU = utils_.Hist2Pdf(th1WpJSU, "WpJPdfSU", ws_, histOrder);
@@ -1195,6 +1197,13 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
       errGraph->SetPointEYhigh(xi, sqrt(errGraph->GetErrorYhigh(xi)));
       errGraph->SetPointEYlow(xi, sqrt(errGraph->GetErrorYlow(xi)));
     }
+//     TGraphErrors * confGraph = 
+//       new TGraphErrors(fitGraph->GetN(), fitGraph->GetX(), fitGraph->GetY());
+//     confGraph->SetLineColor(kCyan+2);
+//     confGraph->SetFillColor(kCyan+2);
+//     confGraph->SetFillStyle(3335);  
+//     TVirtualFitter::GetFitter()->GetConfidenceIntervals(confGraph, 0.68);
+//     confGraph->Draw("3");
     errGraph->Draw("3");
     fitGraph->Draw("l");
     th1wjets->Draw("same");

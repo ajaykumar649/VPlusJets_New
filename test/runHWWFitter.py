@@ -2,7 +2,7 @@
 
 #######################################################
 ## ---> Run using the command line like: 
-##       python runHWWFitter.py -m HWWMuonsConfig -j 2 -H 300
+##       python runHWWFitter.py -m HWWMuonsConfig -j 2 -H 300 -W <N>
 ######################################################
 
 def NgenHiggs(mH, includeElectron, includeMuon):
@@ -55,6 +55,18 @@ def NgenVBFHiggs(mH, includeElectron, includeMuon):
 
 from optparse import OptionParser
 
+wpjhelp = '''Parameterization for W+jets fit ---
+-1 : histograms with floating fMU and fSU
+ 0 : erf * (power law with two params)
+ 1 : erf * (power law ith one param) * exponential
+ 2 : (fermi turn on) * (power law with two params)
+ 3 : (fermi turn on) * exponential
+ 4 : exponential * (power law with one param)
+ 5 : exponential * (power law with two params)
+ 6 : erf * (power law with one param)
+everything else : same as zero
+'''
+
 parser = OptionParser()
 parser.add_option('-b', action='store_true', dest='noX', default=False,
                   help='no X11 windows')
@@ -73,7 +85,7 @@ parser.add_option('-H', '--mH', dest='mH', default=400, type='int',
 parser.add_option('-s', '--syst', dest='syst', type='int', default=0,
                    help='alpha systematic 0: none, 1: down, 2: up')
 parser.add_option('-W', '--WpJ', dest='ParamWpJ', type='int',
-                  default=-1, help='parameterization to use for the W+jets Mjj shape, -1 means use histograms.')
+                  default=-1, help=wpjhelp)
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
