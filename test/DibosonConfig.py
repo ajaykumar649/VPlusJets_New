@@ -23,7 +23,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
     fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
-    fitterPars.nbins = 30
+    fitterPars.nbins = 32
     fitterPars.intLumi = 4700.
     
 ##     fitterPars.binEdges.push_back(fitterPars.minMass)
@@ -128,6 +128,8 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     
     fitterPars.cuts = '(fit_status==0) ' + \
+                      '&& (fit_chi2 < 20) ' + \
+                      '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<0.8) ' + \
                       '&& %s ' % (jetCut)
 
     return fitterPars

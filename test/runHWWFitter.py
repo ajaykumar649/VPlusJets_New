@@ -264,7 +264,7 @@ for i in range(0, yields.getSize()):
         elif (theName == 'nWjets'):
             theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
             WpJNonPoissonError = sqrt(yields.at(i).getError()**2 - \
-                                      yields.at(i).getVal())*theIntegral
+                                      yields.at(i).getVal())
         elif (theName == 'nTTbar'):
             theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
         elif (theName == 'nSingleTop'):
@@ -275,7 +275,7 @@ for i in range(0, yields.getSize()):
             theIntegral = ZpJInt.getVal()/ZpJFullInt.getVal()
 
         y = yields.at(i).getVal()*theIntegral
-        if (theName == 'nWjets') and \
+        if (yields.at(i).getVal() > 0) and \
                (yields.at(i).getError()**2 > yields.at(i).getVal()):
             yerr = sqrt(yields.at(i).getError()**2 - yields.at(i).getVal())
             yerr *= theIntegral
@@ -309,7 +309,7 @@ sigSig2 -= sigYield
 ## print 'sig box all:',totalYield*sigInt.getVal()/sigFullInt.getVal(),\
 ##       'err:',sqrt(sig2)*sigInt.getVal()/sigFullInt.getVal()
 print 'fractional error on background yield not from Poisson stats = %0.3f' % (sqrt(sigSig2)/sigYield)
-print 'fractional error on background yield not from using W+jets only = %0.3f' % (WpJNonPoissonError/sigYield)
+print 'fractional error on background yield not from using W+jets only = %0.3f' % (WpJNonPoissonError/totalYield)
 
 print '\nCorrelation matrix\n%-10s' % (' '),
 for v1 in sigErrs:
