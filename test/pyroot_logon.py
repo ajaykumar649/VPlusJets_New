@@ -7,11 +7,24 @@ def cmsPrelim(canvas, lumi):
     l.SetNDC();
     l.SetTextFont(42);
     l.SetTextAlign(31);
-    l.SetTextSize(0.04);
+    l.SetTextSize(0.045);
 
     canvas.cd()
     l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
-                'CMS Preliminary 2011, #font[52]{L} = %0.1f fb^{-1}, #sqrt{s} = 7 TeV' % (lumi)
+                'CMS Preliminary, #font[52]{L} = %0.1f fb^{-1}, #sqrt{s} = 7 TeV' % (lumi)
+                )
+    canvas.Update()
+
+def cmsLabel(canvas, lumi):
+    l = TLatex();
+    l.SetNDC();
+    l.SetTextFont(42);
+    l.SetTextAlign(31);
+    l.SetTextSize(0.045);
+
+    canvas.cd()
+    l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
+                'CMS, #font[52]{L} = %0.1f fb^{-1}, #sqrt{s} = 7 TeV' % (lumi)
                 )
     canvas.Update()
 
@@ -35,22 +48,23 @@ gStyle.SetFuncStyle(1)
 gStyle.SetFuncWidth(1)
 
 ##  Margins:
-gStyle.SetPadTopMargin(0.05)
-gStyle.SetPadBottomMargin(0.13)
-gStyle.SetPadLeftMargin(0.175) ## was 0.16
-gStyle.SetPadRightMargin(0.05)## was 0.02
+gStyle.SetPadTopMargin(0.06)
+gStyle.SetPadBottomMargin(0.15)
+gStyle.SetPadLeftMargin(0.18) ## was 0.16
+gStyle.SetPadRightMargin(0.06)## was 0.02
 
 gStyle.SetTitleColor(1, "XYZ")
 gStyle.SetTitleFont(42, "XYZ")
-gStyle.SetTitleSize(0.06, "XYZ")
+gStyle.SetTitleSize(0.07, "XYZ")
 gStyle.SetTitleXOffset(0.9)
-gStyle.SetTitleYOffset(1.5) ## was 1.25
+gStyle.SetTitleYOffset(1.3) ## was 1.25
 
 ##  For the axis labels:
 gStyle.SetLabelColor(1, "XYZ")
 gStyle.SetLabelFont(42, "XYZ")
 gStyle.SetLabelOffset(0.007, "XYZ")
-gStyle.SetLabelSize(0.05, "XYZ")
+gStyle.SetLabelSize(0.06, "XYZ")
+gStyle.SetNdivisions(505, "XYZ")
 
 ## if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
 ##     print "adding RooFit ...",

@@ -81,6 +81,8 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         sf.drawAfter('ErrBand', 'theData')
         #sf.Print("v")
         sf.findObject('theLegend').AddEntry(ErrBand, 'Uncertainty', 'f')
+        sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.03)
+        sf.findObject('theLegend').SetY1(sf.findObject('theLegend').GetY1NDC())
 
     if NP:
         NPPdf = theFitter.makeNPPdf();
@@ -112,6 +114,8 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         sf.drawBefore('h_dibosonPdf', 'h_NP')
         #sf.Print("v")
         sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Signal", "L")
+##         sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.03)
+##         sf.findObject('theLegend').SetY1(sf.findObject('theLegend').GetY1NDC())
 
     l = TLatex()
     l.SetNDC()
@@ -124,7 +128,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         l.DrawLatex(0.22, 0.88,
                     '#chi^{2}/dof = %0.3f/%d = %0.3f' % (chi2, ndf, chi2/ndf)
                     )
-    pyroot_logon.cmsPrelim(cstacked, pars.intLumi/1000)
+    pyroot_logon.cmsLabel(cstacked, pars.intLumi/1000)
     cstacked.Print('Wjj_%s_%s_%ijets_Stacked.pdf' % (Prefix, modeString,
                                                      pars.njets))
     cstacked.Print('Wjj_%s_%s_%ijets_Stacked.png' % (Prefix, modeString,
@@ -139,7 +143,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
                                                     pars.njets))
     c3 = TCanvas("c3", "subtracted")
     sf.Draw()
-    pyroot_logon.cmsPrelim(c3, pars.intLumi/1000)
+    pyroot_logon.cmsLabel(c3, pars.intLumi/1000)
     c3.Print('Wjj_%s_%s_%ijets_Subtracted.pdf' % (Prefix, modeString,
                                                   pars.njets))
     c3.Print('Wjj_%s_%s_%ijets_Subtracted.png' % (Prefix, modeString,
