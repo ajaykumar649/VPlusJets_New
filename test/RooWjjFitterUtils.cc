@@ -445,7 +445,7 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
       ++entryCnt;
     }
   }
-  theLeg->SetY1NDC(0.9 - 0.03*entryCnt - 0.15);
+  theLeg->SetY1NDC(0.9 - 0.057*entryCnt - 0.013);
   theLeg->SetY1(theLeg->GetY1NDC());
   return theLeg;
 }

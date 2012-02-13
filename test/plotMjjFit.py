@@ -21,6 +21,9 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     sf.SetName("%s_Subtracted" % (Prefix));
     pf = theFitter.residualPlot(mf, "h_total", "", True)
     pf.SetName("%s_Pull" % (Prefix))
+    pf2 = pf.emptyClone("%s_Pull_Corrected" % (Prefix))
+    pf2.SetMinimum(-5.)
+    pf2.SetMaximum(5.)
     lf = theFitter.stackedPlot(True)
     lf.SetName("%s_Stacked_Log" % (Prefix));
 
@@ -81,8 +84,12 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         sf.drawAfter('ErrBand', 'theData')
         #sf.Print("v")
         sf.findObject('theLegend').AddEntry(ErrBand, 'Uncertainty', 'f')
-        sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.03)
+        sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.057)
         sf.findObject('theLegend').SetY1(sf.findObject('theLegend').GetY1NDC())
+
+        pf2.addObject(sub2pull(sf.getHist('theData'),
+                               sf.findObject('ErrBand')),
+                      'p0')
 
     if NP:
         NPPdf = theFitter.makeNPPdf();
@@ -114,19 +121,19 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         sf.drawBefore('h_dibosonPdf', 'h_NP')
         #sf.Print("v")
         sf.findObject('theLegend').AddEntry(h_NP, "CDF-like Signal", "L")
-##         sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.03)
-##         sf.findObject('theLegend').SetY1(sf.findObject('theLegend').GetY1NDC())
+        sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.057)
+        sf.findObject('theLegend').SetY1(sf.findObject('theLegend').GetY1NDC())
 
     l = TLatex()
     l.SetNDC()
-    l.SetTextSize(0.035)
+    l.SetTextSize(0.045)
     l.SetTextFont(42)
 
     cstacked = TCanvas("cstacked", "stacked")
     mf.Draw()
     if (chi2 > 0):
-        l.DrawLatex(0.22, 0.88,
-                    '#chi^{2}/dof = %0.3f/%d = %0.3f' % (chi2, ndf, chi2/ndf)
+        l.DrawLatex(0.55, 0.49,
+                    '#chi^{2}/dof = %0.3f/%d' % (chi2, ndf)
                     )
     pyroot_logon.cmsLabel(cstacked, pars.intLumi/1000)
     cstacked.Print('Wjj_%s_%s_%ijets_Stacked.pdf' % (Prefix, modeString,
@@ -154,7 +161,45 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     c4.Print('Wjj_%s_%s_%ijets_Pull.pdf' % (Prefix, modeString, pars.njets))
     c4.Print('Wjj_%s_%s_%ijets_Pull.png' % (Prefix, modeString, pars.njets))
 
-    return ([mf,sf,pf,lf],[cstacked,c2,c3,c4])
+    c5 = TCanvas("c5", "corrected pull")
+    pf2.Draw()
+    pyroot_logon.cmsPrelim(c5, pars.intLumi/1000)
+    c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.pdf' % (Prefix, modeString,
+                                                      pars.njets))
+    c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.png' % (Prefix, modeString,
+                                                      pars.njets))
+
+    return ([mf,sf,pf2,lf],[cstacked,c2,c3,c5])
+
+def sub2pull(dataHist, pdfwErrs):
+    from ROOT import TGraphErrors
+    from math import sqrt
+
+    ThePull = TGraphErrors(dataHist.GetN())
+
+    pdfi = 0
+    for i in range(0, ThePull.GetN()):
+        while (dataHist.GetX()[i] > pdfwErrs.GetX()[pdfi]):
+            pdfi += 1
+        #print 'pull point:',i,'pdfi:',pdfi
+        diff = dataHist.GetY()[i] - pdfwErrs.GetY()[pdfi]
+        if (diff < 0):
+            err2 = pdfwErrs.GetErrorY(pdfi)**2 + dataHist.GetErrorYhigh(i)**2
+        else:
+            err2 = pdfwErrs.GetErrorY(pdfi)**2 + dataHist.GetErrorYlow(i)**2
+        if (err2>0):
+            pull = diff/(sqrt(err2)*1.2)
+        else:
+            pull = 0
+
+        ThePull.SetPoint(i, dataHist.GetX()[i], pull)
+        ThePull.SetPointError(i, 0., 1.)
+
+    ThePull.SetName(dataHist.GetName() + "_pull")
+    ThePull.SetTitle("data")
+
+    return ThePull
+        
 
 if __name__ == '__main__':
     from optparse import OptionParser

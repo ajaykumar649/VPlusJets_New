@@ -1,7 +1,7 @@
 
 def addPlots(plots):
     from ROOT import RooCurve, RooHist, TLine, TLegend, RooPlot, RooAbsData, \
-         SetOwnership
+         SetOwnership, TGraphErrors
     #print plots
     outplot = plots[0].emptyClone(plots[0].GetName())
     newMax = 0.
@@ -33,6 +33,17 @@ def addPlots(plots):
                                 plots[0].getDrawOptions(itemName).Data())
             SetOwnership(fullHist, False)
 
+        if (type(firstItem) == TGraphErrors):
+            fullErrors = firstItem
+            for plot in range(1, len(plots)):
+                nextErrors = plots[plot].findObject(itemName)
+                fullErrors = addErrors(fullErrors, nextErrors)
+            fullErrors.SetName(itemName)
+            fullErrors.SetTitle(firstItem.GetTitle())
+            outplot.addObject(fullErrors,
+                              plots[0].getDrawOptions(itemName).Data())
+            SetOwnership(fullErrors, False)
+
         if (type(firstItem) == TLine):
             newLine = TLine(firstItem)
             newLine.SetY2(outplot.GetMaximum())
@@ -43,7 +54,7 @@ def addPlots(plots):
         if (type(firstItem) == TLegend):
             newLeg = TLegend(firstItem)
             newLeg.SetY1NDC(0.92 - \
-                            0.05*newLeg.GetListOfPrimitives().GetSize() - \
+                            0.04*newLeg.GetListOfPrimitives().GetSize() - \
                             0.02)
             newLeg.SetY1(newLeg.GetY1NDC())
             SetOwnership(newLeg, False)
@@ -76,6 +87,21 @@ def addHists(hist1, hist2):
                               )
     return newHist
 
+def addErrors(err1, err2):
+    from ROOT import TGraphErrors
+    from math import sqrt
+
+    newErrs = TGraphErrors(err1)
+
+    for i in range(0, newErrs.GetN()):
+        newErrs.SetPoint(i, newErrs.GetX()[i],
+                         err1.GetY()[i]+err2.GetY()[i])
+        newErrs.SetPointError(i, err1.GetErrorX(i),
+                              sqrt(err1.GetErrorY(i)**2 + \
+                                   err2.GetErrorY(i)**2)
+                              )
+    return newErrs
+        
     
 if __name__ == "__main__":
     from optparse import OptionParser
@@ -91,6 +117,7 @@ if __name__ == "__main__":
     import pyroot_logon
 
     from ROOT import TFile, TCanvas, gROOT, RooPlot, gPad
+    import plotMjjFit
 
     plots = {'Mjj_Stacked': [], 'Mjj_Subtracted': []}
     #print plots
@@ -111,15 +138,33 @@ if __name__ == "__main__":
     outFile = TFile(opts.output, 'recreate')
     for plot in plots:
         outPlot = addPlots(plots[plot])
+
         can = TCanvas()
         cans.append(can)
         cplots.append(outPlot)
         outPlot.Draw()
-        pyroot_logon.cmsPrelim(can, 4700)
+        pyroot_logon.cmsLabel(can, 4.7)
         gPad.Update()
         can.Print('%s_combined.png' % (plot))
         can.Print('%s_combined.pdf' % (plot))
         # gPad.WaitPrimitive()
 
         outPlot.Write()
-        
+
+        if (plot == 'Mjj_Subtracted'):
+            corrPull = plotMjjFit.sub2pull(outPlot.getHist('theData'),
+                                           outPlot.findObject('ErrBand'))
+            corrPull.SetMinimum(-5.)
+            corrPull.SetMaximum(5.)
+            corrPull.GetXaxis().SetTitle('m_{jj} (GeV)')
+            corrPull.GetYaxis().SetTitle('pull (#sigma)')
+            corrPull.GetXaxis().Set(corrPull.GetN(), 30., 400.)
+            canpf = TCanvas()
+            canpf.SetGridy()
+            cans.append(canpf)
+            corrPull.Draw('ap0')
+            pyroot_logon.cmsLabel(can, 4.7)
+            gPad.Update()
+            canpf.Print('%s_combined.png' % ('Mjj_Pull'))
+            canpf.Print('%s_combined.pdf' % ('Mjj_Pull'))
+            corrPull.Write()
