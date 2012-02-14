@@ -1026,7 +1026,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   }
 
   double n2bWpJ = ws_.var("nWjets")->getVal();
-  double const KinSwitch = 150.; 
+  double const KinSwitch = 150.;                      // 180 for el2jet 190!!
   std::cout << "n2bWpJ: " << n2bWpJ << '\n';
   th1wjets->Print();
   th1wjets->Scale(n2bWpJ/th1wjets->Integral());
@@ -1058,7 +1058,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
       fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
     if (params_.minMass < KinSwitch) {
-      fitf->SetParameters(6.0, -0.015, 170, 20);
+      fitf->SetParameters(6.0, -0.015, 160, 10);
+      //fitf->FixParameter(3,10);
     } else {
       fitf->SetParameters(6.0, -0.015);
     }
