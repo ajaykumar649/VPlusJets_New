@@ -129,6 +129,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     fitterPars.cuts = '(fit_status==0) ' + \
                       '&& %s ' % (jetCut) + \
+                      '&& (W_mt > 50) ' + \
                       '&& (fit_mlvjj > %0.1f) && (fit_mlvjj < %0.1f) ' % \
                       (minMlvjj, maxMlvjj)
 

@@ -1326,11 +1326,11 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     switch (comp) {
     case 1: 
       removals = components.selectByName("WpJ*");
-      linec = kBlack; 
+      linec = kGreen; 
       tmpCurve->SetTitle("W+jets");
       break;
     case 2: 
-      linec = kGreen;
+      linec = kBlack;
       removals = components.selectByName("ttPdf*,stPdf*");
       tmpCurve->SetTitle("top");
       break;
