@@ -348,7 +348,9 @@ void ListSample()
 // ====================================================================================
 // Self Function
 // ====================================================================================
-void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50, float sblL = 55, float sblH = 65, float sbhL =  95, float sbhH = 115, int tuneAlpha = 1) {  setTDRStyle();
+void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int tuneAlpha = 0,
+		       int a_nbin = 70, float a_led= 100, float a_hed=800,
+		       float sblL = 55, float sblH = 65,  float sbhL =95,  float sbhH = 115) {  setTDRStyle();
   // Save output to file
   char tpname[100];
 
@@ -637,93 +639,94 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50, float 
     // Setup for the alpha method, if need multi-alpha, this script only can do one by one.
     const int a_type =  0; const int a_npt  = 101; // sample and alpha scan step [0,1]
     const float sigL = 65, sigH =  95; // sig  range
-    int a_nbin = 70; float a_led= 100; float a_hed=800; // tune all
+    // tune all
     //sblL = 45, sblH = 65, sbhL =  95, sbhH = 100; //default of sideband
     char  isrva[100] = "";
 
     // Specify the range and nbin for alpha, now it's point dependent
-    if ( (p>=0  && p<=3 ) || 
-	 (p>=12 && p<=15) ||
-	 (p>=24 && p<=27) ||
-	 (p>=36 && p<=39)   ) { a_nbin = 8; a_led= 170; a_hed=250;}
-    if ( (p>=4  && p<=4 ) || 
-	 (p>=16 && p<=16) ||
-	 (p>=28 && p<=28) ||
-	 (p>=40 && p<=40)   ) { a_nbin =15; a_led= 200; a_hed=500;}
-    if ( (p>=5  && p<=5)  || 
-	 (p>=17 && p<=17) ||
-	 (p>=29 && p<=29) ||
-	 (p>=41 && p<=41)   ) { a_nbin =13; a_led= 240; a_hed=500;}
-    if ( (p>=6  && p<=11) || 
-	 (p>=18 && p<=23) ||
-	 (p>=30 && p<=35) ||
-	 (p>=42 && p<=47)   ) { a_nbin =12; a_led= 300; a_hed=780;}
-
-    if (p==2    || 
-	p==2+12 ||
-	p==2+24 ||
-	p==2+36 ||  
-	p==3    || 
-	p==3+12 ||
-	p==3+24 ||
-	p==3+36   )  { a_nbin = 7; a_led= 180; a_hed=250;}
-
-    // Muon 2j 
-    if (tuneAlpha==0&&p==0     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==1     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==2     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==3     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==4     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==5     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==6     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==7     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==8     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==9     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==10    ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==11    ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-
-    // Muon 3j 
-    if (tuneAlpha==0&&p==0 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==1 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==2 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==3 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==4 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==5 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==6 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==7 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==8 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==9 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==10+12 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==11+12 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-
-    // Electron 2j
-    if (tuneAlpha==0&&p==0 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==1 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==2 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==3 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==4 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==5 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==6 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==7 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==8 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==9 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==10+24 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==11+24 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-
-    // Electron 3j
-    if (tuneAlpha==0&&p==0 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==1 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==2 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==3 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==4 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==5 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==6 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==7 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==8 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==9 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==10+36 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    if (tuneAlpha==0&&p==11+36 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-
+    if (tuneAlpha==0) {
+      if ( (p>=0  && p<=3 ) || 
+	   (p>=12 && p<=15) ||
+	   (p>=24 && p<=27) ||
+	   (p>=36 && p<=39)   ) { a_nbin = 8; a_led= 170; a_hed=250;}
+      if ( (p>=4  && p<=4 ) || 
+	   (p>=16 && p<=16) ||
+	   (p>=28 && p<=28) ||
+	   (p>=40 && p<=40)   ) { a_nbin =15; a_led= 200; a_hed=500;}
+      if ( (p>=5  && p<=5)  || 
+	   (p>=17 && p<=17) ||
+	   (p>=29 && p<=29) ||
+	   (p>=41 && p<=41)   ) { a_nbin =13; a_led= 240; a_hed=500;}
+      if ( (p>=6  && p<=11) || 
+	   (p>=18 && p<=23) ||
+	   (p>=30 && p<=35) ||
+	   (p>=42 && p<=47)   ) { a_nbin =12; a_led= 300; a_hed=780;}
+      
+      if (p==2    || 
+	  p==2+12 ||
+	  p==2+24 ||
+	  p==2+36 ||  
+	  p==3    || 
+	  p==3+12 ||
+	  p==3+24 ||
+	  p==3+36   )  { a_nbin = 7; a_led= 180; a_hed=250;}
+      
+      // Muon 2j 
+      if (p==0     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==1     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==2     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==3     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==4     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==5     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==6     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==7     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==8     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==9     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==10    ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==11    ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      
+      // Muon 3j 
+      if (p==0 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==1 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==2 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==3 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==4 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==5 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==6 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==7 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==8 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==9 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==10+12 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==11+12 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      
+      // Electron 2j
+      if (p==0 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==1 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==2 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==3 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==4 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==5 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==6 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==7 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==8 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==9 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==10+24 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==11+24 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      
+      // Electron 3j
+      if (p==0 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==1 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==2 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==3 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==4 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==5 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==6 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==7 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==8 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==9 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==10+36 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+      if (p==11+36 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
+    }
     TH1F * a_hll[nbgc]; TH1F * a_hlow = new TH1F("a_hlow", "", a_nbin, a_led, a_hed); a_hlow->Sumw2();
     TH1F * a_hgg[nbgc]; TH1F * a_hsgg = new TH1F("a_hsgg", "", a_nbin, a_led, a_hed); a_hsgg->Sumw2();
     TH1F * a_hhh[nbgc]; TH1F * a_hhig = new TH1F("a_hhig", "", a_nbin, a_led, a_hed); a_hhig->Sumw2();
@@ -991,7 +994,7 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50, float 
 // ====================================================================================
 // Self Function
 // ====================================================================================
-void MakePlotCCCC(int myflag = -1, int myflagb = 0, float myopmva = 0.5)
+void MakePlot(int myflag = -1, int myflagb = 0, float myopmva = 0.5)
 {
   cout << "Hello Fan : myflag=" << myflag << myflagb << myopmva << endl;
   ////
