@@ -647,7 +647,7 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
     if ( !isQCD ) {
       //keep muons with iso<0.1 && event_met_pfmet>30.
       if ( !(muoniso<0.1)          ) isgengdevt=0;
-      if ( !(event_met_pfmet>30.0) ) isgengdevt=0;
+      if ( !(event_met_pfmet>25.0) ) isgengdevt=0;
     } else {
       //keep muons with iso>0.1
       if ( !(muoniso>0.1)          ) isgengdevt=0;
