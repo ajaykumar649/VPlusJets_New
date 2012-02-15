@@ -42,13 +42,21 @@
 #include "ClassifierOut/TMVAClassification_550_nJ3_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ3_mu_Likelihood.class.C"
 
-#include "ClassifierOut/TMVAClassification_nJ2_mu_BDT.class.C"
-#include "ClassifierOut/TMVAClassification_nJ3_mu_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_noqg_nJ2_mu_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_noqg_nJ3_mu_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_withqg_nJ2_mu_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_withqg_nJ3_mu_BDT.class.C"
+
+#include "EffTableReader.h"
+#include "EffTableLoader.h"
+
+#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 const TString inDataDir  = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/MergFile/";
 const TString inQCDDir   = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample/MergFile/";
-const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeTest/";
-
+const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeDebug/";
+const std::string fDir   = "EffTableDir/";
+ 
 void kanamuon::myana(double myflag, bool isQCD)
 {
   TChain * myChain;
@@ -464,7 +472,7 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 
   Float_t mva2j160mu = 999, mva2j170mu = 999, mva2j180mu = 999, mva2j190mu = 999, mva2j200mu = 999, mva2j250mu = 999, mva2j300mu = 999, mva2j350mu = 999, mva2j400mu = 999, mva2j450mu = 999, mva2j500mu = 999, mva2j550mu = 999, mva2j600mu = 999;
   Float_t mva3j160mu = 999, mva3j170mu = 999, mva3j180mu = 999, mva3j190mu = 999, mva3j200mu = 999, mva3j250mu = 999, mva3j300mu = 999, mva3j350mu = 999, mva3j400mu = 999, mva3j450mu = 999, mva3j500mu = 999, mva3j550mu = 999, mva3j600mu = 999;
-  Float_t mva2jdibosonmu = 999,mva3jdibosonmu = 999;
+  Float_t mva2jdibosonmu = 999,mva3jdibosonmu = 999, mva2jdibnoqgmu = 999,mva3jdibnoqgmu = 999;
   
   TBranch * branch_2j160mu   =  newtree->Branch("mva2j160mu",   &mva2j160mu,    "mva2j160mu/F");
   TBranch * branch_2j170mu   =  newtree->Branch("mva2j170mu",   &mva2j170mu,    "mva2j170mu/F");
@@ -496,7 +504,15 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 
   TBranch * branch_2jdibosonmu   =  newtree->Branch("mva2jdibosonmu",   &mva2jdibosonmu,    "mva2jdibosonmu/F");
   TBranch * branch_3jdibosonmu   =  newtree->Branch("mva3jdibosonmu",   &mva3jdibosonmu,    "mva3jdibosonmu/F");
+  TBranch * branch_2jdibnoqgmu   =  newtree->Branch("mva2jdibnoqgmu",   &mva2jdibnoqgmu,    "mva2jdibnoqgmu/F");
+  TBranch * branch_3jdibnoqgmu   =  newtree->Branch("mva3jdibnoqgmu",   &mva3jdibnoqgmu,    "mva3jdibnoqgmu/F");
 
+  Float_t effwt = 1.0, puwt = 1.0, puwt_up = 1.0, puwt_down = 1.0;
+  TBranch * branch_effwt          =  newtree->Branch("effwt",       &effwt,        "effwt/F");
+  TBranch * branch_puwt           =  newtree->Branch("puwt",        &puwt,         "puwt/F");
+  TBranch * branch_puwt_up        =  newtree->Branch("puwt_up",     &puwt_up,      "puwt_up/F");
+  TBranch * branch_puwt_down      =  newtree->Branch("puwt_down",   &puwt_down,    "puwt_down/F");
+  
   // For MVA analysis
   const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
   std::vector<std::string> inputVarsMVA;
@@ -528,12 +544,37 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
   ReadMVA3j550mu mvaReader3j550mu( inputVarsMVA );  
   ReadMVA3j600mu mvaReader3j600mu( inputVarsMVA );  
 
-  const char* DB_inputVars[] = { "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_hs", "ang_phib", "fit_chi2", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))", "JetPFCor_Pt[1]/Mass2j_PFCor" };
+  const char* DB_inputVars[] = { "W_pt", "event_met_pfmet", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_hs", "ang_phib", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "masslvjj" };
   std::vector<std::string> DB_inputVarsMVA;
   for (int i=0; i<9; ++i)  DB_inputVarsMVA.push_back( DB_inputVars[i] );
   ReadMVA2jdibosonmu mvaReader2jdibosonmu( DB_inputVarsMVA ); 
   ReadMVA3jdibosonmu mvaReader3jdibosonmu( DB_inputVarsMVA ); 
 
+  const char* DBnoqg_inputVars[] = { "W_pt", "event_met_pfmet", "W_muon_charge", "ang_hs", "ang_phib", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "masslvjj" };
+  std::vector<std::string> DBnoqg_inputVarsMVA;
+  for (int i=0; i<7; ++i)  DBnoqg_inputVarsMVA.push_back( DBnoqg_inputVars[i] );
+  ReadMVA2jdibnoqgmu mvaReader2jdibnoqgmu( DBnoqg_inputVarsMVA ); 
+  ReadMVA3jdibnoqgmu mvaReader3jdibnoqgmu( DBnoqg_inputVarsMVA ); 
+
+  // For Efficiency Correction
+  EffTableLoader muIDEff(            fDir + "muonEffsRecoToIso_ScaleFactors.txt");
+  EffTableLoader muHLTEff(           fDir + "muonEffsIsoToHLT_data_LP_LWA.txt");
+
+
+
+
+
+
+  // Pile up Re-weighting
+  edm::Lumi3DReWeighting LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D.root");
+  LumiWeights_.weight3D_init( 1.08 );
+  
+  edm::Lumi3DReWeighting up_LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D_up.root");
+  up_LumiWeights_.weight3D_init( 1.16 );
+  
+  edm::Lumi3DReWeighting dn_LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D_down.root");
+  dn_LumiWeights_.weight3D_init( 1.00 );
+  
   // Parameter Setup
   const unsigned int jetsize         = 6;
   const double Jpt                   = 30;    // Jet pt threshold
@@ -571,30 +612,47 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
     
     mva2j160mu = 999; mva2j170mu = 999; mva2j180mu = 999; mva2j190mu = 999; mva2j200mu = 999; mva2j250mu = 999; mva2j300mu = 999; mva2j350mu = 999; mva2j400mu = 999; mva2j450mu = 999; mva2j500mu = 999; mva2j550mu = 999; mva2j600mu = 999;
     mva3j160mu = 999; mva3j170mu = 999; mva3j180mu = 999; mva3j190mu = 999; mva3j200mu = 999; mva3j250mu = 999; mva3j300mu = 999; mva3j350mu = 999; mva3j400mu = 999; mva3j450mu = 999; mva3j500mu = 999; mva3j550mu = 999; mva3j600mu = 999;
-    mva2jdibosonmu = 999; mva3jdibosonmu = 999;
+    mva2jdibosonmu = 999; mva3jdibosonmu = 999; mva2jdibnoqgmu = 999; mva3jdibnoqgmu = 999;
+
     
+    effwt = 1.0; puwt = 1.0; puwt_up = 1.0; puwt_down = 1.0;
+
+    // Calculate efficiency
+    effwt = 
+      muIDEff.GetEfficiency(W_muon_pt, W_muon_eta) * 
+      muHLTEff.GetEfficiency(W_muon_pt, W_muon_eta);
+
+
+
+
+    // Pile up Re-weighting
+    if (wda>20110999) {
+      puwt      =    LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
+      puwt_up   = up_LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
+      puwt_down = dn_LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
+    } else {effwt=1.0;puwt=1.0;puwt_up=1.0;puwt_down=1.0;} // if data, always put 1 as the weighting factor
+
     // Good Event Selection Requirement for all events
     bool  isgengdevt = 0;
     if (JetPFCor_Pt[0]>Jpt 
 	&& JetPFCor_Pt[1]>Jpt 
-        //&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
-        //&& fabs(JetPFCor_dphiMET[0])>0.4
-        //&& event_met_pfmet>30. //apply separately for QCD and non-QCD
-	&& W_mt>40.
-	//&& dijetpt>40.
+	&& W_mt>50.
 	&& W_muon_pt>25.
 	&& fabs(W_muon_d0bsp)<0.02
 	&& fabs(W_muon_eta)<2.1
         ) isgengdevt = 1;
+
+
     // Event Selection Requirement for Standard vs QCD events
     if ( !isQCD ) {
       //keep muons with iso<0.1 && event_met_pfmet>30.
-      if ( !(muoniso<0.1) ) isgengdevt=0;
+      if ( !(muoniso<0.1)          ) isgengdevt=0;
       if ( !(event_met_pfmet>30.0) ) isgengdevt=0;
     } else {
       //keep muons with iso>0.1
-      if ( !(muoniso>0.1) ) isgengdevt=0;
+      if ( !(muoniso>0.1)          ) isgengdevt=0;
     }
+
 
     // Fill lepton information
     TLorentzVector  mup, nvp;
@@ -616,7 +674,7 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
       b_nvp = tmpp1;	if ( fabs((mup+tmpp1).M()-80.4) > fabs((mup+tmpp2).M()-80.4) ) 	b_nvp = tmpp2;
     }
     
-    // 2 and 3 jet event for Mjj and Hww 
+    // 2 and 3 jet event for Mjj
     if (isgengdevt
 	&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
         && fabs(JetPFCor_dphiMET[0])>0.4
@@ -624,6 +682,7 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
       if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {evtNJ = 2;}
       if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {evtNJ = 3;}
     }
+    // 2 and 3 jet event for Hww
     if (isgengdevt) { ggdevt = 4;// Do the kinematic fit for all event!!!
       if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {ggdevt = 2;}
       if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {ggdevt = 3;}
@@ -697,18 +756,31 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
       mva3j600mu = (float) mvaReader3j600mu.GetMvaValue( mvaInputVal );
 
       std::vector<double> DB_mvaInputVal;
-      DB_mvaInputVal.push_back( W_muon_charge );    ///////different for electron and muon
+      DB_mvaInputVal.push_back( W_pt );
+      DB_mvaInputVal.push_back( event_met_pfmet );
+      DB_mvaInputVal.push_back( W_muon_charge );   ///////different for electron and muon
       DB_mvaInputVal.push_back( JetPFCor_QGLikelihood[0] );
       DB_mvaInputVal.push_back( JetPFCor_QGLikelihood[1] );
       DB_mvaInputVal.push_back( ang_hs );
       DB_mvaInputVal.push_back( ang_phib );
-      DB_mvaInputVal.push_back( fit_chi2 );
       DB_mvaInputVal.push_back( fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1]) );
-      DB_mvaInputVal.push_back( sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+JetPFCor_Pt[1]*JetPFCor_Pt[1]+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1])) );
-      DB_mvaInputVal.push_back( JetPFCor_Pt[1]/Mass2j_PFCor );
+      DB_mvaInputVal.push_back( masslvjj );
 
       mva2jdibosonmu = (float) mvaReader2jdibosonmu.GetMvaValue( DB_mvaInputVal );
       mva3jdibosonmu = (float) mvaReader3jdibosonmu.GetMvaValue( DB_mvaInputVal );
+
+      std::vector<double> DBnoqg_mvaInputVal;
+      DBnoqg_mvaInputVal.push_back( W_pt );
+      DBnoqg_mvaInputVal.push_back( event_met_pfmet );
+      DBnoqg_mvaInputVal.push_back( W_muon_charge );   ///////different for electron and muon
+      DBnoqg_mvaInputVal.push_back( ang_hs );
+      DBnoqg_mvaInputVal.push_back( ang_phib );
+      DBnoqg_mvaInputVal.push_back( fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1]) );
+      DBnoqg_mvaInputVal.push_back( masslvjj );
+
+      mva2jdibnoqgmu = (float) mvaReader2jdibnoqgmu.GetMvaValue( DBnoqg_mvaInputVal );
+      mva3jdibnoqgmu = (float) mvaReader3jdibnoqgmu.GetMvaValue( DBnoqg_mvaInputVal );
+
     }
     // For Hadronic W in Top sample
     if (isgengdevt)
@@ -759,10 +831,7 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 	}
       }
     // For VBF Analysis ! Currently Gd Event Selection same as Hww
-    if (isgengdevt
-	&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
-        && fabs(JetPFCor_dphiMET[0])>0.4
-	&& dijetpt>40.)
+    if (isgengdevt)
       {
 	int * gdcjet  = new int[jetsize];
 	int * gdfjet  = new int[jetsize];
@@ -871,6 +940,13 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 
     branch_2jdibosonmu->Fill();
     branch_3jdibosonmu->Fill();
+    branch_2jdibnoqgmu->Fill();
+    branch_3jdibnoqgmu->Fill();
+
+    branch_effwt->Fill();
+    branch_puwt->Fill();
+    branch_puwt_up->Fill();
+    branch_puwt_down->Fill();
 
   } // end event loop
   fresults.cd();
