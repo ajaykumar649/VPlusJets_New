@@ -116,7 +116,7 @@ if __name__ == "__main__":
 
     import pyroot_logon
 
-    from ROOT import TFile, TCanvas, gROOT, RooPlot, gPad
+    from ROOT import TFile, TCanvas, gROOT, RooPlot, gPad, TLine, SetOwnership
     import plotMjjFit
 
     plots = {'Mjj_Stacked': [], 'Mjj_Subtracted': []}
@@ -144,14 +144,12 @@ if __name__ == "__main__":
         cplots.append(outPlot)
         outPlot.Draw()
         pyroot_logon.cmsLabel(can, 4.7)
-        gPad.Update()
-        can.Print('%s_combined.png' % (plot))
-        can.Print('%s_combined.pdf' % (plot))
         # gPad.WaitPrimitive()
 
         outPlot.Write()
 
         if (plot == 'Mjj_Subtracted'):
+            outPlot.SetMaximum(outPlot.GetMaximum()*1.4)
             corrPull = plotMjjFit.sub2pull(outPlot.getHist('theData'),
                                            outPlot.findObject('ErrBand'))
             corrPull.SetMinimum(-5.)
@@ -163,8 +161,20 @@ if __name__ == "__main__":
             canpf.SetGridy()
             cans.append(canpf)
             corrPull.Draw('ap0')
-            pyroot_logon.cmsLabel(can, 4.7)
+            for item in range(0, int(outPlot.numItems())):
+                firstItem = outPlot.getObject(item)
+                if (type(firstItem) == TLine):
+                    newLine = TLine(firstItem)
+                    newLine.SetY1(4.)
+                    newLine.SetY2(-4.)
+                    newLine.Draw()
+                    SetOwnership(newLine, False)
+            pyroot_logon.cmsLabel(canpf, 4.7)
             gPad.Update()
             canpf.Print('%s_combined.png' % ('Mjj_Pull'))
             canpf.Print('%s_combined.pdf' % ('Mjj_Pull'))
             corrPull.Write()
+
+        gPad.Update()
+        can.Print('%s_combined.png' % (plot))
+        can.Print('%s_combined.pdf' % (plot))

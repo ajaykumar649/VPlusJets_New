@@ -4,7 +4,7 @@ import pyroot_logon
 def plot2BodyDist(theFitter, pars, chi2, ndf, 
                   Err = -1, NP = False, Prefix = "Mjj"):
     from ROOT import gPad, TLatex, TCanvas, kRed, kCyan, kBlue, \
-         RooFit, RooPlot, RooCurve, RooAbsReal, TGraphErrors, NULL
+         RooFit, RooPlot, RooCurve, RooAbsReal, TGraphErrors, TLine
 
     if pars.includeMuons and pars.includeElectrons:
         modeString = ''
@@ -90,6 +90,15 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         pf2.addObject(sub2pull(sf.getHist('theData'),
                                sf.findObject('ErrBand')),
                       'p0')
+        for item in range(0, int(pf.numItems())):
+            firstItem = pf.getObject(item)
+            if (type(firstItem) == TLine):
+                newLine = TLine(firstItem)
+                newLine.SetY1(4.)
+                newLine.SetY2(-4.)
+                pf2.addObject(newLine, 'l')
+                #SetOwnership(newLine, False)
+
 
     if NP:
         NPPdf = theFitter.makeNPPdf();
@@ -157,12 +166,14 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
                                                   pars.njets))
     c4 = TCanvas("c4", "pull")
     pf.Draw()
+    c4.SetGridy()
     pyroot_logon.cmsPrelim(c4, pars.intLumi/1000)
     c4.Print('Wjj_%s_%s_%ijets_Pull.pdf' % (Prefix, modeString, pars.njets))
     c4.Print('Wjj_%s_%s_%ijets_Pull.png' % (Prefix, modeString, pars.njets))
 
     c5 = TCanvas("c5", "corrected pull")
     pf2.Draw()
+    c5.SetGridy()
     pyroot_logon.cmsPrelim(c5, pars.intLumi/1000)
     c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.pdf' % (Prefix, modeString,
                                                       pars.njets))
