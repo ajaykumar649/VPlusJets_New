@@ -77,6 +77,7 @@ private:
   double zjetsNorm_;
   double QCDNorm_, QCDError_;
   RooAbsData::ErrorType errorType_;
+  static Color_t const DibosonColor = kAzure + 8;
 
   TString rangeString_;
   int histOrder;

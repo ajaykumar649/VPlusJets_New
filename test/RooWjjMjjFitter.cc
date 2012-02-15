@@ -50,6 +50,8 @@
 
 using namespace RooFit;
 
+Color_t const RooWjjMjjFitter::DibosonColor;
+
 RooWjjMjjFitter::RooWjjMjjFitter() :
   ws_("ws", "ws"), initWjets_(0.), initDiboson_(0.),
   ttbarNorm_(0.), singleTopNorm_(0.), zjetsNorm_(0.),
@@ -1288,7 +1290,8 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
 //   gPad->WaitPrimitive();
 
   totalPdf->plotOn(sframe,ProjWData(*data), DrawOption("LF"), FillStyle(1001),
-		   FillColor(kOrange), LineColor(kOrange), Name("h_total"),
+		   FillColor(DibosonColor), LineColor(DibosonColor), 
+		   Name("h_total"),
  		   NormRange("RangeForPlot"),
 		   Normalization(nexp, RooAbsReal::Raw),
 		   VLines(), Range("RangeForPlot"));
@@ -1310,6 +1313,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
     components.remove(*(components.find("NPPdf")));
   }
   int linec(kRed);
+  int fills(1001);
   TString pdfName("h_background");
   RooAbsCollection * removals;
   while (components.getSize() > 0) {
@@ -1319,28 +1323,32 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
 		     NormRange("RangeForPlot"),
 		     Normalization(nexp, RooAbsReal::Raw),
 		     Components(RooArgSet(components)), VLines(),
-		     FillStyle(1001), LineColor(linec));
+		     FillStyle(fills), LineColor(linec));
     tmpCurve = sframe->getCurve();
     tmpCurve->SetName(pdfName);
     removals = 0;
     switch (comp) {
     case 1: 
       removals = components.selectByName("WpJ*");
-      linec = kGreen; 
+      linec = kGreen+2;
+      //fills = 3444;
       tmpCurve->SetTitle("W+jets");
       break;
     case 2: 
-      linec = kBlack;
+      linec = kGray+1;
+      //fills = 1001;
       removals = components.selectByName("ttPdf*,stPdf*");
       tmpCurve->SetTitle("top");
       break;
     case 3: 
-      linec = kMagenta; 
+      linec = kYellow; 
+      //fills = 3395;
       removals = components.selectByName("qcdPdf*");
       tmpCurve->SetTitle("QCD");
       break;
     default:
       linec = kCyan;
+      //fills = 1001;
       removals = components.selectByName("ZpJPdf*");
       tmpCurve->SetTitle("Z+jets");
     }
@@ -1366,14 +1374,14 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
   if (params_.truncRange) {
     TLine * lowerLine = new TLine(params_.minTrunc, 0., params_.minTrunc, 
 				  sframe->GetMaximum());
-    lowerLine->SetLineWidth(3);
-    lowerLine->SetLineColor(kBlue+2);
-    lowerLine->SetLineStyle(kDashed);
+    lowerLine->SetLineWidth(2);
+    lowerLine->SetLineColor(kGray+2);
+    lowerLine->SetLineStyle(9);
     TLine * upperLine = new TLine(params_.maxTrunc, 0., params_.maxTrunc, 
 				  sframe->GetMaximum());
-    upperLine->SetLineWidth(3);
-    upperLine->SetLineColor(kBlue+2);
-    upperLine->SetLineStyle(kDashed);
+    upperLine->SetLineWidth(2);
+    upperLine->SetLineColor(kGray+2);
+    upperLine->SetLineStyle(9);
     sframe->addObject(lowerLine);
     sframe->addObject(upperLine);
   }
@@ -1410,8 +1418,8 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
     totalPdf->plotOn(rframe, ProjWData(*data), Components(pdfName),
 		     Normalization(nexp, RooAbsReal::Raw),
 		     DrawOption("LF"), FillStyle(1001), VLines(),
-		     FillColor(kOrange), //Name("h_"+ pdfName), 
-		     LineColor(kOrange), 
+		     FillColor(DibosonColor), //Name("h_"+ pdfName), 
+		     LineColor(DibosonColor), 
 		     NormRange("RangeForPlot"),
 		     Range("RangeForPlot"));
     tmpCurve = rframe->getCurve();
@@ -1456,14 +1464,14 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   if (params_.truncRange) {
     TLine * lowerLine = new TLine(params_.minTrunc,rframe->GetMinimum()*0.6,
 				  params_.minTrunc,rframe->GetMaximum()*0.6);
-    lowerLine->SetLineWidth(3);
-    lowerLine->SetLineColor(kBlue+2);
-    lowerLine->SetLineStyle(kDashed);
+    lowerLine->SetLineWidth(2);
+    lowerLine->SetLineColor(kGray+2);
+    lowerLine->SetLineStyle(9);
     TLine * upperLine = new TLine(params_.maxTrunc,rframe->GetMinimum()*0.6, 
 				  params_.maxTrunc,rframe->GetMaximum()*0.6);
-    upperLine->SetLineWidth(3);
-    upperLine->SetLineColor(kBlue+2);
-    upperLine->SetLineStyle(kDashed);
+    upperLine->SetLineWidth(2);
+    upperLine->SetLineColor(kGray+2);
+    upperLine->SetLineStyle(9);
     rframe->addObject(lowerLine);
     rframe->addObject(upperLine);
   }  

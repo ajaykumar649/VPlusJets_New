@@ -51,10 +51,10 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
             ErrBand.SetPointError(pt, 0, h_ErrUp.GetY()[pt-1])
         ErrBand.SetName("ErrBand")
         ErrBand.SetTitle("Uncertainty")
-        ErrBand.SetLineColor(kRed+1)
+        ErrBand.SetLineColor(kRed)
 ##         ErrBand.SetLineWidth(0)
 ##         ErrBand.SetLineStyle(0)
-        ErrBand.SetFillColor(kRed+1)
+        ErrBand.SetFillColor(kRed)
         ErrBand.SetFillStyle(3353)
 
         
@@ -114,7 +114,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
                      RooFit.Name('h_NP'),
                      RooFit.Range('RangeForPlot'),
                      RooFit.NormRange('RangeForPlot'),
-                     RooFit.LineColor(kCyan+2), RooFit.LineStyle(2))
+                     RooFit.LineColor(kBlue), RooFit.LineStyle(2))
 
         h_NP = sf.getCurve('h_NP')
 
