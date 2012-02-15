@@ -285,6 +285,7 @@ public :
    Float_t         event_BeamSpot_y;
    Float_t         event_BeamSpot_z;
    Int_t           numW;
+   Float_t         event_mcPU_nvtx[3];
 
    // List of branches
    TBranch        *b_numPFCorJets;   //!
@@ -552,6 +553,7 @@ public :
    TBranch        *b_event_BeamSpot_y;   //!
    TBranch        *b_event_BeamSpot_z;   //!
    TBranch        *b_numW;   //!
+   TBranch        *b_event_mcPU_nvtx;   //!
 
    kanamuon(TTree *tree=0);
    virtual ~kanamuon();
@@ -906,6 +908,7 @@ void kanamuon::Init(TTree *tree)
    fChain->SetBranchAddress("event_BeamSpot_y", &event_BeamSpot_y, &b_event_BeamSpot_y);
    fChain->SetBranchAddress("event_BeamSpot_z", &event_BeamSpot_z, &b_event_BeamSpot_z);
    fChain->SetBranchAddress("numW", &numW, &b_numW);
+   fChain->SetBranchAddress("event_mcPU_nvtx", event_mcPU_nvtx, &b_event_mcPU_nvtx);
    Notify();
 }
 

@@ -42,12 +42,20 @@
 #include "ClassifierOut/TMVAClassification_550_nJ3_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ3_el_Likelihood.class.C"
 
-#include "ClassifierOut/TMVAClassification_nJ2_el_BDT.class.C"
-#include "ClassifierOut/TMVAClassification_nJ3_el_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_noqg_nJ2_el_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_noqg_nJ3_el_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_withqg_nJ2_el_BDT.class.C"
+#include "ClassifierOut/TMVAClassification_withqg_nJ3_el_BDT.class.C"
+
+#include "EffTableReader.h"
+#include "EffTableLoader.h"
+
+#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 const TString inDataDir  = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/MergFile/";
 const TString inQCDDir   = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample/MergFile/";
-const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeTest/";
+const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeDebug/";
+const std::string fDir   = "EffTableDir/";
 
 void kanaelec::myana(double myflag, bool isQCD)
 {
@@ -58,8 +66,8 @@ void kanaelec::myana(double myflag, bool isQCD)
     myChain = new TChain("WJet"); 
     
     if ( !isQCD ) {
-      myChain->Add(                    inDataDir + "WenuJets_DataAll_GoldenJSON_4p7invfb.root"); 
-      Init(myChain);Loop( 20110000,outDataDir + "RD_WenuJets_DataAll_GoldenJSON_4p7invfb.root");
+      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root"); 
+      Init(myChain);Loop( 20110000,outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root");
     } else {
       myChain->Add(                    inQCDDir + "WenuJets_DataAll_GoldenJSON_2p1invfb.root"); 
       Init(myChain);Loop( 20110000,outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root", isQCD);
@@ -73,20 +81,20 @@ void kanaelec::myana(double myflag, bool isQCD)
       myChain->Add(                    inDataDir + "SingleEleAndEleTwoPFJetTrigger.root"); 
       Init(myChain);Loop( 20110001,outDataDir + "RD_SingleEleAndEleTwoPFJetTrigger.root");
     }
-    if (myflag == 20110002 || myflag == -101){
+    if (myflag == 20110002 || myflag == -102){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "EleTwoCaloJetTrigger.root"); 
       Init(myChain);Loop( 20110002,outDataDir + "RD_EleTwoCaloJetTrigger.root");
     }
-    if (myflag == 20110003 || myflag == -102){
+    if (myflag == 20110003 || myflag == -103){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "WenuJets_175832-180252_SingleElectron-Run2011B-PromptReco-v1-trigallcombined.root"); 
       Init(myChain);Loop( 20110003,outDataDir + "RD_WenuJets_175832-180252_SingleElectron-Run2011B-PromptReco-v1-trigallcombined.root");
     }
     if (myflag == 20110004 || myflag == -104){
       myChain = new TChain("WJet");  
-      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root"); 
-      Init(myChain);Loop( 20110004,outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root");
+      myChain->Add(                    inDataDir + "WenuJets_DataAll_GoldenJSON_4p7invfb.root"); 
+      Init(myChain);Loop( 20110004,outDataDir + "RD_WenuJets_DataAll_GoldenJSON_4p7invfb.root");
     }
 
     // General Background Samples
@@ -501,7 +509,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 
   Float_t mva2j160el = 999, mva2j170el = 999, mva2j180el = 999, mva2j190el = 999, mva2j200el = 999, mva2j250el = 999, mva2j300el = 999, mva2j350el = 999, mva2j400el = 999, mva2j450el = 999, mva2j500el = 999, mva2j550el = 999, mva2j600el = 999;
   Float_t mva3j160el = 999, mva3j170el = 999, mva3j180el = 999, mva3j190el = 999, mva3j200el = 999, mva3j250el = 999, mva3j300el = 999, mva3j350el = 999, mva3j400el = 999, mva3j450el = 999, mva3j500el = 999, mva3j550el = 999, mva3j600el = 999;
-  Float_t mva2jdibosonel = 999,mva3jdibosonel = 999;
+  Float_t mva2jdibosonel = 999,mva3jdibosonel = 999, mva2jdibnoqgel = 999,mva3jdibnoqgel = 999;
   
   TBranch * branch_2j160el   =  newtree->Branch("mva2j160el",   &mva2j160el,    "mva2j160el/F");
   TBranch * branch_2j170el   =  newtree->Branch("mva2j170el",   &mva2j170el,    "mva2j170el/F");
@@ -533,6 +541,14 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 
   TBranch * branch_2jdibosonel   =  newtree->Branch("mva2jdibosonel",   &mva2jdibosonel,    "mva2jdibosonel/F");
   TBranch * branch_3jdibosonel   =  newtree->Branch("mva3jdibosonel",   &mva3jdibosonel,    "mva3jdibosonel/F");
+  TBranch * branch_2jdibnoqgel   =  newtree->Branch("mva2jdibnoqgel",   &mva2jdibnoqgel,    "mva2jdibnoqgel/F");
+  TBranch * branch_3jdibnoqgel   =  newtree->Branch("mva3jdibnoqgel",   &mva3jdibnoqgel,    "mva3jdibnoqgel/F");
+
+  Float_t effwt = 1.0, puwt = 1.0, puwt_up = 1.0, puwt_down = 1.0;
+  TBranch * branch_effwt          =  newtree->Branch("effwt",       &effwt,        "effwt/F");
+  TBranch * branch_puwt           =  newtree->Branch("puwt",        &puwt,         "puwt/F");
+  TBranch * branch_puwt_up        =  newtree->Branch("puwt_up",     &puwt_up,      "puwt_up/F");
+  TBranch * branch_puwt_down      =  newtree->Branch("puwt_down",   &puwt_down,    "puwt_down/F");
 
   // For MVA analysis
   const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
@@ -565,11 +581,36 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
   ReadMVA3j550el mvaReader3j550el( inputVarsMVA );  
   ReadMVA3j600el mvaReader3j600el( inputVarsMVA );  
 
-  const char* DB_inputVars[] = { "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_hs", "ang_phib", "fit_chi2", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))", "JetPFCor_Pt[1]/Mass2j_PFCor" };
+  const char* DB_inputVars[] = { "W_pt", "event_met_pfmet", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_hs", "ang_phib", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "masslvjj" };
   std::vector<std::string> DB_inputVarsMVA;
   for (int i=0; i<9; ++i)  DB_inputVarsMVA.push_back( DB_inputVars[i] );
   ReadMVA2jdibosonel mvaReader2jdibosonel( DB_inputVarsMVA ); 
   ReadMVA3jdibosonel mvaReader3jdibosonel( DB_inputVarsMVA ); 
+
+  const char* DBnoqg_inputVars[] = { "W_pt", "event_met_pfmet", "W_muon_charge", "ang_hs", "ang_phib", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "masslvjj" };
+  std::vector<std::string> DBnoqg_inputVarsMVA;
+  for (int i=0; i<7; ++i)  DBnoqg_inputVarsMVA.push_back( DBnoqg_inputVars[i] );
+  ReadMVA2jdibnoqgel mvaReader2jdibnoqgel( DBnoqg_inputVarsMVA ); 
+  ReadMVA3jdibnoqgel mvaReader3jdibnoqgel( DBnoqg_inputVarsMVA ); 
+
+  // For Efficiency Correction
+  EffTableLoader eleIdEff(         fDir + "eleEffsRecoToWP80_ScaleFactors.txt");
+  EffTableLoader eleRecoEff(       fDir + "eleEffsSCToReco_ScaleFactors.txt");
+  EffTableLoader eleHLTEff(        fDir + "eleEffsSingleElectron.txt");
+  EffTableLoader eleJ30Eff(        fDir + "FullyEfficient.txt");
+  EffTableLoader eleJ25NoJ30Eff(   fDir + "FullyEfficient_Jet2NoJet1.txt");
+  EffTableLoader eleMHTEff(        fDir + "FullyEfficient_MHT.txt");
+  EffTableLoader eleWMtEff(        fDir + "WMt50TriggerEfficiency.txt");
+
+  // Pile up Re-weighting
+  edm::Lumi3DReWeighting LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D.root");
+  LumiWeights_.weight3D_init( 1.08 );
+  
+  edm::Lumi3DReWeighting up_LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D_up.root");
+  up_LumiWeights_.weight3D_init( 1.16 );
+  
+  edm::Lumi3DReWeighting dn_LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D_down.root");
+  dn_LumiWeights_.weight3D_init( 1.00 );
 
   // Parameter Setup
   const unsigned int jetsize         = 6;
@@ -608,18 +649,32 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
     
     mva2j160el = 999; mva2j170el = 999; mva2j180el = 999; mva2j190el = 999; mva2j200el = 999; mva2j250el = 999; mva2j300el = 999; mva2j350el = 999; mva2j400el = 999; mva2j450el = 999; mva2j500el = 999; mva2j550el = 999; mva2j600el = 999;
     mva3j160el = 999; mva3j170el = 999; mva3j180el = 999; mva3j190el = 999; mva3j200el = 999; mva3j250el = 999; mva3j300el = 999; mva3j350el = 999; mva3j400el = 999; mva3j450el = 999; mva3j500el = 999; mva3j550el = 999; mva3j600el = 999;
-    mva2jdibosonel = 999; mva3jdibosonel = 999;
+    mva2jdibosonel = 999; mva3jdibosonel = 999; mva2jdibnoqgel = 999; mva3jdibnoqgel = 999;
+
+
+    effwt = 1.0; puwt = 1.0; puwt_up = 1.0; puwt_down = 1.0;
+
+    // Calculate efficiency
+    effwt = 
+      eleIdEff.GetEfficiency(W_electron_pt, W_electron_eta) * 
+      eleRecoEff.GetEfficiency(W_electron_pt, W_electron_eta) *
+      eleHLTEff.GetEfficiency(W_electron_pt, W_electron_eta) *
+      eleMHTEff.GetEfficiency(event_met_pfmet, 0) *
+      eleWMtEff.GetEfficiency(W_mt, W_electron_eta);
+
+    // Pile up Re-weighting
+    if (wda>20110999) {
+      puwt      =    LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
+      puwt_up   = up_LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
+      puwt_down = dn_LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
+    } else {effwt=1.0;puwt=1.0;puwt_up=1.0;puwt_down=1.0;} // if data, always put 1 as the weighting factor
+
     // Good Event Selection Requirement for all events
     bool  isgengdevt = 0;
     if (JetPFCor_Pt[0]>Jpt 
 	&& JetPFCor_Pt[1]>Jpt 
-        //&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
-        //&& fabs(JetPFCor_dphiMET[0])>0.4
-        //&& event_met_pfmet>30. //apply separately for QCD and non-QCD
-	&& W_mt>40.
-	//&& dijetpt>40.
-	&& W_electron_et>30. 
-	//&& W_electron_isWP80==1 //apply separately for QCD and non-QCD
+	&& W_mt>50.
+	&& W_electron_et>35. 
 	&& ( (fabs(W_electron_eta)<1.5 && fabs(W_electron_deltaphi_in)<0.03 && fabs(W_electron_deltaeta_in)<0.004) || (fabs(W_electron_eta)>1.5 && fabs(W_electron_deltaphi_in)<0.02 && fabs(W_electron_deltaeta_in)<0.005) ) 
 	&& sqrt((W_electron_vx-event_BeamSpot_x)*(W_electron_vx-event_BeamSpot_x)+(W_electron_vy-event_BeamSpot_y)*(W_electron_vy-event_BeamSpot_y))<0.02 
         ) isgengdevt = 1;
@@ -627,12 +682,12 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
     // Event Selection Requirement for Standard vs QCD events
     if ( !isQCD ) {
       //keep electrons with iso<0.05, event_met_pfmet>30.0 and passing WP80.
-      if ( !(electroniso<0.05) ) isgengdevt=0;
-      if ( !(event_met_pfmet>30.) ) isgengdevt=0;
+      if ( !(electroniso<0.05)     ) isgengdevt=0;
+      if ( !(event_met_pfmet>30.)  ) isgengdevt=0;
       if ( !(W_electron_isWP80==1) ) isgengdevt=0;
     } else {
       //keep electrons with 0.1<iso
-      if ( !( (0.1<electroniso) ) ) isgengdevt=0;
+      if ( !( (0.1<electroniso) )  ) isgengdevt=0;
     }
 
     // Fill lepton information
@@ -655,7 +710,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
       b_nvp = tmpp1;	if ( fabs((mup+tmpp1).M()-80.4) > fabs((mup+tmpp2).M()-80.4) ) 	b_nvp = tmpp2;
     }
     
-    // 2 and 3 jet event for Mjj and Hww 
+    // 2 and 3 jet event for Mjj
     if (isgengdevt
 	&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
         && fabs(JetPFCor_dphiMET[0])>0.4
@@ -663,6 +718,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
       if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {evtNJ = 2;}
       if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {evtNJ = 3;}
     }
+    // 2 and 3 jet event for Hww
     if (isgengdevt) { ggdevt = 4;// Do the kinematic fit for all event!!!
       if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {ggdevt = 2;}
       if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {ggdevt = 3;}
@@ -736,18 +792,31 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
       mva3j600el = (float) mvaReader3j600el.GetMvaValue( mvaInputVal );
 
       std::vector<double> DB_mvaInputVal;
-      DB_mvaInputVal.push_back( W_electron_charge );    ///////different for electron and muon
+      DB_mvaInputVal.push_back( W_pt );
+      DB_mvaInputVal.push_back( event_met_pfmet );
+      DB_mvaInputVal.push_back( W_electron_charge );   ///////different for electron and muon
       DB_mvaInputVal.push_back( JetPFCor_QGLikelihood[0] );
       DB_mvaInputVal.push_back( JetPFCor_QGLikelihood[1] );
       DB_mvaInputVal.push_back( ang_hs );
       DB_mvaInputVal.push_back( ang_phib );
-      DB_mvaInputVal.push_back( fit_chi2 );
       DB_mvaInputVal.push_back( fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1]) );
-      DB_mvaInputVal.push_back( sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+JetPFCor_Pt[1]*JetPFCor_Pt[1]+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1])) );
-      DB_mvaInputVal.push_back( JetPFCor_Pt[1]/Mass2j_PFCor );
+      DB_mvaInputVal.push_back( masslvjj );
 
       mva2jdibosonel = (float) mvaReader2jdibosonel.GetMvaValue( DB_mvaInputVal );
       mva3jdibosonel = (float) mvaReader3jdibosonel.GetMvaValue( DB_mvaInputVal );
+
+      std::vector<double> DBnoqg_mvaInputVal;
+      DBnoqg_mvaInputVal.push_back( W_pt );
+      DBnoqg_mvaInputVal.push_back( event_met_pfmet );
+      DBnoqg_mvaInputVal.push_back( W_electron_charge );   ///////different for electron and muon
+      DBnoqg_mvaInputVal.push_back( ang_hs );
+      DBnoqg_mvaInputVal.push_back( ang_phib );
+      DBnoqg_mvaInputVal.push_back( fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1]) );
+      DBnoqg_mvaInputVal.push_back( masslvjj );
+
+      mva2jdibnoqgel = (float) mvaReader2jdibnoqgel.GetMvaValue( DBnoqg_mvaInputVal );
+      mva3jdibnoqgel = (float) mvaReader3jdibnoqgel.GetMvaValue( DBnoqg_mvaInputVal );
+
     }
     // For Hadronic W in Top sample
     if (isgengdevt)
@@ -798,10 +867,7 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 	}
       }
     // For VBF Analysis ! Currently Gd Event Selection same as Hww
-    if (isgengdevt
-	&& fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5
-        && fabs(JetPFCor_dphiMET[0])>0.4
-	&& dijetpt>40.)
+    if (isgengdevt)
       {
 	int * gdcjet  = new int[jetsize];
 	int * gdfjet  = new int[jetsize];
@@ -910,6 +976,13 @@ void kanaelec::Loop(int wda, const char *outfilename, bool isQCD)
 
     branch_2jdibosonel->Fill();
     branch_3jdibosonel->Fill();
+    branch_2jdibnoqgel->Fill();
+    branch_3jdibnoqgel->Fill();
+
+    branch_effwt->Fill();
+    branch_puwt->Fill();
+    branch_puwt_up->Fill();
+    branch_puwt_down->Fill();
 
   } // end event loop
   fresults.cd();
