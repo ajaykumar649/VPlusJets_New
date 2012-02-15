@@ -645,7 +645,7 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 
     // Event Selection Requirement for Standard vs QCD events
     if ( !isQCD ) {
-      //keep muons with iso<0.1 && event_met_pfmet>30.
+      //keep muons with iso<0.1 && event_met_pfmet>25.
       if ( !(muoniso<0.1)          ) isgengdevt=0;
       if ( !(event_met_pfmet>25.0) ) isgengdevt=0;
     } else {
