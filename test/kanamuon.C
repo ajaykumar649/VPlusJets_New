@@ -347,6 +347,24 @@ void kanamuon::myana(double myflag, bool isQCD)
       myChain->Add(                    inDataDir + "mu_VBF_CMSSW428.root"); 
       Init(myChain);Loop( 20114001,outDataDir + "RD_mu_VBF_CMSSW428.root");
     }
+
+    //new physics samples for the Mjj analysis
+    if (myflag == 20115001 || myflag == -700){
+      myChain = new TChain("WJet");  
+      myChain->Add("/uscms_data/d2/kalanand/WjjTrees/obsolete/mu_ZprimeMadGraph_CMSSW428.root"); 
+      Init(myChain);Loop( 20115001,outDataDir + "RD_mu_ZprimeMadGraph_CMSSW428.root");
+    }
+    if (myflag == 20115002 || myflag == -700){
+      myChain = new TChain("WJet");  
+      myChain->Add("/uscms_data/d2/kalanand/WjjTrees/obsolete/mu_TechnicolorPythia_CMSSW428.root"); 
+      Init(myChain);Loop( 20115002,outDataDir + "RD_mu_TechnicolorPythia_CMSSW428.root");
+    }
+    if (myflag == 20115003 || myflag == -700){
+      myChain = new TChain("WJet");  
+      myChain->Add("/uscms_data/d2/kalanand/WjjTrees/obsolete/mu_WH150qq_CMSSW428.root"); 
+      Init(myChain);Loop( 20115001,outDataDir + "RD_mu_WH150qq_CMSSW428.root");
+    }
+
   }
 
 }

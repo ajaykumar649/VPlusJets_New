@@ -384,6 +384,24 @@ void kanaelec::myana(double myflag, bool isQCD)
       myChain->Add(                    inDataDir + "el_VBF_CMSSW428.root"); 
       Init(myChain);Loop( 20114001,outDataDir + "RD_el_VBF_CMSSW428.root");
     }
+
+    //new physics samples for the Mjj analysis
+    if (myflag == 20115001 || myflag == -700){
+      myChain = new TChain("WJet");  
+      myChain->Add("/uscms_data/d2/kalanand/WjjTrees/obsolete/el_ZprimeMadGraph_CMSSW428.root"); 
+      Init(myChain);Loop( 20115001,outDataDir + "RD_el_ZprimeMadGraph_CMSSW428.root");
+    }
+    if (myflag == 20115002 || myflag == -700){
+      myChain = new TChain("WJet");  
+      myChain->Add("/uscms_data/d2/kalanand/WjjTrees/obsolete/el_TechnicolorPythia_CMSSW428.root"); 
+      Init(myChain);Loop( 20115002,outDataDir + "RD_el_TechnicolorPythia_CMSSW428.root");
+    }
+    if (myflag == 20115003 || myflag == -700){
+      myChain = new TChain("WJet");  
+      myChain->Add("/uscms_data/d2/kalanand/WjjTrees/obsolete/el_WH150qq_CMSSW428.root"); 
+      Init(myChain);Loop( 20115001,outDataDir + "RD_el_WH150qq_CMSSW428.root");
+    }
+
   }
 
 }
