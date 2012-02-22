@@ -22,8 +22,8 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = '', e_minT = -1.0, e_
 ##     fitterPars.electronData = 'WenuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeElectrons = True
 
-    fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-
+##     fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
+    fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
     fitterPars.fitToyDataset = False
     fitterPars.ToyDatasetDirectory = '/uscms_data/d1/ilyao/KinematicFitterS11/ErrorScans/1KMCSets/'
     fitterPars.toydataFile = toydataFile
@@ -31,7 +31,7 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = '', e_minT = -1.0, e_
     fitterPars.minMass = 30.
     fitterPars.maxMass = 400.
     fitterPars.nbins = 34
-    fitterPars.intLumi = 4700.
+    fitterPars.intLumi = 5030. #4700.
 
     fitterPars.binEdges.push_back(fitterPars.minMass)
 

@@ -56,7 +56,7 @@ public:
 		   float event_met, bool isElectron) const;
 
   static double computeChi2(RooHist& hist, RooAbsPdf& pdf, RooRealVar& obs, 
-			    int& nbin);
+			    int& nbin, bool correct = true);
   static TLegend * legend4Plot(RooPlot * plot);
   static void activateBranches(TTree & t, bool isElectron = false);
 

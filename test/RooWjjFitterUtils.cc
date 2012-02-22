@@ -212,7 +212,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     evtWgt = 1.0;
     if (localDoWeights) {
       evtWgt = effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
-			 JetPFCor_Eta, evtNJ, event_met_pfmet,
+			 JetPFCor_Eta, params_.njets, event_met_pfmet,
 			 isElectron);
     }
     theHist->Fill(poi.EvalInstance()*(1.+tmpScale), evtWgt);
@@ -369,7 +369,8 @@ void RooWjjFitterUtils::updatenjets() {
 }
 
 double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf, 
-				      RooRealVar& obs, int& nbin) {
+				      RooRealVar& obs, int& nbin, 
+				      bool correct) {
   int np = hist.GetN();
   nbin = 0;
   double chi2(0);
@@ -379,7 +380,8 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
   double Npdf = pdf.expectedEvents(RooArgSet(obs));
   TString className;
   RooAbsReal * binInt;
-  RooAbsReal * fullInt = pdf.createIntegral(obs, RooFit::NormSet(obs));
+  RooAbsReal * fullInt = pdf.createIntegral(obs, obs);
+  double sumN = 0., compN = 0., dataN = 0.;
   for (int i=0; i<np; ++i) {
     hist.GetPoint(i,x,y);
     eyl = hist.GetEYlow()[i];
@@ -389,30 +391,39 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
 
     obs.setVal(x);
     obs.setRange("binRange", x-exl, x+exh);
-    binInt = pdf.createIntegral(obs, RooFit::NormSet(obs),
-				RooFit::Range("binRange"));
+    binInt = pdf.createIntegral(obs, obs, "binRange");
     avg = Npdf*binInt->getVal()/fullInt->getVal();
+    sumN += avg;
     delete binInt;
 
     pdfSig2 = 0.;
     className = pdf.ClassName();
-//     std::cout << TString::Format("bin [%0.2f, %0.2f]", x-exl, x+exh) << '\n';
-    if (className == "RooHistPdf") {
-      RooHistPdf& tmpPdf = dynamic_cast<RooHistPdf&>(pdf);
-      pdfSig2 = sig2(tmpPdf, obs, avg);
-    } else if (className == "RooAddPdf") {
-      RooAddPdf& tmpPdf = dynamic_cast<RooAddPdf&>(pdf);
-      pdfSig2 = sig2(tmpPdf, obs, avg);
+//     std::cout << TString::Format("bin [%0.2f, %0.2f]", x-exl, x+exh);// << '\n';
+    if (correct) {
+      if (className == "RooHistPdf") {
+	RooHistPdf& tmpPdf = dynamic_cast<RooHistPdf&>(pdf);
+	pdfSig2 = sig2(tmpPdf, obs, avg);
+      } else if (className == "RooAddPdf") {
+	RooAddPdf& tmpPdf = dynamic_cast<RooAddPdf&>(pdf);
+	pdfSig2 = sig2(tmpPdf, obs, avg);
+      }
     }
     
-//     std::cout << "y: " << y << " avg: " << avg << '\n';
+//     std::cout << " y: " << y << " avg: " << avg 
+// 	      << " eyl: " << eyl << " eyh: " << eyh 
+// 	      << '\n';
     if (y != 0) {
       ++nbin;
+      compN += avg;
+      dataN += y;
       double pull2 = (y-avg)*(y-avg);
       pull2 = (y>avg) ? pull2/(eyl*eyl + pdfSig2) : pull2/(eyh*eyh + pdfSig2) ;
       chi2 += pull2;
     }
   }
+//   std::cout << "Npdf: " << Npdf << " sumN: " << sumN 
+// 	    << " compN: " << compN << " dataN: " << dataN
+// 	    << '\n';
   delete fullInt;
   return chi2;
 }

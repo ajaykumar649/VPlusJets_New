@@ -21,7 +21,7 @@ public:
   virtual ~RooWjjMjjFitter() { }
 
   RooFitResult * fit(bool repeat = false);
-  RooPlot * computeChi2(double& chi2, int& ndf);
+  double computeChi2(int& ndf, bool correct = true);
 
   RooAbsPdf * makeFitter(bool allOne = false);
   RooAbsPdf * make4BodyPdf(RooWjjMjjFitter & fitter2body);

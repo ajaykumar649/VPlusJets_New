@@ -6,27 +6,27 @@
 ######################################################
 
 def NgenHiggs(mH, includeElectron, includeMuon):
-    Ngen = {160 : 109992,
-            170 : 109989,
-            180 : 109325,
-            190 : 109986,
-            200 : 109315,
-            250 : 109992,
-            300 : 109990,
-            350 : 109313,
-            400 : 107879,
-            450 : 107158,
-            500 : 107169,
-            550 : 107870,
-            600 : 108561}
+    Ngen = {160 : (109992,9.080,0.133),
+            170 : (109989,7.729,0.141),
+            180 : (109325,6.739,0.137),
+            190 : (109986,5.896,0.115),
+            200 : (109315,5.249,0.108),
+            250 : (109992,3.312,0.103),
+            300 : (109990,2.422,0.101),
+            350 : (109313,2.306,0.099),
+            400 : (107879,2.032,0.0852),
+            450 : (107158,1.359,0.0808),
+            500 : (107169,0.849,0.0799),
+            550 : (107870,0.528,0.0806),
+            600 : (108561,0.327,0.0818)}
 
     retVal = 0
     if includeElectron:
-        retVal += Ngen[mH]/2
+        retVal += Ngen[mH][0]/2
     if includeMuon:
-        retVal += Ngen[mH]/2
+        retVal += Ngen[mH][0]/2
 
-    return retVal
+    return (retVal,Ngen[mH])
 
 def NgenVBFHiggs(mH, includeElectron, includeMuon):
     Ngen = {160 : 219714,
@@ -44,6 +44,29 @@ def NgenVBFHiggs(mH, includeElectron, includeMuon):
             600 : 214858
             }
 
+    retVal = 0
+    if includeElectron:
+        retVal += Ngen[mH]/2
+    if includeMuon:
+        retVal += Ngen[mH]/2
+
+    return retVal
+
+def NgenHWWTauNu(mH, includeElectron, includeMuon):
+    Ngen = {160 : 109993,
+            170 : 102459,
+            180 : 105475,
+            190 : 109985,
+            200 : 93789,
+            250 : 105936,
+            300 : 102570,
+            350 : 105270,
+            400 : 106818,
+            450 : 104259,
+            500 : 104268,
+            550 : 106658,
+            600 : 109970
+            }
     retVal = 0
     if includeElectron:
         retVal += Ngen[mH]/2
@@ -104,7 +127,8 @@ gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
-     RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad
+     RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad, \
+     kBlue, TH1D, TMath
 from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
@@ -142,29 +166,58 @@ while (fr.covQual() != 3) and (tries < 2):
     fr = theFitter.fit(True)
     tries += 1
 
-chi2 = Double(0.)
+mass = theFitter.getWorkSpace().var(fitterPars.var)
+iset = RooArgSet(mass)
+nexp = theFitter.makeFitter().expectedEvents(iset)
+
+#chi2 = Double(0.)
 #ndf = Long(2)
 ndf = Long(fr.floatParsFinal().getSize()-5)
-theFitter.computeChi2(chi2, ndf)
+ndf2 = Long(ndf)
+#chi2Raw = Double(0.)
+print 'Corrected chi2'
+chi2 = theFitter.computeChi2(ndf)
+print 'Raw chi2'
+chi2Raw = theFitter.computeChi2(ndf2, False)
+if (TMath.Prob(chi2Raw,  ndf2) < 0.05):
+    print '**DANGER** The fit probability is low **DANGER**'
+#dataHist.Print()
+#dataHist.Scale(1., 'width')
+#dataHist.Print()
+#pdfHist = theFitter.makeFitter().createHistogram('TotalPdf', mass,
+#                                                 RooFit.Scaling(False))
+#pdfHist.Print()
+#pdfHist.Scale(nexp/pdfHist.Integral(), 'width')
+
+#pdfHist.Print()
+
+#print 'nexp:', nexp
+#dataHist.Draw()
+#pdfHist.Draw('same')
+#gPad.Update()
+
+#assert(False)
+
 mf = theFitter.stackedPlot()
+mf.SetName("Mjj_Stacked")
 ## sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
 pf = theFitter.residualPlot(mf, "h_total", "", True)
+pf.SetName("Mjj_Pull")
 ## lf = theFitter.stackedPlot(True)
 
 l = TLatex()
 l.SetNDC()
-l.SetTextSize(0.035);
-l.SetTextFont(42);
+l.SetTextSize(0.035)
+l.SetTextFont(42)
 
-c1 = TCanvas("c1", "stacked")
+cs = TCanvas("cs", "stacked")
 mf.Draw()
 l.DrawLatex(0.22, 0.85,
-            '#chi^{{2}}/dof = {0:0.3f}/{1} = {2:0.3f}'.format(chi2, ndf,
-                                                              chi2/ndf)
+            '#chi^{{2}}/dof = {0:0.3f}/{1}'.format(chi2, ndf)
             )
-pyroot_logon.cmsPrelim(c1, fitterPars.intLumi/1000)
-c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
-c1.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
+pyroot_logon.cmsPrelim(cs, fitterPars.intLumi/1000)
+cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
+cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
 
 if (fr.covQual() != 3):
     print "Fit did not converge with a good error matrix. Bailing out."
@@ -190,13 +243,11 @@ pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
 
-mass = theFitter.getWorkSpace().var(fitterPars.var)
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
 #yields = theFitter.makeFitter().coefList()
 finalPars = fr.floatParsFinal()
 yields = RooArgList(finalPars)
 yields.add(fr.constPars())
-iset = RooArgSet(mass)
 sigInt = theFitter.makeFitter().createIntegral(iset,iset,'signal')
 sigFullInt = theFitter.makeFitter().createIntegral(iset,iset)
 print "allBkg","sigInt",sigInt.getVal(),"fullInt",sigFullInt.getVal(),\
@@ -326,11 +377,10 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-#assert(False)
+assert(False)
 
 cdebug = TCanvas('cdebug', 'debug')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst)
-pars4.model = 1
 pars4.initParamsFile = 'lastSigYield.txt'
 fitter4 = RooWjjMjjFitter(pars4)
 
@@ -342,52 +392,19 @@ fitter4.loadParameters('lastSigYield.txt')
 ## fitter4.getWorkSpace().Print()
 
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+mf4.SetName("Mlvjj_Stacked")
 ## sf4 = fitter4.residualPlot(mf4, "h_background", "dibosonPdf", False)
 pf4 = fitter4.residualPlot(mf4, "h_total", "", True)
+pf4.SetName("Mlvjj_Pull")
 lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
-
-c4body = TCanvas('c4body', '4 body stacked')
-mf4.Draw()
-pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
-c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
-c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
-
-## assert(False)
-
-c4body2 = TCanvas("c4body2", "4 body stacked_log")
-c4body2.SetLogy()
-lf4.Draw()
-pyroot_logon.cmsPrelim(c4body2, pars4.intLumi/1000)
-c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj, opts.mH))
-c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
-
-
-## c4body3 = TCanvas("c4body3", "4 body subtracted")
-## sf4.Draw()
-## pyroot_logon.cmsPrelim(c4body3, pars4.intLumi/1000)
-## c4body3.Print('H{2}_Mlvjj_{0}_{1}jets_Subtracted.pdf'.format(modeString, opts.Nj, opts.mH))
-## c4body3.Print('H{2}_Mlvjj_{0}_{1}jets_Subtracted.png'.format(modeString, opts.Nj, opts.mH))
-
-
-c4body4 = TCanvas("c4body4", "4 body pull")
-pf4.Draw()
-pyroot_logon.cmsPrelim(c4body4, pars4.intLumi/1000)
-c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
-c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
-
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
-                                                   opts.Nj))
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
-                                                   opts.Nj))
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
-                                                   opts.Nj))
-
-#assert(False)
+lf4.SetName("Mlvjj_log")
 
 fitUtils = RooWjjFitterUtils(pars4)
 HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
 VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
                                                             modeString))
+TauNuHiggsHist = fitUtils.newEmptyHist('HWWTauNu%i_%s_shape' % (opts.mH,
+                                                                modeString))
 
 c = fitter4.getWorkSpace().var('c')
 cNom = c.getVal()
@@ -407,6 +424,10 @@ if pars4.includeMuons:
                                  'mu_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
                                  'VBFHWW%i_mu' % (opts.mH), False, 1, False)
     VBFHiggsHist.Add(thehist)
+    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+                                 'mu_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
+                                 'HWWTauNu%i_mu' % (opts.mH), False, 1, False)
+    TauNuHiggsHist.Add(thehist)
 
 if pars4.includeElectrons:
     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
@@ -417,18 +438,76 @@ if pars4.includeElectrons:
                                  'el_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
                                  'VBFHWW%i_el' % (opts.mH), True, 1, False)
     VBFHiggsHist.Add(thehist)
+    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+                                 'el_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
+                                 'HWWTauNu%i_el' % (opts.mH), True, 1, False)
+    TauNuHiggsHist.Add(thehist)
 
 
-Ngen = NgenHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
+extraFactor = 10.
+(Ngen,otherdata) = NgenHiggs(opts.mH, pars4.includeElectrons,
+                             pars4.includeMuons)
 HiggsHist.Scale(1./float(Ngen), 'width')
+SigVisual = TH1D(HiggsHist)
+SigVisual.SetName('SigVisual')
+SigVisual.SetLineColor(kBlue)
+SigVisual.SetLineWidth(3)
+SigVisual.Scale(pars4.intLumi*extraFactor*otherdata[1]*otherdata[2])
+SigVisualLog = TH1D(SigVisual)
+SigVisualLog.SetName("SigVisualLog")
 
 NgenVBF = NgenVBFHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
 VBFHiggsHist.Scale(1./float(NgenVBF),'width')
 
-print "Ngen Higgs:",Ngen,"VBF Higgs:",NgenVBF
+NgenTauNu = NgenHWWTauNu(opts.mH, pars4.includeElectrons, pars4.includeMuons)
+TauNuHiggsHist.Scale(1./float(NgenTauNu), 'width')
+
+print "Ngen Higgs:",Ngen,"VBF Higgs:",NgenVBF,"HWW -> tau nu jj:",NgenTauNu
 HiggsHist.Print()
 VBFHiggsHist.Print()
+TauNuHiggsHist.Print()
 
+c4body = TCanvas('c4body', '4 body stacked')
+mf4.addTH1(SigVisual, "hist")
+mf4.Draw()
+tmpLeg = mf4.findObject('theLegend')
+tmpLeg.AddEntry(SigVisual, "H(%d)#times%.0f" % (opts.mH, extraFactor), "l")
+pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
+c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
+c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
+
+## assert(False)
+
+c4body2 = TCanvas("c4body2", "4 body stacked_log")
+c4body2.SetLogy()
+#lf4.addTH1(SigVisualLog, "hist")
+tmpLeg = lf4.findObject('theLegend')
+tmpLeg.AddEntry(SigVisualLog, "H(%d)#times%.0f" % (opts.mH, extraFactor),
+                "l")
+lf4.Draw()
+SigVisualLog.Draw("histsame")
+pyroot_logon.cmsPrelim(c4body2, pars4.intLumi/1000)
+c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString,
+                                                              opts.Nj,
+                                                              opts.mH))
+c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString,
+                                                              opts.Nj,
+                                                              opts.mH))
+
+c4body4 = TCanvas("c4body4", "4 body pull")
+pf4.Draw()
+pyroot_logon.cmsPrelim(c4body4, pars4.intLumi/1000)
+c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj,
+                                                       opts.mH))
+c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj,
+                                                       opts.mH))
+
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
+                                                   opts.Nj))
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
+                                                   opts.Nj))
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
+                                                   opts.Nj))
 
 print 'shape file created'
 ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
@@ -453,4 +532,15 @@ h_total_down.Write();
 
 HiggsHist.Write()
 VBFHiggsHist.Write()
+TauNuHiggsHist.Write()
+
+mf.Write()
+pf.Write()
+mf4.Write()
+pf4.Write()
+lf4.Write()
+
+SigVisual.Write()
+SigVisualLog.Write()
+
 ShapeFile.Close()

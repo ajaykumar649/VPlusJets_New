@@ -171,7 +171,7 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   return fitResult;
 }
 
-RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
+double RooWjjMjjFitter::computeChi2(int& ndf, bool correct) {
 
   RooRealVar * mass = ws_.var(params_.var);
   RooAbsBinning& plotBins =  mass->getBinning("plotBinning");
@@ -191,7 +191,8 @@ RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
 
 
   int chi2bins;
-  chi2 = RooWjjFitterUtils::computeChi2(h_data, *totalPdf, *mass, chi2bins);
+  double chi2 = RooWjjFitterUtils::computeChi2(h_data, *totalPdf, *mass, 
+					       chi2bins, correct);
 
   chi2bins -= ndf;
   std::cout << "\n *** chi^2/dof = " << chi2 << "/" << chi2bins << " = " 
@@ -201,7 +202,7 @@ RooPlot * RooWjjMjjFitter::computeChi2(double& chi2, int& ndf) {
 
   delete dataHist;
   ndf = chi2bins;
-  return 0;
+  return chi2;
 }
 
 RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
@@ -708,7 +709,7 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
     delete tmpHist;
   }
 
-  ttbarNorm_ = (157.5/3701947) * 
+  ttbarNorm_ = (163./3701947) * 
     th1tt->Integral(th1tt->FindBin(params_.minFit),
 		    th1tt->FindBin(params_.maxFit)-1) * 
     params_.intLumi;
@@ -1074,6 +1075,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		   TString::Format("[0]*TMath::Gaus(x,[1]+%0.0f,[2])", 
 				   params_.minMass), 
 		   params_.minMass, localMax);
+  } else if (params_.model == 4) {
+    TString fitString("exp([0]+[1]*x)");
+    fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
+    fitf = new TF1("fitf", fitString, params_.minMass, localMax);
+    fitf->SetParameters(6.0, -0.015, 160, 10);
+    fitf->FixParameter(3, 15.0);
   }
 
   TVirtualFitter::SetMaxIterations(10000);
@@ -1096,6 +1103,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 //   RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
 // 					    ws_, histOrder);
   switch (params_.model) {
+  case 4:
   case 1: {
     RooRealVar c("c", "c", fitf->GetParameter(1));
     c.setError(fitf->GetParError(1));
@@ -1107,7 +1115,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		      "(TMath::Erf((@0-@1)/@2)+1)",
 		      RooArgList(*mass, turnOn, width));
     
-    if (params_.minMass < KinSwitch) {
+    if (params_.model == 4) {
       RooProdPdf WpJ4Body1("WpJ4BodyPdf", "WpJ4BodyPdf", 
 			   RooArgList(erf, expPdf));
       turnOn.setVal(fitf->GetParameter(2));
@@ -1507,7 +1515,7 @@ void RooWjjMjjFitter::resetYields() {
   ws_.var("nDiboson")->setVal(initDiboson_);
   ws_.var("nDiboson")->setError(initDiboson_*0.10);
   ws_.var("nTTbar")->setVal(ttbarNorm_);
-  ws_.var("nTTbar")->setError(ttbarNorm_*0.063);
+  ws_.var("nTTbar")->setError(ttbarNorm_*0.07);
   ws_.var("nSingleTop")->setVal(singleTopNorm_);
   ws_.var("nSingleTop")->setError(singleTopNorm_*0.05);
   ws_.var("nQCD")->setVal(QCDNorm_);
