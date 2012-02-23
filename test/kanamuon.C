@@ -62,7 +62,6 @@ const std::string fDir   = "EffTableDir/";
 void kanamuon::myana(double myflag, bool isQCD)
 {
   TChain * myChain;
-  cout << "isQCD=" << isQCD << endl;
   // 2011 data
   if (myflag == 20110000 || myflag == -100){
     myChain = new TChain("WJet");  
@@ -582,9 +581,11 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
   
   Float_t qgld_Spring11[6]={-1,-1,-1,-1,-1,-1}; 
   Float_t qgld_Summer11[6]={-1,-1,-1,-1,-1,-1};
+  Float_t qgld_Summer11CHS[6]={-1,-1,-1,-1,-1,-1};
 
-  TBranch * branch_qgld_Spring11  =  newtree->Branch("qgld_Spring11",     qgld_Spring11,        "qgld_Spring11[6]/F");
-  TBranch * branch_qgld_Summer11  =  newtree->Branch("qgld_Summer11",     qgld_Summer11,        "qgld_Summer11[6]/F");
+  TBranch * branch_qgld_Spring11     =  newtree->Branch("qgld_Spring11",     qgld_Spring11,        "qgld_Spring11[6]/F");
+  TBranch * branch_qgld_Summer11     =  newtree->Branch("qgld_Summer11",     qgld_Summer11,        "qgld_Summer11[6]/F");
+  TBranch * branch_qgld_Summer11CHS  =  newtree->Branch("qgld_Summer11CHS",  qgld_Summer11CHS,     "qgld_Summer11CHS[6]/F");
   
   // For MVA analysis
   const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
@@ -649,8 +650,9 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
   dn_LumiWeights_.weight3D_init( 1.00 );
   
   //Re-calculate Q/G Likelihood
-  QGLikelihoodCalculator *qglikeli_Spring11 = new QGLikelihoodCalculator("./QG_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_Spring11-PU_S1_START311_V1G1-v1.root");  
-  QGLikelihoodCalculator *qglikeli_Summer11 = new QGLikelihoodCalculator("./QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2.root");  
+  QGLikelihoodCalculator *qglikeli_Spring11    = new QGLikelihoodCalculator("./QG_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_Spring11-PU_S1_START311_V1G1-v1.root");  
+  QGLikelihoodCalculator *qglikeli_Summer11    = new QGLikelihoodCalculator("./QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2.root");  
+  QGLikelihoodCalculator *qglikeli_Summer11CHS = new QGLikelihoodCalculator("./QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2_CHS.root");  
 
   // Parameter Setup
   const unsigned int jetsize         = 6;
@@ -693,8 +695,9 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 
     
     effwt = 1.0; puwt = 1.0; puwt_up = 1.0; puwt_down = 1.0;
-    qgld_Spring11[0]= -1;    qgld_Spring11[1]= -1;    qgld_Spring11[2]= -1;    qgld_Spring11[3]= -1;    qgld_Spring11[4]= -1;    qgld_Spring11[5]= -1;
-    qgld_Summer11[0]= -1;    qgld_Summer11[1]= -1;    qgld_Summer11[2]= -1;    qgld_Summer11[3]= -1;    qgld_Summer11[4]= -1;    qgld_Summer11[5]= -1;
+    qgld_Spring11[0]= -1;       qgld_Spring11[1]= -1;       qgld_Spring11[2]= -1;       qgld_Spring11[3]= -1;       qgld_Spring11[4]= -1;       qgld_Spring11[5]= -1;
+    qgld_Summer11[0]= -1;       qgld_Summer11[1]= -1;       qgld_Summer11[2]= -1;       qgld_Summer11[3]= -1;       qgld_Summer11[4]= -1;       qgld_Summer11[5]= -1;
+    qgld_Summer11CHS[0]= -1;    qgld_Summer11CHS[1]= -1;    qgld_Summer11CHS[2]= -1;    qgld_Summer11CHS[3]= -1;    qgld_Summer11CHS[4]= -1;    qgld_Summer11CHS[5]= -1;
 
     // Calculate efficiency
     effwt = 
@@ -722,6 +725,10 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 								     JetPFCor_ChargedMultiplicity[iJet], 
 								     JetPFCor_NeutralMultiplicity[iJet], 
 								     JetPFCor_PtD[iJet]);	 
+      qgld_Summer11CHS[iJet]= qglikeli_Summer11CHS->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolation, 
+									   JetPFCor_ChargedMultiplicity[iJet], 
+									   JetPFCor_NeutralMultiplicity[iJet], 
+									   JetPFCor_PtD[iJet]);	 
     }
 
 
@@ -1043,13 +1050,14 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
 
     branch_qgld_Spring11->Fill();
     branch_qgld_Summer11->Fill();
+    branch_qgld_Summer11CHS->Fill();
 
   } // end event loop
   fresults.cd();
   newtree->Write("WJet");
   fresults.Close();
   fclose(textfile);
-  std::cout <<  wda << " :: " << outfilename << "    "<< nentries  << std::endl;
+  std::cout <<  wda << " Finish :: " << outfilename << "    "<< nentries  << std::endl;
 }
 
 bool kanamuon::doKinematicFit(Int_t                 fflage,
