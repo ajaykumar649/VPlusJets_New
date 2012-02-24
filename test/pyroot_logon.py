@@ -28,6 +28,12 @@ def cmsLabel(canvas, lumi):
                 )
     canvas.Update()
 
+## import os
+## macroPath = gROOT.GetMacroPath()
+## macroPath += os.environ['CMSSW_BASE'] + '/src/ElectroWeakAnalysis/VPlusJets/test:'
+## gROOT.SetMacroPath(macroPath)
+## del os
+
 gROOT.SetStyle('Plain')
 gStyle.SetPadTickX(1)
 gStyle.SetPadTickY(1)

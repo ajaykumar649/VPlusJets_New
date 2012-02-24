@@ -3,7 +3,7 @@ import HWWconfig
 
 #list of tuples that have the optimized inputs for each mass point
 #tuple is (mass, mvaVariableName, mvaCut, min4bodymass, max4bodymass, nbins,
-#          alpha, alphaDown, alphaUp)
+#          alpha, alphaDown, alphaUp, lowSideband, highSideband)
 
 ############################ SET Best #############################
 optimalPars2 = [
@@ -273,7 +273,7 @@ optimalPars3 = [
 #    ]
 #####################################################################################################
 
-def theConfig(Nj, mcdir = '', initFile = '', mH=400):
+def theConfig(Nj, mcdir = '', initFile = '', mH=400, mvaCut = None):
 
     if Nj == 3:
         optPars = HWWconfig.getOptimalPars(mH, optimalPars3)
@@ -288,6 +288,9 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
     fitterPars = HWWconfig.theConfig(Nj, mcdir, initFile)
     fitterPars.includeMuons = True
     fitterPars.includeElectrons = False
+
+    if mvaCut:
+        mvaCutValues = mvaCut
     
     fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues)
 
@@ -295,7 +298,7 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
     
     return fitterPars
 
-def the4BodyConfig(twoBodyConfig, mH=400, syst=0):
+def the4BodyConfig(twoBodyConfig, mH=400, syst=0, alphaOverride = None):
     if twoBodyConfig.njets == 3:
         optPars = HWWconfig.getOptimalPars(mH, optimalPars3)
     else:
@@ -303,6 +306,8 @@ def the4BodyConfig(twoBodyConfig, mH=400, syst=0):
     HWWconfig.minMlvjj = optPars[3]
     HWWconfig.maxMlvjj = optPars[4]
     alpha = optPars[6+syst]
+    if alphaOverride:
+        alpha = alphaOverride
     fitterPars = HWWconfig.the4BodyConfig(twoBodyConfig, alpha, optPars[9],
                                           optPars[10])
     fitterPars.nbins = optPars[5]

@@ -64,13 +64,11 @@ theFitter.makeFitter(False)
 #theFitter.getWorkSpace().Print()
 fr = theFitter.fit()
 
-chi2 = Double(0.)
-#ndf = Long(2)
 extraNdf = 0
 if not fitterPars.constrainDiboson:
     extraNdf += 1
 ndf = Long(fr.floatParsFinal().getSize()-5+extraNdf)
-theFitter.computeChi2(chi2, ndf)
+chi2 = theFitter.computeChi2(ndf)
 # chi2frame.Draw()
 
 # assert False, "fit done"

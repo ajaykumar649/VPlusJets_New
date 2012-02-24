@@ -308,7 +308,7 @@ optimalPars3 = [
 
 
 
-def theConfig(Nj, mcdir = '', initFile = '', mH=400):
+def theConfig(Nj, mcdir = '', initFile = '', mH=400, mvaCut = None):
     if Nj == 3:
         optPars = HWWconfig.getOptimalPars(mH, optimalPars3)
     else:
@@ -322,6 +322,9 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
     fitterPars = HWWconfig.theConfig(Nj, mcdir, initFile)
     fitterPars.includeMuons = False
     fitterPars.includeElectrons = True
+
+    if (mvaCut):
+        mvaCutValues = mvaCut
     
     fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues) + \
                        '&& (W_electron_pt > 35) '
@@ -330,7 +333,7 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400):
 
     return fitterPars
 
-def the4BodyConfig(twoBodyConfig, mH=400, syst=0):
+def the4BodyConfig(twoBodyConfig, mH=400, syst=0, alphaOverride = None):
     if twoBodyConfig.njets == 3:
         optPars = HWWconfig.getOptimalPars(mH, optimalPars3)
     else:
@@ -338,11 +341,15 @@ def the4BodyConfig(twoBodyConfig, mH=400, syst=0):
     HWWconfig.minMlvjj = optPars[3]
     HWWconfig.maxMlvjj = optPars[4]
     alpha = optPars[6+syst]
+    if alphaOverride:
+        alpha = alphaOverride
     fitterPars = HWWconfig.the4BodyConfig(twoBodyConfig, alpha, optPars[9],
                                           optPars[10])
     fitterPars.nbins = optPars[5]
     fitterPars.model = 1
     if (mH==190) and (twoBodyConfig.njets == 2):
         fitterPars.model = 4
+##     if (mH==180) and (twoBodyConfig.njets == 2):
+##         fitterPars.model = 5
 
     return fitterPars

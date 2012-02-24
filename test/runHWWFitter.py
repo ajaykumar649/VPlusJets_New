@@ -109,6 +109,12 @@ parser.add_option('-s', '--syst', dest='syst', type='int', default=0,
                    help='alpha systematic 0: none, 1: down, 2: up')
 parser.add_option('-W', '--WpJ', dest='ParamWpJ', type='int',
                   default=-1, help=wpjhelp)
+parser.add_option('--debug', action='store_true', dest='debug', default=False,
+                  help='stop when things aren\'t good')
+parser.add_option('--mvaCut', dest='mvaCut', type='float',
+                  help='override the mva cut with this value')
+parser.add_option('--alpha', dest='alpha', type='float',
+                  help='override the alpha with this value')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -121,7 +127,7 @@ assert (opts.syst <= 2)
 #import HWWwideSideband
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
-#gROOT.ProcessLine('.L RooWjjFitterParams.h+');
+#gROOT.ProcessLine('.L RooWjjFitterParams.h+')
 gROOT.ProcessLine('.L EffTableReader.cc+')
 gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
@@ -132,7 +138,8 @@ from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
 from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
-fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.mH)
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.mH,
+                              opts.mvaCut)
 
 fitterPars.WpJfunction = opts.ParamWpJ
 #fitterPars.truncRange = True
@@ -179,8 +186,6 @@ print 'Corrected chi2'
 chi2 = theFitter.computeChi2(ndf)
 print 'Raw chi2'
 chi2Raw = theFitter.computeChi2(ndf2, False)
-if (TMath.Prob(chi2Raw,  ndf2) < 0.05):
-    print '**DANGER** The fit probability is low **DANGER**'
 #dataHist.Print()
 #dataHist.Scale(1., 'width')
 #dataHist.Print()
@@ -242,6 +247,11 @@ pf.Draw()
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
+
+if (TMath.Prob(chi2Raw,  ndf2) < 0.05):
+    print '**DANGER** The fit probability is low **DANGER**'
+    if opts.debug:
+        assert(False)
 
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
 #yields = theFitter.makeFitter().coefList()
@@ -377,10 +387,10 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-assert(False)
+#assert(False)
 
 cdebug = TCanvas('cdebug', 'debug')
-pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst)
+pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst, opts.alpha)
 pars4.initParamsFile = 'lastSigYield.txt'
 fitter4 = RooWjjMjjFitter(pars4)
 
@@ -453,6 +463,7 @@ SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)
 SigVisual.SetLineWidth(3)
 SigVisual.Scale(pars4.intLumi*extraFactor*otherdata[1]*otherdata[2])
+SigVisual.Print()
 SigVisualLog = TH1D(SigVisual)
 SigVisualLog.SetName("SigVisualLog")
 

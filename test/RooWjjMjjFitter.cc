@@ -627,6 +627,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     case 1:
       power2.setVal(0.);
       power2.setConstant(true);
+    case 7:
       turnOn.setVal(45.);
       width.setVal(20.);
       ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
@@ -1081,6 +1082,11 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
     fitf->SetParameters(6.0, -0.015, 160, 10);
     fitf->FixParameter(3, 15.0);
+  } else if (params_.model == 5) {
+    TString fitString("exp([0]+[1]*x)");
+    fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
+    fitf = new TF1("fitf", fitString, params_.minMass, localMax);
+    fitf->SetParameters(6.0, -0.015, 160, 20);
   }
 
   TVirtualFitter::SetMaxIterations(10000);
@@ -1104,6 +1110,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 // 					    ws_, histOrder);
   switch (params_.model) {
   case 4:
+  case 5:
   case 1: {
     RooRealVar c("c", "c", fitf->GetParameter(1));
     c.setError(fitf->GetParError(1));
@@ -1115,7 +1122,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		      "(TMath::Erf((@0-@1)/@2)+1)",
 		      RooArgList(*mass, turnOn, width));
     
-    if (params_.model == 4) {
+    if ((params_.model == 4) || (params_.model == 5)) {
       RooProdPdf WpJ4Body1("WpJ4BodyPdf", "WpJ4BodyPdf", 
 			   RooArgList(erf, expPdf));
       turnOn.setVal(fitf->GetParameter(2));
