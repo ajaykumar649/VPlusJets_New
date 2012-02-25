@@ -17,7 +17,9 @@
 //   and the helicity angle (Higgs system).
 //
 
-TVector2 getTvect( reco::PFJet* patJet ){
+//TVector2 getTvect( reco::PFJet* patJet ){
+
+template <typename T> TVector2 getTvect(const T&  patJet){
 
   TVector2 t_Vect(0,0);
   TVector2 null(0,0);
@@ -30,7 +32,8 @@ TVector2 getTvect( reco::PFJet* patJet ){
   unsigned int nOfconst = 0;
 
 //Re-reconstruct the jet direction with the charged tracks
-  std::vector<reco::PFCandidatePtr>
+  std::vector<reco::PFCandidatePtr> patJetpfc;
+ 
   patJetpfc = patJet->getPFConstituents();
   for(size_t idx = 0; idx < patJetpfc.size(); idx++){
     if( patJetpfc.at(idx)->charge() != 0 ){
@@ -70,8 +73,8 @@ TVector2 getTvect( reco::PFJet* patJet ){
 
 
 
-double getDeltaTheta(reco::PFJet* j1, reco::PFJet* j2 ){
-
+//double getDeltaTheta(reco::PFJet* j1, reco::PFJet* j2 ){
+template <typename T1,typename T2> double getDeltaTheta(const T1&  j1,const T2& j2){
 
 //the pull vector is going to be calculated using j1 & j2
 
@@ -79,10 +82,10 @@ double getDeltaTheta(reco::PFJet* j1, reco::PFJet* j2 ){
   TLorentzVector pi(0,0,0,0);
   TLorentzVector v_j1(0,0,0,0);
   TLorentzVector v_j2(0,0,0,0);
-
 //re-reconstruct the jet direction with the charged tracks
-
-  std::vector<reco::PFCandidatePtr> j1pfc = j1->getPFConstituents();
+  std::vector<reco::PFCandidatePtr> j1pfc ;
+  std::vector<reco::PFCandidatePtr> j2pfc ;
+	  j1pfc = j1->getPFConstituents();
 
   for(size_t idx = 0; idx < j1pfc.size(); idx++){
     if( j1pfc.at(idx)->charge() != 0 ){
@@ -96,7 +99,7 @@ double getDeltaTheta(reco::PFJet* j1, reco::PFJet* j2 ){
 
 //re-reconstruct the jet direction with the charged tracks
 
-  std::vector<reco::PFCandidatePtr> j2pfc = j2->getPFConstituents();
+  j2pfc = j2->getPFConstituents();
 
   for(size_t idx = 0; idx < j2pfc.size(); idx++){
     if( j2pfc.at(idx)->charge() != 0 ){

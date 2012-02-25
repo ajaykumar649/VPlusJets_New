@@ -26,6 +26,7 @@
 #include <iostream>
 #include <vector>
 #include "TTree.h" 
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -48,7 +49,7 @@ namespace ewk {
 
 
     /// To be called once per event to fill the values for jets
-    void fill(const edm::Event &iEvent);
+    void fill(const edm::Event &iEvent, int vecBosonIndex);
 
 
   protected:
@@ -66,7 +67,10 @@ namespace ewk {
     std::string Vtype_;
     std::string LeptonType_;
     edm::InputTag mInputBoson;
-
+    edm::InputTag mInputMet;
+	edm::InputTag mInputMuons;
+	edm::InputTag mInputBeamSpot;
+	bool runoverAOD;
   private:
     // private data members
     
@@ -119,8 +123,12 @@ namespace ewk {
     float mu1_hcaliso;
     float mu1_ecaliso;
     
-    float mu1d0bsp;
-    float mu1dz000;
+    float mu1_d0bsp;
+    float mu1_dz000;
+  
+    float mu1_pfiso_chargedHadronIso;
+    float mu1_pfiso_photonIso;
+    float mu1_pfiso_neutralHadronIso;    
 
     float mu1pfiso_sumChargedHadronPt;
     float mu1pfiso_sumChargedParticlePt;

@@ -85,8 +85,11 @@ namespace ewk {
     std::string Vtype_;
     std::string LeptonType_;
     edm::InputTag mInputJets;
+	edm::InputTag mInputMet;
     edm::InputTag mInputBoson;
     edm::InputTag sourceByValue;
+  	bool runoverAOD;
+	std::string bTagger;
     // 'mutable' because we will fill it from a 'const' method
     mutable std::vector<std::string> bnames;
 

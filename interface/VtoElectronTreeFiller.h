@@ -68,7 +68,10 @@ namespace ewk {
     std::string Vtype_;
     std::string LeptonType_;
     edm::InputTag mInputBoson;
-
+    edm::InputTag mInputMet;
+	edm::InputTag mInputElectrons;
+	edm::InputTag mInputBeamSpot;
+    bool runoverAOD;	
 
   private:
     // private data members

@@ -30,6 +30,7 @@
 #include "JetMETCorrections/MCJet/plugins/JetUtilMC.h" // needed for dPhi,dR
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 // Monte Carlo stuff
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
@@ -49,8 +50,8 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
 ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree, 
-					const std::string jetType,
-					const edm::ParameterSet iConfig)
+				  const std::string jetType,
+				  const edm::ParameterSet iConfig)
 {
 
   // ********** CaloJets ********** //
@@ -79,11 +80,22 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
     mInputJets = iConfig.getParameter<edm::InputTag>("srcJPTCor"); 
 
   
+  if(  iConfig.existsAs<edm::InputTag>("srcMet") )
+    mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+
+
   // ********** Vector boson ********** //
   if(  iConfig.existsAs<edm::InputTag>("srcVectorBoson") )
     mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
 
-
+  //*********************  Run Over AOD or PAT  ***********//
+  if( iConfig.existsAs<bool>("runningOverAOD"))
+    runoverAOD = iConfig.getParameter<bool>("runningOverAOD");
+		
+  //*********************  bTagger  ***********//
+  if( iConfig.existsAs<std::string>("bTagger"))
+    bTagger = iConfig.getParameter<std::string>("bTagger");
+		
   //  ********** Jet Flavor identification (MC) ********** //
   doJetFlavorIdentification = false;
   if( (iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC") && 
@@ -113,7 +125,7 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranchSingle( &numBTags, "num" + jetType_ + "JetBTags");
 
   if(doJetFlavorIdentification) 
-     SetBranch( Flavor, "Jet" + jetType_ + "_Flavor");
+    SetBranch( Flavor, "Jet" + jetType_ + "_Flavor");
   SetBranch( Et, "Jet" + jetType_ + "_Et");
   SetBranch( Pt, "Jet" + jetType_ + "_Pt");
   SetBranch( Eta, "Jet" + jetType_ + "_Eta");
@@ -364,136 +376,136 @@ void ewk::JetTreeFiller::FillBranches() const
 
 void ewk::JetTreeFiller::init()   
 {
-   // initialize private data members
-   NumJets = 0; 
-   numBTags = 0;
+  // initialize private data members
+  NumJets = 0; 
+  numBTags = 0;
 
-   for (int j =0; j< NUM_JET_MAX; ++j) {
-      Et[j] = -1.0;
-      Pt[j] = -1.0;
-      Eta[j] = -10.0;
-      Phi[j] = -10.0;
-      Theta[j] = -10.0;
-      E[j] = -1.0;
-      Y[j] = -10.0;
-      etaetaMoment[j]  = -10.0;  
-      phiphiMoment[j]  = -10.0;      
-      etaphiMoment[j]  = -10.0;      
-      maxDistance[j]  = -10.0;
-      nConstituents[j]  = -1;
-      Px[j] = -999999.9;
-      Py[j] = -999999.9;
-      Pz[j] = -999999.9;
-      Flavor[j] = -1;
-      Mass[j] = -1.0;
-      Area[j] = -10.;
+  for (int j =0; j< NUM_JET_MAX; ++j) {
+    Et[j] = -1.0;
+    Pt[j] = -1.0;
+    Eta[j] = -10.0;
+    Phi[j] = -10.0;
+    Theta[j] = -10.0;
+    E[j] = -1.0;
+    Y[j] = -10.0;
+    etaetaMoment[j]  = -10.0;  
+    phiphiMoment[j]  = -10.0;      
+    etaphiMoment[j]  = -10.0;      
+    maxDistance[j]  = -10.0;
+    nConstituents[j]  = -1;
+    Px[j] = -999999.9;
+    Py[j] = -999999.9;
+    Pz[j] = -999999.9;
+    Flavor[j] = -1;
+    Mass[j] = -1.0;
+    Area[j] = -10.;
 
-      MaxEInEmTowers[j] = -1.0;
-      MaxEInHadTowers[j] = -1.0;
-      EnergyFractionHadronic[j] = -1.0;
-      EmEnergyFraction[j] = -1.0;
-      HadEnergyInHB[j] = -1.0;
-      HadEnergyInHO[j] = -1.0;
-      HadEnergyInHE[j] = -1.0;
-      HadEnergyInHF[j] = -1.0;
-      EmEnergyInEB[j] = -1.0;
-      EmEnergyInEE[j] = -1.0;
-      EmEnergyInHF[j] = -1.0;
-      TowersArea[j] = -1.0;
-      VjetMass[j] = -1.0;
-      N90[j] = -1; 
-      N60[j] = -1;     
-      Dphi[j] = -10.0;
-      Deta[j] = -10.0;
-      DR[j] = -10.0;
-      DphiMET[j] = -10.0;
-      Response[j] = -1.0;
-      bDiscriminator[j] = -1.0;
-      bDiscriminatorSSVHE[j] = -1.0;
-      bDiscriminatorTCHE[j] = -1.0;
-      bDiscriminatorCSV[j] = -1.0;
-      bDiscriminatorJP[j] = -1.0;
-      bDiscriminatorSSVHP[j] = -1.0;
-      bDiscriminatorTCHP[j] = -1.0;
-      secVertexMass[j] = -1.0;
+    MaxEInEmTowers[j] = -1.0;
+    MaxEInHadTowers[j] = -1.0;
+    EnergyFractionHadronic[j] = -1.0;
+    EmEnergyFraction[j] = -1.0;
+    HadEnergyInHB[j] = -1.0;
+    HadEnergyInHO[j] = -1.0;
+    HadEnergyInHE[j] = -1.0;
+    HadEnergyInHF[j] = -1.0;
+    EmEnergyInEB[j] = -1.0;
+    EmEnergyInEE[j] = -1.0;
+    EmEnergyInHF[j] = -1.0;
+    TowersArea[j] = -1.0;
+    VjetMass[j] = -1.0;
+    N90[j] = -1; 
+    N60[j] = -1;     
+    Dphi[j] = -10.0;
+    Deta[j] = -10.0;
+    DR[j] = -10.0;
+    DphiMET[j] = -10.0;
+    Response[j] = -1.0;
+    bDiscriminator[j] = -1.0;
+    bDiscriminatorSSVHE[j] = -1.0;
+    bDiscriminatorTCHE[j] = -1.0;
+    bDiscriminatorCSV[j] = -1.0;
+    bDiscriminatorJP[j] = -1.0;
+    bDiscriminatorSSVHP[j] = -1.0;
+    bDiscriminatorTCHP[j] = -1.0;
+    secVertexMass[j] = -1.0;
 
-      VjetMass2[j] = -1.0;
-      DR2[j] = -10.0;
-      Dphi2[j] = -10.0;
-      Deta2[j] = -10.0;
-      Response2[j] = -1.0;
+    VjetMass2[j] = -1.0;
+    DR2[j] = -10.0;
+    Dphi2[j] = -10.0;
+    Deta2[j] = -10.0;
+    Response2[j] = -1.0;
 
-      GenEmEnergy[j] = -1.0;
-      GenHadEnergy[j] = -1.0;
-      GenInvisibleEnergy[j] = -1.0;
-      GenAuxiliaryEnergy[j] = -1.0;
+    GenEmEnergy[j] = -1.0;
+    GenHadEnergy[j] = -1.0;
+    GenInvisibleEnergy[j] = -1.0;
+    GenAuxiliaryEnergy[j] = -1.0;
 
-      PFChargedHadronEnergy[j] = -1.0;
-      PFChargedHadronEnergyFraction[j] = -1.0;
-      PFNeutralHadronEnergy[j] = -1.0;
-      PFNeutralHadronEnergyFraction[j] = -1.0;
-      PFChargedEmEnergy[j] = -1.0;
-      PFChargedEmEnergyFraction[j] = -1.0;
-      PFChargedMuEnergy[j] = -1.0;
-      PFChargedMuEnergyFraction[j] = -1.0;
-      PFNeutralEmEnergy[j] = -1.0;
-      PFNeutralEmEnergyFraction[j] = -1.0;
-      PFChargedMultiplicity[j] = -1;
-      PFNeutralMultiplicity[j] = -1;
-      PFMuonMultiplicity[j] = -1;
-      PFPhotonEnergy[j] = -1.0;
-      PFPhotonEnergyFraction[j] = -1.0;
-      PFElectronEnergy[j] = -1.0;
-      PFElectronEnergyFraction[j] = -1.0;
-      PFMuonEnergy[j] = -1.0;
-      PFMuonEnergyFraction[j] = -1.0;
-      PFHFHadronEnergy[j] = -1.0;
-      PFHFHadronEnergyFraction[j] = -1.0;
-      PFHFEMEnergy[j] = -1.0;
-      PFHFEMEnergyFraction[j] = -1.0;	 
-      PFChargedHadronMultiplicity[j] = -1;
-      PFNeutralHadronMultiplicity[j] = -1;
-      PFPhotonMultiplicity[j] = -1;
-      PFElectronMultiplicity[j] = -1;
-      PFHFHadronMultiplicity[j] = -1;
-      PFHFEMMultiplicity[j] = -1;
-      PFsumPtCands[j]=0.;
-      PFsumPt2Cands[j]=0.;
-      PFrmsCands[j]=0.;
-      PFptD[j] = -1.0;
-      PFqgLikelihood[j] = -1.0;
-   }
-   // initialization done
+    PFChargedHadronEnergy[j] = -1.0;
+    PFChargedHadronEnergyFraction[j] = -1.0;
+    PFNeutralHadronEnergy[j] = -1.0;
+    PFNeutralHadronEnergyFraction[j] = -1.0;
+    PFChargedEmEnergy[j] = -1.0;
+    PFChargedEmEnergyFraction[j] = -1.0;
+    PFChargedMuEnergy[j] = -1.0;
+    PFChargedMuEnergyFraction[j] = -1.0;
+    PFNeutralEmEnergy[j] = -1.0;
+    PFNeutralEmEnergyFraction[j] = -1.0;
+    PFChargedMultiplicity[j] = -1;
+    PFNeutralMultiplicity[j] = -1;
+    PFMuonMultiplicity[j] = -1;
+    PFPhotonEnergy[j] = -1.0;
+    PFPhotonEnergyFraction[j] = -1.0;
+    PFElectronEnergy[j] = -1.0;
+    PFElectronEnergyFraction[j] = -1.0;
+    PFMuonEnergy[j] = -1.0;
+    PFMuonEnergyFraction[j] = -1.0;
+    PFHFHadronEnergy[j] = -1.0;
+    PFHFHadronEnergyFraction[j] = -1.0;
+    PFHFEMEnergy[j] = -1.0;
+    PFHFEMEnergyFraction[j] = -1.0;	 
+    PFChargedHadronMultiplicity[j] = -1;
+    PFNeutralHadronMultiplicity[j] = -1;
+    PFPhotonMultiplicity[j] = -1;
+    PFElectronMultiplicity[j] = -1;
+    PFHFHadronMultiplicity[j] = -1;
+    PFHFEMMultiplicity[j] = -1;
+    PFsumPtCands[j]=0.;
+    PFsumPt2Cands[j]=0.;
+    PFrmsCands[j]=0.;
+    PFptD[j] = -1.0;
+    PFqgLikelihood[j] = -1.0;
+  }
+  // initialization done
 
-   V2jMass = -1.0;
-   V3jMass = -1.0;
-   V4jMass = -1.0;
-   V5jMass = -1.0;
-   V6jMass = -1.0;
-   c2jMass = -1.0;
-   c3jMass = -1.0;
-   c4jMass = -1.0;
-   c5jMass = -1.0;
-   c6jMass = -1.0;
+  V2jMass = -1.0;
+  V3jMass = -1.0;
+  V4jMass = -1.0;
+  V5jMass = -1.0;
+  V6jMass = -1.0;
+  c2jMass = -1.0;
+  c3jMass = -1.0;
+  c4jMass = -1.0;
+  c5jMass = -1.0;
+  c6jMass = -1.0;
 
-   V2jCosJacksonAngle = -10.0;
-   c2jCosJacksonAngle = -10.0;
-   V3jCosJacksonAngle = -10.0;
-   c3jCosJacksonAngle12 = -10.0;
-   c3jCosJacksonAngle23 = -10.0;
-   c3jCosJacksonAngle31 = -10.0;
+  V2jCosJacksonAngle = -10.0;
+  c2jCosJacksonAngle = -10.0;
+  V3jCosJacksonAngle = -10.0;
+  c3jCosJacksonAngle12 = -10.0;
+  c3jCosJacksonAngle23 = -10.0;
+  c3jCosJacksonAngle31 = -10.0;
 
-   cosphiDecayPlane = 10.0; 
-   cosThetaLnu = 10.0; 
-   cosThetaJJ = 10.0;
+  cosphiDecayPlane = 10.0; 
+  cosThetaLnu = 10.0; 
+  cosThetaJJ = 10.0;
 
-   leadingDeltaTheta = -10.0;
-   j1Hel_HiggsCM = -10.0;;
-   j2Hel_HiggsCM = -10.0;;
-   l1Hel_HiggsCM = -10.0;;
-   l2Hel_HiggsCM = -10.0;;
-   b1Hel_HiggsCM = -10.0;;
-   b2Hel_HiggsCM = -10.0;;
+  leadingDeltaTheta = -10.0;
+  j1Hel_HiggsCM = -10.0;;
+  j2Hel_HiggsCM = -10.0;;
+  l1Hel_HiggsCM = -10.0;;
+  l2Hel_HiggsCM = -10.0;;
+  b1Hel_HiggsCM = -10.0;;
+  b2Hel_HiggsCM = -10.0;;
    
 }
 
@@ -501,218 +513,239 @@ void ewk::JetTreeFiller::init()
 
 void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 {
-   // first initialize to the default values
-   init();
+  // first initialize to the default values
+  init();
 
-   edm::Handle<reco::CandidateView> boson;
-   iEvent.getByLabel( mInputBoson, boson);
-   const int nBoson = boson->size();
-   if( nBoson<1 ) return; // Nothing to fill
+  edm::Handle<reco::CandidateView> boson;
+  iEvent.getByLabel( mInputBoson, boson);
+  const int nBoson = boson->size();
+  if( nBoson<1 ) return; // Nothing to fill
   
-   const reco::Candidate *Vboson = &((*boson)[0]); 
+  const reco::Candidate *Vboson = &((*boson)[0]); 
 
-   // in case when we have two candidates for the W boson in the event
-   const reco::Candidate *Vboson2(0);
-   if( nBoson==2) Vboson2  = &((*boson)[1]);
-
-
-   edm::Handle<edm::View<reco::Jet> > jets;
-   iEvent.getByLabel( mInputJets, jets ); 
+  // in case when we have two candidates for the W boson in the event
+  const reco::Candidate *Vboson2(0);
+  if( nBoson==2) Vboson2  = &((*boson)[1]);
 
 
-   if(jets->size() < 1) return;
+  edm::Handle<edm::View<reco::Jet> > jets;
+  iEvent.getByLabel( mInputJets, jets ); 
 
-   /////// PfMET information /////
-   edm::Handle<reco::PFMETCollection> pfmet;
-   iEvent.getByLabel("pfMet", pfmet);
 
-   // Get b tag information
-   // ------------- SSV-HE ------------------------
-   edm::Handle<reco::JetTagCollection> bTagHandle1;
-   iEvent.getByLabel("simpleSecondaryVertexHighEffBJetTags", bTagHandle1);
-   const reco::JetTagCollection & bTagsSSVHE = *(bTagHandle1.product());
+  if(jets->size() < 1) return;
 
-   // ------------- TC-HE ------------------------
-   edm::Handle<reco::JetTagCollection> bTagHandle2;
-   iEvent.getByLabel("trackCountingHighEffBJetTags", bTagHandle2);
-   const reco::JetTagCollection & bTagsTCHE = *(bTagHandle2.product());
+  /////// PfMET information /////
+  edm::Handle<edm::View<reco::MET> > pfmet;
+  iEvent.getByLabel(mInputMet, pfmet);
+
+
+  edm::Handle<reco::JetTagCollection> bTagHandle1;
+  edm::Handle<reco::JetTagCollection> bTagHandle2;
+  edm::Handle<reco::JetTagCollection> bTagHandle3;
+  edm::Handle<reco::JetTagCollection> bTagHandle4;
+  edm::Handle<reco::JetTagCollection> bTagHandle5;
+  edm::Handle<reco::JetTagCollection> bTagHandle6;
+ 
+  if(runoverAOD){
+    // Get b tag information
+    // ------------- SSV-HE ------------------------
+    iEvent.getByLabel("simpleSecondaryVertexHighEffBJetTags", bTagHandle1);
+
+    // ------------- TC-HE ------------------------
+    iEvent.getByLabel("trackCountingHighEffBJetTags", bTagHandle2);
   
-   // ------------- CSV ------------------------
-   edm::Handle<reco::JetTagCollection> bTagHandle3;
-   iEvent.getByLabel("combinedSecondaryVertexBJetTags", bTagHandle3);
-   const reco::JetTagCollection & bTagsCSV = *(bTagHandle3.product());
+    // ------------- CSV ------------------------
   
-   // ------------- JP ------------------------
-   edm::Handle<reco::JetTagCollection> bTagHandle4;
-   iEvent.getByLabel("jetProbabilityBJetTags", bTagHandle4);
-   const reco::JetTagCollection & bTagsJP = *(bTagHandle4.product());
+    iEvent.getByLabel("combinedSecondaryVertexBJetTags", bTagHandle3);
   
-   // ------------- SSV-HP ------------------------
-   edm::Handle<reco::JetTagCollection> bTagHandle5;
-   iEvent.getByLabel("simpleSecondaryVertexHighPurBJetTags", bTagHandle5);
-   const reco::JetTagCollection & bTagsSSVHP = *(bTagHandle5.product());
+    // ------------- JP ------------------------
+ 
+    iEvent.getByLabel("jetProbabilityBJetTags", bTagHandle4);
   
-
-   // ------------- TC-HP ------------------------
-   edm::Handle<reco::JetTagCollection> bTagHandle6;
-   iEvent.getByLabel("trackCountingHighPurBJetTags", bTagHandle6);
-   const reco::JetTagCollection & bTagsTCHP = *(bTagHandle6.product());
+    // ------------- SSV-HP ------------------------
+    iEvent.getByLabel("simpleSecondaryVertexHighPurBJetTags", bTagHandle5);
   
 
+    // ------------- TC-HP ------------------------
+ 
+    iEvent.getByLabel("trackCountingHighPurBJetTags", bTagHandle6);
 
-   edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos;
-   iEvent.getByLabel("secondaryVertexTagInfos", svTagInfos);
+  }
+  const reco::JetTagCollection  &  bTagsSSVHE = *(bTagHandle1.product()) ;
+  const reco::JetTagCollection  &  bTagsTCHE = *(bTagHandle2.product()) ;
+  const reco::JetTagCollection  &  bTagsCSV = *(bTagHandle3.product()) ;
+  const reco::JetTagCollection  &  bTagsJP = *(bTagHandle4.product());
+  const reco::JetTagCollection  &  bTagsSSVHP = *(bTagHandle5.product());
+  const reco::JetTagCollection  &  bTagsTCHP = *(bTagHandle6.product()) ;
+ 
+  
+  edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos;
+  if(runoverAOD){
+    iEvent.getByLabel("secondaryVertexTagInfos", svTagInfos);
+  }
+  // ---- Quark Gluon Likelihood
+  QGLikelihoodCalculator *qglikeli = new QGLikelihoodCalculator();  
+
+  size_t iJet = 0;
+  double dist = 100000.0;
+  NumJets = 0;
+  numBTags = 0;
 
 
-   // ---- Quark Gluon Likelihood
-   QGLikelihoodCalculator *qglikeli = new QGLikelihoodCalculator();  
+  /////// Pileup density "rho" in the event from fastJet pileup calculation /////
+  float fastjet_rho = -999999.9;
+  edm::Handle<double> rho;
+  const edm::InputTag eventrho("kt6PFJets", "rho");
+  iEvent.getByLabel(eventrho,rho);
+  if( *rho == *rho) fastjet_rho = *rho;
 
-   size_t iJet = 0;
-   double dist = 100000.0;
-   NumJets = 0;
-   numBTags = 0;
-
-
-   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
-   float fastjet_rho = -999999.9;
-   edm::Handle<double> rho;
-   const edm::InputTag eventrho("kt6PFJets", "rho");
-   iEvent.getByLabel(eventrho,rho);
-   if( *rho == *rho) fastjet_rho = *rho;
-
-   // get PFCandidates
-   edm::Handle<reco::PFCandidateCollection>  PFCandidates;
-   iEvent.getByLabel("particleFlow", PFCandidates);
+//   // get PFCandidates
+//   edm::Handle<reco::PFCandidateCollection>  PFCandidates;
+//   if(runoverAOD) iEvent.getByLabel("particleFlow", PFCandidates);
 
 
+  /****************    MC Jet Flavor    ***************/
+  edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue; 
+  if(doJetFlavorIdentification) 
+    if(runoverAOD){
+      iEvent.getByLabel (sourceByValue, theTagByValue ); }
 
-   /****************    MC Jet Flavor    ***************/
-   edm::Handle<reco::JetFlavourMatchingCollection> theTagByValue; 
-   if(doJetFlavorIdentification) 
-      iEvent.getByLabel (sourceByValue, theTagByValue );   
+  const reco::Jet *ij1=0;
+  const reco::Jet *ij2=0;
 
-   const reco::Jet *ij1=0;
-   const reco::Jet *ij2=0;
-
-   // Loop over reco jets 
-   edm::View<reco::Jet>::const_iterator jet, endpjets = jets->end(); 
-   for (jet = jets->begin();  jet != endpjets;  ++jet, ++iJet) {
-
-      if( !(iJet< (unsigned int) NUM_JET_MAX) ) break;
-      Et[iJet] = (*jet).et();
-      Pt[iJet] = (*jet).pt();
-      Eta[iJet] = (*jet).eta();
-      Phi[iJet] = (*jet).phi();
-      Theta[iJet] = (*jet).theta();
-      Px[iJet] = (*jet).px();
-      Py[iJet] = (*jet).py();
-      Pz[iJet] = (*jet).pz();
-      E[iJet]  = (*jet).energy();
-      Y[iJet]  = (*jet).rapidity();
-      Mass[iJet] = (*jet).mass();
-      Area[iJet] = (*jet).jetArea();
-
-      etaetaMoment[iJet]  = (*jet).etaetaMoment();  
+  // Loop over reco jets 
+  edm::View<reco::Jet>::const_iterator jet, endpjets = jets->end(); 
+  for (jet = jets->begin();  jet != endpjets;  ++jet, ++iJet) {
+    if( !(iJet< (unsigned int) NUM_JET_MAX) ) break;
+    Et[iJet] = (*jet).et();
+    Pt[iJet] = (*jet).pt();
+    Eta[iJet] = (*jet).eta();
+    Phi[iJet] = (*jet).phi();
+    Theta[iJet] = (*jet).theta();
+    Px[iJet] = (*jet).px();
+    Py[iJet] = (*jet).py();
+    Pz[iJet] = (*jet).pz();
+    E[iJet]  = (*jet).energy();
+    Y[iJet]  = (*jet).rapidity();
+    Mass[iJet] = (*jet).mass();
+    Area[iJet] = (*jet).jetArea();
+    if(runoverAOD){
+      etaetaMoment[iJet]  = (*jet).etaetaMoment();
       phiphiMoment[iJet]  = (*jet).phiphiMoment();      
-      etaphiMoment[iJet]  = (*jet).etaphiMoment();      
+      etaphiMoment[iJet]  = (*jet).etaphiMoment();
       maxDistance[iJet]  = (*jet).maxDistance();
       nConstituents[iJet]  = (*jet).nConstituents();
-
-      Dphi[iJet] = dPhi( (*jet).phi(), Vboson->phi() );
-      Deta[iJet] = fabs( (*jet).eta() - Vboson->eta() );
-      DR[iJet] = radius( (*jet).eta(), (*jet).phi(), 
-			 Vboson->eta(), Vboson->phi());
-      DphiMET[iJet] = dPhi( (*jet).phi(), (*pfmet)[0].phi() );
-
-      Response[iJet] = 10.0;
-      float vpt = Vboson->pt();
-      if( vpt>0.0 ) Response[iJet] = (*jet).pt() / vpt;
-
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > qstar 
-         = (*jet).p4() + Vboson->p4();
-      VjetMass[iJet] = qstar.M();
+    }
+ 	
+    Dphi[iJet] = dPhi( (*jet).phi(), Vboson->phi() );
+    Deta[iJet] = fabs( (*jet).eta() - Vboson->eta() );
+    DR[iJet] = radius( (*jet).eta(), (*jet).phi(), 
+		       Vboson->eta(), Vboson->phi());
+    DphiMET[iJet] = dPhi( (*jet).phi(), (*pfmet)[0].phi() );
+	 
+    Response[iJet] = 10.0;
+    float vpt = Vboson->pt();
+    if( vpt>0.0 ) Response[iJet] = (*jet).pt() / vpt;
+	 
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > qstar 
+      = (*jet).p4() + Vboson->p4();
+    VjetMass[iJet] = qstar.M();
 
 
 
     // ------- Compute deltaR (jet, vector boson) -----
-      if( nBoson==2) {
-	DR2[iJet] = radius( (*jet).eta(), (*jet).phi(), 
-			    Vboson2->eta(), Vboson2->phi());
-	Dphi2[iJet] = dPhi( (*jet).phi(), Vboson2->phi() );
-	Deta2[iJet] = fabs( (*jet).eta() - Vboson2->eta() );
-	Response2[iJet] = 10.0;
-	vpt = Vboson2->pt();
-	if( vpt>0.0 ) Response2[iJet] = (*jet).pt() / vpt;	
-	qstar = (*jet).p4() + Vboson2->p4();
-	VjetMass2[iJet] = qstar.M();	
-      }
+    if( nBoson==2) {
+      DR2[iJet] = radius( (*jet).eta(), (*jet).phi(), 
+			  Vboson2->eta(), Vboson2->phi());
+      Dphi2[iJet] = dPhi( (*jet).phi(), Vboson2->phi() );
+      Deta2[iJet] = fabs( (*jet).eta() - Vboson2->eta() );
+      Response2[iJet] = 10.0;
+      vpt = Vboson2->pt();
+      if( vpt>0.0 ) Response2[iJet] = (*jet).pt() / vpt;	
+      qstar = (*jet).p4() + Vboson2->p4();
+      VjetMass2[iJet] = qstar.M();	
+    }
 
 
-      if(doJetFlavorIdentification) {
-         int flavor = -1;
-         for ( reco::JetFlavourMatchingCollection::const_iterator jfm  = 
-                  theTagByValue->begin();
-               jfm != theTagByValue->end(); jfm ++ ) {
-            edm::RefToBase<reco::Jet> aJet  = (*jfm).first;   
-            const reco::JetFlavour aFlav = (*jfm).second;
-            dist = radius(aJet->eta(), aJet->phi(), 
+    if(doJetFlavorIdentification) {
+      int flavor = -1;
+      if(runoverAOD){
+	for ( reco::JetFlavourMatchingCollection::const_iterator jfm  = 
+		theTagByValue->begin();
+	      jfm != theTagByValue->end(); jfm ++ ) {
+	  edm::RefToBase<reco::Jet> aJet  = (*jfm).first;   
+	  const reco::JetFlavour aFlav = (*jfm).second;
+	  dist = radius(aJet->eta(), aJet->phi(), 
 			(*jet).eta(), (*jet).phi());
-            if( dist < 0.0001 ) flavor = abs(aFlav.getFlavour()); 
-         }
-         Flavor[iJet] = flavor;
+	  if( dist < 0.0001 ) flavor = abs(aFlav.getFlavour()); 
+	}
+	Flavor[iJet] = flavor;
       }
+      else
+	{
+	  edm::Ptr<reco::Jet> ptrJet = jets->ptrAt( jet - jets->begin() );			 
+	  if ( ptrJet.isNonnull() && ptrJet.isAvailable() ) {
+	    const pat::Jet* pjet = dynamic_cast<const pat::Jet *>(ptrJet.get()) ;
+	    if(pjet !=0) Flavor[iJet] = pjet->partonFlavour();
+	  }
 
-      // study b tag info.
-      // ------------- SSV-HE ------------------------
-      double closestDistance = 100000.0;
-      unsigned int closestIndex = 10000;
+			  
+	}
+    }
+
+    // study b tag info.
+    // ------------- SSV-HE ------------------------
+    double closestDistance = 100000.0;
+    unsigned int closestIndex = 10000;
       
+    // compute B-tag discriminator
+    bDiscriminator[iJet] = -1.0;
+    bDiscriminatorSSVHE[iJet] = -1.0;
+    secVertexMass[iJet] = -1.0;
+    if(runoverAOD){
       for (unsigned int i = 0; i != bTagsSSVHE.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTagsSSVHE[i].first;   
-         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
-         if( dist < closestDistance ) { 
-            closestDistance = dist;
-            closestIndex = i;
-         }
+	edm::RefToBase<reco::Jet> aJet  = bTagsSSVHE[i].first;   
+	dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	if( dist < closestDistance ) { 
+	  closestDistance = dist;
+	  closestIndex = i;
+	}
       }
-      // compute B-tag discriminator
-      bDiscriminator[iJet] = -1.0;
-      bDiscriminatorSSVHE[iJet] = -1.0;
-      secVertexMass[iJet] = -1.0;
-
+		  
+      // std::cout << " ++++++++++++++++++++  jbTagsSSVHE.size() " <<  bTagsSSVHE.size() <<std::endl;
       if( closestDistance<0.3 && closestIndex<bTagsSSVHE.size() ) {
-         bDiscriminator[iJet] = bTagsSSVHE[closestIndex].second;
-         bDiscriminatorSSVHE[iJet] = bTagsSSVHE[closestIndex].second;
-         const reco::SecondaryVertexTagInfo svTagInfo 
-            = (*svTagInfos)[closestIndex];
-         if (  svTagInfo.nVertices() > 0  && 
-         bDiscriminator[iJet]>-1.0) {
-            if(bDiscriminator[iJet]>1.74) numBTags ++;
-
-            ///////////////////////////
-            // Calculate SecVtx Mass //
-            ///////////////////////////
-            ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > sumVec;
-            reco::CompositeCandidate vertexCand;
-            reco::Vertex::trackRef_iterator 
-               kEndTracks = svTagInfo.secondaryVertex(0).tracks_end();
-            for (reco::Vertex::trackRef_iterator trackIter = 
-                    svTagInfo.secondaryVertex(0).tracks_begin(); 
-                 trackIter != kEndTracks; 
-                 ++trackIter ) 
-            {
-               const double kPionMass = 0.13957018;
-               ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > vec;
-               vec.SetPx( (*trackIter)->px() );
-               vec.SetPy( (*trackIter)->py() );
-               vec.SetPz( (*trackIter)->pz() );
-               vec.SetM (kPionMass);
-               sumVec += vec;
-            } // for trackIter
-            secVertexMass[iJet] = sumVec.M();
-         } // endif svTagInfo.nVertices condition
+	bDiscriminator[iJet] = bTagsSSVHE[closestIndex].second;
+	bDiscriminatorSSVHE[iJet] = bTagsSSVHE[closestIndex].second;
+	const reco::SecondaryVertexTagInfo svTagInfo = (*svTagInfos)[closestIndex];
+	if (  svTagInfo.nVertices() > 0  && 
+	      bDiscriminator[iJet]>-1.0) {
+	  if(bDiscriminator[iJet]>1.74) numBTags ++;
+				  
+	  ///////////////////////////
+	  // Calculate SecVtx Mass //
+	  ///////////////////////////
+				  
+	  ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > sumVec;
+	  reco::CompositeCandidate vertexCand;
+	  reco::Vertex::trackRef_iterator 
+	    kEndTracks = svTagInfo.secondaryVertex(0).tracks_end();
+	  for (reco::Vertex::trackRef_iterator trackIter = 
+		 svTagInfo.secondaryVertex(0).tracks_begin(); 
+	       trackIter != kEndTracks; 
+	       ++trackIter ) 
+	    {
+	      const double kPionMass = 0.13957018;
+	      ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > vec;
+	      vec.SetPx( (*trackIter)->px() );
+	      vec.SetPy( (*trackIter)->py() );
+	      vec.SetPz( (*trackIter)->pz() );
+	      vec.SetM (kPionMass);
+	      sumVec += vec;
+	    } // for trackIter
+	  secVertexMass[iJet] = sumVec.M();
+	} // endif svTagInfo.nVertices condition
       }// endif closestDistance condition				      
-
+	  
 
       // ------------- TC-HE ------------------------
       bDiscriminatorTCHE[iJet] = -1.0;
@@ -720,15 +753,15 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       closestIndex = 10000;
       
       for (unsigned int i = 0; i != bTagsTCHE.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTagsTCHE[i].first;   
-         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
-         if( dist < closestDistance ) { 
-            closestDistance = dist;
-            closestIndex = i;
-         }
+	edm::RefToBase<reco::Jet> aJet  = bTagsTCHE[i].first;   
+	dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	if( dist < closestDistance ) { 
+	  closestDistance = dist;
+	  closestIndex = i;
+	}
       }
-     if( closestDistance<0.3 && closestIndex<bTagsTCHE.size() )
-         bDiscriminatorTCHE[iJet] = bTagsTCHE[closestIndex].second;
+      if( closestDistance<0.3 && closestIndex<bTagsTCHE.size() )
+	bDiscriminatorTCHE[iJet] = bTagsTCHE[closestIndex].second;
 
       // ------------- CSV ------------------------
       bDiscriminatorCSV[iJet] = -1.0;
@@ -736,15 +769,15 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       closestIndex = 10000;
       
       for (unsigned int i = 0; i != bTagsCSV.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTagsCSV[i].first;   
-         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
-         if( dist < closestDistance ) { 
-            closestDistance = dist;
-            closestIndex = i;
-         }
+	edm::RefToBase<reco::Jet> aJet  = bTagsCSV[i].first;   
+	dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	if( dist < closestDistance ) { 
+	  closestDistance = dist;
+	  closestIndex = i;
+	}
       }
-     if( closestDistance<0.3 && closestIndex<bTagsCSV.size() )
-         bDiscriminatorCSV[iJet] = bTagsCSV[closestIndex].second;
+      if( closestDistance<0.3 && closestIndex<bTagsCSV.size() )
+	bDiscriminatorCSV[iJet] = bTagsCSV[closestIndex].second;
 
       // ------------- JP ------------------------
       bDiscriminatorJP[iJet] = -1.0;
@@ -752,15 +785,15 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       closestIndex = 10000;
       
       for (unsigned int i = 0; i != bTagsJP.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTagsJP[i].first;   
-         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
-         if( dist < closestDistance ) { 
-            closestDistance = dist;
-            closestIndex = i;
-         }
+	edm::RefToBase<reco::Jet> aJet  = bTagsJP[i].first;   
+	dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	if( dist < closestDistance ) { 
+	  closestDistance = dist;
+	  closestIndex = i;
+	}
       }
-     if( closestDistance<0.3 && closestIndex<bTagsJP.size() )
-         bDiscriminatorJP[iJet] = bTagsJP[closestIndex].second;
+      if( closestDistance<0.3 && closestIndex<bTagsJP.size() )
+	bDiscriminatorJP[iJet] = bTagsJP[closestIndex].second;
 
       // ------------- SSV-HP ------------------------
       bDiscriminatorSSVHP[iJet] = -1.0;
@@ -768,15 +801,15 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       closestIndex = 10000;
       
       for (unsigned int i = 0; i != bTagsSSVHP.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTagsSSVHP[i].first;   
-         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
-         if( dist < closestDistance ) { 
-            closestDistance = dist;
-            closestIndex = i;
-         }
+	edm::RefToBase<reco::Jet> aJet  = bTagsSSVHP[i].first;   
+	dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	if( dist < closestDistance ) { 
+	  closestDistance = dist;
+	  closestIndex = i;
+	}
       }
-     if( closestDistance<0.3 && closestIndex<bTagsSSVHP.size() )
-         bDiscriminatorSSVHP[iJet] = bTagsSSVHP[closestIndex].second;
+      if( closestDistance<0.3 && closestIndex<bTagsSSVHP.size() )
+	bDiscriminatorSSVHP[iJet] = bTagsSSVHP[closestIndex].second;
 
       // ------------- TC-HP ------------------------
       bDiscriminatorTCHP[iJet] = -1.0;
@@ -784,284 +817,367 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
       closestIndex = 10000;
       
       for (unsigned int i = 0; i != bTagsTCHP.size(); ++i) {
-         edm::RefToBase<reco::Jet> aJet  = bTagsTCHP[i].first;   
-         dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
-         if( dist < closestDistance ) { 
-            closestDistance = dist;
-            closestIndex = i;
-         }
+	edm::RefToBase<reco::Jet> aJet  = bTagsTCHP[i].first;   
+	dist = radius(aJet->eta(), aJet->phi(),(*jet).eta(), (*jet).phi());
+	if( dist < closestDistance ) { 
+	  closestDistance = dist;
+	  closestIndex = i;
+	}
       }
-     if( closestDistance<0.3 && closestIndex<bTagsTCHP.size() )
-         bDiscriminatorTCHP[iJet] = bTagsTCHP[closestIndex].second;
+      if( closestDistance<0.3 && closestIndex<bTagsTCHP.size() )
+	bDiscriminatorTCHP[iJet] = bTagsTCHP[closestIndex].second;
 
+    }
+    else
+      {  
+	edm::Ptr<reco::Jet> ptrJet = jets->ptrAt( jet - jets->begin() );
+		  
+	if ( ptrJet.isNonnull() && ptrJet.isAvailable() ) {
+	  const pat::Jet* pjet = dynamic_cast<const pat::Jet *>(ptrJet.get()) ;
+	  if(pjet !=0)
+	    {
+	      //bDiscriminator[iJet] = (*pjet).bDiscriminator(bTagger);
+	      bDiscriminatorSSVHE[iJet] = (*pjet).bDiscriminator("simpleSecondaryVertexHighEffBJetTags");
+	      bDiscriminatorTCHE[iJet] = (*pjet).bDiscriminator("trackCountingHighEffBJetTags");
+	      bDiscriminatorCSV[iJet] = (*pjet).bDiscriminator("combinedSecondaryVertexBJetTags");
+	      bDiscriminatorJP[iJet] = (*pjet).bDiscriminator("jetProbabilityBJetTags");
+	      bDiscriminatorSSVHP[iJet] = (*pjet).bDiscriminator("simpleSecondaryVertexHighPurBJetTags");
+	      bDiscriminatorTCHP[iJet] = (*pjet).bDiscriminator("trackCountingHighPurBJetTags");
+	      bDiscriminator[iJet] = bDiscriminatorSSVHE[iJet];
+	      if(bDiscriminator[iJet]>1.74) numBTags ++;
+	    }
 
-
-      // CaloJet specific quantities
-      const std::type_info & type = typeid(*jet);
-      if ( type == typeid(reco::CaloJet) ) {
-         const reco::CaloJet calojet = static_cast<const reco::CaloJet &>(*jet);
-
-         MaxEInEmTowers[iJet] = calojet.maxEInEmTowers();
-         MaxEInHadTowers[iJet] = calojet.maxEInHadTowers();
-         EnergyFractionHadronic[iJet] 
-            = calojet.energyFractionHadronic();
-         EmEnergyFraction[iJet] 
-            = calojet.emEnergyFraction();
-         HadEnergyInHB[iJet] = calojet.hadEnergyInHB();
-         HadEnergyInHO[iJet] = calojet.hadEnergyInHO();
-         HadEnergyInHE[iJet] = calojet.hadEnergyInHE();
-         HadEnergyInHF[iJet] = calojet.hadEnergyInHF();
-         EmEnergyInEB[iJet] = calojet.emEnergyInEB();
-         EmEnergyInEE[iJet] = calojet.emEnergyInEE();
-         EmEnergyInHF[iJet] = calojet.emEnergyInHF();
-         TowersArea[iJet] = calojet.towersArea();
-         N90[iJet] = calojet.n90();
-         N60[iJet] = calojet.n60(); 
+	}
       }
-      if ( type == typeid(reco::GenJet) ) {
-         // GenJet specific quantities
-         reco::GenJet genjet = static_cast<const reco::GenJet &>(*jet);
-         GenEmEnergy[iJet] = genjet.emEnergy();
-         GenHadEnergy[iJet] = genjet.hadEnergy();
-         GenInvisibleEnergy[iJet] = genjet.invisibleEnergy();
-         GenAuxiliaryEnergy[iJet] = genjet.auxiliaryEnergy();	  
+
+    // CaloJet specific quantities
+    const std::type_info & type = typeid(*jet);
+    if ( type == typeid(reco::CaloJet) ) {
+      const reco::CaloJet calojet = static_cast<const reco::CaloJet &>(*jet);
+
+      MaxEInEmTowers[iJet] = calojet.maxEInEmTowers();
+      MaxEInHadTowers[iJet] = calojet.maxEInHadTowers();
+      EnergyFractionHadronic[iJet] 
+	= calojet.energyFractionHadronic();
+      EmEnergyFraction[iJet] 
+	= calojet.emEnergyFraction();
+      HadEnergyInHB[iJet] = calojet.hadEnergyInHB();
+      HadEnergyInHO[iJet] = calojet.hadEnergyInHO();
+      HadEnergyInHE[iJet] = calojet.hadEnergyInHE();
+      HadEnergyInHF[iJet] = calojet.hadEnergyInHF();
+      EmEnergyInEB[iJet] = calojet.emEnergyInEB();
+      EmEnergyInEE[iJet] = calojet.emEnergyInEE();
+      EmEnergyInHF[iJet] = calojet.emEnergyInHF();
+      TowersArea[iJet] = calojet.towersArea();
+      N90[iJet] = calojet.n90();
+      N60[iJet] = calojet.n60(); 
+    }
+    if ( type == typeid(reco::GenJet) ) {
+      // GenJet specific quantities
+      reco::GenJet genjet = static_cast<const reco::GenJet &>(*jet);
+      GenEmEnergy[iJet] = genjet.emEnergy();
+      GenHadEnergy[iJet] = genjet.hadEnergy();
+      GenInvisibleEnergy[iJet] = genjet.invisibleEnergy();
+      GenAuxiliaryEnergy[iJet] = genjet.auxiliaryEnergy();	  
+    }
+    if ( type == typeid(reco::PFJet) || type == typeid(pat::Jet)) {
+      // PFJet specific quantities
+      std::vector<reco::PFCandidatePtr> pfCandidates;
+      double pfjetpt(-99999.9), pfjeteta(-99999.9), pfjetphi(-99999.9), pfjetenergy(-99999.9);
+
+      if(type == typeid(reco::PFJet)) {
+	reco::PFJet pfjet  = static_cast<const reco::PFJet &>(*jet);
+	PFChargedHadronEnergy[iJet] = pfjet.chargedHadronEnergy();
+	PFChargedHadronEnergyFraction[iJet] = 
+	  pfjet.chargedHadronEnergyFraction ();
+	PFNeutralHadronEnergy[iJet] = pfjet.neutralHadronEnergy();
+	PFNeutralHadronEnergyFraction[iJet] = 
+	  pfjet.neutralHadronEnergyFraction ();
+	PFChargedEmEnergy[iJet] = pfjet.chargedEmEnergy ();
+	PFChargedEmEnergyFraction[iJet] = 
+	  pfjet.chargedEmEnergyFraction ();
+	PFChargedMuEnergy[iJet] = pfjet.chargedMuEnergy ();
+	PFChargedMuEnergyFraction[iJet] = 
+	  pfjet.chargedMuEnergyFraction ();
+	PFNeutralEmEnergy[iJet] = pfjet.neutralEmEnergy ();
+	PFNeutralEmEnergyFraction[iJet] = 
+	  pfjet.neutralEmEnergyFraction ();
+	PFChargedMultiplicity[iJet] = pfjet.chargedMultiplicity();
+	PFNeutralMultiplicity[iJet] = pfjet.neutralMultiplicity();
+	PFMuonMultiplicity[iJet] = pfjet.muonMultiplicity();
+	PFPhotonEnergy[iJet] = pfjet.photonEnergy();
+	PFPhotonEnergyFraction[iJet] = pfjet.photonEnergyFraction();
+	PFElectronEnergy[iJet] = pfjet.electronEnergy();
+	PFElectronEnergyFraction[iJet] = pfjet.electronEnergyFraction();
+	PFMuonEnergy[iJet] = pfjet.muonEnergy();
+	PFMuonEnergyFraction[iJet] = pfjet.muonEnergyFraction();
+	PFHFHadronEnergy[iJet] = pfjet.HFHadronEnergy();
+	PFHFHadronEnergyFraction[iJet] = pfjet.HFHadronEnergyFraction();
+	PFHFEMEnergy[iJet] = pfjet.HFEMEnergy();
+	PFHFEMEnergyFraction[iJet] = pfjet.HFEMEnergyFraction();	 
+	PFChargedHadronMultiplicity[iJet] = pfjet.chargedHadronMultiplicity();
+	PFNeutralHadronMultiplicity[iJet] = pfjet.neutralHadronMultiplicity();
+	PFPhotonMultiplicity[iJet] = pfjet.photonMultiplicity();
+	PFElectronMultiplicity[iJet] = pfjet.electronMultiplicity();
+	PFHFHadronMultiplicity[iJet] = pfjet.HFHadronMultiplicity();
+	PFHFEMMultiplicity[iJet] = pfjet.HFEMMultiplicity();
+	pfCandidates = pfjet.getPFConstituents();
+	pfjetpt = pfjet.pt(); 
+	pfjeteta = pfjet.eta(); 
+	pfjetphi = pfjet.phi();
+	pfjetenergy = pfjet.energy();
       }
-      if ( type == typeid(reco::PFJet) ) {
-         // PFJet specific quantities
-         reco::PFJet pfjet = static_cast<const reco::PFJet &>(*jet);
-         PFChargedHadronEnergy[iJet] = pfjet.chargedHadronEnergy();
-         PFChargedHadronEnergyFraction[iJet] = 
-            pfjet.chargedHadronEnergyFraction ();
-         PFNeutralHadronEnergy[iJet] = pfjet.neutralHadronEnergy();
-         PFNeutralHadronEnergyFraction[iJet] = 
-            pfjet.neutralHadronEnergyFraction ();
-         PFChargedEmEnergy[iJet] = pfjet.chargedEmEnergy ();
-         PFChargedEmEnergyFraction[iJet] = 
-            pfjet.chargedEmEnergyFraction ();
-         PFChargedMuEnergy[iJet] = pfjet.chargedMuEnergy ();
-         PFChargedMuEnergyFraction[iJet] = 
-            pfjet.chargedMuEnergyFraction ();
-         PFNeutralEmEnergy[iJet] = pfjet.neutralEmEnergy ();
-         PFNeutralEmEnergyFraction[iJet] = 
-            pfjet.neutralEmEnergyFraction ();
-         PFChargedMultiplicity[iJet] = pfjet.chargedMultiplicity();
-         PFNeutralMultiplicity[iJet] = pfjet.neutralMultiplicity();
-         PFMuonMultiplicity[iJet] = pfjet.muonMultiplicity();
-	 PFPhotonEnergy[iJet] = pfjet.photonEnergy();
-	 PFPhotonEnergyFraction[iJet] = pfjet.photonEnergyFraction();
-	 PFElectronEnergy[iJet] = pfjet.electronEnergy();
-	 PFElectronEnergyFraction[iJet] = pfjet.electronEnergyFraction();
-	 PFMuonEnergy[iJet] = pfjet.muonEnergy();
-	 PFMuonEnergyFraction[iJet] = pfjet.muonEnergyFraction();
-	 PFHFHadronEnergy[iJet] = pfjet.HFHadronEnergy();
-	 PFHFHadronEnergyFraction[iJet] = pfjet.HFHadronEnergyFraction();
-	 PFHFEMEnergy[iJet] = pfjet.HFEMEnergy();
-	 PFHFEMEnergyFraction[iJet] = pfjet.HFEMEnergyFraction();	 
-	 PFChargedHadronMultiplicity[iJet] = pfjet.chargedHadronMultiplicity();
-	 PFNeutralHadronMultiplicity[iJet] = pfjet.neutralHadronMultiplicity();
-	 PFPhotonMultiplicity[iJet] = pfjet.photonMultiplicity();
-	 PFElectronMultiplicity[iJet] = pfjet.electronMultiplicity();
-	 PFHFHadronMultiplicity[iJet] = pfjet.HFHadronMultiplicity();
-	 PFHFEMMultiplicity[iJet] = pfjet.HFEMMultiplicity();
+      if(type == typeid(pat::Jet)) {
+	pat::Jet pfjet  = static_cast<const pat::Jet &>(*jet);
+	if(pfjet.isPFJet()) {
+	  PFChargedHadronEnergy[iJet] = pfjet.chargedHadronEnergy();
+	  PFChargedHadronEnergyFraction[iJet] = 
+	    pfjet.chargedHadronEnergyFraction ();
+	  PFNeutralHadronEnergy[iJet] = pfjet.neutralHadronEnergy();
+	  PFNeutralHadronEnergyFraction[iJet] = 
+	    pfjet.neutralHadronEnergyFraction ();
+	  PFChargedEmEnergy[iJet] = pfjet.chargedEmEnergy ();
+	  PFChargedEmEnergyFraction[iJet] = 
+	    pfjet.chargedEmEnergyFraction ();
+	  PFChargedMuEnergy[iJet] = pfjet.chargedMuEnergy ();
+	  PFChargedMuEnergyFraction[iJet] = 
+	    pfjet.chargedMuEnergyFraction ();
+	  PFNeutralEmEnergy[iJet] = pfjet.neutralEmEnergy ();
+	  PFNeutralEmEnergyFraction[iJet] = 
+	    pfjet.neutralEmEnergyFraction ();
+	  PFChargedMultiplicity[iJet] = pfjet.chargedMultiplicity();
+	  PFNeutralMultiplicity[iJet] = pfjet.neutralMultiplicity();
+	  PFMuonMultiplicity[iJet] = pfjet.muonMultiplicity();
+	  PFPhotonEnergy[iJet] = pfjet.photonEnergy();
+	  PFPhotonEnergyFraction[iJet] = pfjet.photonEnergyFraction();
+	  PFElectronEnergy[iJet] = pfjet.electronEnergy();
+	  // PFElectronEnergyFraction[iJet] = pfjet.electronEnergyFraction();
+	  PFMuonEnergy[iJet] = pfjet.muonEnergy();
+	  PFMuonEnergyFraction[iJet] = pfjet.muonEnergyFraction();
+	  PFHFHadronEnergy[iJet] = pfjet.HFHadronEnergy();
+	  PFHFHadronEnergyFraction[iJet] = pfjet.HFHadronEnergyFraction();
+	  PFHFEMEnergy[iJet] = pfjet.HFEMEnergy();
+	  PFHFEMEnergyFraction[iJet] = pfjet.HFEMEnergyFraction();	 
+	  PFChargedHadronMultiplicity[iJet] = pfjet.chargedHadronMultiplicity();
+	  PFNeutralHadronMultiplicity[iJet] = pfjet.neutralHadronMultiplicity();
+	  PFPhotonMultiplicity[iJet] = pfjet.photonMultiplicity();
+	  PFElectronMultiplicity[iJet] = pfjet.electronMultiplicity();
+	  PFHFHadronMultiplicity[iJet] = pfjet.HFHadronMultiplicity();
+	  PFHFEMMultiplicity[iJet] = pfjet.HFEMMultiplicity();
+	  pfCandidates = pfjet.getPFConstituents();
+	  pfjetpt = pfjet.pt(); 
+	  pfjeteta = pfjet.eta(); 
+	  pfjetphi = pfjet.phi();
+	  pfjetenergy = pfjet.energy();
+	}
+      }
+      // ------- Compute pt_D and Quark Gluon Likelihood
+
+		  
+      float sumPt_cands=0.;
+      float sumPt2_cands=0.;
+      float rms_cands=0.;
+			
+      typedef std::vector<reco::PFCandidatePtr>::const_iterator IC;
+
+      for (IC jt = pfCandidates.begin(); // If pfCandidates has no constituents then the loop simply won't execute
+	   jt != pfCandidates.end(); jt++) { // and so no segmentation fault should occur
+	const reco::PFCandidatePtr pfCandPtr = *jt;
+	if ( !(pfCandPtr.isNonnull() && pfCandPtr.isAvailable()) ) continue;
+			  
+	// reco::PFCandidate::ParticleType id = (*jt)->particleId();
+	// Convert particle momentum to normal TLorentzVector, wrong type :(
+	math::XYZTLorentzVectorD const& p4t = pfCandPtr->p4();
+
+	TLorentzVector p4(p4t.px(), p4t.py(), p4t.pz(), p4t.energy());
+	TLorentzVector jetp4;
+	jetp4.SetPtEtaPhiE(pfjetpt, pfjeteta, pfjetphi, pfjetenergy);
+	if(p4.Pt()!=0){
+	  sumPt_cands += p4.Pt();
+	  sumPt2_cands += (p4.Pt()*p4.Pt());
+	  float deltaR = jetp4.DeltaR(p4);
+	  rms_cands += (p4.Pt()*p4.Pt()*deltaR*deltaR);
+	}
+      }			  
+      PFsumPtCands[iJet]  = sumPt_cands;
+      PFsumPt2Cands[iJet] = sumPt2_cands;
+      if(sumPt_cands != 0)  PFptD[iJet] = sqrt( sumPt2_cands )/sumPt_cands;
+      if(rms_cands  != 0)   PFrmsCands[iJet] = rms_cands/sumPt2_cands;
+      PFqgLikelihood[iJet]= qglikeli->computeQGLikelihoodPU( Pt[iJet], fastjet_rho, 
+							     PFChargedMultiplicity[iJet], 
+							     PFNeutralMultiplicity[iJet], 
+							     PFptD[iJet]);	 
+      if ( ij1==0 ) ij1=&(*jet); 
+      if ( ij1>0 && ij2==0 ) ij2=&(*jet);
+		  
+    }// close PF jets loop
+  }// close jets iteration loop
+
+  NumJets = (int) iJet;
 
 
-	 // ------- Compute pt_D and Quark Gluon Likelihood
-	 std::vector<reco::PFCandidatePtr> pfCandidates = pfjet.getPFConstituents();
-	 
-	 float sumPt_cands=0.;
-	 float sumPt2_cands=0.;
-	 float rms_cands=0.;
-	 
-	 for (std::vector<reco::PFCandidatePtr>::const_iterator jt = pfCandidates.begin();
-	      jt != pfCandidates.end(); ++jt) {
-	   
-	   // reco::PFCandidate::ParticleType id = (*jt)->particleId();
-	   // Convert particle momentum to normal TLorentzVector, wrong type :(
-	   math::XYZTLorentzVectorD const& p4t = (*jt)->p4();
-	   TLorentzVector p4(p4t.px(), p4t.py(), p4t.pz(), p4t.energy());
-	   TLorentzVector jetp4;
-	   jetp4.SetPtEtaPhiE(pfjet.pt(), pfjet.eta(), pfjet.phi(), pfjet.energy());
-	   if(p4.Pt()!=0){
-	     sumPt_cands += p4.Pt();
-	     sumPt2_cands += (p4.Pt()*p4.Pt());
-	     float deltaR = jetp4.DeltaR(p4);
-	     rms_cands += (p4.Pt()*p4.Pt()*deltaR*deltaR);
-	   }
-	 }
-	 
-	 PFsumPtCands[iJet]  = sumPt_cands;
-	 PFsumPt2Cands[iJet] = sumPt2_cands;
-	 if(sumPt_cands != 0)  PFptD[iJet] = sqrt( sumPt2_cands )/sumPt_cands;
-	 if(rms_cands  != 0)   PFrmsCands[iJet] = rms_cands/sumPt2_cands;
+  // get the two daughters of vector boson
+  const reco::Candidate* m0 = Vboson->daughter(0);
+  const reco::Candidate* m1 = Vboson->daughter(1);
 
-	 PFqgLikelihood[iJet]= qglikeli->computeQGLikelihoodPU( Pt[iJet], fastjet_rho, 
-								PFChargedMultiplicity[iJet], 
-								PFNeutralMultiplicity[iJet], 
-								PFptD[iJet]);	 
-         if ( ij1==0 ) ij1=&(*jet); 
-         if ( ij1>0 && ij2==0 ) ij2=&(*jet);
-      }// close PF jets loop
-   }// close jets iteration loop
-
-   NumJets = (int) iJet;
+  TLorentzVector p4lepton1;
+  TLorentzVector p4lepton2;
+  TLorentzVector p4MET;
+  TLorentzVector p4lepton;
+  METzCalculator* metz = new METzCalculator();
+  if (LeptonType_=="electron") metz->SetLeptonType("electron");
+  double nupz;
 
 
+  // Compute pz if one of the lepton is neutrino
+  if( m0->isElectron() || m0->isMuon() ) 
+    p4lepton1.SetPxPyPzE(m0->px(), m0->py(), m0->pz(), m0->energy());
+  else {
+    p4MET.SetPxPyPzE((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+    p4lepton.SetPxPyPzE(m1->px(), m1->py(), m1->pz(), m1->energy());
+    metz->SetMET(p4MET);
+    metz->SetLepton(p4lepton);
+    nupz = metz->Calculate();
+    p4lepton1.SetPxPyPzE( m0->px(), m0->py(), nupz, sqrt(m0->px()*m0->px()+m0->py()*m0->py()+nupz*nupz) );
+  }
+
+  if( m1->isElectron() || m1->isMuon() ) 
+    p4lepton2.SetPxPyPzE(m1->px(), m1->py(), m1->pz(), m1->energy());
+  else {
+    p4MET.SetPxPyPzE((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+    p4lepton.SetPxPyPzE(m0->px(), m0->py(), m0->pz(), m0->energy());
+    metz->SetMET(p4MET);
+    metz->SetLepton(p4lepton);
+    nupz = metz->Calculate();
+    p4lepton2.SetPxPyPzE( m1->px(), m1->py(), nupz, sqrt(m1->px()*m1->px()+m1->py()*m1->py()+nupz*nupz) );
+  }
+
+  delete metz;
+  delete qglikeli;
 
 
+  // Now compute all the invariant masses
+  TLorentzVector Vj;
+  TLorentzVector V2j;
+  TLorentzVector V3j;
+  TLorentzVector V4j;
+  TLorentzVector V5j;
+  TLorentzVector V6j;
 
-   // get the two daughters of vector boson
-   const reco::Candidate* m0 = Vboson->daughter(0);
-   const reco::Candidate* m1 = Vboson->daughter(1);
-
-   TLorentzVector p4lepton1;
-   TLorentzVector p4lepton2;
-   TLorentzVector p4MET;
-   TLorentzVector p4lepton;
-   METzCalculator* metz = new METzCalculator();
-   if (LeptonType_=="electron") metz->SetLeptonType("electron");
-   double nupz;
-
-
-   // Compute pz if one of the lepton is neutrino
-   if( m0->isElectron() || m0->isMuon() ) 
-     p4lepton1.SetPxPyPzE(m0->px(), m0->py(), m0->pz(), m0->energy());
-   else {
-     p4MET.SetPxPyPzE((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
-     p4lepton.SetPxPyPzE(m1->px(), m1->py(), m1->pz(), m1->energy());
-     metz->SetMET(p4MET);
-     metz->SetLepton(p4lepton);
-     nupz = metz->Calculate();
-     p4lepton1.SetPxPyPzE( m0->px(), m0->py(), nupz, sqrt(m0->px()*m0->px()+m0->py()*m0->py()+nupz*nupz) );
-   }
-
-   if( m1->isElectron() || m1->isMuon() ) 
-     p4lepton2.SetPxPyPzE(m1->px(), m1->py(), m1->pz(), m1->energy());
-   else {
-     p4MET.SetPxPyPzE((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
-     p4lepton.SetPxPyPzE(m0->px(), m0->py(), m0->pz(), m0->energy());
-     metz->SetMET(p4MET);
-     metz->SetLepton(p4lepton);
-     nupz = metz->Calculate();
-     p4lepton2.SetPxPyPzE( m1->px(), m1->py(), nupz, sqrt(m1->px()*m1->px()+m1->py()*m1->py()+nupz*nupz) );
-   }
-
-   delete metz;
-   delete qglikeli;
+  TLorentzVector c2j;
+  TLorentzVector c3j;
+  TLorentzVector c4j;
+  TLorentzVector c5j;
+  TLorentzVector c6j;
 
 
-
-   // Now compute all the invariant masses
-   TLorentzVector Vj;
-   TLorentzVector V2j;
-   TLorentzVector V3j;
-   TLorentzVector V4j;
-   TLorentzVector V5j;
-   TLorentzVector V6j;
-
-   TLorentzVector c2j;
-   TLorentzVector c3j;
-   TLorentzVector c4j;
-   TLorentzVector c5j;
-   TLorentzVector c6j;
+  // 4-vectors for the first four jets
+  TLorentzVector p4j1;
+  TLorentzVector p4j2;
+  TLorentzVector p4j3;
+  TLorentzVector p4j4;
+  TLorentzVector p4j5;
+  TLorentzVector p4j6;
+  TLorentzVector p4V = p4lepton1 + p4lepton2;
 
 
-   // 4-vectors for the first four jets
-   TLorentzVector p4j1;
-   TLorentzVector p4j2;
-   TLorentzVector p4j3;
-   TLorentzVector p4j4;
-   TLorentzVector p4j5;
-   TLorentzVector p4j6;
-   TLorentzVector p4V = p4lepton1 + p4lepton2;
+  if( NumJets>1 ) { 
+    p4j1.SetPxPyPzE( Px[0], Py[0], Pz[0], E[0] );
+    p4j2.SetPxPyPzE( Px[1], Py[1], Pz[1], E[1] );
+    c2j =  p4j1 + p4j2;
+    c2jMass =  c2j.M();
+    V2j =  p4V + c2j;
+    V2jMass =  V2j.M();
+    V2jCosJacksonAngle = JacksonAngle( p4V, V2j);
+    c2jCosJacksonAngle = JacksonAngle( p4j1, p4j2);
+  }
 
+  if( NumJets>2 ) {
+    p4j3.SetPxPyPzE( Px[2], Py[2], Pz[2], E[2] );
+    c3j =  p4j1 + p4j2 + p4j3;
+    c3jMass =  c3j.M();
+    V3j =  p4V + c3j;
+    V3jMass =  V3j.M();
+    V3jCosJacksonAngle = JacksonAngle( p4V, V3j);
+    c3jCosJacksonAngle12 = JacksonAngle( p4j1,  p4j2 );
+    c3jCosJacksonAngle23 = JacksonAngle( p4j2,  p4j3 );
+    c3jCosJacksonAngle31 = JacksonAngle( p4j3,  p4j1 );
+  }
 
-   if( NumJets>1 ) { 
-     p4j1.SetPxPyPzE( Px[0], Py[0], Pz[0], E[0] );
-     p4j2.SetPxPyPzE( Px[1], Py[1], Pz[1], E[1] );
-     c2j =  p4j1 + p4j2;
-     c2jMass =  c2j.M();
-     V2j =  p4V + c2j;
-     V2jMass =  V2j.M();
-     V2jCosJacksonAngle = JacksonAngle( p4V, V2j);
-     c2jCosJacksonAngle = JacksonAngle( p4j1, p4j2);
-   }
+  if( NumJets>3 ) { 
+    p4j4.SetPxPyPzE( Px[3], Py[3], Pz[3], E[3] );
+    c4j =  p4j1 + p4j2 + p4j3 + p4j4;
+    c4jMass =  c4j.M();
+    V4j =  p4V + c4j;
+    V4jMass =  V4j.M();
 
-   if( NumJets>2 ) {
-     p4j3.SetPxPyPzE( Px[2], Py[2], Pz[2], E[2] );
-     c3j =  p4j1 + p4j2 + p4j3;
-     c3jMass =  c3j.M();
-     V3j =  p4V + c3j;
-     V3jMass =  V3j.M();
-     V3jCosJacksonAngle = JacksonAngle( p4V, V3j);
-     c3jCosJacksonAngle12 = JacksonAngle( p4j1,  p4j2 );
-     c3jCosJacksonAngle23 = JacksonAngle( p4j2,  p4j3 );
-     c3jCosJacksonAngle31 = JacksonAngle( p4j3,  p4j1 );
-   }
+  }
 
-   if( NumJets>3 ) { 
-     p4j4.SetPxPyPzE( Px[3], Py[3], Pz[3], E[3] );
-     c4j =  p4j1 + p4j2 + p4j3 + p4j4;
-     c4jMass =  c4j.M();
-     V4j =  p4V + c4j;
-     V4jMass =  V4j.M();
+  if( NumJets>4 ) { 
+    p4j5.SetPxPyPzE( Px[4], Py[4], Pz[4], E[4] );
+    c5j =  p4j1 + p4j2 + p4j3 + p4j4 + p4j5;
+    c5jMass =  c5j.M();
+    V5j =  p4V + c5j;
+    V5jMass =  V5j.M();
 
-   }
+  }
 
-   if( NumJets>4 ) { 
-     p4j5.SetPxPyPzE( Px[4], Py[4], Pz[4], E[4] );
-     c5j =  p4j1 + p4j2 + p4j3 + p4j4 + p4j5;
-     c5jMass =  c5j.M();
-     V5j =  p4V + c5j;
-     V5jMass =  V5j.M();
+  if( NumJets>5 ) { 
+    p4j6.SetPxPyPzE( Px[5], Py[5], Pz[5], E[5] );
 
-   }
+    c6j =  p4j1 + p4j2 + p4j3 + p4j4 + p4j5 + p4j6;
+    c6jMass =  c6j.M();
+    V6j =  p4V + c6j;
+    V6jMass =  V6j.M();
 
-   if( NumJets>5 ) { 
-     p4j6.SetPxPyPzE( Px[5], Py[5], Pz[5], E[5] );
-
-     c6j =  p4j1 + p4j2 + p4j3 + p4j4 + p4j5 + p4j6;
-     c6jMass =  c6j.M();
-     V6j =  p4V + c6j;
-     V6jMass =  V6j.M();
-
-   }
+  }
 
 
 
+  // Angle between the decay planes of two W
+  cosphiDecayPlane = 10.0; 
+  cosThetaLnu = 10.0; 
+  cosThetaJJ = 10.0;
 
-   // Angle between the decay planes of two W
-   cosphiDecayPlane = 10.0; 
-   cosThetaLnu = 10.0; 
-   cosThetaJJ = 10.0;
+  if( NumJets>1 ) dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, 
+				  p4j1, p4j2, cosphiDecayPlane, 
+				  cosThetaLnu, cosThetaJJ);
 
-   if( NumJets>1 ) dg_kin_Wuv_Wjj( p4lepton1, p4lepton2, 
-				   p4j1, p4j2, cosphiDecayPlane, 
-				   cosThetaLnu, cosThetaJJ);
 
-   // Color correlation between two W jets ( jets pull ) 
-   if ( ij1>0 && ij2>0 ) {
-     reco::PFJet pfj1 = static_cast<const reco::PFJet &> (*ij1) ;
-     reco::PFJet pfj2 = static_cast<const reco::PFJet &> (*ij2) ;
-     leadingDeltaTheta = TMath::Abs( getDeltaTheta( &pfj1 , &pfj2) );
-   }   
+  // Color correlation between two W jets ( jets pull ) 
+  if ( !(0==ij1 || 0==ij2) ) {
+    if(runoverAOD) {
+      const reco::PFJet& pfj1 = static_cast<const reco::PFJet &> (*ij1) ;
+      const reco::PFJet& pfj2 = static_cast<const reco::PFJet &> (*ij2) ;
+      leadingDeltaTheta = TMath::Abs( getDeltaTheta( &pfj1 , &pfj2) );
+    }
+    else {
+      const pat::Jet& pfj1 = static_cast<const pat::Jet &> (*ij1) ;
+      const pat::Jet& pfj2 = static_cast<const pat::Jet &> (*ij2) ;
+      leadingDeltaTheta = TMath::Abs( getDeltaTheta( &pfj1 , &pfj2) );
+    }
+  }  
 
-   // Cos(theta*) or Helicity Angles in Higgs rest frame
-   if( NumJets>1 ){
-     TLorentzVector p4boson1;
-     p4boson1.SetPxPyPzE(Vboson->px(), Vboson->py(), Vboson->pz(), Vboson->energy());
-     TLorentzVector p4boson2 = p4j1 + p4j2;
-     TLorentzVector p4higgs  = p4boson1 + p4boson2;
-     TVector3 higgsBoost = p4higgs.BoostVector();
 
-     j1Hel_HiggsCM = getHelicity( p4j1 , higgsBoost );
-     j2Hel_HiggsCM = getHelicity( p4j2 , higgsBoost );
-     l1Hel_HiggsCM = getHelicity( p4lepton1 , higgsBoost );
-     l2Hel_HiggsCM = getHelicity( p4lepton2 , higgsBoost );
-     b1Hel_HiggsCM = getHelicity( p4boson1 , higgsBoost );
-     b2Hel_HiggsCM = getHelicity( p4boson2 , higgsBoost );
-   }
-   //FillBranches();
+
+ 
+  // Cos(theta*) or Helicity Angles in Higgs rest frame
+  if( NumJets>1 ){
+    TLorentzVector p4boson1;
+    p4boson1.SetPxPyPzE(Vboson->px(), Vboson->py(), Vboson->pz(), Vboson->energy());
+    TLorentzVector p4boson2 = p4j1 + p4j2;
+    TLorentzVector p4higgs  = p4boson1 + p4boson2;
+    TVector3 higgsBoost = p4higgs.BoostVector();
+
+    j1Hel_HiggsCM = getHelicity( p4j1 , higgsBoost );
+    j2Hel_HiggsCM = getHelicity( p4j2 , higgsBoost );
+    l1Hel_HiggsCM = getHelicity( p4lepton1 , higgsBoost );
+    l2Hel_HiggsCM = getHelicity( p4lepton2 , higgsBoost );
+    b1Hel_HiggsCM = getHelicity( p4boson1 , higgsBoost );
+    b2Hel_HiggsCM = getHelicity( p4boson2 , higgsBoost );
+  }
+
+  //FillBranches();
 }
-
 
 

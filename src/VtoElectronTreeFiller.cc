@@ -42,7 +42,14 @@ ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree,
     mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
   else std::cout << "***Error:" << name << 
     " Collection not specified !" << std::endl;
-
+    if(  iConfig.existsAs<edm::InputTag>("srcMet") )
+		mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+    if(  iConfig.existsAs<edm::InputTag>("srcElectrons") )
+		mInputElectrons  = iConfig.getParameter<edm::InputTag>("srcElectrons");
+    if(  iConfig.existsAs<edm::InputTag>("srcBeamSpot") )
+		mInputBeamSpot  = iConfig.getParameter<edm::InputTag>("srcBeamSpot");
+	if( iConfig.existsAs<bool>("runningOverAOD"))
+		runoverAOD = iConfig.getParameter<bool>("runningOverAOD");
   tree_     = tree;
   name_     = name;
   Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
@@ -343,12 +350,6 @@ void ewk::VtoElectronTreeFiller::init()
   // initialization done
 }
 
-
-
-
-
-
-
 void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonIndex)
 {
   // protection
@@ -362,9 +363,11 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
   if( boson->size()<1 ) return; // Nothing to fill
   
 
-  edm::Handle<reco::PFMETCollection> pfmet;
-  iEvent.getByLabel("pfMet", pfmet);
+//  edm::Handle<reco::PFMETCollection> pfmet;
+  // iEvent.getByLabel("pfMet", pfmet);
 
+   edm::Handle<edm::View<reco::MET> > pfmet;
+   iEvent.getByLabel(mInputMet, pfmet);
 
 
 
@@ -373,9 +376,11 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
   nLooseElectron = 0;
 
   // Loop over electrons for loose/tight counting
- edm::Handle<reco::GsfElectronCollection> electrons;
- iEvent.getByLabel("gsfElectrons", electrons);
- for(reco::GsfElectronCollection::const_iterator 
+// edm::Handle<reco::GsfElectronCollection> electrons;
+// iEvent.getByLabel("gsfElectrons", electrons);
+ edm::Handle<edm::View<reco::GsfElectron> > electrons;
+ iEvent.getByLabel(mInputElectrons, electrons);
+ for(edm::View<reco::GsfElectron>::const_iterator 
        elec = electrons->begin(); elec != electrons->end();++elec) {
    if( isTightElectron( iEvent, *elec) ) nTightElectron++;
    if( isLooseElectron( iEvent, *elec) ) nLooseElectron++;
@@ -407,30 +412,59 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     throw cms::Exception( "***Error: V boson has < 2 daughters !\n");
     return;  // if no electron found, then return
   } 
-
+  std::cout << "number of daugters " << Vboson->numberOfDaughters() <<std::endl;
   // get the two daughters
   reco::CandidateBaseRef m0 = Vboson->daughter(0)->masterClone();
   reco::CandidateBaseRef m1 = Vboson->daughter(1)->masterClone();
+  std::cout << "ptr m1 is nonnull " << m1.isNonnull() <<std::endl ;
 
   const reco::GsfElectron* e1=NULL;
   const reco::GsfElectron* e2=NULL;
   const std::type_info & type0 = typeid(*m0);
   const std::type_info & type1 = typeid(*m1);
 
-  if( type0 == typeid(reco::GsfElectron) ) 
-    e1 = dynamic_cast<const reco::GsfElectron *>( &*m0 ); 
-  if( type1 == typeid(reco::GsfElectron) )
-    e2 = dynamic_cast<const reco::GsfElectron *>( &*m1 ); 
+  if(runoverAOD){
+	  if( type0 == typeid(reco::GsfElectron) ){
+		  e1 = dynamic_cast<const reco::GsfElectron *>( &*m0 ); }}
+  
+  else{
+    if( type0 == typeid(pat::Electron) ){
+      //  std::cout << " boson daughter - pat el " << std::endl;      
+      //	  std::cout << "ptr is nonnull " << m0.isNonnull() <<std::endl ;
+      //	  std::cout << "charge from Ptr = " << m0->charge() << std::endl;
+      e1 = dynamic_cast<const pat::Electron *>(&*m0) ;
+      //	  std::cout << "charge from el 1 = " << e1->charge() << std::endl;
+      //  std::cout << "pt from el 1 = " << e1->pt() << std::endl;
+    }
+  }
 
-  if(0==e1 && 0==e2) {
+  if(runoverAOD){
+	  if( type1 == typeid(reco::GsfElectron) ){
+		  e2 = dynamic_cast<const reco::GsfElectron *>( &*m1 ); }}
+  
+  else{
+    //std::cout << " boson daughter - pat el 2" << std::endl;
+    if( type1 == typeid(pat::Electron) ){
+	    //	  std::cout << " boson daughter - pat el 2" << std::endl;
+      //	  std::cout << "ptr is nonnull " << m1.isNonnull() <<std::endl ;
+      //  std::cout << "charge from Ptr = " << m1->charge() << std::endl;
+      e2 = dynamic_cast<const pat::Electron *>(&*m1) ;
+      //	  std::cout << "charge from el 2 = " << e2->charge() << std::endl;
+      //	  std::cout << "pt from el 2 = " << e2->pt() << std::endl;
+    }
+  }
+
+   if(0==e1 && 0==e2) {
     throw cms::Exception("***Error: couldn't" 
 			 " do dynamic cast of vector boson daughters !\n");
     return;  // if no electron found, then return
   } 
+  
 
+ 	  const reco::GsfElectron* ele1=NULL;
+	  const reco::GsfElectron* ele2=NULL;
 
-  const reco::GsfElectron* ele1=NULL;
-  const reco::GsfElectron* ele2=NULL;
+		 
   // if Z--> e+e- then ele1 = e+, ele2 = e-
   if(Vtype_=="Z") {
     if(e1->charge() > 0) {  ele1 = e1;   ele2 = e2; }
@@ -441,15 +475,18 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     if( abs(e1->charge())==1 ) ele1  = e1;
     else if( abs(e2->charge())==1 ) ele1  = e2;
 
-    // estimate Pz of neutrino
-    TLorentzVector p4MET((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
-    TLorentzVector p4lepton(ele1->px(), ele1->py(), ele1->pz(), ele1->energy());
-    METzCalculator metz;
-    metz.SetMET(p4MET);
-    metz.SetLepton(p4lepton);
-    if (LeptonType_=="electron") metz.SetLeptonType("electron");
-    V_pzNu1 = metz.Calculate();
-    V_pzNu2 = metz.getOther();
+    if( !(ele1 == NULL) ) {
+      // estimate Pz of neutrino
+      TLorentzVector p4MET((*pfmet)[0].px(), (*pfmet)[0].py(), (*pfmet)[0].pz(), (*pfmet)[0].energy());
+      TLorentzVector p4lepton(ele1->px(), ele1->py(), ele1->pz(), ele1->energy());
+      METzCalculator metz;
+      metz.SetMET(p4MET);
+      metz.SetLepton(p4lepton);
+      if (LeptonType_=="electron") metz.SetLeptonType("electron");
+      if (LeptonType_=="muon")     metz.SetLeptonType("muon");
+      V_pzNu1 = metz.Calculate();
+      V_pzNu2 = metz.getOther();
+    }
   }
 
 	  
@@ -470,7 +507,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     e1Pt               = ele1->pt();
     e1Et               = ele1->et();
 
-    /// isolation 
+	/*  /// isolation 
     e1_trackiso       = ele1->dr03TkSumPt();
     e1_ecaliso        = ele1->dr03EcalRecHitSumEt();
     e1_hcaliso        = ele1->dr03HcalTowerSumEt();
@@ -481,6 +518,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     e1_DeltaPhiIn     = ele1->deltaPhiSuperClusterTrackAtVtx();
     e1_DeltaPhiOut    = ele1->deltaPhiSeedClusterTrackAtCalo();
     e1_DeltaEtaOut    = ele1->deltaEtaSeedClusterTrackAtCalo();
+	*/
     //Track Momentum information
     e1_Trackmom_calo  = sqrt(ele1->trackMomentumAtCalo().perp2());
     e1_Trackmom_vtx   = sqrt(ele1->trackMomentumAtVtx().perp2());
@@ -537,10 +575,12 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     }
 
   // IP relative to beam spot  & dz relative to vertex
-   edm::Handle<reco::BeamSpot> beamSpot;
-   iEvent.getByLabel("offlineBeamSpot", beamSpot);
-   e1_d0bsp = e1->gsfTrack()->dxy( beamSpot->position() ) ;
-   e1_dz000 = e1->vertex().z();
+   edm::Handle<reco::BeamSpot > beamSpot;
+   if(runoverAOD){
+     iEvent.getByLabel(mInputBeamSpot, beamSpot);
+     e1_d0bsp = e1->gsfTrack()->dxy( beamSpot->position() ) ;
+     e1_dz000 = e1->vertex().z();
+   }
    // PF Isolation 
    e1_pfiso_chargedHadronIso = e1->pfIsolationVariables().chargedHadronIso;
    e1_pfiso_photonIso        = e1->pfIsolationVariables().photonIso;
@@ -671,10 +711,12 @@ bool ewk::VtoElectronTreeFiller::isTightElectron(const edm::Event& iEvent, const
 
   //////////// Beam spot //////////////
   edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel("offlineBeamSpot", beamSpot);
-  double dz = fabs( ele.gsfTrack()->dxy( beamSpot->position() ) );
+  double dz =0.0;
+	if(runoverAOD){
+		iEvent.getByLabel(mInputBeamSpot, beamSpot);
+		dz = fabs( ele.gsfTrack()->dxy( beamSpot->position() ) );
 
-
+	}
   if( !(isWP80Id && dz<0.02) )  return false;
 
   return true;

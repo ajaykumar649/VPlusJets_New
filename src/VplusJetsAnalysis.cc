@@ -76,6 +76,22 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   if(  iConfig.existsAs<edm::InputTag>("srcPrimaryVertex") )
     mPrimaryVertex = iConfig.getParameter<edm::InputTag>("srcPrimaryVertex"); 
   else mPrimaryVertex =  edm::InputTag("offlinePrimaryVertices");
+  if(  iConfig.existsAs<edm::InputTag>("srcBeamSpot") )
+    mInputBeamSpot = iConfig.getParameter<edm::InputTag>("srcBeamSpot"); 
+  if(  iConfig.existsAs<edm::InputTag>("srcMet") )
+    mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+  if(  iConfig.existsAs<edm::InputTag>("srcMet") )
+    mInputcaloMet = iConfig.getParameter<edm::InputTag>("srcCaloMet");
+  if(  iConfig.existsAs<edm::InputTag>("srcTcMet") )
+    mInputtcMet = iConfig.getParameter<edm::InputTag>("srcTcMet"); 
+  //*********************  Run Over AOD or PAT  ***********//
+  if( iConfig.existsAs<bool>("runningOverAOD"))
+	  runoverAOD = iConfig.getParameter<bool>("runningOverAOD");
+
+  JetsFor_rho =  iConfig.getParameter<std::string>("srcJetsforRho") ; 
+  JetsFor_rho_lepIso =  iConfig.getParameter<std::string>("srcJetsforRho_lepIso") ; 
+  if(  iConfig.existsAs<edm::InputTag>("srcgenMet") )
+	  mInputgenMet =  iConfig.getParameter<edm::InputTag>("srcgenMet") ; 
 }
 
  
@@ -111,7 +127,8 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   // primary/secondary vertices
-  edm::Handle<reco::VertexCollection> recVtxs;
+  // edm::Handle<reco::VertexCollection > recVtxs;
+  edm::Handle <edm::View<reco::Vertex> > recVtxs;
   iEvent.getByLabel( mPrimaryVertex, recVtxs);
   for(unsigned int ind=0;ind<recVtxs->size();ind++) 
     {
@@ -132,16 +149,21 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     }
 
   //////////// Beam spot //////////////
-  edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel("offlineBeamSpot", beamSpot);
-  mBSx = beamSpot->position().X();
-  mBSy = beamSpot->position().Y();
-  mBSz = beamSpot->position().Z();
+//  if(runOverAOD){
+  edm::Handle<reco::BeamSpot >beamSpot;
+  if(runoverAOD){
+	  iEvent.getByLabel(mInputBeamSpot, beamSpot);
+	  mBSx = beamSpot->position().X();
+	  mBSy = beamSpot->position().Y();
+	  mBSz = beamSpot->position().Z();
+  }
+
 
 
   ////////////// CaloMET information //////
-  edm::Handle<reco::CaloMETCollection> met;
-  iEvent.getByLabel("met",met);
+  edm::Handle<edm::View<reco::CaloMET> > met;
+  if(runoverAOD){
+  iEvent.getByLabel(mInputcaloMet,met);
   if (met->size() == 0) {
     mMET   = -1.0;
     mSumET = -1.0;
@@ -155,10 +177,11 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     mMETPhi   = (*met)[0].phi();
   }
 
-
+  }
   /////// TcMET information /////
-  edm::Handle<reco::METCollection> tcmet;
-  iEvent.getByLabel("tcMet", tcmet);
+  edm::Handle<edm::View<reco::MET> > tcmet;
+  if(runoverAOD){
+  iEvent.getByLabel(mInputtcMet, tcmet);
   if (tcmet->size() == 0) {
     mtcMET   = -1;
     mtcSumET = -1;
@@ -171,10 +194,10 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     mtcMETSign = (*tcmet)[0].significance();
     mtcMETPhi   = (*tcmet)[0].phi();
   }
-
+  }
   /////// PfMET information /////
-  edm::Handle<reco::PFMETCollection> pfmet;
-  iEvent.getByLabel("pfMet", pfmet);
+  edm::Handle<edm::View<reco::MET> > pfmet;
+  iEvent.getByLabel(mInputMet, pfmet);
   if (pfmet->size() == 0) {
     mpfMET   = -1;
     mpfSumET = -1;
@@ -191,7 +214,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
   edm::Handle<double> rho;
-  const edm::InputTag eventrho("kt6PFJets", "rho");
+  const edm::InputTag eventrho(JetsFor_rho, "rho");
   iEvent.getByLabel(eventrho,rho);
   if( *rho == *rho) fastJetRho = *rho;
   else  fastJetRho =  -999999.9;
@@ -200,7 +223,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
   /////// Pileup density "rho" for lepton isolation subtraction /////
   edm::Handle<double> rhoLepIso;
-  const edm::InputTag eventrhoLepIso("kt6PFJetsForIsolation", "rho");
+  const edm::InputTag eventrhoLepIso(JetsFor_rho_lepIso, "rho");
   iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
   if( *rhoLepIso == *rhoLepIso) lepIsoRho = *rhoLepIso;
   else  lepIsoRho =  -999999.9;
@@ -212,18 +235,20 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   mcPUnvtx[0] = -999; mcPUnvtx[1] = -999; mcPUnvtx[2] = -999;
   if ( runningOverMC_ ){
     edm::Handle<reco::GenMETCollection> genMETs;
-    iEvent.getByLabel("genMetTrue",genMETs);
-    if ( genMETs->size() == 0) {
-      genMET   = -1.0;
-      genSumET = -1.0;
-      genMETSign  = -1.0;
-      genMETPhi   = -10.0;
-    } else {
-      genMET = (*genMETs)[0].et();
-      genSumET = (*genMETs)[0].sumEt();  
-      genMETSign = (*genMETs)[0].significance();  
-      genMETPhi = (*genMETs)[0].phi();
-    }
+	if(runoverAOD){
+		iEvent.getByLabel(mInputgenMet,genMETs);
+		if ( genMETs->size() == 0) {
+			genMET   = -1.0;
+			genSumET = -1.0;
+			genMETSign  = -1.0;
+			genMETPhi   = -10.0;
+		} else {
+			genMET = (*genMETs)[0].et();
+			genSumET = (*genMETs)[0].sumEt();  
+			genMETSign = (*genMETs)[0].significance();  
+			genMETPhi = (*genMETs)[0].phi();
+		}
+	}
     // MC Pileup Summary Info
     const edm::InputTag PileupSrc("addPileupInfo");
     edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo;
@@ -239,7 +264,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
     }
   }
   // fill jet branches
-  edm::Handle<reco::CandidateView> boson;
+  edm::Handle<edm::View< reco::Candidate> > boson;
   iEvent.getByLabel( mInputBoson, boson);
   mNVB = boson->size();
   if( mNVB<1 ) return; // Nothing to fill
@@ -250,6 +275,8 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if(GenJetFiller.get()) GenJetFiller->fill(iEvent);
   if(PFJetFiller.get()) PFJetFiller->fill(iEvent);
   if(JPTJetFiller.get()) JPTJetFiller->fill(iEvent);
+
+
   if(CorrectedPFJetFiller.get()) CorrectedPFJetFiller->fill(iEvent);
   if(CorrectedPFJetFillerVBFTag.get()) CorrectedPFJetFillerVBFTag->fill(iEvent);//For VBF Tag Jets
   if(CorrectedJPTJetFiller.get()) CorrectedJPTJetFiller->fill(iEvent);
@@ -259,8 +286,8 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   recoBosonFillerE->fill(iEvent, 0);
   if(mNVB==2) recoBosonFillerE->fill(iEvent, 1);
 
-  recoBosonFillerMu->fill(iEvent);
-
+  recoBosonFillerMu->fill(iEvent,0);
+  if(mNVB==2) recoBosonFillerMu->fill(iEvent, 1);
 
   /**  Store generated vector boson information */
   if(genBosonFiller.get()) genBosonFiller->fill(iEvent);
@@ -298,32 +325,38 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_nPV",    &nPV,   "event_nPV/I"); 
   myTree->Branch("event_PVx",    mPVx,   "event_PVx[30]/F"); 
   myTree->Branch("event_PVy",    mPVy,   "event_PVy[30]/F"); 
-  myTree->Branch("event_PVz",    mPVz,   "event_PVz[30]/F"); 
-  myTree->Branch("event_met_calomet",    &mMET,  "event_met_calomet/F"); 
-  myTree->Branch("event_met_calosumet",  &mSumET,"event_met_calosumet/F"); 
-  myTree->Branch("event_met_calometsignificance", &mMETSign,  "event_met_calometsignificance/F"); 
-  myTree->Branch("event_met_calometPhi",    &mMETPhi,  "event_met_calometPhi/F"); 
-  myTree->Branch("event_met_tcmet",    &mtcMET,  "event_met_tcmet/F"); 
-  myTree->Branch("event_met_tcsumet",  &mtcSumET,"event_met_tcsumet/F"); 
-  myTree->Branch("event_met_tcmetsignificance", &mtcMETSign,  "event_met_tcmetsignificance/F"); 
-  myTree->Branch("event_met_tcmetPhi",    &mtcMETPhi,  "event_met_tcmetPhi/F"); 
+  myTree->Branch("event_PVz",    mPVz,   "event_PVz[30]/F");
+  if(runoverAOD){
+	  myTree->Branch("event_met_calomet",    &mMET,  "event_met_calomet/F"); 
+	  myTree->Branch("event_met_calosumet",  &mSumET,"event_met_calosumet/F"); 
+	  myTree->Branch("event_met_calometsignificance", &mMETSign,  "event_met_calometsignificance/F"); 
+	  myTree->Branch("event_met_calometPhi",    &mMETPhi,  "event_met_calometPhi/F"); 
+	  myTree->Branch("event_met_tcmet",    &mtcMET,  "event_met_tcmet/F"); 
+	  myTree->Branch("event_met_tcsumet",  &mtcSumET,"event_met_tcsumet/F"); 
+	  myTree->Branch("event_met_tcmetsignificance", &mtcMETSign,  "event_met_tcmetsignificance/F"); 
+	  myTree->Branch("event_met_tcmetPhi",    &mtcMETPhi,  "event_met_tcmetPhi/F");
+  }
   myTree->Branch("event_met_pfmet",    &mpfMET,  "event_met_pfmet/F"); 
   myTree->Branch("event_met_pfsumet",  &mpfSumET,"event_met_pfsumet/F"); 
   myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
   myTree->Branch("event_met_pfmetPhi",    &mpfMETPhi,  "event_met_pfmetPhi/F"); 
   myTree->Branch("event_fastJetRho",      &fastJetRho, "event_fastJetRho/F"); 
-  myTree->Branch("event_RhoForLeptonIsolation",  &lepIsoRho, "event_RhoForLeptonIsolation/F"); 
-  myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"event_BeamSpot_x/F");
-  myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"event_BeamSpot_y/F");
-  myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"event_BeamSpot_z/F");
+  myTree->Branch("event_RhoForLeptonIsolation",  &lepIsoRho, "event_RhoForLeptonIsolation/F");
+  
+	  myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"event_BeamSpot_x/F");
+	  myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"event_BeamSpot_y/F");
+	  myTree->Branch("event_BeamSpot_z"       ,&mBSz              ,"event_BeamSpot_z/F");
+  
+  
   myTree->Branch(("num"+VBosonType_).c_str(),&mNVB ,("num"+VBosonType_+"/I").c_str());
 
   if ( runningOverMC_ ){
+
     myTree->Branch("event_met_genmet",    &genMET,  "event_met_genmet/F"); 
     myTree->Branch("event_met_gensumet",  &genSumET,"event_met_gensumet/F"); 
     myTree->Branch("event_met_genmetsignificance", &genMETSign,  "event_met_genmetsignificance/F"); 
     myTree->Branch("event_met_genmetPhi",    &genMETPhi,  "event_met_genmetPhi/F"); 
-
+	  
     myTree->Branch("event_mcPU_totnvtx",    &mcPUtotnvtx,  "event_mcPU_totnvtx/F"); 
     myTree->Branch("event_mcPU_bx",         mcPUbx ,       "event_mcPU_bx[3]/F"); 
     myTree->Branch("event_mcPU_nvtx",       mcPUnvtx,      "event_mcPU_nvtx[3]/F"); 

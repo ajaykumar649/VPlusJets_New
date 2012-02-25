@@ -36,6 +36,8 @@ ewk::MCTreeFiller::MCTreeFiller(const char *name, TTree* tree,
   Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
   ptype_    = iConfig.getParameter<std::string>("LeptonType");
   pdgIdDau_ = 11;
+  if(  iConfig.existsAs<edm::InputTag>("srcGenParticles") )
+	  mInputgenParticles  = iConfig.getParameter<edm::InputTag>("srcGenParticles");
   if(ptype_=="muon") pdgIdDau_ = 13; 
   if( !(tree==0) ) SetBranches();
 }
@@ -46,7 +48,10 @@ ewk::MCTreeFiller::MCTreeFiller(const char *name, TTree* tree,
 
 void ewk::MCTreeFiller::SetBranches()
 {
-  // Declare jet branches
+
+	std::cout << "srcgenparticles " << mInputgenParticles << std::endl;
+
+// Declare jet branches
   std::string lept1;
   std::string lept2;
   if( Vtype_=="Z" ) {
@@ -183,7 +188,7 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
 
 
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel("genParticles", genParticles);
+  iEvent.getByLabel(mInputgenParticles, genParticles);
 
   size_t nGen = genParticles->size();
   if( nGen < 1 ) return; // Nothing to fill

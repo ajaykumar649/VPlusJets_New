@@ -40,17 +40,27 @@ ewk::VtoMuonTreeFiller::VtoMuonTreeFiller(const char *name, TTree* tree,
 {
 
   // ********** Vector boson ********** //
+ if( iConfig.existsAs<bool>("runningOverAOD"))
+	  runoverAOD = iConfig.getParameter<bool>("runningOverAOD");
   if(  iConfig.existsAs<edm::InputTag>("srcVectorBoson") )
     mInputBoson = iConfig.getParameter<edm::InputTag>("srcVectorBoson"); 
   else std::cout << "***Error:" << name << 
     " Collection not specified !" << std::endl;
+    if(  iConfig.existsAs<edm::InputTag>("srcMet") )
+		mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+    if(  iConfig.existsAs<edm::InputTag>("srcMuons") )
+		mInputMuons  = iConfig.getParameter<edm::InputTag>("srcMuons");
+    if(  iConfig.existsAs<edm::InputTag>("srcBeamSpot") )
+		mInputBeamSpot  = iConfig.getParameter<edm::InputTag>("srcBeamSpot");
+	 tree_     = tree;
+	 name_     = name;
+	 Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
+	 LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
+	 if(  iConfig.existsAs<edm::InputTag>("srcMet") )
+		 mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
 
-  tree_     = tree;
-  name_     = name;
-  Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
-  LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
 
-  if( !(tree==0) && LeptonType_=="muon") SetBranches();
+	 if( !(tree==0) && LeptonType_=="muon") SetBranches();
 
 }
 
@@ -105,8 +115,8 @@ void ewk::VtoMuonTreeFiller::SetBranches()
   SetBranch( &mu1_numberOfChambers, lept1+"_numberOfChambers" );
   SetBranch( &mu1_numberOfMatches,  lept1+"_numberOfMatches" );	  
 
-  SetBranch( &mu1d0bsp,          lept1+"_d0bsp" );
-  SetBranch( &mu1dz000,          lept1+"_dz000" );
+  SetBranch( &mu1_d0bsp,         lept1+"_d0bsp" );
+  SetBranch( &mu1_dz000,         lept1+"_dz000" );
 
   SetBranch( &mu1pfiso_sumChargedHadronPt,            lept1+"_pfiso_sumChargedHadronPt" );
   SetBranch( &mu1pfiso_sumChargedParticlePt,          lept1+"_pfiso_sumChargedParticlePt" );
@@ -188,8 +198,8 @@ void ewk::VtoMuonTreeFiller::init()
   mu1_numberOfChambers   = -10.;
   mu1_numberOfMatches    = -1.;
 
-  mu1d0bsp            = -99999.;
-  mu1dz000            = -99999.;
+  mu1_d0bsp           = -99999.;
+  mu1_dz000           = -99999.;
 
   mu1pfiso_sumChargedHadronPt   = -99999.;
   mu1pfiso_sumChargedParticlePt = -99999.;
@@ -229,25 +239,28 @@ void ewk::VtoMuonTreeFiller::init()
 
 
 
-void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
+void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent, int vecBosonIndex)
 {
+
+ std::cout << "################################# 0 " << std::endl;
 
   // protection
   if( (tree_==0) || !(LeptonType_=="muon") )  return;
 
   // first initialize to the default values
   init();
-
   edm::Handle<reco::CandidateView> boson;
   iEvent.getByLabel( mInputBoson, boson);
   if( boson->size()<1 ) return; // Nothing to fill
   
-  const reco::Candidate *Vboson = &((*boson)[0]); 
+  const reco::Candidate *Vboson = &((*boson)[vecBosonIndex]); 
   if( Vboson == 0) return;
 
-  edm::Handle<reco::PFMETCollection> pfmet;
-  iEvent.getByLabel("pfMet", pfmet);
+  // edm::Handle<reco::PFMETCollection> pfmet;
+  //iEvent.getByLabel("pfMet", pfmet);
   
+   edm::Handle<edm::View<reco::MET> > pfmet;
+   iEvent.getByLabel(mInputMet, pfmet);
   ////////// Vector boson quantities //////////////
   V_mass = Vboson->mass();
   V_mt = sqrt(2.0*Vboson->daughter(0)->pt()*Vboson->daughter(1)->pt()*
@@ -265,25 +278,57 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
   V_Pt = Vboson->pt();
   V_Et = Vboson->et();
 
+
   // now iterate over the daughters  
   if(Vboson->numberOfDaughters()<2 ) {
     throw cms::Exception( "***Error: V boson has < 2 daughters !\n");
     return;  // if no muon found, then return
   } 
-
+  std::cout << "number of daugters " << Vboson->numberOfDaughters() <<std::endl;
   // get the two daughters
   reco::CandidateBaseRef m0 = Vboson->daughter(0)->masterClone();
   reco::CandidateBaseRef m1 = Vboson->daughter(1)->masterClone();
+  //std::cout << "ptr m1 is nonnull " << m1.isNonnull() <<std::endl ;
 
   const reco::Muon * mu1=NULL;
   const reco::Muon * mu2=NULL;
   const std::type_info & type0 = typeid(*m0);
   const std::type_info & type1 = typeid(*m1);
 
-  if( type0 == typeid(reco::Muon) ) 
-    mu1 = dynamic_cast<const reco::Muon *>( &*m0 ); 
-  if( type1 == typeid(reco::Muon) )
-    mu2 = dynamic_cast<const reco::Muon *>( &*m1 ); 
+  if(runoverAOD){
+	  if( type0 == typeid(reco::Muon) ){
+		  mu1 = dynamic_cast<const reco::Muon *>( &*m0 ); }}
+  
+  else{
+    if( type0 == typeid(pat::Muon) ) {
+      //  std::cout << " boson daughter - pat mu 1 " << std::endl;
+		  
+      //  std::cout << "ptr is nonnull " << m0.isNonnull() <<std::endl ;
+      //   std::cout << "charge from Ptr = " << m0->charge() << std::endl;
+      mu1 = dynamic_cast<const pat::Muon *>( &*m0 ); 
+      //  std::cout << "charge from mu 1 = " << mu1->charge() << std::endl;
+      //  std::cout << "pt from mu 1 = " << mu1->pt() << std::endl;
+    }
+  }
+
+  if(runoverAOD){
+	  if( type0 == typeid(reco::Muon) ){
+		  mu1 = dynamic_cast<const reco::Muon *>( &*m1 ); }}
+  
+  else{
+    //	  std::cout << " boson daughter - pat mu 2" << std::endl;
+    if( type1 == typeid(pat::Muon) ) {
+      //   std::cout << " boson daughter - pat mu 2 " << std::endl;
+		  
+//       std::cout << "ptr is nonnull " << m1.isNonnull() <<std::endl ;
+//       std::cout << "charge from Ptr = " << m1->charge() << std::endl;
+      mu2 = dynamic_cast<const pat::Muon *>( &*m1 ); 
+//       std::cout << "charge from mu 2 = " << mu2->charge() << std::endl;
+//       std::cout << "pt from mu 2 = " << mu2->pt() << std::endl;
+    }
+  }
+
+
 
   if(0==mu1 && 0==mu2) {
     throw cms::Exception("***Error: couldn't do dynamic" 
@@ -317,6 +362,7 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
     }
   }
 
+
   ////////// muon #1 quantities //////////////
   if( !(muon1 == NULL) ) {
     mu1Charge           = muon1-> charge();
@@ -324,6 +370,15 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
     mu1Vy               = muon1->vy();
     mu1Vz               = muon1->vz();
     mu1Y                = muon1->rapidity();
+    mu1Theta            = muon1->theta();
+    mu1Eta              = muon1->eta();    
+    mu1Phi              = muon1->phi();
+    mu1E                = muon1->energy();
+    mu1px               = muon1->px();
+    mu1py               = muon1->py();
+    mu1pz               = muon1->pz();
+    mu1Pt               = muon1->pt();
+    mu1Et               = muon1->et();	  
     /// isolation 
     mu1_trackiso       = muon1->isolationR03().sumPt;
     mu1_ecaliso        = muon1->isolationR03().emEt;
@@ -332,22 +387,18 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent)
     mu1Type  = muon1->type();
     mu1_numberOfChambers  = muon1->numberOfChambers();      
     mu1_numberOfMatches   = muon1->numberOfMatches();
-    mu1Theta          = muon1->theta();
-    mu1Eta            = muon1->eta();    
-    mu1Phi            = muon1->phi();
-    mu1E              = muon1->energy();
-    mu1px             = muon1->px();
-    mu1py             = muon1->py();
-    mu1pz             = muon1->pz();
-    mu1Pt             = muon1->pt();
-    mu1Et             = muon1->et();	  
 
     // vertex 
-    edm::Handle<reco::BeamSpot> beamSpot;
-    iEvent.getByLabel("offlineBeamSpot", beamSpot);
-    mu1d0bsp = muon1->innerTrack()->dxy( beamSpot->position() ) ;
-    mu1dz000 = muon1->vertex().z();
+    edm::Handle<reco::BeamSpot>  beamSpot;
+    if(runoverAOD){
+      iEvent.getByLabel(mInputBeamSpot, beamSpot);
+      mu1_d0bsp = muon1->innerTrack()->dxy( beamSpot->position() ) ;
+      mu1_dz000 = muon1->vertex().z();
+    }
     // pf isolation
+    //mu1_pfiso_chargedHadronIso = muon1->pfIsolationVariables().chargedHadronIso;
+    //mu1_pfiso_photonIso        = muon1->pfIsolationVariables().photonIso;
+    //mu1_pfiso_neutralHadronIso = muon1->pfIsolationVariables().neutralHadronIso;
     //mu1pfiso_sumChargedHadronPt   = muon1->pfIsolationR03().sumChargedHadronPt;
     //mu1pfiso_sumChargedParticlePt = muon1->pfIsolationR03().sumChargedParticlePt;
     //mu1pfiso_sumNeutralHadronEt   = muon1->pfIsolationR03().sumNeutralHadronEt;

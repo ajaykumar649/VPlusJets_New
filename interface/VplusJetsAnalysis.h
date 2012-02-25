@@ -70,8 +70,14 @@ namespace ewk
     std::string LeptonType_;
     edm::InputTag mInputBoson;
     edm::InputTag mPrimaryVertex;
-
-
+    edm::InputTag mInputBeamSpot;
+    edm::InputTag mInputcaloMet;
+    edm::InputTag mInputtcMet;
+    edm::InputTag mInputMet;
+	std::string JetsFor_rho;
+	std::string JetsFor_rho_lepIso;
+	edm::InputTag mInputgenMet;
+	bool runoverAOD;
     /// The objects that actually computes variables and fill the tree 
     std::auto_ptr<ewk::JetTreeFiller> CaloJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedCaloJetFiller;
