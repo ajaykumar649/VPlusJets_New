@@ -19,6 +19,7 @@
 
 // CMS includes
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -507,7 +508,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     e1Pt               = ele1->pt();
     e1Et               = ele1->et();
 
-	/*  /// isolation 
+	  /// isolation 
     e1_trackiso       = ele1->dr03TkSumPt();
     e1_ecaliso        = ele1->dr03EcalRecHitSumEt();
     e1_hcaliso        = ele1->dr03HcalTowerSumEt();
@@ -518,7 +519,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     e1_DeltaPhiIn     = ele1->deltaPhiSuperClusterTrackAtVtx();
     e1_DeltaPhiOut    = ele1->deltaPhiSeedClusterTrackAtCalo();
     e1_DeltaEtaOut    = ele1->deltaEtaSeedClusterTrackAtCalo();
-	*/
+	
     //Track Momentum information
     e1_Trackmom_calo  = sqrt(ele1->trackMomentumAtCalo().perp2());
     e1_Trackmom_vtx   = sqrt(ele1->trackMomentumAtVtx().perp2());
@@ -579,8 +580,13 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
    if(runoverAOD){
      iEvent.getByLabel(mInputBeamSpot, beamSpot);
      e1_d0bsp = e1->gsfTrack()->dxy( beamSpot->position() ) ;
-     e1_dz000 = e1->vertex().z();
+     e1_dz000 = e1->vertex().z(); }
+   else{
+     const pat::Electron* patel1 = dynamic_cast<const pat::Electron *>( &*ele1 );
+	 e1_d0bsp = patel1->dB(pat::Electron::BS2D) ;
+	 e1_dz000 = patel1->dB(pat::Electron::PV2D); 
    }
+ 	   
    // PF Isolation 
    e1_pfiso_chargedHadronIso = e1->pfIsolationVariables().chargedHadronIso;
    e1_pfiso_photonIso        = e1->pfIsolationVariables().photonIso;

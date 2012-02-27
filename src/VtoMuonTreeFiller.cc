@@ -20,6 +20,7 @@
 
 // CMS includes
 #include "DataFormats/MuonReco/interface/Muon.h"  
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "TMath.h" 
 
 // Header file
@@ -394,6 +395,10 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent, int vecBosonIndex)
       iEvent.getByLabel(mInputBeamSpot, beamSpot);
       mu1_d0bsp = muon1->innerTrack()->dxy( beamSpot->position() ) ;
       mu1_dz000 = muon1->vertex().z();
+    } else {
+      const pat::Muon* patmuon1 = dynamic_cast<const pat::Muon *>( &*muon1);
+      mu1_d0bsp = patmuon1->dB(pat::Muon::BS2D) ;
+	  mu1_dz000 = patmuon1->dB(pat::Muon::PV2D);
     }
     // pf isolation
     //mu1_pfiso_chargedHadronIso = muon1->pfIsolationVariables().chargedHadronIso;

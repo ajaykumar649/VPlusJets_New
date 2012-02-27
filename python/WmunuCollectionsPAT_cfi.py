@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseElectrons
-from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseMuons
+from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseElectrons
+from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseMuons
 
 tightMuons = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("selectedPatMuonsPFlow"),
