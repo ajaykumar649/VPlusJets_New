@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = True
+isMC = False
 
 process = cms.Process("demo")
 
@@ -136,8 +136,8 @@ if isMC:
     process.myseq.remove ( process.HBHENoiseFilter)
     process.myseq.remove ( process.HLTEle)
 else:
-    process.myseq.remove ( process.noscraping)
-    process.myseq.remove ( process.HBHENoiseFilter)
+#    process.myseq.remove ( process.noscraping)
+#    process.myseq.remove ( process.HBHENoiseFilter)
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 
