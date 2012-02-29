@@ -7,33 +7,33 @@ ConfigFile = "WmunuJetsAnalysisPAT_cfg.py"
 DefTrig    = "'HLT_Mu9','HLT_Mu11','HLT_Mu13','HLT_Mu15_v*','HLT_Mu17_v*','HLT_Mu24_v*','HLT_Mu30_v*','HLT_IsoMu17_v*','HLT_IsoMu24_v*','HLT_IsoMu30_v*'"
 
 dataset    = [
-    "/PAT-WMu/Run2010A-Apr21ReReco-v1/AOD",
-    "/PAT-WMu/Run2010B-Apr21ReReco-v1/AOD",
-    "/PAT-WSingleMu/Run2011A-May10ReReco-v1/AOD",
-    "/PAT-WSingleMu/Run2011A-PromptReco-v4/AOD",
-    "/PAT-WSingleMu/Run2011A-PromptReco-v4/AOD",
-    "/PAT-WSingleMu/Run2011A-05Aug2011-v1/AOD",
-    "/PAT-WSingleMu/Run2011A-05Aug2011-v1/AOD",
-    "/PAT-WSingleMu/Run2011A-PromptReco-v6/AOD",
-    "/PAT-WSingleMu/Run2011A-PromptReco-v6/AOD",
-    "/PAT-WSingleMu/Run2011B-PromptReco-v1/AOD",
-    "/PAT-WSingleMu/Run2011B-PromptReco-v1/AOD",
-    "/PAT-WSingleMu/Run2011B-PromptReco-v1/AOD",
-    "/PAT-WSingleMu/Run2011B-PromptReco-v1/AOD"]
+    "/PAT-Mu/Run2010A-Apr21ReReco-v1/AOD",
+    "/PAT-Mu/Run2010B-Apr21ReReco-v1/AOD",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-May10ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-PromptReco-v4-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-PromptReco-v4-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-05Aug2011-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-05Aug2011-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-PromptReco-v6-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-PromptReco-v6-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER"]
 channels   = [
-    "PAT-WMu-Run2010A-Apr21ReReco-v1-trigv2010",
-    "PAT-WMu-Run2010B-Apr21ReReco-v1-trigv2010",
-    "PAT-WSingleMu-Run2011A-May10ReReco-v1-trig5E32",
-    "PAT-WSingleMu-Run2011A-PromptReco-v4-trig1E33",
-    "PAT-WSingleMu-Run2011A-PromptReco-v4-trig1p4E33",
-    "PAT-WSingleMu-Run2011A-05Aug2011-v1-trigv2E33v11",
-    "PAT-WSingleMu-Run2011A-05Aug2011-v1-trigv2E33v12",
-    "PAT-WSingleMu-Run2011A-PromptReco-v6-trigv2E33v12",
-    "PAT-WSingleMu-Run2011A-PromptReco-v6-trigv3E33v00",
-    "PAT-WSingleMu-Run2011B-PromptReco-v1-trigv3E33v20",
-    "PAT-WSingleMu-Run2011B-PromptReco-v1-trigv3E33v23",
-    "PAT-WSingleMu-Run2011B-PromptReco-v1-trigv5E33v14",
-    "PAT-WSingleMu-Run2011B-PromptReco-v1-trigv5E33v22"]
+    "PAT-Mu-Run2010A-Apr21ReReco-v1-trigv2010",
+    "PAT-Mu-Run2010B-Apr21ReReco-v1-trigv2010",
+    "PAT-SingleMu-Run2011A-May10ReReco-v1-trig5E32",
+    "PAT-SingleMu-Run2011A-PromptReco-v4-trig1E33",
+    "PAT-SingleMu-Run2011A-PromptReco-v4-trig1p4E33",
+    "PAT-SingleMu-Run2011A-05Aug2011-v1-trigv2E33v11",
+    "PAT-SingleMu-Run2011A-05Aug2011-v1-trigv2E33v12",
+    "PAT-SingleMu-Run2011A-PromptReco-v6-trigv2E33v12",
+    "PAT-SingleMu-Run2011A-PromptReco-v6-trigv3E33v00",
+    "PAT-SingleMu-Run2011B-PromptReco-v1-trigv3E33v20",
+    "PAT-SingleMu-Run2011B-PromptReco-v1-trigv3E33v23",
+    "PAT-SingleMu-Run2011B-PromptReco-v1-trigv5E33v14",
+    "PAT-SingleMu-Run2011B-PromptReco-v1-trigv5E33v22"]
 trigname   = [
     "'HLT_Mu9','HLT_Mu11','HLT_Mu13','HLT_Mu15_v*','HLT_Mu17_v*','HLT_Mu24_v*'",
     "'HLT_Mu9','HLT_Mu11','HLT_Mu13','HLT_Mu15_v*','HLT_Mu17_v*','HLT_Mu24_v*'",
@@ -109,9 +109,9 @@ def changeCrabTemplateFile(outfile, index, nowJSON, nowRang):
             fout.write("\n")
             fout.write("runselection="+RunRange[index]+"\n")
             fout.write("lumi_mask="+nowJSON+"\n")
-        if line.find("myanalysis")!=-1:
-            line=line.replace("myanalysis",pset_cfg)    
             fout.write("dbs_url = http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_02/servlet/DBSServlet"+"\n")
+        if line.find("myanalysis")!=-1:
+            line=line.replace("myanalysis",pset_cfg)
         if  line.find("myrootfile")!=-1:
             line=line.replace("myrootfile",outfile_root)
         if  line.find("myresilient")!=-1:
@@ -131,7 +131,10 @@ for i in range(len(channels)):
     changeCrabTemplateFile(channels[i],i,JSON[i],RunRange[i])
 
 for i in range(len(channels)):
+    if i<2: continue
+    #if i>3: continue
     #if i<9: continue
     submitcommand = "crab -create -cfg " + physMode + "cb_" + channels[i] + ".cfg"
     child   = os.system(submitcommand)
     child2   = os.system("crab -submit")
+
