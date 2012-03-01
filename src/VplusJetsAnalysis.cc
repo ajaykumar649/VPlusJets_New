@@ -89,7 +89,10 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
 	  runoverAOD = iConfig.getParameter<bool>("runningOverAOD");
 
   JetsFor_rho =  iConfig.getParameter<std::string>("srcJetsforRho") ; 
+  JetsFor_rhoCHS =  iConfig.getParameter<std::string>("srcJetsforRhoCHS") ; 
   JetsFor_rho_lepIso =  iConfig.getParameter<std::string>("srcJetsforRho_lepIso") ; 
+  JetsFor_rho_lepIsoCHS =  iConfig.getParameter<std::string>("srcJetsforRho_lepIsoCHS") ; 
+
   if(  iConfig.existsAs<edm::InputTag>("srcgenMet") )
 	  mInputgenMet =  iConfig.getParameter<edm::InputTag>("srcgenMet") ; 
 }
@@ -219,14 +222,31 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if( *rho == *rho) fastJetRho = *rho;
   else  fastJetRho =  -999999.9;
 
-
-
   /////// Pileup density "rho" for lepton isolation subtraction /////
   edm::Handle<double> rhoLepIso;
   const edm::InputTag eventrhoLepIso(JetsFor_rho_lepIso, "rho");
   iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
   if( *rhoLepIso == *rhoLepIso) lepIsoRho = *rhoLepIso;
   else  lepIsoRho =  -999999.9;
+
+
+  /////// CHARGED-HADRON-SUBTRACTED versions of pileup density rho:
+
+
+  /////// Pileup density "rho" in the event from fastJet pileup calculation /////
+  edm::Handle<double> rhoCHS;
+  const edm::InputTag eventrhoCHS(JetsFor_rhoCHS, "rho");
+  iEvent.getByLabel(eventrhoCHS,rhoCHS);
+  if( *rhoCHS == *rhoCHS) fastJetRhoCHS = *rhoCHS;
+  else  fastJetRhoCHS =  -999999.9;
+
+  /////// Pileup density "rho" for lepton isolation subtraction /////
+  edm::Handle<double> rhoLepIsoCHS;
+  const edm::InputTag eventrhoLepIsoCHS(JetsFor_rho_lepIsoCHS, "rho");
+  iEvent.getByLabel(eventrhoLepIsoCHS, rhoLepIsoCHS);
+  if( *rhoLepIsoCHS == *rhoLepIsoCHS) lepIsoRhoCHS = *rhoLepIsoCHS;
+  else  lepIsoRhoCHS =  -999999.9;
+
 
 
   /////////// GenMET information & MC Pileup Summary Info  //////////
@@ -336,12 +356,15 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
 	  myTree->Branch("event_met_tcmetsignificance", &mtcMETSign,  "event_met_tcmetsignificance/F"); 
 	  myTree->Branch("event_met_tcmetPhi",    &mtcMETPhi,  "event_met_tcmetPhi/F");
   }
-  myTree->Branch("event_met_pfmet",    &mpfMET,  "event_met_pfmet/F"); 
-  myTree->Branch("event_met_pfsumet",  &mpfSumET,"event_met_pfsumet/F"); 
+  myTree->Branch("event_met_pfmet",             &mpfMET,      "event_met_pfmet/F"); 
+  myTree->Branch("event_met_pfsumet",           &mpfSumET,    "event_met_pfsumet/F"); 
   myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
-  myTree->Branch("event_met_pfmetPhi",    &mpfMETPhi,  "event_met_pfmetPhi/F"); 
-  myTree->Branch("event_fastJetRho",      &fastJetRho, "event_fastJetRho/F"); 
-  myTree->Branch("event_RhoForLeptonIsolation",  &lepIsoRho, "event_RhoForLeptonIsolation/F");
+  myTree->Branch("event_met_pfmetPhi",          &mpfMETPhi,   "event_met_pfmetPhi/F"); 
+
+  myTree->Branch("event_fastJetRho",                &fastJetRho,    "event_fastJetRho/F"); 
+  myTree->Branch("event_fastJetRhoCHS",             &fastJetRhoCHS, "event_fastJetRhoCHS/F"); 
+  myTree->Branch("event_RhoForLeptonIsolation",     &lepIsoRho,     "event_RhoForLeptonIsolation/F");
+  myTree->Branch("event_RhoForLeptonIsolationCHS",  &lepIsoRhoCHS,  "event_RhoForLeptonIsolationCHS/F");
   
 	  myTree->Branch("event_BeamSpot_x"       ,&mBSx              ,"event_BeamSpot_x/F");
 	  myTree->Branch("event_BeamSpot_y"       ,&mBSy              ,"event_BeamSpot_y/F");

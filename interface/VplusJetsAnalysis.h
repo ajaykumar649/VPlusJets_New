@@ -76,6 +76,8 @@ namespace ewk
     edm::InputTag mInputMet;
 	std::string JetsFor_rho;
 	std::string JetsFor_rho_lepIso;
+	std::string JetsFor_rhoCHS;
+	std::string JetsFor_rho_lepIsoCHS;
 	edm::InputTag mInputgenMet;
 	bool runoverAOD;
     /// The objects that actually computes variables and fill the tree 
@@ -117,7 +119,9 @@ namespace ewk
     float mpfMETSign;
     float mpfMETPhi;
     float fastJetRho;
+    float fastJetRhoCHS;
     float lepIsoRho;
+    float lepIsoRhoCHS;
     float genMET;
     float genSumET;
     float genMETSign;
