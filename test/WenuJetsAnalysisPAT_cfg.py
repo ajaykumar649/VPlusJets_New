@@ -111,10 +111,10 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcgenMet  = cms.InputTag("genMetTrue"),
     srcGenParticles  = cms.InputTag("genParticles"),
     srcTcMet    = cms.InputTag("patMETsAK5TC"),
-    #srcJetsforRho = cms.string("kt6PFJetsChsPFlow"),
-    #srcJetsforRho_lepIso = cms.string("kt6PFJetsChsPFlow"),
     srcJetsforRho = cms.string("kt6PFJets"),                               
     srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"),       
+    srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
+    srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
     srcFlavorByValue = cms.InputTag("ak5tagJet"),
     bTagger=cms.string("simpleSecondaryVertexHighEffBJetTags"),
 )
@@ -136,8 +136,8 @@ if isMC:
     process.myseq.remove ( process.HBHENoiseFilter)
     process.myseq.remove ( process.HLTEle)
 else:
-#    process.myseq.remove ( process.noscraping)
-#    process.myseq.remove ( process.HBHENoiseFilter)
+    process.myseq.remove ( process.noscraping)
+    process.myseq.remove ( process.HBHENoiseFilter)
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 

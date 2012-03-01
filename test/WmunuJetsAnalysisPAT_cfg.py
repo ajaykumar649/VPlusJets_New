@@ -71,6 +71,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
     '/store/user/lnujj/PATProduction/jindal/WW_TuneZ2_7TeV_pythia6_tauola/SQWaT_PAT_42X_Fall11_v3/3156aed375cb9d84362f1cc2ea98a9c4/pat_42x_fall11_85_1_XsL.root'
+#    '/store/user/pdudero/CMSSW428/WenuJets_136033-149442_EG-Run2010A-Apr21ReReco-v1-FNAL-v0/dudero/EG/SQWaT_PAT_42X_WenuJets_EG-Run2010A-Apr21ReReco-v1-FNAL-v0/1e4fa898029d17da5da94d6b8e8535d9/pat_42x_data_9_1_d5n.root'
 ) )
 
 
@@ -111,10 +112,10 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcgenMet  = cms.InputTag("genMetTrue"),
     srcGenParticles  = cms.InputTag("genParticles"),
     srcTcMet    = cms.InputTag("patMETsAK5TC"),
-    #srcJetsforRho = cms.string("kt6PFJetsChsPFlow"),
-    #srcJetsforRho_lepIso = cms.string("kt6PFJetsChsPFlow"),
     srcJetsforRho = cms.string("kt6PFJets"),                               
     srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"),       
+    srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
+    srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
     srcFlavorByValue = cms.InputTag("ak5tagJet"),
     bTagger=cms.string("simpleSecondaryVertexHighEffBJetTags"),
 )
@@ -136,8 +137,8 @@ if isMC:
     process.myseq.remove ( process.HBHENoiseFilter)
     process.myseq.remove ( process.HLTMu)
 else:
-#    process.myseq.remove ( process.noscraping)
-#    process.myseq.remove ( process.HBHENoiseFilter)
+    process.myseq.remove ( process.noscraping)
+    process.myseq.remove ( process.HBHENoiseFilter)
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 
