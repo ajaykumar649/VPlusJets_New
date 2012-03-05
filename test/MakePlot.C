@@ -396,30 +396,30 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int t
     "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>362&&fit_mlvjj<569)&&fit_status==0)", // 3j500mu
     "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>398&&fit_mlvjj<616)&&fit_status==0)", // 3j550mu
     "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>419&&fit_mlvjj<660)&&fit_status==0)", // 3j600mu
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>165&&fit_mlvjj<180)&&fit_status==0&&W_electron_pt>35)", // 2j170el =====
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<200)&&fit_status==0&&W_electron_pt>35)", // 2j180el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>185&&fit_mlvjj<210)&&fit_status==0&&W_electron_pt>35)", // 2j190el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>190&&fit_mlvjj<220)&&fit_status==0&&W_electron_pt>35)", // 2j200el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>226&&fit_mlvjj<287)&&fit_status==0&&W_electron_pt>35)", // 2j250el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>265&&fit_mlvjj<347)&&fit_status==0&&W_electron_pt>35)", // 2j300el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>308&&fit_mlvjj<401)&&fit_status==0&&W_electron_pt>35)", // 2j350el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>346&&fit_mlvjj<457)&&fit_status==0&&W_electron_pt>35)", // 2j400el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>381&&fit_mlvjj<512)&&fit_status==0&&W_electron_pt>35)", // 2j450el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>415&&fit_mlvjj<568)&&fit_status==0&&W_electron_pt>35)", // 2j500el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>440&&fit_mlvjj<617)&&fit_status==0&&W_electron_pt>35)", // 2j550el
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>462&&fit_mlvjj<663)&&fit_status==0&&W_electron_pt>35)", // 2j600el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>165&&fit_mlvjj<190)&&fit_status==0&&W_electron_pt>35)", // 3j170el =====
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<210)&&fit_status==0&&W_electron_pt>35)", // 3j180el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>185&&fit_mlvjj<220)&&fit_status==0&&W_electron_pt>35)", // 3j190el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>190&&fit_mlvjj<230)&&fit_status==0&&W_electron_pt>35)", // 3j200el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>216&&fit_mlvjj<300)&&fit_status==0&&W_electron_pt>35)", // 3j250el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>241&&fit_mlvjj<355)&&fit_status==0&&W_electron_pt>35)", // 3j300el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>269&&fit_mlvjj<407)&&fit_status==0&&W_electron_pt>35)", // 3j350el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>300&&fit_mlvjj<465)&&fit_status==0&&W_electron_pt>35)", // 3j400el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>332&&fit_mlvjj<518)&&fit_status==0&&W_electron_pt>35)", // 3j450el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>362&&fit_mlvjj<569)&&fit_status==0&&W_electron_pt>35)", // 3j500el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>398&&fit_mlvjj<616)&&fit_status==0&&W_electron_pt>35)", // 3j550el
-    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>419&&fit_mlvjj<660)&&fit_status==0&&W_electron_pt>35)", // 3j600el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>165&&fit_mlvjj<180)&&fit_status==0)", // 2j170el =====
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<200)&&fit_status==0)", // 2j180el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>185&&fit_mlvjj<210)&&fit_status==0)", // 2j190el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>190&&fit_mlvjj<220)&&fit_status==0)", // 2j200el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>226&&fit_mlvjj<287)&&fit_status==0)", // 2j250el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>265&&fit_mlvjj<347)&&fit_status==0)", // 2j300el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>308&&fit_mlvjj<401)&&fit_status==0)", // 2j350el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>346&&fit_mlvjj<457)&&fit_status==0)", // 2j400el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>381&&fit_mlvjj<512)&&fit_status==0)", // 2j450el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>415&&fit_mlvjj<568)&&fit_status==0)", // 2j500el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>440&&fit_mlvjj<617)&&fit_status==0)", // 2j550el
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>462&&fit_mlvjj<663)&&fit_status==0)", // 2j600el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>165&&fit_mlvjj<190)&&fit_status==0)", // 3j170el =====
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<210)&&fit_status==0)", // 3j180el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>185&&fit_mlvjj<220)&&fit_status==0)", // 3j190el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>190&&fit_mlvjj<230)&&fit_status==0)", // 3j200el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>216&&fit_mlvjj<300)&&fit_status==0)", // 3j250el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>241&&fit_mlvjj<355)&&fit_status==0)", // 3j300el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>269&&fit_mlvjj<407)&&fit_status==0)", // 3j350el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>300&&fit_mlvjj<465)&&fit_status==0)", // 3j400el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>332&&fit_mlvjj<518)&&fit_status==0)", // 3j450el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>362&&fit_mlvjj<569)&&fit_status==0)", // 3j500el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>398&&fit_mlvjj<616)&&fit_status==0)", // 3j550el
+    "(ggdevt==3&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>419&&fit_mlvjj<660)&&fit_status==0)", // 3j600el
   };
   TH1F    * hh[nvbs][nmp][nbgc];
   TH1F    * hs[nvbs][nmp]; 

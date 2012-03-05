@@ -167,6 +167,11 @@ void kanamuon::myana(double myflag, bool isQCD)
       myChain->Add(                    inDataDir + "mu_TTbar_powheg_CMSSW428.root"); 
       Init(myChain);Loop( 20111019,outDataDir + "RD_mu_TTbar_powheg_CMSSW428.root");
     }
+    if (myflag == 20111020 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_ZZ_CMSSW428.root"); 
+      Init(myChain);Loop( 20111020,outDataDir + "RD_mu_ZZ_CMSSW428.root");
+    }
 
     // Higgs Signal Samples
     if (myflag == 20112150 || myflag == -300){
@@ -588,9 +593,9 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
   TBranch * branch_qgld_Summer11CHS  =  newtree->Branch("qgld_Summer11CHS",  qgld_Summer11CHS,     "qgld_Summer11CHS[6]/F");
   
   // For MVA analysis
-  const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
+  const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
   std::vector<std::string> inputVarsMVA;
-  for (int i=0; i<10; ++i) inputVarsMVA.push_back( inputVars[i] );
+  for (int i=0; i<8; ++i) inputVarsMVA.push_back( inputVars[i] );
 
   ReadMVA2j170mu mvaReader2j170mu( inputVarsMVA );  
   ReadMVA2j180mu mvaReader2j180mu( inputVarsMVA );  
@@ -650,8 +655,8 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
   dn_LumiWeights_.weight3D_init( 1.00 );
   
   //Re-calculate Q/G Likelihood
-  QGLikelihoodCalculator *qglikeli_Spring11    = new QGLikelihoodCalculator("./QG_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_Spring11-PU_S1_START311_V1G1-v1.root");  
-  QGLikelihoodCalculator *qglikeli_Summer11    = new QGLikelihoodCalculator("./QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2.root");  
+  //QGLikelihoodCalculator *qglikeli_Spring11    = new QGLikelihoodCalculator("./QG_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_Spring11-PU_S1_START311_V1G1-v1.root");  
+  //QGLikelihoodCalculator *qglikeli_Summer11    = new QGLikelihoodCalculator("./QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2.root");  
   QGLikelihoodCalculator *qglikeli_Summer11CHS = new QGLikelihoodCalculator("./QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2_CHS.root");  
 
   // Parameter Setup
@@ -717,15 +722,15 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
     // Jet Loop
     for(unsigned int iJet=0; iJet<jetsize;iJet++){
       if (JetPFCor_Pt[iJet]<0) continue;
-      qgld_Spring11[iJet]= qglikeli_Spring11->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolation, 
-								     JetPFCor_ChargedMultiplicity[iJet], 
-								     JetPFCor_NeutralMultiplicity[iJet], 
-								     JetPFCor_PtD[iJet]);	 
-      qgld_Summer11[iJet]= qglikeli_Summer11->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolation, 
-								     JetPFCor_ChargedMultiplicity[iJet], 
-								     JetPFCor_NeutralMultiplicity[iJet], 
-								     JetPFCor_PtD[iJet]);	 
-      qgld_Summer11CHS[iJet]= qglikeli_Summer11CHS->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolation, 
+      //      qgld_Spring11[iJet]= qglikeli_Spring11->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolation, 
+      //								     JetPFCor_ChargedMultiplicity[iJet], 
+      //								     JetPFCor_NeutralMultiplicity[iJet], 
+      //								     JetPFCor_PtD[iJet]);	 
+      //      qgld_Summer11[iJet]= qglikeli_Summer11->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolation, 
+      //								     JetPFCor_ChargedMultiplicity[iJet], 
+      //								     JetPFCor_NeutralMultiplicity[iJet], 
+      //								     JetPFCor_PtD[iJet]);	 
+      qgld_Summer11CHS[iJet]= qglikeli_Summer11CHS->computeQGLikelihoodPU( JetPFCor_Pt[iJet], event_RhoForLeptonIsolationCHS, 
 									   JetPFCor_ChargedMultiplicity[iJet], 
 									   JetPFCor_NeutralMultiplicity[iJet], 
 									   JetPFCor_PtD[iJet]);	 
@@ -821,8 +826,8 @@ void kanamuon::Loop(int wda, const char *outfilename, bool isQCD)
       mvaInputVal.push_back( ptlvjj );
       mvaInputVal.push_back( ylvjj );
       mvaInputVal.push_back( W_muon_charge );   ///////different for electron and muon
-      mvaInputVal.push_back( JetPFCor_QGLikelihood[0] );
-      mvaInputVal.push_back( JetPFCor_QGLikelihood[1] );
+      //mvaInputVal.push_back( JetPFCor_QGLikelihood[0] );
+      //mvaInputVal.push_back( JetPFCor_QGLikelihood[1] );
       mvaInputVal.push_back( ang_ha );
       mvaInputVal.push_back( ang_hb );
       mvaInputVal.push_back( ang_hs );
