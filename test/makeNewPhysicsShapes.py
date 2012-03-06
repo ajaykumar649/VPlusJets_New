@@ -86,7 +86,7 @@ for model in models:
     print model[3], 'Ngen: %i Nreco: %0.0f xsec: %0.4f pb' % (model[6], Nreco, model[2]), \
           'equiv integrated lumi: %0.0f pb^(-1)' % (Npb),
     print 'Nreco/(fb^(-1)): %0.3f' % (Nreco*(1000./Npb))
-    print model[3], 'acceptance x efficiency =', Nreco/N
+    print model[3], 'acceptance x efficiency = %04.3g' % (Nreco/N)
     tmpHist.Scale(1000./Npb, 'width')
     tmpHist.SetLineColor(model[5])
     tmpHist.SetLineWidth(3)

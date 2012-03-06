@@ -115,6 +115,8 @@ parser.add_option('--mvaCut', dest='mvaCut', type='float',
                   help='override the mva cut with this value')
 parser.add_option('--alpha', dest='alpha', type='float',
                   help='override the alpha with this value')
+parser.add_option('--qgCut', dest='qgCut', type='float',
+                  help='cut value on the product of QGLikelihood')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -139,7 +141,7 @@ from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.mH,
-                              opts.mvaCut)
+                              opts.mvaCut, opts.qgCut)
 
 fitterPars.WpJfunction = opts.ParamWpJ
 #fitterPars.truncRange = True
