@@ -7,8 +7,8 @@ ConfigFile = "WmunuJetsAnalysisPAT_cfg.py"
 DefTrig    = "'HLT_Mu9','HLT_Mu11','HLT_Mu13','HLT_Mu15_v*','HLT_Mu17_v*','HLT_Mu24_v*','HLT_Mu30_v*','HLT_IsoMu17_v*','HLT_IsoMu24_v*','HLT_IsoMu30_v*'"
 
 dataset    = [
-    "/PAT-Mu/Run2010A-Apr21ReReco-v1/AOD",
-    "/PAT-Mu/Run2010B-Apr21ReReco-v1/AOD",
+    "/Mu/dudero-SQWaT_PAT_42X_WmunuJets_Mu-Run2010A-Apr21ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/Mu/dudero-SQWaT_PAT_42X_WmunuJets_Mu-Run2010B-Apr21ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
     "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-May10ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
     "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-PromptReco-v4-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
     "/SingleMu/dudero-SQWaT_PAT_42X_WmunuJets_SingleMu-Run2011A-PromptReco-v4-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
@@ -89,8 +89,8 @@ def changeMainConfigFile(trigpath,nowtrigname):
     outfile_root  = physMode + trigpath + ".root"
     fout = open(pset_cfg,"w")
     for line in fin.readlines(): 
-        if  line.find("demo.root")!=-1:
-            line=line.replace("demo.root",outfile_root)
+        if  line.find("WmunuJetAnalysisntuple.root")!=-1:
+            line=line.replace("WmunuJetAnalysisntuple.root",outfile_root)
         if  line.find(DefTrig)!=-1:
             line=line.replace(DefTrig,nowtrigname)
         fout.write(line)
@@ -131,7 +131,7 @@ for i in range(len(channels)):
     changeCrabTemplateFile(channels[i],i,JSON[i],RunRange[i])
 
 for i in range(len(channels)):
-    if i<2: continue
+    #if i<2: continue
     #if i>3: continue
     #if i<9: continue
     submitcommand = "crab -create -cfg " + physMode + "cb_" + channels[i] + ".cfg"

@@ -7,19 +7,19 @@ ConfigFile = "WenuJetsAnalysisPAT_cfg.py"
 DefTrig    = "'HLT_Photon15_Cleaned_L1R','HLT_Ele15_*','HLT_Ele17_*','HLT_Ele22_*','HLT_Ele25_*','HLT_Ele27_*','HLT_Ele32_*'"
 
 dataset    = [
-    "/PAT-EG/Run2010A-Apr21ReReco-v1/AOD",
-    "/PAT-Electron/Run2010B-Apr21ReReco-v1/AOD",
-    "/PAT-SingleElectron/Run2011A-May10ReReco-v1/AOD",
-    "/PAT-SingleElectron/Run2011A-PromptReco-v4/AOD",
-    "/PAT-SingleElectron/Run2011A-PromptReco-v4/AOD",
-    "/PAT-SingleElectron/Run2011A-05Aug2011-v1/AOD",
-    "/PAT-SingleElectron/Run2011A-05Aug2011-v1/AOD",
-    "/PAT-SingleElectron/Run2011A-PromptReco-v6/AOD",
-    "/PAT-SingleElectron/Run2011A-PromptReco-v6/AOD",
-    "/PAT-SingleElectron/Run2011B-PromptReco-v1/AOD",
-    "/PAT-SingleElectron/Run2011B-PromptReco-v1/AOD",
-    "/PAT-SingleElectron/Run2011B-PromptReco-v1/AOD",
-    "/PAT-SingleElectron/Run2011B-PromptReco-v1/AOD"]
+    "/EG/dudero-SQWaT_PAT_42X_WenuJets_EG-Run2010A-Apr21ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/Electron/dudero-SQWaT_PAT_42X_WenuJets_Electron-Run2010B-Apr21ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-May10ReReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-PromptReco-v4-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-PromptReco-v4-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-05Aug2011-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-05Aug2011-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-PromptReco-v6-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011A-PromptReco-v6-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER",
+    "/SingleElectron/dudero-SQWaT_PAT_42X_WenuJets_SingleElectron-Run2011B-PromptReco-v1-FNAL-v0-1e4fa898029d17da5da94d6b8e8535d9/USER"]
 channels   = [
     "PAT-EG-Run2010A-Apr21ReReco-v1-trigv2010",
     "PAT-Electron-Run2010B-Apr21ReReco-v1-trigv2010",
@@ -76,7 +76,7 @@ JSON       = [
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt",
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt",
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"]
-condor     = [1,1,1,1,1,1,1,1,1,1,1,1,1] # Total jobs 14 now
+condor     = [1,1,1,1,1,1,1,1,1,1,1,1,1] # Total jobs 13 now
 
 MyResilientArea = "/yangf/CMSSW428/" +physMode
 
@@ -89,8 +89,8 @@ def changeMainConfigFile(trigpath,nowtrigname):
     outfile_root  = physMode + trigpath + ".root"
     fout = open(pset_cfg,"w")
     for line in fin.readlines(): 
-        if  line.find("demo.root")!=-1:
-            line=line.replace("demo.root",outfile_root)
+        if  line.find("WenuJetAnalysisntuple.root")!=-1:
+            line=line.replace("WenuJetAnalysisntuple.root",outfile_root)
         if  line.find(DefTrig)!=-1:
             line=line.replace(DefTrig,nowtrigname)
         fout.write(line)
@@ -131,7 +131,7 @@ for i in range(len(channels)):
     changeCrabTemplateFile(channels[i],i,JSON[i],RunRange[i])
 
 for i in range(len(channels)):
-    if i<13: continue
+    #if i<13: continue
     submitcommand = "crab -create -cfg " + physMode + "cb_" + channels[i] + ".cfg"
     child   = os.system(submitcommand)
     child2   = os.system("crab -submit")
