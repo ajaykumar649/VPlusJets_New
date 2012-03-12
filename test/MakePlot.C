@@ -348,9 +348,7 @@ void ListSample()
 // ====================================================================================
 // Self Function
 // ====================================================================================
-void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int tuneAlpha = 0,
-		       int a_nbin = 70, float a_led= 100, float a_hed=800,
-		       float sblL = 55, float sblH = 65,  float sbhL =95,  float sbhH = 115) {  setTDRStyle();
+void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
   // Save output to file
   char tpname[100];
 
@@ -446,6 +444,70 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int t
     float presS = 0, presB=0; float mvaCut=0;
     std::vector<std::string> allopcuts;
     char ppvar[200] = ""; char ppcut[5000] = ""; char opcutC[5000] = "(1==1)";
+    // =========================== Setup for alpha calculation
+    const int a_type =  0; const int a_npt  = 101; const float sigL = 65, sigH =  95;
+    int tuneAlpha = 0;  float opmva =0.50; 
+    int a_nbin    = 70; float a_led= 100; float a_hed=800;
+    float sblL =    55; float sblH = 65;  float sbhL =95;  float sbhH = 115;
+    // Specify the range and nbin for alpha, now it's point dependent
+    if (tuneAlpha==0) {
+      // Muon 2j 
+      if (p==0     ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==1     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2     ) { opmva=0.60; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3     ) { opmva=0.60; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4     ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==5     ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==6     ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==7     ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==8     ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9     ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==10    ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==11    ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      			    	     	      	       			    				
+      // Muon 3j 	    	     	      	       			    				
+      if (p==0 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==1 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +12 ) { opmva=0.30; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +12 ) { opmva=0.30; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4 +12 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==5 +12 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==6 +12 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==7 +12 ) { opmva=0.50; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==8 +12 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +12 ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==10+12 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==11+12 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      			    	     	      	       			    				
+      // Electron 2j	    	     	      	       			    				
+      if (p==0 +24 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==1 +24 ) { opmva=0.55; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +24 ) { opmva=0.55; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +24 ) { opmva=0.60; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4 +24 ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==5 +24 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==6 +24 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==7 +24 ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==8 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==10+24 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==11+24 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      			    	     	      	       			    				
+      // Electron 3j	    	     	      	       			    				
+      if (p==0 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==1 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +36 ) { opmva=0.30; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +36 ) { opmva=0.40; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4 +36 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==5 +36 ) { opmva=0.50; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==6 +36 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==7 +36 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==8 +36 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==10+36 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==11+36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+    }
+    int myflagb=0; 
     for (int c=0; c<nvbs; c++){ if (c!=myflagb && myflagb>=0) continue;
       int sctype = sccc[c]; float xmin  = 0.0; float xmax = 1.0;
       sprintf(ppvar,"%s",ccva[c]);sprintf(ppcut,"effwt*(%s)",plcut[p]);
@@ -636,103 +698,15 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int t
     // ======================================================================================================
     // Now start to study the alpha method
     // ======================================================================================================
-    // Setup for the alpha method, if need multi-alpha, this script only can do one by one.
-    const int a_type =  0; const int a_npt  = 101; // sample and alpha scan step [0,1]
-    const float sigL = 65, sigH =  95; // sig  range
-    // tune all
-    //sblL = 45, sblH = 65, sbhL =  95, sbhH = 100; //default of sideband
-    char  isrva[100] = "";
-
-    // Specify the range and nbin for alpha, now it's point dependent
-    if (tuneAlpha==0) {
-      if ( (p>=0  && p<=3 ) || 
-	   (p>=12 && p<=15) ||
-	   (p>=24 && p<=27) ||
-	   (p>=36 && p<=39)   ) { a_nbin = 8; a_led= 170; a_hed=250;}
-      if ( (p>=4  && p<=4 ) || 
-	   (p>=16 && p<=16) ||
-	   (p>=28 && p<=28) ||
-	   (p>=40 && p<=40)   ) { a_nbin =15; a_led= 200; a_hed=500;}
-      if ( (p>=5  && p<=5)  || 
-	   (p>=17 && p<=17) ||
-	   (p>=29 && p<=29) ||
-	   (p>=41 && p<=41)   ) { a_nbin =13; a_led= 240; a_hed=500;}
-      if ( (p>=6  && p<=11) || 
-	   (p>=18 && p<=23) ||
-	   (p>=30 && p<=35) ||
-	   (p>=42 && p<=47)   ) { a_nbin =12; a_led= 300; a_hed=780;}
-      
-      if (p==2    || 
-	  p==2+12 ||
-	  p==2+24 ||
-	  p==2+36 ||  
-	  p==3    || 
-	  p==3+12 ||
-	  p==3+24 ||
-	  p==3+36   )  { a_nbin = 7; a_led= 180; a_hed=250;}
-      
-      // Muon 2j 
-      if (p==0     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==1     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==2     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==3     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==4     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==5     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==6     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==7     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==8     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==9     ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==10    ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==11    ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      
-      // Muon 3j 
-      if (p==0 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==1 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==2 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==3 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==4 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==5 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==6 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==7 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==8 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==9 +12 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==10+12 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==11+12 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      
-      // Electron 2j
-      if (p==0 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==1 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==2 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==3 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==4 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==5 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==6 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==7 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==8 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==9 +24 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==10+24 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==11+24 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      
-      // Electron 3j
-      if (p==0 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==1 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==2 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==3 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 115; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==4 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==5 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==6 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==7 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==8 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==9 +36 ) { sblL = 55; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==10+36 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-      if (p==11+36 ) { sblL = 40; sblH = 65; sbhL = 95; sbhH = 200; sprintf(isrva,"_ReAlpha_%.0f-%.0f_%.0f-%.0f",sblL,sblH,sbhL,sbhH); }
-    }
+    // flag==1 : Scan the mva output only
+    if (scflag==1) {sprintf(opcutC, "(mva%s>%.3f)", cate[p],sccut); mvaCut=sccut;} 
+    // flag==2 : Scan the Q/G second Jet Likelihood  AFTER the Optimized MVA cut!
+    if (scflag==2) {sprintf(opcutC, "(mva%s>%.3f&&%s>%.3f)", cate[p],opmva, "qgld_Summer11CHS[1]",sccut); mvaCut=opmva;} 
+    if (scflag!=1&&scflag!=2) {cout << "scan type is not correct: 1, for mva scan, 2, for next leading jet qg scan after optimized mva cut" << endl;return;}
     TH1F * a_hll[nbgc]; TH1F * a_hlow = new TH1F("a_hlow", "", a_nbin, a_led, a_hed); a_hlow->Sumw2();
     TH1F * a_hgg[nbgc]; TH1F * a_hsgg = new TH1F("a_hsgg", "", a_nbin, a_led, a_hed); a_hsgg->Sumw2();
     TH1F * a_hhh[nbgc]; TH1F * a_hhig = new TH1F("a_hhig", "", a_nbin, a_led, a_hed); a_hhig->Sumw2();
 
-    sprintf(opcutC, "mva%s>%.3f", cate[p],opmva); mvaCut=opmva;
-    if(p>=24) sprintf(opcutC, "mva%s>%.3f&&W_electron_pt>35", cate[p],opmva);
     char a_cutl[5000]; sprintf(a_cutl, "effwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sblL,sblH,opcutC);
     char a_cutg[5000]; sprintf(a_cutg, "effwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sigL,sigH,opcutC);
     char a_cuth[5000]; sprintf(a_cuth, "effwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sbhL,sbhH,opcutC);
@@ -977,12 +951,14 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int t
     for (unsigned int i=0; i<allopcuts.size();i++) pta_aph6->AddText((allopcuts[i]).c_str());
     pta_aph6->Draw();
 			   
-    //saveCanvas(MyCa_aph1, Form("./figures/CCOptimize/cc-%s-alpha-%i-%s",cate[p],sqnc,"mcget")    );
-    //saveCanvas(MyCa_aph2, Form("./figures/CCOptimize/cc-%s-alpha-%i-%s",cate[p],sqnc,"mcsys")    );
-    //saveCanvas(MyCa_aph3, Form("./figures/CCOptimize/cc-%s-alpha-%i-%s",cate[p],sqnc,"mcsca")    );
-    //saveCanvas(MyCa_aph4, Form("./figures/CCOptimize/cc-%s-alpha-%i-%s",cate[p],sqnc,"mctet")    );
-    //saveCanvas(MyCa_aph5, Form("./figures/CCOptimize/cc-%s-alpha-%i-%s",cate[p],sqnc,"datet")    );
-    //saveCanvas(MyCa_aph6, Form("./figures/CCOptimize/cc-%s-optmz-%i-%s",cate[p],sqnc,"summa")    );
+    char  isrva[100] = "";sprintf(isrva,"MVAgt_%.0f_Range_%.0i_%.0f-%.0f_SB_%.0f-%.0f_%.0f-%.0f",mvaCut*100.0,a_nbin,a_led,a_hed,sblL,sblH,sbhL,sbhH);
+    cout << isrva << endl;
+    //saveCanvas(MyCa_aph1, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcget",isrva)    );
+    //saveCanvas(MyCa_aph2, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcsys",isrva)    );
+    //saveCanvas(MyCa_aph3, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcsca",isrva)    );
+    //saveCanvas(MyCa_aph4, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mctet",isrva)    );
+    //saveCanvas(MyCa_aph5, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"datet",isrva)    );
+    //saveCanvas(MyCa_aph6, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"summa",isrva)    );
     // Output File
     fprintf(textfile,"( %i, \"%s\", %.3f, %.1f, %.1f, %i, %.3f, %.3f, %.3f, (%.1f,%.1f), (%.1f,%.1f) ),\n", atoi(&cate[p][2]),ppvar, mvaCut, a_led, a_hed, a_nbin, a_alpha[aba[p]], a_alpha[abl[p]],a_alpha[abh[p]], sblL, sblH, sbhL, sbhH );
     fclose(textfile);
@@ -990,67 +966,3 @@ void OptimizeMVAOutPut(int myflag = 0, int myflagb=-1, float opmva =0.50,  int t
   /////////
 }
 
-
-// ====================================================================================
-// Self Function
-// ====================================================================================
-void MakePlot(int myflag = -1, int myflagb = 0, float myopmva = 0.5)
-{
-  cout << "Hello Fan : myflag=" << myflag << myflagb << myopmva << endl;
-  ////
-  
-  //OptimizeMVAOutPut(0    ,0, 0.30);
-  //OptimizeMVAOutPut(1    ,0, 0.60);
-  //OptimizeMVAOutPut(2    ,0, 0.70);
-  //OptimizeMVAOutPut(3    ,0, 0.60);
-  //OptimizeMVAOutPut(4    ,0, 0.70);
-  //OptimizeMVAOutPut(5    ,0, 0.60);
-  //OptimizeMVAOutPut(6    ,0, 0.60);
-  //OptimizeMVAOutPut(7    ,0, 0.60);
-  //OptimizeMVAOutPut(8    ,0, 0.60);
-  //OptimizeMVAOutPut(9    ,0, 0.60);
-  //OptimizeMVAOutPut(10   ,0, 0.60);
-  //OptimizeMVAOutPut(11   ,0, 0.80);
-
-  //OptimizeMVAOutPut(0 +12,0, 0.30);
-  //OptimizeMVAOutPut(1 +12,0, 0.30);
-  //OptimizeMVAOutPut(2 +12,0, 0.30);
-  //OptimizeMVAOutPut(3 +12,0, 0.30);
-  //OptimizeMVAOutPut(4 +12,0, 0.40);
-  //OptimizeMVAOutPut(5 +12,0, 0.50);
-  //OptimizeMVAOutPut(6 +12,0, 0.50);
-  //OptimizeMVAOutPut(7 +12,0, 0.50);
-  //OptimizeMVAOutPut(8 +12,0, 0.50);
-  //OptimizeMVAOutPut(9 +12,0, 0.50);
-  //OptimizeMVAOutPut(10+12,0, 0.60);
-  //OptimizeMVAOutPut(11+12,0, 0.80);
-
-  ////
-  //OptimizeMVAOutPut(0 +24,0, 0.30);
-  //OptimizeMVAOutPut(1 +24,0, 0.60);
-  //OptimizeMVAOutPut(2 +24,0, 0.60);
-  //OptimizeMVAOutPut(3 +24,0, 0.60);
-  //OptimizeMVAOutPut(4 +24,0, 0.60);
-  //OptimizeMVAOutPut(5 +24,0, 0.60);
-  //OptimizeMVAOutPut(6 +24,0, 0.60);
-  //OptimizeMVAOutPut(7 +24,0, 0.50);
-  //OptimizeMVAOutPut(8 +24,0, 0.50);
-  //OptimizeMVAOutPut(9 +24,0, 0.50);
-  //OptimizeMVAOutPut(10+24,0, 0.70);
-  //OptimizeMVAOutPut(11+24,0, 0.80);
-
-
-  //OptimizeMVAOutPut(0 +36,0, 0.30);
-  //OptimizeMVAOutPut(1 +36,0, 0.30);
-  //OptimizeMVAOutPut(2 +36,0, 0.30);
-  //OptimizeMVAOutPut(3 +36,0, 0.30);
-  //OptimizeMVAOutPut(4 +36,0, 0.40);
-  //OptimizeMVAOutPut(5 +36,0, 0.40);
-  //OptimizeMVAOutPut(6 +36,0, 0.40);
-  //OptimizeMVAOutPut(7 +36,0, 0.40);
-  //OptimizeMVAOutPut(8 +36,0, 0.40);
-  //OptimizeMVAOutPut(9 +36,0, 0.60);
-  //OptimizeMVAOutPut(10+36,0, 0.70);
-  //OptimizeMVAOutPut(11+36,0, 0.70);
-
-}
