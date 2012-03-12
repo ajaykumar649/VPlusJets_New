@@ -1,32 +1,25 @@
 from ROOT import gROOT, gStyle, gSystem, TLatex
 import subprocess
 
+def cmsLabel(canvas, lumi, prelim = False, lumiLabel = 'fb'):
+    l = TLatex();
+    l.SetNDC();
+    l.SetTextFont(42);
+    l.SetTextAlign(31);
+    l.SetTextSize(0.045);
+
+    canvas.cd()
+    prelimText = ''
+    if prelim:
+        prelimText = ' Preliminary'
+    l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
+                'CMS%s, #font[52]{L} = %0.1f %s^{-1}, #sqrt{s} = 7 TeV' % \
+                (prelimText, lumi, lumiLabel)
+                )
+    canvas.Update()
 
 def cmsPrelim(canvas, lumi):
-    l = TLatex();
-    l.SetNDC();
-    l.SetTextFont(42);
-    l.SetTextAlign(31);
-    l.SetTextSize(0.045);
-
-    canvas.cd()
-    l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
-                'CMS Preliminary, #font[52]{L} = %0.1f fb^{-1}, #sqrt{s} = 7 TeV' % (lumi)
-                )
-    canvas.Update()
-
-def cmsLabel(canvas, lumi):
-    l = TLatex();
-    l.SetNDC();
-    l.SetTextFont(42);
-    l.SetTextAlign(31);
-    l.SetTextSize(0.045);
-
-    canvas.cd()
-    l.DrawLatex(1. - canvas.GetRightMargin(), 1. - canvas.GetTopMargin() + 0.01,
-                'CMS, #font[52]{L} = %0.1f fb^{-1}, #sqrt{s} = 7 TeV' % (lumi)
-                )
-    canvas.Update()
+    cmsLabel(canvas, lumi, True)
 
 ## import os
 ## macroPath = gROOT.GetMacroPath()

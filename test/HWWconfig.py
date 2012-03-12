@@ -9,26 +9,26 @@ maxMlvjj = 780.
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
-    fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_"
+    fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree_PAT/RD_"
+##     fitterPars.WpJDirectory = str(fitterPars.MCDirectory).replace("PAT", "AOD")
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = False
-    fitterPars.QCDDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/"
+    fitterPars.QCDDirectory = fitterPars.MCDirectory[:-3]
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
-    fitterPars.DataDirectory = fitterPars.MCDirectory 
+    fitterPars.DataDirectory = fitterPars.MCDirectory
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeMuons = True    
     fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root'
     fitterPars.includeElectrons = True
    
-    fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
+    fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
     fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 30
-    fitterPars.intLumi = 5030. #4700.
-
+    fitterPars.intLumi = 4700.
     
     fitterPars.binEdges.push_back(fitterPars.minMass)
     #fitterPars.binEdges.push_back(40.)

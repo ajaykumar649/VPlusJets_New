@@ -29,19 +29,19 @@ def NgenHiggs(mH, includeElectron, includeMuon):
     return (retVal,Ngen[mH])
 
 def NgenVBFHiggs(mH, includeElectron, includeMuon):
-    Ngen = {160 : 219714,
-            170 : 212126,
-            180 : 219703,
-            190 : 213503,
-            200 : 217880,
-            250 : 219128,
-            300 : 217873,
-            350 : 214082,
-            400 : 205271,
-            450 : 214876,
-            500 : 218921,
-            550 : 216326,
-            600 : 214858
+    Ngen = {160 : 169351,
+            170 : 161768,
+            180 : 219267,
+            190 : 213014,
+            200 : 217423,
+            250 : 218679,
+            300 : 217427,
+            350 : 213673,
+            400 : 204894,
+            450 : 164553,
+            500 : 218520,
+            550 : 215938,
+            600 : 214510
             }
 
     retVal = 0
@@ -418,15 +418,6 @@ VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
 TauNuHiggsHist = fitUtils.newEmptyHist('HWWTauNu%i_%s_shape' % (opts.mH,
                                                                 modeString))
 
-c = fitter4.getWorkSpace().var('c')
-cNom = c.getVal()
-
-c.setVal(cNom + c.getError())
-mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
-
-c.setVal(cNom - c.getError())
-mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
-
 if pars4.includeMuons:
     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
                                  'mu_HWWMH%i_CMSSW428.root' % (opts.mH),
@@ -521,6 +512,15 @@ cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
                                                    opts.Nj))
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
                                                    opts.Nj))
+
+c = fitter4.getWorkSpace().var('c')
+cNom = c.getVal()
+
+c.setVal(cNom + c.getError())
+mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+
+c.setVal(cNom - c.getError())
+mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 
 print 'shape file created'
 ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,

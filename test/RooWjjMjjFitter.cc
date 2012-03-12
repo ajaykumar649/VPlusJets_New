@@ -1030,7 +1030,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   }
 
   double n2bWpJ = ws_.var("nWjets")->getVal();
-  double const KinSwitch = 150.;                      // 180 for el2jet 190!!
+//   double const KinSwitch = 150.;                      // 180 for el2jet 190!!
   std::cout << "n2bWpJ: " << n2bWpJ << '\n';
   th1wjets->Print();
   th1wjets->Scale(n2bWpJ/th1wjets->Integral());
@@ -1058,15 +1058,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	    << '\n';
   if (params_.model == 1) {
     TString fitString("exp([0]+[1]*x)");
-    if (params_.minMass < KinSwitch)
-      fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
-    if (params_.minMass < KinSwitch) {
-      fitf->SetParameters(6.0, -0.015, 160, 10);
-      //fitf->FixParameter(3,10);
-    } else {
       fitf->SetParameters(6.0, -0.015);
-    }
   } else if (params_.model == 2) {
     fitf = new TF1("fitf", "[0]/TMath::Power(x-[2], [1])", 
 		   params_.minMass, localMax);
@@ -1078,10 +1071,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		   params_.minMass, localMax);
   } else if (params_.model == 4) {
     TString fitString("exp([0]+[1]*x)");
-    fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
-    fitf = new TF1("fitf", fitString, params_.minMass, localMax);
-    fitf->SetParameters(6.0, -0.015, 160, 10);
-    fitf->FixParameter(3, 15.0);
+    fitf = new TF1("fitf", fitString, params_.minMass+10., localMax);
+    fitf->SetParameters(6.0, -0.015);
   } else if (params_.model == 5) {
     TString fitString("exp([0]+[1]*x)");
     fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
@@ -1122,7 +1113,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		      "(TMath::Erf((@0-@1)/@2)+1)",
 		      RooArgList(*mass, turnOn, width));
     
-    if ((params_.model == 4) || (params_.model == 5)) {
+    if (params_.model == 5) {
       RooProdPdf WpJ4Body1("WpJ4BodyPdf", "WpJ4BodyPdf", 
 			   RooArgList(erf, expPdf));
       turnOn.setVal(fitf->GetParameter(2));
