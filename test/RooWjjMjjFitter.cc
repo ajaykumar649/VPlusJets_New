@@ -1071,13 +1071,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		   params_.minMass, localMax);
   } else if (params_.model == 4) {
     TString fitString("exp([0]+[1]*x)");
-    fitf = new TF1("fitf", fitString, params_.minMass+10., localMax);
+    fitf = new TF1("fitf", fitString, th1wjets->GetBinLowEdge(2), localMax);
     fitf->SetParameters(6.0, -0.015);
   } else if (params_.model == 5) {
     TString fitString("exp([0]+[1]*x)");
-    fitString += "*(TMath::Erf((x-[2])/[3])+1.)";
-    fitf = new TF1("fitf", fitString, params_.minMass, localMax);
-    fitf->SetParameters(6.0, -0.015, 160, 20);
+    fitf = new TF1("fitf", fitString, th1wjets->GetBinLowEdge(3), localMax);
+    fitf->SetParameters(6.0, -0.015);
   }
 
   TVirtualFitter::SetMaxIterations(10000);
@@ -1705,6 +1704,7 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
 //   double xMin = hist.GetBinLowEdge(1);
 //   double xMax = hist.GetBinLowEdge(nbins+1);
   double x;
+  hist.Print();
   for (int comp = 0; comp < 5; ++comp) {
     switch (comp) {
     case 0:
@@ -1732,8 +1732,14 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
     fullInt = fitter2body.ws_.pdf(pdfName)->createIntegral(*mass, *mass);
     SBInt = fitter2body.ws_.pdf(pdfName)->createIntegral(*mass, *mass, 
 							 "sideband");
+
+    std::cout << pdfName << " full integral: " << fullInt->getVal()
+	      << " sideband integral: " << SBInt->getVal()
+	      << " normalization: " << fitter2body.ws_.var(normName)->getVal()
+	      << '\n';
     tempHist = 
       shapesSB.ws_.pdf(pdfName)->createHistogram(pdfName + "_tempHist", *m4b);
+//     tempHist->Print();
     tempHist->Scale( fitter2body.ws_.var(normName)->getVal()/tempHist->Integral() * SBInt->getVal()/fullInt->getVal() );
     for (ibin = 1; ibin <= nbins; ++ibin) {
       x = tempHist->GetBinCenter(ibin);
@@ -1746,7 +1752,9 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
 //     tempHist->Draw();
 //     gPad->Update();
 //     gPad->WaitPrimitive();
-    hist.Add(tempHist, -1.);
+    if ( fitter2body.ws_.var(normName)->getVal() * 
+	 SBInt->getVal()/fullInt->getVal() >= hist.Integral()*0.001)
+      hist.Add(tempHist, -1.);
     delete tempHist;
     delete fullInt;
     delete SBInt;
