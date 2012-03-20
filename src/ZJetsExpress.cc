@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.20 2012/01/27 18:54:37 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.21 2012/03/20 22:53:20 theofil Exp $
 //
 //
 
@@ -1560,7 +1560,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("isZlead"          ,&isZlead_           ,"isZlead/I");
   myTree_->Branch("isPhotonlead"     ,&isPhotonlead_      ,"isPhotonlead/I");
   myTree_->Branch("rho"              ,&rho_               ,"rho/F");
-  myTree_->Branch("rho25"            ,&rho25_             ,"rho/F");
+  myTree_->Branch("rho25"            ,&rho25_             ,"rho25/F");
   myTree_->Branch("mZj1"             ,&mZj1_              ,"mZj1/F");
   myTree_->Branch("mZj1j2"           ,&mZj1j2_            ,"mZj1j2/F");
   myTree_->Branch("mZj1j2j3"         ,&mZj1j2j3_          ,"mZj1j2j3/F");
