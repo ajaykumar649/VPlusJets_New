@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.19 2012/01/13 19:29:45 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.20 2012/01/27 18:54:37 theofil Exp $
 //
 //
 
@@ -86,6 +86,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -354,6 +355,7 @@ class ZJetsExpress : public edm::EDAnalyzer {
       float mLep_,mLepGEN_;
       // ---- pf pt density ---------------------------------------------
       float rho_;
+      float rho25_;
       // ---- reconstructed vertices' prperties -------------------------
       vector<float> *vtxZ_,*vtxNdof_;
       // ---- number of good reconstructed vertices ---------------------
@@ -826,8 +828,11 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   //---- don't bother if it has pt less than 15 GeV ----------------------
       if(it->pt() < 15) continue;
       if(abs(it->eta()) > mMaxPhoEta) continue;
-      if(it->hadronicOverEm()>0.15)continue; // on-line requirement 
-      if(it->sigmaIetaIeta()>0.040)continue; // on-line requirement 
+      if(it->isEBEEGap())continue;
+      if(it->isEB() && it->hadronicOverEm()>0.15)continue; // on-line requirement 
+      if(it->isEB() && it->sigmaIetaIeta()>0.024)continue; // on-line requirement 
+      if(it->isEE() && it->hadronicOverEm()>0.10)continue; // on-line requirement 
+      if(it->isEE() && it->sigmaIetaIeta()>0.040)continue; // on-line requirement 
 
       reco::PhotonRef phoRef(photons_,ipho++);
       int photonID=0;
@@ -844,22 +849,36 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
 
       float hcalTowerSumEtConeDR03            = it->hcalTowerSumEtConeDR03(); // hcalTowerSumEtConeDR03
       float ecalRecHitSumEtConeDR03           = it->ecalRecHitSumEtConeDR03(); // ecalRecHitSumEtConeDR03
-      float nTrkSolidConeDR03                 = it->nTrkSolidConeDR03();
-      float trkSumPtSolidConeDR03             = it->trkSumPtSolidConeDR03();
-      float nTrkHollowConeDR03                = it->nTrkHollowConeDR03();
       float trkSumPtHollowConeDR03            = it->trkSumPtHollowConeDR03();
+
 
       float hcalTowerSumEtConeDR04            = it->hcalTowerSumEtConeDR04(); // hcalTowerSumEtConeDR04
       float ecalRecHitSumEtConeDR04           = it->ecalRecHitSumEtConeDR04(); // ecalRecHitSumEtConeDR04
       float trkSumPtHollowConeDR04            = it->trkSumPtHollowConeDR04();
+      float nTrkSolidConeDR04                 = it->nTrkSolidConeDR04();
+      float nTrkHollowConeDR04                = it->nTrkHollowConeDR04();
+      float trkSumPtSolidConeDR04             = it->trkSumPtSolidConeDR04();
+
 
       float sigmaIetaIeta                     = it->sigmaIetaIeta();
       float phoHasConvTrks                    = it->hasConversionTracks();
       float r9                                = it->r9();
       float hadronicOverEm                    = it->hadronicOverEm();
+      float sigmaIphiIphi                     = -1; // to be computed later
 
-      bool  isTriggerISO = false;
       float gammaPt = aPhoton.Pt();
+      bool  isTriggerISO = false;
+
+      // --- get iphi-iphi
+      EcalClusterLazyTools lazyTool(iEvent, iSetup, InputTag("reducedEcalRecHitsEB"), InputTag("reducedEcalRecHitsEE"));
+
+       // Next few lines get sigma-iphi-iphi
+       const reco::CaloClusterPtr  seed = it->superCluster()->seed();
+       if (seed.isAvailable()) {
+         // Get sigma-iphi-iphi
+         std::vector<float> vCov = lazyTool.covariances(*seed);
+         sigmaIphiIphi  = sqrt(vCov[2]);   // This is Sqrt(covPhiPhi)
+       }
 
 
       // --- https://twiki.cern.ch/twiki/bin/viewauth/CMS/QCDPhotonsTrigger2011
@@ -880,29 +899,29 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       if(hcalTowerSumEtConeDR04  < 2.2 + 0.0025*gammaPt + AHc*Rho25)
       if(sigmaIetaIeta<sigmaIetaIetaMax)
       if(!it->hasPixelSeed())
-      if(it->isEE() || (it->isEB() && sigmaIetaIeta > 0.001)) // additional EB spike cleaning
-      if(hadronicOverEm<0.5) isVgamma2011 = true;
+      if(it->isEE() || (it->isEB() && sigmaIetaIeta > 0.001 && sigmaIphiIphi > 0.001)) // additional EB spike cleaning
+      if(hadronicOverEm<0.05) isVgamma2011 = true;
       photonID |= isVgamma2011 << 3;
 
       // --- online isolation + Vgamma2011 id
       if(isTriggerISO) 
       if(sigmaIetaIeta<sigmaIetaIetaMax)
       if(!it->hasPixelSeed())
-      if(it->isEE() || (it->isEB() && sigmaIetaIeta > 0.001)) // additional EB spike cleaning
-      if(hadronicOverEm<0.5) 
+      if(it->isEE() || (it->isEB() && sigmaIetaIeta > 0.001 && sigmaIphiIphi > 0.001)) // additional EB spike cleaning
+      if(hadronicOverEm<0.05) 
       photonID |= 1 << 4;
 
       // --- Vgamma2011 photon id w/o isolation
       if(sigmaIetaIeta<sigmaIetaIetaMax) 
       if(!it->hasPixelSeed())
-      if(it->isEE() || (it->isEB() && sigmaIetaIeta > 0.001)) // additional EB spike cleaning
-      if(hadronicOverEm<0.5) 
+      if(it->isEE() || (it->isEB() && sigmaIetaIeta > 0.001 && sigmaIphiIphi > 0.001)) // additional EB spike cleaning
+      if(hadronicOverEm<0.05) 
       photonID |= 1 << 5;
       
 
       // photon near masked region
-      float gammaPhi = aPhoton.Eta();
-      float gammaEta = aPhoton.Phi();
+      float gammaEta = aPhoton.Eta();
+      float gammaPhi = aPhoton.Phi();
       bool mask_0  = ( gammaPhi>=-2.72 && gammaPhi<=-2.61 && gammaEta>=-1.33 && gammaEta<=-1.25 );
       bool mask_1  = ( gammaPhi<=-3.05 && gammaEta<=-1.40 );
       bool mask_2  = ( gammaPhi<=-3.05 && gammaEta>=1.04 && gammaEta<=1.15 );
@@ -923,7 +942,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       bool mask_17 = ( gammaPhi>=1.99 && gammaPhi<=2.10 && gammaEta>=-0.97 && gammaEta<=-0.87 );
       bool mask_18 = ( gammaPhi>=2.95 && gammaPhi<=3.05 && gammaEta>=-0.98 && gammaEta<=-0.87 );
       bool mask_19 = ( gammaPhi>=2.78 && gammaPhi<=2.89 && gammaEta>=0.86 && gammaEta<=0.98);
-      bool mask_20 = ( gammaPhi>=2.69 && gammaPhi<=2.81 && gammaEta>= 3.19);
+      bool mask_20 = ( gammaPhi>=2.69 && gammaPhi<=2.81 && gammaEta>= 1.39);
  
       bool isMasked = mask_0 || mask_1 || mask_2 || mask_3 || mask_4 || mask_5 || mask_6 || mask_7 || mask_8 || mask_9 || mask_10 || mask_11;
       isMasked      = isMasked || mask_12 || mask_13 || mask_14 || mask_15 || mask_16 || mask_17 || mask_18 || mask_19 || mask_20;      
@@ -954,12 +973,12 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       gamma.isoPF = 0; 
       gamma.bit   = photonBit;
       // ok, now close your eyes what follows is a scandal
-      gamma.parameters.push_back(hcalTowerSumEtConeDR03);     // 0   need to remember the ordering offline
-      gamma.parameters.push_back(ecalRecHitSumEtConeDR03);    // 1  
-      gamma.parameters.push_back(nTrkSolidConeDR03);          // 2  
-      gamma.parameters.push_back(trkSumPtSolidConeDR03);      // 3 
-      gamma.parameters.push_back(nTrkHollowConeDR03);         // 4 
-      gamma.parameters.push_back(trkSumPtHollowConeDR03);     // 5
+      gamma.parameters.push_back(hcalTowerSumEtConeDR04);     // 0   need to remember the ordering offline
+      gamma.parameters.push_back(ecalRecHitSumEtConeDR04);    // 1  
+      gamma.parameters.push_back(nTrkSolidConeDR04);          // 2  
+      gamma.parameters.push_back(trkSumPtSolidConeDR04);      // 3 
+      gamma.parameters.push_back(nTrkHollowConeDR04);         // 4 
+      gamma.parameters.push_back(trkSumPtHollowConeDR04);     // 5
       gamma.parameters.push_back(sigmaIetaIeta);              // 6  
       gamma.parameters.push_back(phoHasConvTrks);             // 7  
       gamma.parameters.push_back(r9);                         // 8  
@@ -970,7 +989,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       myFSRphotons.push_back(gamma);                          // FSR photons are *not* used in the photon+jet DR cone rejection
 
       //---- consider single event interpretation, exclusive di-lepton/photon interpretation (myLeptons.size()==0) 
-      if(it->pt() > mMinPhoPt && myLeptons.size()==0) myPhotons.push_back(gamma);    //note: hard photons imply later a DR cone rejection wrt the jets
+      if(it->pt() > mMinPhoPt && myLeptons.size()==0 && isTriggerISO) myPhotons.push_back(gamma);    //note: hard photons imply later a DR cone rejection wrt the jets
     }
   }
   sort(myPhotons.begin(),myPhotons.end(),lepSortingRule);
@@ -1179,6 +1198,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     lumi_       = iEvent.luminosityBlock();
     isRealData_ = isRealData_; // just pass through 
     rho_        = *rho; 
+    rho25_      = *rho25; 
     pfmet_      = (pfmetCol_->front()).pt();
     pfmetPhi_   = (pfmetCol_->front()).phi();
     pfSumEt_    = (pfmetCol_->front()).sumEt();
@@ -1540,6 +1560,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("isZlead"          ,&isZlead_           ,"isZlead/I");
   myTree_->Branch("isPhotonlead"     ,&isPhotonlead_      ,"isPhotonlead/I");
   myTree_->Branch("rho"              ,&rho_               ,"rho/F");
+  myTree_->Branch("rho25"            ,&rho25_             ,"rho/F");
   myTree_->Branch("mZj1"             ,&mZj1_              ,"mZj1/F");
   myTree_->Branch("mZj1j2"           ,&mZj1j2_            ,"mZj1j2/F");
   myTree_->Branch("mZj1j2j3"         ,&mZj1j2j3_          ,"mZj1j2j3/F");
@@ -1701,6 +1722,7 @@ void ZJetsExpress::clearTree()
   isZlead_           = -999;
   isPhotonlead_      = -999;
   rho_               = -999;
+  rho25_             = -999;
   pfmet_             = -999;
   pfmetPhi_          = -999;
   pfhadPt_           = -999;

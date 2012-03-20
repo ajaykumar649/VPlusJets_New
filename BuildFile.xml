@@ -9,6 +9,7 @@
 <use name="JetMETCorrections/Algorithms"/>
 <use name="RecoJets/JetProducers"/>
 <use name="HLTrigger/HLTcore"/>
+<use name="RecoEcal/EgammaCoreTools"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
    <lib name="1"/>
