@@ -14,7 +14,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 # ---- load geometry package --------------------------------------------
 process.load("Configuration.StandardSequences.Geometry_cff")
 # ---- maximum number of events to run over -----------------------------
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20962))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 # ---- define the source ------------------------------------------------
 process.source = cms.Source("PoolSource",
@@ -69,8 +69,34 @@ process.source = cms.Source("PoolSource",
 #,'/store/data/Run2011A/Photon/AOD/PromptReco-v4/000/165/088/F07DC738-E47F-E011-8C30-003048F118AC.root'
 #,'/store/data/Run2011A/Photon/AOD/PromptReco-v4/000/165/071/5A2512AD-C37F-E011-AB7D-001D09F2932B.root'
 
+
+# '/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/062DCD16-547B-E011-B409-003048678ED2.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/0628544C-517B-E011-9437-003048678BE6.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/04DD141C-957B-E011-B037-0026189437FA.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/04D4B35D-547B-E011-8431-001BFCDBD184.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/04CF37C3-517B-E011-8BE5-003048D15DDA.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/04CF37C3-517B-E011-8382-003048D15DDA.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/04B6FE0C-557B-E011-93AD-003048678ED2.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/048FF19F-307D-E011-8D48-00261894392F.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/02D2D89D-527B-E011-A39E-00304867904E.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/0264994F-537B-E011-A50E-003048678B38.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/02635F51-8C7B-E011-B596-003048678E52.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/024B6C14-527B-E011-8F59-00304867BED8.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/023E618C-567B-E011-A9D4-001A92810AEC.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/0238ACB2-547B-E011-A578-0018F3D09678.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/0231E46B-EC7B-E011-B17A-00248C55CC97.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00FD86DC-507B-E011-95C7-00261894386E.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00E802F9-547B-E011-B414-001A92971BC8.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00D529C6-557B-E011-8513-0018F3D096D4.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00C86DD2-537B-E011-A4F3-003048D15E2C.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00AB4E97-F17C-E011-87B9-0030486792A8.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/009D9A61-547B-E011-9B1E-00304867BFC6.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/008406CB-567B-E011-9668-0018F3D096B6.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00367A72-527B-E011-8837-003048678F8C.root'
+#,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00105624-547B-E011-99F4-003048678AF4.root'
+
 # or MC
-#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06C8E521-62A4-E011-A5E9-0022198F5B1E.root',
+    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06C8E521-62A4-E011-A5E9-0022198F5B1E.root',
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0669C32E-B69C-E011-8551-E0CB4E553643.root',
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06634156-5FA4-E011-BEA2-003048D293B4.root',
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0660AC04-B59C-E011-BEC7-E0CB4E19F9B4.root',
@@ -80,7 +106,7 @@ process.source = cms.Source("PoolSource",
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/04B76CEA-AF9C-E011-8526-E0CB4E1A116A.root',
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/047CEEC1-57A4-E011-86DC-0030487C6A1E.root'
 
-    '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/06B46752-04CD-E011-B8B9-0015178C4994.root'
+#    '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/06B46752-04CD-E011-B8B9-0015178C4994.root'
    # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/06883EDE-09CD-E011-899C-00A0D1EEE660.root',
    # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/066F1232-05CD-E011-A14B-00A0D1EE8F34.root',
    # '/store/mc/Summer11/GJets_TuneZ2_200_HT_inf_7TeV-madgraph/AODSIM/PU_S4_START42_V11-v1/0000/065D3A98-0BCD-E011-8325-00A0D1EE95CC.root',
