@@ -6,48 +6,28 @@ from ROOT import RooWjjFitterParams
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
-    fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_"
+    fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree_PAT/RD_"
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = False
-    fitterPars.QCDDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/"
+    fitterPars.QCDDirectory = fitterPars.MCDirectory[:-3]
     fitterPars.initParamsFile = initFile
-    # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
+    fitterPars.constraintParamsFile = "WpJShapeConstraints.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory 
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeMuons = True    
     fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root'
     fitterPars.includeElectrons = True
    
-    fitterPars.NewPhysicsDirectory = '/uscms_data/d2/kalanand/WjjTrees/ReducedTree/NewKfitRDTree/RD_'
-    fitterPars.minMass = 40.
-    fitterPars.maxMass = 200.
+    fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
+    fitterPars.minMass = 55.
+    fitterPars.maxMass = 150.
     fitterPars.nbins = 32
-    fitterPars.intLumi = 4700.
+    fitterPars.intLumi = 5020.
     
-##     fitterPars.binEdges.push_back(fitterPars.minMass)
-##     fitterPars.binEdges.push_back(40.)
-##     fitterPars.binEdges.push_back(45.)
-##     fitterPars.binEdges.push_back(50.)
-##     fitterPars.binEdges.push_back(55.)
-##     fitterPars.binEdges.push_back(60.)
-##     fitterPars.binEdges.push_back(65.)
-##     fitterPars.binEdges.push_back(70.)
-##     fitterPars.binEdges.push_back(75.)
-##     fitterPars.binEdges.push_back(80.)
-##     fitterPars.binEdges.push_back(85.)
-##     fitterPars.binEdges.push_back(95.)
-##     fitterPars.binEdges.push_back(105.)
-##     fitterPars.binEdges.push_back(115.)
-##     fitterPars.binEdges.push_back(125.)
-##     fitterPars.binEdges.push_back(135.)
-##     fitterPars.binEdges.push_back(145.)
-##     fitterPars.binEdges.push_back(160.)
-##     fitterPars.binEdges.push_back(175.)
-##     fitterPars.binEdges.push_back(200.)
-
     binEdge = fitterPars.minMass
+    fitterPars.binEdges.push_back(binEdge)
     print binEdge,' ',
     while (binEdge < fitterPars.maxMass):
         binEdge += round(0.10*binEdge)
@@ -100,6 +80,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     
     fitterPars.njets = Nj
     fitterPars.constrainDiboson = False
+    fitterPars.constrainWpJShape = True
 
     
     fitterPars.doEffCorrections = True
@@ -128,8 +109,11 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     
     fitterPars.cuts = '(fit_status==0) ' + \
-                      '&& (fit_chi2 < 20) ' + \
-                      '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<0.8) ' + \
+                      '&& (W_mt > 50.) ' + \
+                      '&& (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>0.) ' + \
+                      '&& (JetPFCor_Pt[1] > 60) ' + \
                       '&& %s ' % (jetCut)
+                      ## '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5) ' +
+                      ## '&& (fit_chi2 < 20) ' +
 
     return fitterPars

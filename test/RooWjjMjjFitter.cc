@@ -84,8 +84,8 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   RooAbsPdf * totalPdf = makeFitter(true);
   // RooRealVar * mass = ws_.var(params_.var);
 
-  RooAbsData * data = loadData();
   cout << "Made dataset" << endl;
+  RooAbsData * data = loadData();
 
   std::cout << "-------- Number of expected QCD events: " << QCDNorm_
 	    << std::endl;
@@ -116,21 +116,41 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
 			   RooConst(nDiboson->getVal()), 
 			   RooConst(nDiboson->getError()));
   
-  RooArgList ConstrainedVars;
+  //RooArgList ConstrainedVars;
   RooArgList Constraints;
   
   if (params_.constrainDiboson) {
     Constraints.add(constDiboson);
-    ConstrainedVars.add(*nDiboson);
   }
   Constraints.add(constQCD);
-  ConstrainedVars.add(*nQCD);
   Constraints.add(constSingleTop);
-  ConstrainedVars.add(*nSingleTop);
   Constraints.add(constZpJ);
-  ConstrainedVars.add(*nZjets);
   Constraints.add(constTTbar);
-  ConstrainedVars.add(*nTTbar);
+
+  RooArgSet * wpjpars =  ws_.pdf("WpJPdf")->getParameters(data);
+  RooArgList wpjconst;
+  RooArgList constPars;
+  TIter par(wpjpars->createIterator());
+  par.Reset();
+  RooRealVar * param;
+  while ((param = dynamic_cast<RooRealVar *>(par.Next()))) {
+    if (!param->isConstant()) {
+      constPars.addClone(RooConst(param->getVal()));
+      constPars.addClone(RooConst(param->getError()));
+      RooGaussian theConst(TString::Format("const_%s", param->GetName()),
+			   TString::Format("const_%s", param->GetName()),
+			   *param, 
+			   *((RooAbsReal *)constPars.at(constPars.getSize()-2)),
+			   *((RooAbsReal *)constPars.at(constPars.getSize()-1)));
+      wpjconst.addClone(theConst);
+    }
+  }
+
+  delete wpjpars;
+       
+  if (params_.constrainWpJShape) {
+    Constraints.add(wpjconst);
+  }
   
   
   
@@ -408,7 +428,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   return ws_.data(dataName);
 }
 
-RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
+RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(bool parameterize) {
 
   //Scale the trees by the Crossection/Ngenerated (43/4225916=1.01753087377979123e-05 for WW and 18.2/4265243=4.22015814808206740e-06 for WZ).
   if (ws_.pdf("dibosonPdf"))
@@ -469,15 +489,26 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf() {
        << th1diboson->Integral() << " x " << params_.intLumi 
        << " = " <<  initDiboson_ << '\n';
 
-  cout <<"----------- WW: acc x eff = " << sumWW/NWW << '\n';
-  cout <<"----------- WZ: acc x eff = " << sumWZ/NWZ << '\n';
+  cout <<"----------- WW: acc x eff = " << sumWW*WWweight*params_.intLumi 
+       << "/" << NWW*WWweight*params_.intLumi << " = " <<sumWW/NWW << '\n';
+  cout <<"----------- WZ: acc x eff = " << sumWZ*WZweight*params_.intLumi 
+       << "/" << NWZ*WZweight*params_.intLumi << " = " <<sumWZ/NWZ << '\n';
   cout.flush();
 
-  th1diboson->Scale(1., "width");
-  RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
-					   ws_, histOrder);
+  if (parameterize) {
+
+  } else {
+    th1diboson->Scale(1., "width");
+    RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
+					     ws_, histOrder);
+    ws_.import(*dibosonPdf);
+    //delete dibosonPdf;
+  }
+
   delete th1diboson;
-  return dibosonPdf;
+
+  return ws_.pdf("dibosonPdf");
+
 }
 
 RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {  
@@ -613,7 +644,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
 			    "1./TMath::Power(@0,@1+@2*log(@0/@3))",
 			    RooArgList(*mass,power,power2,seff));
   RooGenericPdf bkgErf("WpJPdfErf","WpJPdfErf",
-		       "(TMath::Erf((@0-@1)/@2)+1)",
+		       "(TMath::Erf((@0-@1)/@2)+1)/2.",
 		       RooArgList(*mass, turnOn, width));
   RooGenericPdf bkgFermi("WpJPdfFermi","WpJPdfFermi",
 		       "1./(1+exp(-(@0-@1)/@2))",
@@ -621,6 +652,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   RooRealVar tau("tau", "tau", -0.02);
   tau.setConstant(false);
   RooExponential WpJPdfExp("WpJPdfExp", "WpJPdfExp", *mass, tau);
+  RooRealVar sigma("sigma", "#sigma", 80.);
+  sigma.setConstant(false);
+  RooGaussian bkgGaus("bkgGaus", "bkgGaus", *mass, mean, sigma);
+  RooRealVar f_core("f_core", "f_core", 0.59, 0., 1.);
 
   if (allOne) {
     switch (params_.WpJfunction) {
@@ -652,6 +687,16 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
       tau.setVal(-0.033);
       ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
 			    RooArgList(WpJPdfExp,WpJPdfPower), 1e-5));
+      break;
+    case 8:
+      turnOn.setVal(31.);
+      width.setVal(9.9);
+      tau.setVal(-0.01);
+      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", RooArgList(bkgErf,WpJPdfExp),
+			    1e-6));
+      break;
+    case 9:
+      ws_.import(RooAddPdf("WpJPdf", "WpJPdf", bkgGaus, WpJPdfExp, f_core));
       break;
     case 6:
       power2.setVal(0.);
@@ -1033,14 +1078,17 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 //   double const KinSwitch = 150.;                      // 180 for el2jet 190!!
   std::cout << "n2bWpJ: " << n2bWpJ << '\n';
   th1wjets->Print();
-  th1wjets->Scale(n2bWpJ/th1wjets->Integral());
-  th1wjets->Scale(1., "width");
-  th1wjets->Print();
+//   th1wjets->Scale(1./th1wjets->Integral());
+// //   th1wjets->Scale(1., "width");
+//   th1wjets->Print();
 
   RooRealVar * mass = ws_.var(params_.var);
-//   RooDataHist theSBData("theSBData", "theSBData", RooArgList(*mass), th1wjets);
-//   theSBData.Print();
-  TF1 * fitf = 0;
+  RooDataHist theSBData("theSBData", "theSBData", RooArgList(*mass), th1wjets);
+  theSBData.Print();
+  th1wjets->Scale(1./th1wjets->Integral());
+  RooDataHist theSBDataNorm("theSBDataNorm", "theSBDataNorm", 
+			    RooArgList(*mass), th1wjets);
+//   TF1 * fitf = 0;
   double localMax = params_.maxMass;
   int localBin = th1wjets->GetNbinsX();
   std::cout << "localMax: " << localMax 
@@ -1056,168 +1104,188 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	    << " last bin: " << th1wjets->GetBinContent(localBin) << " +/- "
 	    << th1wjets->GetBinError(localBin)
 	    << '\n';
-  if (params_.model == 1) {
-    TString fitString("exp([0]+[1]*x)");
-    fitf = new TF1("fitf", fitString, params_.minMass, localMax);
-      fitf->SetParameters(6.0, -0.015);
-  } else if (params_.model == 2) {
-    fitf = new TF1("fitf", "[0]/TMath::Power(x-[2], [1])", 
-		   params_.minMass, localMax);
-    fitf->SetParameters(2e11, 5.);
-  } else if (params_.model == 3) {
-    fitf = new TF1("fitf", 
-		   TString::Format("[0]*TMath::Gaus(x,[1]+%0.0f,[2])", 
-				   params_.minMass), 
-		   params_.minMass, localMax);
-  } else if (params_.model == 4) {
-    TString fitString("exp([0]+[1]*x)");
-    fitf = new TF1("fitf", fitString, th1wjets->GetBinLowEdge(2), localMax);
-    fitf->SetParameters(6.0, -0.015);
-  } else if (params_.model == 5) {
-    TString fitString("exp([0]+[1]*x)");
-    fitf = new TF1("fitf", fitString, th1wjets->GetBinLowEdge(3), localMax);
-    fitf->SetParameters(6.0, -0.015);
-  }
+//   if (params_.model == 1) {
+//     TString fitString("exp([0]*x)*[0]/(exp([0]*[1])-exp([0]*[2]))");
+//     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
+//     fitf->SetParameter(0, -0.015);
+//     fitf->FixParameter(1, localMax);
+//     fitf->FixParameter(2, params_.minMass);
 
-  TVirtualFitter::SetMaxIterations(10000);
-  TFitResultPtr fr;
-  if (fitf) {
-    //fitf->Print();
-    fr = th1wjets->Fit("fitf", "wlrsq0");
-    fr->Print("v");
-  }
+//   } else if (params_.model == 2) {
+//     fitf = new TF1("fitf", "[0]/TMath::Power(x-[2], [1])", 
+// 		   params_.minMass, localMax);
+//     fitf->SetParameters(2e11, 5.);
+//   } else if (params_.model == 3) {
+//     fitf = new TF1("fitf", 
+// 		   TString::Format("[0]*TMath::Gaus(x,[1]+%0.0f,[2])", 
+// 				   params_.minMass), 
+// 		   params_.minMass, localMax);
+//   } else if (params_.model == 4) {
+//     TString fitString("exp([0]+[1]*x)");
+//     fitf = new TF1("fitf", fitString, th1wjets->GetBinLowEdge(2), localMax);
+//     fitf->SetParameters(6.0, -0.015);
+//   } else if (params_.model == 5) {
+//     TString fitString("exp([0]+[1]*x)*(TMath::Erf((x-[2])/[3])+1)");
+//     fitf = new TF1("fitf", fitString, th1wjets->GetBinLowEdge(1), localMax);
+//     fitf->SetParameters(6.0, -0.015, 170., 15.);
+//     fitf->FixParameter(3, 15.);
+//   }
 
-  th1wjets->SetStats(false);
-  th1wjets->Draw();
-  th1wjets->SetXTitle("m_{l#nujj} (GeV)");
-  th1wjets->SetYTitle("Events / GeV");
-  gPad->Update();
-  if (th1wjets->GetMinimum() > 1.) {
-    th1wjets->SetMinimum(0.);
-  }
+//   TVirtualFitter::SetMaxIterations(10000);
+//   TFitResultPtr fr;
+//   if (fitf) {
+//     //fitf->Print();
+//     fr = th1wjets->Fit("fitf", "wlrsq0");
+//     fr->Print("v");
+//   }
+
+//   th1wjets->SetStats(false);
+//   th1wjets->Draw();
+//   th1wjets->SetXTitle("m_{l#nujj} (GeV)");
+//   th1wjets->SetYTitle("Events / GeV");
+//   gPad->Update();
+//   if (th1wjets->GetMinimum() > 1.) {
+//     th1wjets->SetMinimum(0.);
+//   }
 //   gPad->WaitPrimitive();
 //   RooAbsPdf * WpJ4BodyPdf = utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", 
 // 					    ws_, histOrder);
+  RooRealVar c("c", "c", -0.015);
+  c.setConstant(false);
+  c.Print();
+  RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
+  RooRealVar turnOn("turnOn4", "turnOn4", 170.);
+  turnOn.setConstant(false);
+  RooRealVar width("width4", "width4", 15.);
+  RooGenericPdf erf("WpJ4BodyErf","erf",
+		    "(TMath::Erf((@0-@1)/@2)+1)",
+		    RooArgList(*mass, turnOn, width));
+  RooFitResult * fr = 0;
+  mass->setRange("SBFitRange", params_.minMass, localMax);
+  if (params_.model == 4)
+    mass->setRange("SBFitRange", th1wjets->GetBinLowEdge(2), localMax);
   switch (params_.model) {
   case 4:
   case 5:
-  case 1: {
-    RooRealVar c("c", "c", fitf->GetParameter(1));
-    c.setError(fitf->GetParError(1));
-    c.Print();
-    RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
-    RooRealVar turnOn("turnOn4", "turnOn4", 165.);
-    RooRealVar width("width4", "width4", 21.);
-    RooGenericPdf erf("WpJ4BodyErf","erf",
-		      "(TMath::Erf((@0-@1)/@2)+1)",
-		      RooArgList(*mass, turnOn, width));
-    
+  case 1:     
     if (params_.model == 5) {
-      RooProdPdf WpJ4Body1("WpJ4BodyPdf", "WpJ4BodyPdf", 
-			   RooArgList(erf, expPdf));
-      turnOn.setVal(fitf->GetParameter(2));
-      turnOn.setError(fitf->GetParError(2));
-      width.setVal(fitf->GetParameter(3));
-      width.setError(fitf->GetParError(3));
-      
-      ws_.import(WpJ4Body1);
+      ws_.import(RooProdPdf("WpJ4BodyPdf", "WpJ4BodyPdf", 
+			    RooArgList(erf, expPdf)));
       
     } else {
       expPdf.SetName("WpJ4BodyPdf");
-      expPdf.Print("v");
+      //expPdf.Print("v");
       ws_.import(expPdf);
     }
-  }
+    fr = ws_.pdf("WpJ4BodyPdf")->fitTo(theSBData, RooFit::Minos(false),
+				       RooFit::SumW2Error(false),
+				       RooFit::Range("SBFitRange"),
+				       RooFit::Save(true));
     break;
-  case 2: {
-    RooRealVar power("power", "power", fitf->GetParameter(1));
-    power.setError(fitf->GetParError(1));
-    RooGenericPdf WpJ4Body2("WpJ4BodyPdf", "power",
-			    "1/TMath::Power(@0, @1)",
-			    RooArgList(*mass, power));
-    ws_.import(WpJ4Body2);
-  }
-    break;
-  case 3: {
-    RooRealVar mean("mean", "mean", fitf->GetParameter(2)+params_.minMass);
-    mean.setError(fitf->GetParError(1));
-    mean.setConstant(false);
-    RooRealVar sigma("sigma", "sigma", fitf->GetParameter(3));
-    sigma.setError(fitf->GetParError(2));
-    sigma.setConstant(false);
-    RooGaussian WpJ4Body3("WpJ4BodyPdf", "gaussian", *mass, mean, sigma);
-//     RooFitResult * fr4 = WpJ4Body3.fitTo(theSBData, 
-// 					 RooFit::Minos(false),
-// 					 RooFit::SumW2Error(false),
-// 					 RooFit::Save(true));
-//     fr4->Print();
-    ws_.import(WpJ4Body3);
-  }
-    break;
+//   case 2: {
+//     RooRealVar power("power", "power", fitf->GetParameter(1));
+//     power.setError(fitf->GetParError(1));
+//     RooGenericPdf WpJ4Body2("WpJ4BodyPdf", "power",
+// 			    "1/TMath::Power(@0, @1)",
+// 			    RooArgList(*mass, power));
+//     ws_.import(WpJ4Body2);
+//   }
+//     break;
+//   case 3: {
+//     RooRealVar mean("mean", "mean", fitf->GetParameter(2)+params_.minMass);
+//     mean.setError(fitf->GetParError(1));
+//     mean.setConstant(false);
+//     RooRealVar sigma("sigma", "sigma", fitf->GetParameter(3));
+//     sigma.setError(fitf->GetParError(2));
+//     sigma.setConstant(false);
+//     RooGaussian WpJ4Body3("WpJ4BodyPdf", "gaussian", *mass, mean, sigma);
+// //     RooFitResult * fr4 = WpJ4Body3.fitTo(theSBData, 
+// // 					 RooFit::Minos(false),
+// // 					 RooFit::SumW2Error(false),
+// // 					 RooFit::Save(true));
+// //     fr4->Print();
+//     ws_.import(WpJ4Body3);
+//   }
+//     break;
   default:
     utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", ws_, histOrder);
   }
 
-  if (fr >= 0) {
-    TMatrixDSymEigen eigen(fr->GetCovarianceMatrix());
-    TVectorD errs2(eigen.GetEigenValues());
-    TMatrixD V(eigen.GetEigenVectors());
-    TMatrixD Vt(V.T());
-    TGraph * fitGraph = new TGraph(fitf);
-    fitGraph->SetLineColor(kRed+1);
-    fitGraph->SetLineWidth(3);
-    TGraphAsymmErrors * errGraph = 
-      new TGraphAsymmErrors(fitGraph->GetN(), fitGraph->GetX(),
-			    fitGraph->GetY());
-    errGraph->SetFillColor(kBlue+1);
-    errGraph->SetLineColor(kBlue+1);
-    errGraph->SetFillStyle(3353);
-    double diff;
-    for (int i = 0; i<errs2.GetNrows(); ++i) {
-      for (int updown = -1; updown<= 1; updown+=2) {
-	TMatrixD newVals(fitf->GetNpar(), 1, fitf->GetParameters());
-	TMatrixD newValsp(newVals);
-	newValsp.Mult(Vt, newVals);
-	newValsp[i][0] += updown*sqrt(errs2[i]);
-	newVals.Mult(newValsp.T(), V);
-	TF1 * fitf_new = new TF1(*fitf);
-	fitf_new->SetName( TString::Format( "fitf%d_%s",i,
-					    ((updown<0)?"down":"up") ) );
-	fitf_new->SetParameter(0, newVals[0][0]);
-	fitf_new->SetParameter(1, newVals[1][0]);
-	//fitf_new->SetLineColor(kBlue);
-	//fitf_new->Draw("lsame");
-	for (int xi = 0; xi < fitGraph->GetN(); ++xi) {
-	  diff = (*fitf_new)(fitGraph->GetX()[xi]) - 
-	    (*fitf)(fitGraph->GetX()[xi]);
-	  if (diff > 0)
-	    errGraph->SetPointEYhigh(xi, 
-				     errGraph->GetErrorYhigh(xi) + diff*diff);
-	  else
-	    errGraph->SetPointEYlow(xi, 
-				    errGraph->GetErrorYlow(xi) + diff*diff);
-	}
-	delete fitf_new;
-      }
-    }
-    fitf->SetLineWidth(3);
-    for (int xi=0; xi < errGraph->GetN(); ++xi) {
-      errGraph->SetPointEYhigh(xi, sqrt(errGraph->GetErrorYhigh(xi)));
-      errGraph->SetPointEYlow(xi, sqrt(errGraph->GetErrorYlow(xi)));
-    }
-//     TGraphErrors * confGraph = 
-//       new TGraphErrors(fitGraph->GetN(), fitGraph->GetX(), fitGraph->GetY());
-//     confGraph->SetLineColor(kCyan+2);
-//     confGraph->SetFillColor(kCyan+2);
-//     confGraph->SetFillStyle(3335);  
-//     TVirtualFitter::GetFitter()->GetConfidenceIntervals(confGraph, 0.68);
-//     confGraph->Draw("3");
-    errGraph->Draw("3");
-    fitGraph->Draw("l");
-    th1wjets->Draw("same");
-  }
+//   if (fr >= 0) {
+//     TMatrixDSymEigen eigen(fr->GetCovarianceMatrix());
+//     TVectorD errs2(eigen.GetEigenValues());
+//     TMatrixD V(eigen.GetEigenVectors());
+//     TMatrixD Vt(V.T());
+//     TGraph * fitGraph = new TGraph(fitf);
+//     fitGraph->SetLineColor(kRed+1);
+//     fitGraph->SetLineWidth(3);
+//     TGraphAsymmErrors * errGraph = 
+//       new TGraphAsymmErrors(fitGraph->GetN(), fitGraph->GetX(),
+// 			    fitGraph->GetY());
+//     errGraph->SetFillColor(kBlue+1);
+//     errGraph->SetLineColor(kBlue+1);
+//     errGraph->SetFillStyle(3353);
+//     double diff;
+//     for (int i = 0; i<errs2.GetNrows(); ++i) {
+//       for (int updown = -1; updown<= 1; updown+=2) {
+// 	TMatrixD newVals(fitf->GetNpar(), 1, fitf->GetParameters());
+// 	TMatrixD newValsp(newVals);
+// 	newValsp.Mult(Vt, newVals);
+// 	newValsp[i][0] += updown*sqrt(errs2[i]);
+// 	newVals.Mult(newValsp.T(), V);
+// 	TF1 * fitf_new = new TF1(*fitf);
+// 	fitf_new->SetName( TString::Format( "fitf%d_%s",i,
+// 					    ((updown<0)?"down":"up") ) );
+// 	fitf_new->SetParameter(0, newVals[0][0]);
+// 	fitf_new->SetParameter(1, newVals[1][0]);
+// 	//fitf_new->SetLineColor(kBlue);
+// 	//fitf_new->Draw("lsame");
+// 	for (int xi = 0; xi < fitGraph->GetN(); ++xi) {
+// 	  diff = (*fitf_new)(fitGraph->GetX()[xi]) - 
+// 	    (*fitf)(fitGraph->GetX()[xi]);
+// 	  if (diff > 0)
+// 	    errGraph->SetPointEYhigh(xi, 
+// 				     errGraph->GetErrorYhigh(xi) + diff*diff);
+// 	  else
+// 	    errGraph->SetPointEYlow(xi, 
+// 				    errGraph->GetErrorYlow(xi) + diff*diff);
+// 	}
+// 	delete fitf_new;
+//       }
+//     }
+//     fitf->SetLineWidth(3);
+//     for (int xi=0; xi < errGraph->GetN(); ++xi) {
+//       errGraph->SetPointEYhigh(xi, sqrt(errGraph->GetErrorYhigh(xi)));
+//       errGraph->SetPointEYlow(xi, sqrt(errGraph->GetErrorYlow(xi)));
+//     }
+// //     TGraphErrors * confGraph = 
+// //       new TGraphErrors(fitGraph->GetN(), fitGraph->GetX(), fitGraph->GetY());
+// //     confGraph->SetLineColor(kCyan+2);
+// //     confGraph->SetFillColor(kCyan+2);
+// //     confGraph->SetFillStyle(3335);  
+// //     TVirtualFitter::GetFitter()->GetConfidenceIntervals(confGraph, 0.68);
+// //     confGraph->Draw("3");
+//     errGraph->Draw("3");
+//     fitGraph->Draw("l");
+//     th1wjets->Draw("same");
+//   }
+
+  RooPlot * sbf = mass->frame(RooFit::Name("SideBandPlot"));
+  theSBDataNorm.plotOn(sbf);
+  ws_.pdf("WpJ4BodyPdf")->plotOn(sbf);
+  sbf->Draw();
+  sbf->GetYaxis()->SetTitle("normalized units");
+  gPad->Modified();
   gPad->Update();
   
+  cout << "chi2/ndf: " << sbf->chiSquare(fr->floatParsFinal().getSize())
+       << " n bins: " << sbf->GetNbinsX();
+
+  if (fr) {
+    cout << " parameters: " << fr->floatParsFinal().getSize();
+    delete fr;
+  }
+  cout << '\n';
 
 //   if (fitf)
 //     delete fitf;
@@ -1636,14 +1704,18 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 
   double EventsHi = th1wpjHi->Integral();
   double EventsLo = th1wpjLo->Integral();
+  TH1 * th1wpj = utils_.newEmptyHist(histName);
 
   th1wpjHi->Scale(1./th1wpjHi->Integral());
   th1wpjLo->Scale(1./th1wpjLo->Integral());
 
-  th1wpjHi->Add(th1wpjLo, th1wpjHi, alpha, 1. - alpha);
+  th1wpjHi->Print();
+  th1wpjLo->Print();
+
+  th1wpj->Add(th1wpjLo, th1wpjHi, alpha, 1. - alpha);
 
   delete th1wpjLo;
-  th1wpjHi->SetName(histName);
+  delete th1wpjHi;
 
 //   th1wpjHi->Print();
 //   th1wpjHi->Draw();
@@ -1651,16 +1723,15 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //   gPad->WaitPrimitive();
 
   std::cout << "WpJ statistics in SB (Lo: " << EventsLo
-	    << " Hi: " << EventsHi << ")\n";
+	    << " Hi: " << EventsHi << ") alpha: "  << alpha 
+	    << "\n";
   if (params_.smoothWpJ > 0)
-    th1wpjHi->Smooth(params_.smoothWpJ);
+    th1wpj->Smooth(params_.smoothWpJ);
 
 //   th1wpjHi->Print();
 //   th1wpjHi->Draw();
 //   gPad->Update();
 //   gPad->WaitPrimitive();
-
-  th1wpjHi->Scale(alpha*EventsLo+ (1-alpha)*EventsHi);
 
 //   for (int bin = 1; bin <= th1wpjHi->GetNbinsX(); ++bin) {
 //     std::cout << TString::Format("bin %i  %0.0f : %0.3f +/- %0.3f\n",
@@ -1673,12 +1744,13 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //     }
 //   }
 
-  th1wpjHi->Print();
+  th1wpj->Scale(alpha*EventsLo+ (1-alpha)*EventsHi);
+  th1wpj->Print();
 //   th1wpjHi->Draw();
 //   gPad->Update();
 //   gPad->WaitPrimitive();
 
-  return th1wpjHi;
+  return th1wpj;
 }
 
 void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,

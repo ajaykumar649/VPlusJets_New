@@ -44,6 +44,7 @@ public:
   double intLumi;
   bool constrainDiboson;
   bool externalConstraints;
+  bool constrainWpJShape;
   int WpJfunction;
 
   //4 body parameters
@@ -105,6 +106,7 @@ RooWjjFitterParams::RooWjjFitterParams() :
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
   electronData("WenuJets_DataAll_GoldenJSON_2p1invfb.root"),
   intLumi(2100.), constrainDiboson(true), externalConstraints(true),
+  constrainWpJShape(false),
   WpJfunction(0),
   do4body(false),
   minSBHi(95.), maxSBHi(105.), SBHicut(""), 

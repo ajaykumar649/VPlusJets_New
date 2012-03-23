@@ -136,7 +136,7 @@ gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad, \
-     kBlue, TH1D, TMath
+     kBlue, TH1D, TMath, gDirectory
 from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
@@ -401,6 +401,7 @@ fitter4.loadData()
 fitter4.make4BodyPdf(theFitter)
 fitter4.loadParameters('lastSigYield.txt')
 
+## assert(False)
 ## fitter4.getWorkSpace().Print()
 
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
@@ -506,6 +507,33 @@ c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj,
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj,
                                                        opts.mH))
 
+c = fitter4.getWorkSpace().var('c')
+cNom = c.getVal()
+
+sbf = cdebug.FindObject("SideBandPlot")
+print sbf
+if not sbf:
+    sbf = gDirectory.Get("SideBandPlot")
+    print sbf
+    sbf.Print()
+
+c.setVal(cNom + c.getError())
+mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
+                                                 RooFit.Name('syst_up'),
+                                                 RooFit.LineColor(kBlue+1))
+
+c.setVal(cNom - c.getError())
+mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
+                                                 RooFit.Name('syst_down'),
+                                                 RooFit.LineColor(kBlue+1))
+
+cdebug.cd()
+sbf.Draw()
+cdebug.Modified()
+cdebug.Update()
+
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
                                                    opts.Nj))
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
@@ -513,14 +541,15 @@ cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
                                                    opts.Nj))
 
-c = fitter4.getWorkSpace().var('c')
-cNom = c.getVal()
+cdebug.SetLogy()
+cdebug.Update()
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.pdf' % (opts.mH, modeString,
+                                                       opts.Nj))
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.png' % (opts.mH, modeString,
+                                                       opts.Nj))
+cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.root' % (opts.mH, modeString,
+                                                        opts.Nj))
 
-c.setVal(cNom + c.getError())
-mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
-
-c.setVal(cNom - c.getError())
-mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 
 print 'shape file created'
 ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,

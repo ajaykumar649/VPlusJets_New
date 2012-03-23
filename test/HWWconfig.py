@@ -28,7 +28,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 30
-    fitterPars.intLumi = 4700.
+    fitterPars.intLumi = 5020.
     
     fitterPars.binEdges.push_back(fitterPars.minMass)
     #fitterPars.binEdges.push_back(40.)
