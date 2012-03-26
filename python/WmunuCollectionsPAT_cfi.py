@@ -2,6 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseElectrons
 from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseMuons
+isQCD = True
+
+isolationCutString = cms.string("")
+if isQCD:
+    isolationCutString = "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt> 0.1"
+else:
+    isolationCutString = "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt< 0.3"
 
 tightMuons = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("selectedPatMuonsPFlow"),
@@ -11,7 +18,7 @@ tightMuons = cms.EDFilter("PATMuonSelector",
                      " && globalTrack().hitPattern().numberOfValidMuonHits>0"
                      " && globalTrack().hitPattern().numberOfValidPixelHits>0"
                      " && numberOfMatches>1"
-                     " && (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt< 0.3"
+                     " && " + isolationCutString
                      )
 )
 

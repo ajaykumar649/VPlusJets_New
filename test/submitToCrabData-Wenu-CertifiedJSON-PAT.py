@@ -78,7 +78,7 @@ JSON       = [
     "Cert_160404-180252_7TeV_PromptReco_Collisions11_JSON.txt"]
 condor     = [1,1,1,1,1,1,1,1,1,1,1,1,1] # Total jobs 13 now
 
-MyResilientArea = "/yangf/CMSSW428/" +physMode
+MyResilientArea = "/yangf/CMSSW428_QCD/" +physMode
 
 ## ------------------------------------------
 
