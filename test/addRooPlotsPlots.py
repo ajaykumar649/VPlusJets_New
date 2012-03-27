@@ -112,6 +112,8 @@ if __name__ == "__main__":
     parser.add_option('-o', '--output', dest='output',
                       default='combinedPlots.root',
                       help='output file name')
+    parser.add_option('-l', '--lumi', dest='lumi', type='float', default=5020.,
+                      help='luminosity in inverse picobarns')
     (opts, args) = parser.parse_args()
 
     import pyroot_logon
@@ -143,7 +145,7 @@ if __name__ == "__main__":
         cans.append(can)
         cplots.append(outPlot)
         outPlot.Draw()
-        pyroot_logon.cmsLabel(can, 4.7)
+        pyroot_logon.cmsLabel(can, opts.lumi/1000.)
         # gPad.WaitPrimitive()
 
         outPlot.Write()
@@ -169,7 +171,7 @@ if __name__ == "__main__":
                     newLine.SetY2(-4.)
                     newLine.Draw()
                     SetOwnership(newLine, False)
-            pyroot_logon.cmsLabel(canpf, 4.7)
+            pyroot_logon.cmsLabel(canpf, opts.lumi/1000.)
             gPad.Update()
             canpf.Print('%s_combined.png' % ('Mjj_Pull'))
             canpf.Print('%s_combined.pdf' % ('Mjj_Pull'))
