@@ -432,7 +432,7 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
   TObject * theObj;
   TString objName, objTitle;
   //  TLegend * theLeg = new TLegend(0.70, 0.65, 0.92, 0.92, "", "NDC");
-  TLegend * theLeg = new TLegend(0.55, 0.6, 0.92, 0.9, "", "NDC");
+  TLegend * theLeg = new TLegend(0.65, 0.62, 0.92, 0.92, "", "NDC");
   theLeg->SetName("theLegend");
 
   theLeg->SetBorderSize(0);
@@ -456,7 +456,7 @@ TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
       ++entryCnt;
     }
   }
-  theLeg->SetY1NDC(0.9 - 0.057*entryCnt - 0.013);
+  theLeg->SetY1NDC(0.9 - 0.05*entryCnt - 0.005);
   theLeg->SetY1(theLeg->GetY1NDC());
   return theLeg;
 }

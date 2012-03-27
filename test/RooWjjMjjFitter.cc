@@ -1036,74 +1036,80 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 
   TH1 * th1wjets = utils_.newEmptyHist("th1wjets");
 
-  double sumalpha = 0.;
   TH1 * wjets = 0;
-  double tmpWeight;
   std::vector<TH1*> shapes;
-  std::vector<double> entries;
-  double sumEntries = 0.;
+  TH1 * alphaDownHist = utils_.newEmptyHist("wjets_alphaDown");
+  TH1 * alphaUpHist = utils_.newEmptyHist("wjets_alphaUp");
   for (unsigned int range = 0; range < params_.alphas.size(); ++range) {
     wjets = getWpJHistFromData(TString::Format("wjets%i", range),
 			       params_.alphas[range], 
+			       params_.alphaDowns[range],
+			       params_.alphaUps[range],
 			       params_.minMasses[range],
 			       params_.maxMasses[range],
 			       fitter2body, shapesSBHi,
-			       shapesSBLo);
-    if (range < params_.falphas.size()) {
-      tmpWeight = params_.falphas[range];
-      sumalpha += params_.falphas[range];
-    } else
-      tmpWeight = 1.-sumalpha;
+			       shapesSBLo,
+			       alphaDownHist, alphaUpHist);
 
     wjets->Print();
+    alphaDownHist->Print();
+    alphaUpHist->Print();
 //     wjets->Draw();
 //     gPad->Update();
 //     gPad->WaitPrimitive();
 
     shapes.push_back(wjets);
-    entries.push_back(wjets->GetEntries());
-    sumEntries += wjets->GetEntries();
-
-//     th1wjets->Add(wjets, tmpWeight);
-
-//     delete wjets;
   }
 
   for(unsigned int range = 0; range < shapes.size(); ++range) {
-    th1wjets->Add(shapes[range], entries[range]/sumEntries);
+    th1wjets->Add(shapes[range]);
     delete shapes[range];
   }
 
   double n2bWpJ = ws_.var("nWjets")->getVal();
-//   double const KinSwitch = 150.;                      // 180 for el2jet 190!!
+
   std::cout << "n2bWpJ: " << n2bWpJ << '\n';
   th1wjets->Print();
+  alphaDownHist->Print();
+  alphaUpHist->Print();
 //   th1wjets->Scale(1./th1wjets->Integral());
 // //   th1wjets->Scale(1., "width");
 //   th1wjets->Print();
 
   RooRealVar * mass = ws_.var(params_.var);
   RooDataHist theSBData("theSBData", "theSBData", RooArgList(*mass), th1wjets);
+  RooDataHist theSBAlphaDown("theSBAlphaDown", "theSBAlphaDown", 
+			     RooArgList(*mass), alphaDownHist);
+  RooDataHist theSBAlphaUp("theSBAlphaUp", "theSBAlphaUp", 
+			   RooArgList(*mass), alphaUpHist);
   theSBData.Print();
-  th1wjets->Scale(1./th1wjets->Integral());
-  RooDataHist theSBDataNorm("theSBDataNorm", "theSBDataNorm", 
-			    RooArgList(*mass), th1wjets);
-//   TF1 * fitf = 0;
+
   double localMax = params_.maxMass;
   int localBin = th1wjets->GetNbinsX();
   std::cout << "localMax: " << localMax 
 	    << " last bin: " << th1wjets->GetBinContent(localBin) << " +/- "
 	    << th1wjets->GetBinError(localBin)
 	    << '\n';
-  while (((th1wjets->GetBinError(localBin) < (1e-2/40.)) || 
-	  (th1wjets->GetBinContent(localBin) <= 0)) && (localBin > 0)) {
+  while ((th1wjets->GetBinContent(localBin) <= 0) && (localBin > 0)) {
     localMax = th1wjets->GetBinLowEdge(localBin);
     --localBin;
   }
+  localBin = 1;
+  while ( (localBin <= th1wjets->GetNbinsX()) && 
+	  (th1wjets->GetBinContent(localBin++) >= 0)) ;
+  if ( (localMax > th1wjets->GetBinLowEdge(localBin)) &&
+       (th1wjets->GetBinContent(localBin-1) <= 0) )
+    localMax = th1wjets->GetBinLowEdge(localBin-1);
+  
   std::cout << "localMax: " << localMax 
 	    << " last bin: " << th1wjets->GetBinContent(localBin) << " +/- "
 	    << th1wjets->GetBinError(localBin)
 	    << '\n';
+
+  th1wjets->Scale(1./th1wjets->Integral());
+  RooDataHist theSBDataNorm("theSBDataNorm", "theSBDataNorm", 
+			    RooArgList(*mass), th1wjets);
+//   TF1 * fitf = 0;
 //   if (params_.model == 1) {
 //     TString fitString("exp([0]*x)*[0]/(exp([0]*[1])-exp([0]*[2]))");
 //     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
@@ -1164,6 +1170,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   mass->setRange("SBFitRange", params_.minMass, localMax);
   if (params_.model == 4)
     mass->setRange("SBFitRange", th1wjets->GetBinLowEdge(2), localMax);
+  double diff = 0, newErr = 0;
   switch (params_.model) {
   case 4:
   case 5:
@@ -1177,10 +1184,33 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
       //expPdf.Print("v");
       ws_.import(expPdf);
     }
+    ws_.import(*(ws_.pdf("WpJ4BodyPdf")), 
+	       RooFit::RenameVariable("c","c_down"),
+	       RooFit::RenameAllNodes("down"));
+    ws_.import(*(ws_.pdf("WpJ4BodyPdf")), 
+	       RooFit::RenameVariable("c", "c_up"),
+	       RooFit::RenameAllNodes("up"));
+    ws_.Print();
+    ws_.pdf("WpJ4BodyPdf_down")->fitTo(theSBAlphaDown, 
+				       RooFit::Minos(false),
+				       RooFit::SumW2Error(false),
+				       RooFit::Range("SBFitRange")
+				       );
+    ws_.pdf("WpJ4BodyPdf_up")->fitTo(theSBAlphaUp, 
+				       RooFit::Minos(false),
+				       RooFit::SumW2Error(false),
+				       RooFit::Range("SBFitRange")
+				       );
     fr = ws_.pdf("WpJ4BodyPdf")->fitTo(theSBData, RooFit::Minos(false),
 				       RooFit::SumW2Error(false),
 				       RooFit::Range("SBFitRange"),
 				       RooFit::Save(true));
+
+    diff = 
+      TMath::Max(fabs(ws_.var("c")->getVal() - ws_.var("c_down")->getVal()),
+		 fabs(ws_.var("c")->getVal() - ws_.var("c_up")->getVal()));
+    newErr = TMath::Power(ws_.var("c")->getError(), 2) + diff*diff;
+    ws_.var("c")->setError(sqrt(newErr));
     break;
 //   case 2: {
 //     RooRealVar power("power", "power", fitf->GetParameter(1));
@@ -1637,11 +1667,14 @@ void RooWjjMjjFitter::resetfSUfMU(double fSU, double fMU) {
 
 ////////////////////////////////////////////////////////////////////
 
-TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha, 
+TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
+					  double alphaDown, double alphaUp,
 					  double xMin, double xMax, 
 					  RooWjjMjjFitter & fitter2body,
 					  RooWjjMjjFitter & shapesSBHi,
-					  RooWjjMjjFitter & shapesSBLo) {
+					  RooWjjMjjFitter & shapesSBLo,
+					  TH1 * const alphaDownHist, 
+					  TH1 * const alphaUpHist) {
   TString massCut(TString::Format("((%s > %f) && (%s < %f))", 
 				  params_.var.Data(), xMin, params_.var.Data(),
 				  xMax));
@@ -1713,6 +1746,8 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
   th1wpjLo->Print();
 
   th1wpj->Add(th1wpjLo, th1wpjHi, alpha, 1. - alpha);
+  alphaDownHist->Add(th1wpjLo, th1wpjHi, alphaDown, 1. - alphaDown);
+  alphaUpHist->Add(th1wpjLo, th1wpjHi, alphaUp, 1. - alphaUp);
 
   delete th1wpjLo;
   delete th1wpjHi;
@@ -1724,6 +1759,7 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 
   std::cout << "WpJ statistics in SB (Lo: " << EventsLo
 	    << " Hi: " << EventsHi << ") alpha: "  << alpha 
+	    << " alphaDown: " << alphaDown << " alphaUp: " << alphaUp
 	    << "\n";
   if (params_.smoothWpJ > 0)
     th1wpj->Smooth(params_.smoothWpJ);
@@ -1745,7 +1781,11 @@ TH1 * RooWjjMjjFitter::getWpJHistFromData(TString histName, double alpha,
 //   }
 
   th1wpj->Scale(alpha*EventsLo+ (1-alpha)*EventsHi);
+  alphaDownHist->Scale(alphaDown*EventsLo+ (1-alphaDown)*EventsHi);
+  alphaUpHist->Scale(alphaUp*EventsLo+ (1-alphaUp)*EventsHi);
   th1wpj->Print();
+  alphaDownHist->Print();
+  alphaUpHist->Print();
 //   th1wpjHi->Draw();
 //   gPad->Update();
 //   gPad->WaitPrimitive();
@@ -1827,10 +1867,15 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
     if ( fitter2body.ws_.var(normName)->getVal() * 
 	 SBInt->getVal()/fullInt->getVal() >= hist.Integral()*0.001)
       hist.Add(tempHist, -1.);
+
     delete tempHist;
     delete fullInt;
     delete SBInt;
   }
+//   for (ibin = 1; ibin <= nbins; ++ibin) {
+//     if (hist.GetBinContent(ibin) < 0.) 
+//       hist.SetBinContent(ibin, 1e-4);
+//   }
 }
 
 void RooWjjMjjFitter::addHistograms(TH1& hist1, TH1& hist2, double weight) {

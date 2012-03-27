@@ -56,6 +56,8 @@ public:
   std::vector<double> minMasses;
   std::vector<double> maxMasses;
   std::vector<double> alphas;
+  std::vector<double> alphaUps;
+  std::vector<double> alphaDowns;
   std::vector<double> falphas;
   int smoothWpJ;
   int model;

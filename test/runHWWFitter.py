@@ -508,6 +508,7 @@ c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj,
                                                        opts.mH))
 
 c = fitter4.getWorkSpace().var('c')
+c.Print()
 cNom = c.getVal()
 
 sbf = cdebug.FindObject("SideBandPlot")
@@ -541,6 +542,7 @@ cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
                                                    opts.Nj))
 
+sbf.SetMinimum(1e-4)
 cdebug.SetLogy()
 cdebug.Update()
 cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.pdf' % (opts.mH, modeString,

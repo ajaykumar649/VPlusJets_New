@@ -73,10 +73,15 @@ def the4BodyConfig(twoBodyConfig, mH=400, syst=0, alphaOverride = None):
     HWWconfig.minMlvjj = optPars[3]
     HWWconfig.maxMlvjj = optPars[4]
     alpha = optPars[6+syst]
+    alphaDown = optPars[6+1]
+    alphaUp = optPars[6+2]
     if alphaOverride:
         alpha = alphaOverride
+        alphaDown = alphaOverride
+        alphaUp = alphaOverride
     fitterPars = HWWconfig.the4BodyConfig(twoBodyConfig, alpha, optPars[9],
-                                          optPars[10])
+                                          optPars[10],
+                                          alphaRange = (alphaDown,alphaUp))
     fitterPars.nbins = optPars[5]
     fitterPars.model = 1
     if (mH <= 200) and (twoBodyConfig.njets == 2):

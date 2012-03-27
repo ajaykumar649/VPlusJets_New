@@ -56,10 +56,13 @@ public:
 
 protected:
   TH1 * getWpJHistFromData(TString histName, double alpha,
+			   double alphaDown, double alphaUp,
 			   double xMin, double xMax, 
 			   RooWjjMjjFitter & fitter2body,
 			   RooWjjMjjFitter & shapesSBHi,
-			   RooWjjMjjFitter & shapesSBLo);
+			   RooWjjMjjFitter & shapesSBLo,
+			   TH1 * const alphaDownHist = 0,
+			   TH1 * const alphaUpHist = 0);
   void subtractHistogram(TH1& hist, SideBand sideBand,
 			 double xMin, double xMax,
 			 RooWjjMjjFitter & fitter2body,
@@ -81,6 +84,7 @@ private:
 
   TString rangeString_;
   int histOrder;
+
 };
 
 #endif

@@ -136,7 +136,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     return fitterPars
 
 def the4BodyConfig(twoBodyConfig, alpha=1., lowSideBand = (55., 65.),
-                   highSideBand = (95., 115)):
+                   highSideBand = (95., 115), alphaRange = (0., 1.)):
 ##     fitterPars = theConfig(Nj, mcdir, initFile)
 
     fitterPars = RooWjjFitterParams(twoBodyConfig)
@@ -186,19 +186,15 @@ def the4BodyConfig(twoBodyConfig, alpha=1., lowSideBand = (55., 65.),
     fitterPars.truncRange = False
 
 
-    twoJets = [(fitterPars.minMass, fitterPars.maxMass, alpha, 1.)]
-    threeJets = [(fitterPars.minMass, fitterPars.maxMass, alpha, 1.)]
-
-    if fitterPars.njets == 3:
-        ranges = threeJets
-    else:
-        ranges = twoJets
+    ranges = [(fitterPars.minMass, fitterPars.maxMass, alpha, 1., alphaRange)]
 
     for line in ranges:
         fitterPars.minMasses.push_back(line[0])
         fitterPars.maxMasses.push_back(line[1])
         fitterPars.alphas.push_back(line[2])
         fitterPars.falphas.push_back(line[3])
+        fitterPars.alphaDowns.push_back(line[4][0])
+        fitterPars.alphaUps.push_back(line[4][1])
 ##         if len(line) > 1:
 ##             fitterPars.falphas.push_back(line[1])
 
