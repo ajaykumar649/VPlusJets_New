@@ -348,7 +348,7 @@ void ListSample()
 // ====================================================================================
 // Self Function
 // ====================================================================================
-void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
+void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  setTDRStyle();
   // Save output to file
   char tpname[100];
 
@@ -433,6 +433,15 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
   TH1D * opYop[nvbs][nmp];
   TH1D * opDop[nvbs][nmp];
 
+  // Signal Efficiency Systematic
+  THStack * Sys_Ts[nmp]; 
+  TLegend * Sys_Lg[nmp];
+  TH1F    * Sys_hb[nmp]; TH1F    * Saf_tt[nmp]; 
+  TH1F    * Sys_hh[nmp][nbgc]; 
+  TH1F    * Sys_hd[nmp]; TH1F    * Saf_dd[nmp]; 
+  TH1F    * Sys_hs[nmp]; 
+  float     Sys_EE[nmp], Sys_RR[nmp];
+
   // Alpha Scan
   const char * f_plmassvar       = "fit_mlvjj";
   int aba[nmp]={0}; int abl[nmp]={0}; int abh[nmp]={0};
@@ -446,7 +455,7 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
     char ppvar[200] = ""; char ppcut[5000] = ""; char opcutC[5000] = "(1==1)";
     // =========================== Setup for alpha calculation
     const int a_type =  0; const int a_npt  = 101; const float sigL = 65, sigH =  95;
-    int tuneAlpha = 0;  float opmva =0.50; 
+    int tuneAlpha = 0;  float opmva =0.50;float opqgl=-1.0; 
     int a_nbin    = 70; float a_led= 100; float a_hed=800;
     float sblL =    55; float sblH = 65;  float sbhL =95;  float sbhH = 115;
     // Specify the range and nbin for alpha, now it's point dependent
@@ -454,58 +463,58 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
       // Muon 2j 
       if (p==0     ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==1     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2     ) { opmva=0.60; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==3     ) { opmva=0.60; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=105;}//teak
+      if (p==3     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==4     ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==5     ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==6     ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==7     ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==8     ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9     ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==10    ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
-      if (p==11    ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9     ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.10;}
+      if (p==10    ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
+      if (p==11    ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
       			    	     	      	       			    				
       // Muon 3j 	    	     	      	       			    				
       if (p==0 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==1 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2 +12 ) { opmva=0.30; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==3 +12 ) { opmva=0.30; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==4 +12 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==5 +12 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==6 +12 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==7 +12 ) { opmva=0.50; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==8 +12 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9 +12 ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==10+12 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
-      if (p==11+12 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +12 ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
+      if (p==10+12 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
+      if (p==11+12 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
       			    	     	      	       			    				
       // Electron 2j	    	     	      	       			    				
       if (p==0 +24 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==1 +24 ) { opmva=0.55; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2 +24 ) { opmva=0.55; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==3 +24 ) { opmva=0.60; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +24 ) { opmva=0.55; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=110; sbhH=125;}//teak
+      if (p==3 +24 ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==4 +24 ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==5 +24 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==6 +24 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==7 +24 ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==8 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==10+24 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
-      if (p==11+24 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
+      if (p==10+24 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.35;}
+      if (p==11+24 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
       			    	     	      	       			    				
       // Electron 3j	    	     	      	       			    				
       if (p==0 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==1 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2 +36 ) { opmva=0.30; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==3 +36 ) { opmva=0.40; a_led=180; a_hed=250; a_nbin=7;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +36 ) { opmva=0.40; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
       if (p==4 +36 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==5 +36 ) { opmva=0.50; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==6 +36 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==7 +36 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
       if (p==8 +36 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9 +36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==10+36 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
-      if (p==11+36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
+      if (p==10+36 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.35;}
+      if (p==11+36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
     }
     int myflagb=0; 
     for (int c=0; c<nvbs; c++){ if (c!=myflagb && myflagb>=0) continue;
@@ -522,7 +531,7 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
       if (c==7){xmin= -2.5; xmax= 2.5; }
       if (sqnc==1) sprintf(ppcut,"effwt*(%s&&%s)",plcut[p],opcutC);
       if (sqnc==0) ndef[c] = ndef[0];
-      cout << ppvar << "  @  " << ppcut << endl;
+      //cout << ppvar << "  @  " << ppcut << endl;
       break;
       // Fill All background
       sprintf(tpname, "Ts[%i][%i]",c,p); Ts[c][p] = new THStack(tpname, ""); Lg[c][p] = new TLegend(0.75,0.55,0.90,0.85);
@@ -695,6 +704,106 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
       //saveCanvas(MyCa2, Form("./figures/CCOptimize/cc-%s-optmz-%s-%i-%s",cate[p],nnff[c],sqnc,"ssbb")    );
       //saveCanvas(MyCa3, Form("./figures/CCOptimize/cc-%s-optmz-%s-%i-%s",cate[p],nnff[c],sqnc,"comp")    );
     }
+    //
+    // ======================================================================================================
+    // Signal Efficiency Systematic
+    // ======================================================================================================
+    if (dosys>0){
+      // Setup For Cut Study
+      int c_nbin=40; float c_xmin=0.0,c_xmax=1.0; 
+      char cutvar[500] = ""; sprintf(cutvar,"mva%s",cate[p]);
+      char topcut[500] = ""; sprintf(topcut,"effwt*(TopWm>0)"); if (dosys==3) sprintf(topcut,"%s",ppcut); // dosys==3 : plot the normal comparison plots
+      float beNtt=0, afNtt=0,  beNdd=0, afNdd=0; 
+      cout << cutvar << " @ " << topcut << endl;
+      // Start to fill plots
+      sprintf(tpname, "Sys_Ts[%i]",p); Sys_Ts[p] = new THStack(tpname, ""); Sys_Lg[p] = new TLegend(0.70,0.57,0.92,0.87);
+      sprintf(tpname, "Sys_hb[%i]",p); Sys_hb[p] = getHist(Mu_InFileNames[9], "WJet", "mva2j170mu", "0", tpname, c_nbin, c_xmin, c_xmax, rflag); Sys_hb[p]->Sumw2();// Make an empty hist
+      for (int i = nbgc-1; i>=0; i--){ if (i==9) continue; //skip QCD
+	sprintf(tpname, "Sys_hh[%i][%i]",p, i); 
+	if (ctt==0||ctt==1)Sys_hh[p][i] = getHist(Mu_InFileNames[i], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);
+	if (ctt==2||ctt==3)Sys_hh[p][i] = getHist(El_InFileNames[i], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);
+	if (i==1) beNtt=Sys_hh[p][i]->GetEntries();
+	double m_norfac =  DatLumi_mu *1.0/(XSecs[i][2]/ (XSecs[i][0]*XSecs[i][1]*XSecs[i][3]));
+	Sys_hh[p][i]->Sumw2(); Sys_hh[p][i]->Scale(m_norfac); Sys_hh[p][i]->SetFillColor(i); 
+	if (i==1)          Sys_hh[p][i]->SetFillColor(kGreen+2);
+	if (i==0)          Sys_hh[p][i]->SetFillColor(kRed);
+	if (i==10||i==11)  Sys_hh[p][i]->SetFillColor(kAzure+8);
+	if (i==8)          Sys_hh[p][i]->SetFillColor(kYellow);
+	Sys_Ts[p]->Add(Sys_hh[p][i]); Sys_Lg[p]->AddEntry(Sys_hh[p][i],PlainNames[i],"f"); Sys_hb[p]->Add(Sys_hh[p][i],+1);
+      }
+      // Fill Data
+      sprintf(tpname, "Sys_hd[%i]",p);
+      if (ctt==0||ctt==1)Sys_hd[p] = getHist(Mu_InFileNames[51], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);
+      if (ctt==2||ctt==3)Sys_hd[p] = getHist(El_InFileNames[51], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);      Sys_hd[p]->Sumw2();
+      beNdd=Sys_hd[p]->GetEntries();
+
+      // Fill Higgs Signal
+      int lb = 0; if (ctt==0) lb = p+22;if (ctt==1) lb = p+10;if (ctt==2) lb = p-2;if (ctt==3) lb = p-14;
+      double g_norfac = DatLumi_mu *1.0/(XSecs[lb][2]/ (XSecs[lb][0]*XSecs[lb][1]*XSecs[lb][3])); 
+      sprintf(tpname, "Sys_hs[%i]",p);
+      if (ctt==0||ctt==1)Sys_hs[p] = getHist(Mu_InFileNames[lb], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);
+      if (ctt==2||ctt==3)Sys_hs[p] = getHist(El_InFileNames[lb], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);      Sys_hs[p]->Sumw2(); Sys_hs[p]->Scale(g_norfac);
+
+      // Fill Data Again!! After All Cuts we want to study
+      char topafc[200]; sprintf(topafc, "effwt*(TopWm>0&&%s>%.2f&&qgld_Summer11CHS[1]>%.2f)",cutvar, opmva, opqgl);   cout << cutvar << " @ " << topafc << endl;
+
+      sprintf(tpname, "Saf_dd[%i]",p);
+      if (ctt==0||ctt==1)Saf_dd[p] = getHist(Mu_InFileNames[51], "WJet", cutvar, topafc, tpname, c_nbin, c_xmin, c_xmax, rflag);
+      if (ctt==2||ctt==3)Saf_dd[p] = getHist(El_InFileNames[51], "WJet", cutvar, topafc, tpname, c_nbin, c_xmin, c_xmax, rflag);      Saf_dd[p]->Sumw2();
+      afNdd=Saf_dd[p]->GetEntries();
+
+      sprintf(tpname, "Saf_tt[%i]",p);
+      if (ctt==0||ctt==1)Saf_tt[p] = getHist(Mu_InFileNames[1],  "WJet", cutvar, topafc, tpname, c_nbin, c_xmin, c_xmax, rflag);
+      if (ctt==2||ctt==3)Saf_tt[p] = getHist(El_InFileNames[1],  "WJet", cutvar, topafc, tpname, c_nbin, c_xmin, c_xmax, rflag);      Saf_tt[p]->Sumw2();
+      afNtt=Saf_tt[p]->GetEntries();
+
+      float ddee   = afNdd*1.0/beNdd; float ddee_e = sqrt(ddee*(1.0-ddee)/beNdd);
+      float ttee   = afNtt*1.0/beNtt; float ttee_e = sqrt(ttee*(1.0-ttee)/beNtt);
+      Sys_EE[p]= 1.0-(ddee/ttee); 
+      Sys_RR[p] = fabs(Sys_EE[p]) * sqrt( (ddee_e/ddee)*(ddee_e/ddee) + (ttee_e/ttee)*(ttee_e/ttee) );
+      // ========== 1. Do the systematic table for cut efficiency
+      if (dosys==1){
+	fprintf(textfile," \"%s\", mva>%.3f, QGntJet>%.3f, sys= (%.3f +- %.3f) %%\n", cutvar, opmva, opqgl, Sys_EE[p]*100.0, Sys_RR[p]*100.0 );
+	fclose(textfile);
+	continue;
+      }
+      // ========== 2.3 Make the mvaoutput plot
+      if (dosys==2||dosys==3){
+	TCanvas * MyCa_Sys01     = new TCanvas("MyCa_Sys01","MyCa_Sys01",10,10,500,500); MyCa_Sys01->Draw();
+	Sys_hd[p]->SetMaximum(Sys_hd[p]->GetMaximum()*2.0);
+	Sys_hd[p]->SetMarkerStyle(20);
+	Sys_hd[p]->SetXTitle(Form("%s",cutvar));
+	Sys_hd[p]->SetYTitle(Form("Events / %.2f",(c_xmax-c_xmin)/c_nbin));
+	Sys_hd[p]->Draw();
+	Sys_Ts[p]->Draw("samehist");
+	Sys_hd[p]->Draw("same");
+	Sys_Lg[p]->SetFillStyle(0);
+	Sys_Lg[p]->SetBorderSize(0);
+	Sys_Lg[p]->Draw();
+	cmspre();
+	MyCa_Sys01->RedrawAxis();
+	saveCanvas(MyCa_Sys01, Form("./figures/sys_top/cl-%s-%s", cutvar, (dosys==2?"inTTbar":"normal"))    );	if (dosys==2) continue;
+	TCanvas * MyCa_Sys02  = new TCanvas("MyCa_Sys02","MyCa_Sys02",10,10,500,500); MyCa_Sys02->Draw();
+	TH1F * Sp_Top = (TH1F*)Sys_hh[p][1]->Clone("Sp_Top");  Sp_Top->Scale(1.0/Sp_Top->Integral());Sp_Top->SetLineColor(kGreen+2); Sp_Top->SetFillStyle(0);//Sp_Top->SetLineStyle(2);
+	TH1F * Sp_Hig = (TH1F*)Sys_hs[p]->Clone(   "Sp_Hig");  Sp_Hig->Scale(1.0/Sp_Hig->Integral());Sp_Hig->SetLineColor(kBlue);
+	Sp_Hig->SetMaximum(Sp_Hig->GetMaximum()*1.5);
+	Sp_Hig->SetMarkerStyle(20);
+	Sp_Hig->SetXTitle(Form("%s",cutvar));
+	Sp_Hig->SetYTitle(Form("Unit Area"));
+	Sp_Hig->Draw("hist");
+	Sp_Top->Draw("histsame");
+	Sp_Hig->Draw("samehist");
+	TLegend * Legsys02 = new TLegend(0.20,0.75,0.50,0.85);
+	Legsys02->AddEntry(Sp_Hig, "MC Higgs" ,     "l");
+	Legsys02->AddEntry(Sp_Top, "MC TTbar" ,     "l");
+	Legsys02->SetFillStyle(0);
+	Legsys02->SetBorderSize(0);
+	Legsys02->Draw();      
+	saveCanvas(MyCa_Sys02, Form("./figures/sys_top/cl-%s-mvaTopvsHiggs", cutvar)    );
+	continue;
+      }
+      continue;
+    }
     // ======================================================================================================
     // Now start to study the alpha method
     // ======================================================================================================
@@ -782,7 +891,7 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
     sprintf(tpname, "C&C Mass Window : %i -  %i", winl, winh                         );TText *text_aph1e = pta_aph1->AddText(tpname); text_aph1e->SetTextColor(43);
     sprintf(tpname, "Applied Optimized Cus : "                                       );TText *text_aph1d = pta_aph1->AddText(tpname); text_aph1d->SetTextColor(95);
     for (unsigned int i=0; i<allopcuts.size();i++) pta_aph1->AddText((allopcuts[i]).c_str());
-    pta_aph1->Draw();
+    //pta_aph1->Draw();
     TArrow * arrow811 = new TArrow(winl,0,winl, 0.15*a_hsgg->GetMaximum(), 0.02,"-"); arrow811->SetLineColor(35); arrow811->Draw("same");
     TArrow * arrow812 = new TArrow(winh,0,winh, 0.15*a_hsgg->GetMaximum(), 0.02,"-"); arrow812->SetLineColor(35); arrow812->Draw("same");
     a_hsgg->Draw("samee0");
@@ -847,8 +956,8 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
     TArrow * ar101 = new TArrow(0, syschi2, 1.0, syschi2, 0.03,"-"); ar101->SetLineWidth(2);ar101->SetLineStyle(2);ar101->SetLineColor(kGreen);ar101->Draw("");
     TPaveText *pta_aph3=new TPaveText(0.01,0.90,0.99,0.99,"BRNDC");pta_aph3->SetBorderSize(0);pta_aph3->SetLineWidth(1);pta_aph3->SetFillStyle(0);;pta_aph3->SetTextAlign(22);
     sprintf(tpname, "Best #alpha=%.2f @ #chi^{2}/NDF=%.3f; #chi^{2} increase by 1 @ #alpha=%.2f, %.2f", a_alpha[aba[p]], a_chi2[aba[p]], a_alpha[abl[p]], a_alpha[abh[p]]);
-    TText *text_aph3a = pta_aph3->AddText(tpname); text_aph3a->SetTextColor(kBlue);
-    pta_aph3->Draw(); gr_aph3->Draw("samecp");MyCa_aph3->RedrawAxis();
+    TText *text_aph3a = pta_aph3->AddText(tpname); text_aph3a->SetTextColor(kBlue);// pta_aph3->Draw(); 
+    gr_aph3->Draw("samecp");MyCa_aph3->RedrawAxis();
 
     // ------------- MC shape compare with extrapolation shape
     TCanvas *MyCa_aph4  = new TCanvas("MyCa_aph4","MyCa_aph4",10,10,500, 500);  MyCa_aph4->Draw();
@@ -953,9 +1062,9 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
 			   
     char  isrva[100] = "";sprintf(isrva,"MVAgt_%.0f_Range_%.0i_%.0f-%.0f_SB_%.0f-%.0f_%.0f-%.0f",mvaCut*100.0,a_nbin,a_led,a_hed,sblL,sblH,sbhL,sbhH);
     cout << isrva << endl;
-    //saveCanvas(MyCa_aph1, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcget",isrva)    );
+    saveCanvas(MyCa_aph1, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcget",isrva)    );
     //saveCanvas(MyCa_aph2, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcsys",isrva)    );
-    //saveCanvas(MyCa_aph3, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcsca",isrva)    );
+    saveCanvas(MyCa_aph3, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mcsca",isrva)    );
     //saveCanvas(MyCa_aph4, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"mctet",isrva)    );
     //saveCanvas(MyCa_aph5, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"datet",isrva)    );
     //saveCanvas(MyCa_aph6, Form("./figures/Alpha/%s-Alpha-%s-%s",cate[p],"summa",isrva)    );
@@ -966,3 +1075,125 @@ void MakePlot(int myflag = 0, int scflag=0, float sccut= -1.0) {  setTDRStyle();
   /////////
 }
 
+void JESinTop(){  setTDRStyle();gStyle->SetOptFit(0);gStyle->SetOptStat(0);
+  const int    nbgc = 12; const int rflag=0; int nbin=30; float xmin=0.0,xmax=300.0; 
+  const char * cate[3]   = {"muel","el","mu"};
+  TH1F    * hh[3][nbgc];
+  TH1F    * hb[3];
+  TH1F    * hd[3];
+  THStack * Ts[3]; 
+  TLegend * Lg[3];
+  char cutvar[500] = "TopWm";
+  char topcut[500] = "effwt*(TopWm>0)";
+  char tpname[500] = "";
+  for (int c=2;c>=0;c--){
+    // Fill MC
+    sprintf(tpname, "Ts[%i]",c); Ts[c] = new THStack(tpname, ""); Lg[c] = new TLegend(0.55,0.50,0.90,0.85);
+    sprintf(tpname, "hb[%i]",c); hb[c] = getHist(Mu_InFileNames[9], "WJet", "mva2j170mu", "0", tpname, nbin, xmin, xmax, rflag); hb[c]->Sumw2();// Make an empty hist
+    for (int i = nbgc-1; i>=0; i--){ if (i==9) continue; //skip QCD
+      sprintf(tpname, "hh[%i][%i]",c, i); 
+      if (c==1)hh[c][i] = getHist(Mu_InFileNames[i], "WJet", cutvar, topcut, tpname, nbin, xmin, xmax, rflag);
+      if (c==2)hh[c][i] = getHist(El_InFileNames[i], "WJet", cutvar, topcut, tpname, nbin, xmin, xmax, rflag);
+      double m_norfac =  DatLumi_mu *1.0/(XSecs[i][2]/ (XSecs[i][0]*XSecs[i][1]*XSecs[i][3]));
+      if     (c==1||c==2) { hh[c][i]->Sumw2(); hh[c][i]->Scale(m_norfac); } 
+      else if(c==0){sprintf(tpname, "hh[%i][%i]",c, i); hh[0][i] = (TH1F*) hh[1][i]->Clone(tpname); hh[0][i]->Add(hh[2][i],+1);}
+      hh[c][i]->SetFillColor(i); 
+      if (i==1)          hh[c][i]->SetFillColor(kGreen+2);
+      if (i==2)          hh[c][i]->SetFillColor(kGreen+1);
+      if (i==0)          hh[c][i]->SetFillColor(kRed);
+      if (i==10||i==11)  hh[c][i]->SetFillColor(kAzure+8);
+      if (i==8)          hh[c][i]->SetFillColor(kYellow);
+      Ts[c]->Add(hh[c][i]); Lg[c]->AddEntry(hh[c][i],PlainNames[i],"f"); hb[c]->Add(hh[c][i],+1);
+    }
+    // Fill Data
+    sprintf(tpname, "hd[%i]",c);
+    if (c==1) hd[c] = getHist(Mu_InFileNames[51], "WJet", cutvar, topcut, tpname, nbin, xmin, xmax, rflag);
+    if (c==2) hd[c] = getHist(El_InFileNames[51], "WJet", cutvar, topcut, tpname, nbin, xmin, xmax, rflag);      
+    if (c==0){hd[0] = (TH1F*) hd[1]->Clone("hd[0]"); hd[0]->Add(hd[2],+1);}
+    hd[c]->Sumw2();
+  }
+  for (int c=0;c<3;c++){    char text[100]; 
+    // Stack Plot
+    TCanvas * MyCa_stack  = new TCanvas("MyCa_stack","MyCa_stack",10,10,500, 500);  MyCa_stack->Draw();
+    hd[c]->SetXTitle("Mjj of Two Anti-b-tagged Jets [GeV]");
+    hd[c]->GetXaxis()->CenterTitle();
+    hd[c]->SetYTitle(Form("Events / %.2f GeV",(xmax-xmin)/nbin));
+    hd[c]->Draw();
+    Ts[c]->Draw("samehist");
+    hd[c]->Draw("same");
+    Lg[c]->SetFillStyle(0);
+    Lg[c]->SetBorderSize(0);
+    Lg[c]->Draw();
+    cmspre();
+    MyCa_stack->RedrawAxis();
+    saveCanvas(MyCa_stack, Form("./figures/sys_top/top_overlap_%s",cate[c])    );
+    // Data Fit
+    TCanvas * MyCa_hd  = new TCanvas("MyCa_hd","MyCa_hd",10,10,500, 500);  MyCa_hd->Draw();
+    TF1 *fhd = new TF1("fhd","gaus",70,95);
+    fhd->SetParameters(1,82,10);
+    hd[c]->Fit(fhd,"R");
+    hd[c]->GetFunction("fhd")->SetLineColor(kBlue);
+    hd[c]->GetFunction("fhd")->SetLineWidth(2);
+    hd[c]->SetLineColor(kBlue);
+    hd[c]->SetLineWidth(2);
+    hd[c]->SetLineColor(2);
+    hd[c]->SetXTitle("Mjj of Two Anti-b-tagged Jets [GeV]");
+    hd[c]->GetXaxis()->CenterTitle();
+    hd[c]->SetYTitle(Form("Events / %.2f GeV",(xmax-xmin)/nbin));
+    hd[c]->Draw("E1");
+    TLatex *lhd = new TLatex(0.65, 0.80, Form("Fit Data : %s",cate[c]));  lhd->SetNDC();   lhd->SetTextSize(0.04);  lhd->SetTextColor(kRed);
+    sprintf(text, "Mean  : %0.3f #pm %0.3f", fhd->GetParameter(1), fhd->GetParError(1));   lhd->DrawLatex(0.55,0.75,text );
+    sprintf(text, "Sigma : %0.3f #pm %0.3f", fhd->GetParameter(2), fhd->GetParError(2));   lhd->DrawLatex(0.55,0.70,text );
+    lhd->Draw();
+    saveCanvas(MyCa_hd, Form("./figures/sys_top/top_data_fit_%s",cate[c])    );
+    // MC Fit
+    TCanvas * MyCa_hb  = new TCanvas("MyCa_hb","MyCa_hb",10,10,500, 500);  MyCa_hb->Draw();
+    TF1 *fhb = new TF1("fhb","gaus",70,95);
+    fhb->SetParameters(1,82,10);
+    hb[c]->Fit(fhb,"R");
+    hb[c]->GetFunction("fhb")->SetLineColor(kBlue);
+    hb[c]->GetFunction("fhb")->SetLineWidth(2);
+    hb[c]->SetLineColor(kBlue);
+    hb[c]->SetLineWidth(2);
+    hb[c]->SetLineColor(2);
+    hb[c]->SetXTitle("Mjj of Two Anti-b-tagged Jets [GeV]");
+    hb[c]->GetXaxis()->CenterTitle();
+    hb[c]->SetYTitle(Form("Events / %.2f GeV",(xmax-xmin)/nbin));
+    hb[c]->Draw("E1");
+    TLatex *lhb = new TLatex(0.65, 0.80, Form("Fit MC   : %s",cate[c]));  lhb->SetNDC();   lhb->SetTextSize(0.04);  lhb->SetTextColor(kRed);
+    sprintf(text, "Mean  : %0.3f #pm %0.3f", fhb->GetParameter(1), fhb->GetParError(1));   lhb->DrawLatex(0.55,0.75,text );
+    sprintf(text, "Sigma : %0.3f #pm %0.3f", fhb->GetParameter(2), fhb->GetParError(2));   lhb->DrawLatex(0.55,0.70,text );
+    lhb->Draw();
+    saveCanvas(MyCa_hb, Form("./figures/sys_top/top_mc_fit_%s",cate[c])    );
+  }
+
+}
+
+
+
+void compareKF(int plsample=24, int nbin=90, float xmin=100, float xmax=900, int rflag=0){   setTDRStyle();gStyle->SetOptFit(0);gStyle->SetOptStat(0);
+  char gencut[500] = "effwt*(ggdevt==2&&Mass2j_PFCor>65&&Mass2j_PFCor<95&&fit_status==0)";
+  char tpname[500] = "";
+  TH1F * hbe = getHist(Mu_InFileNames[plsample], "WJet", "MassV2j_PFCor", gencut, "hbe", nbin, xmin, xmax, rflag);
+  TH1F * haf = getHist(Mu_InFileNames[plsample], "WJet", "fit_mlvjj",     gencut, "haf", nbin, xmin, xmax, rflag);
+  TCanvas * MyCa = new TCanvas("MyCa","MyCa",10,10,500, 500);  MyCa->Draw();
+  hbe->Scale(1.0/hbe->Integral());
+  hbe->SetXTitle("Invariant Mass of lvjj [GeV]");
+  hbe->SetYTitle("Unit Area");
+  hbe->SetMaximum(hbe->GetMaximum()*1.5);
+  hbe->SetLineColor(kRed);
+  hbe->SetFillColor(kOrange-3);
+  hbe->Draw();
+  haf->Scale(1.0/haf->Integral());
+  haf->SetLineColor(kBlue);
+  haf->Draw("same");
+  TLegend * Lg = new TLegend(0.50,0.70,0.90,0.85);
+  Lg->SetHeader(Form("%s %s",PlainNames[plsample], plsample>16?"GeV":""));
+  Lg->AddEntry(hbe, "Befor KF", "f");
+  Lg->AddEntry(haf, "After KF", "l");
+  Lg->SetFillStyle(0);
+  Lg->SetBorderSize(0);
+  Lg->Draw();
+  saveCanvas(MyCa, Form("./figures/sys_top/kfcompare-%i-sample",plsample)    );
+  
+}
