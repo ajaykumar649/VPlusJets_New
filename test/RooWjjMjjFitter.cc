@@ -497,6 +497,25 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(bool parameterize) {
 
   if (parameterize) {
 
+    ws_.factory(TString::Format("RooCBShape::sig_WW(%s, mean_WW[85], "
+				"sigma_WW[8.7], alpha_WW[1.7], n_WW[2.5])", 
+				params_.var.Data()));
+    ws_.factory(TString::Format("RooGaussian::tail_WW(%s, m_tail_WW[150], "
+				"sigma_tail_WW[43])", 
+				params_.var.Data()));
+    ws_.factory("SUM::WWPdf(f_core_WW[0.588]*sig_WW,tail_WW)");
+
+    ws_.factory(TString::Format("RooCBShape::sig_WZ(%s, mean_WZ[94.5], "
+				"sigma_WZ[9.1], alpha_WZ[1.3], n_WZ[2.5])", 
+				params_.var.Data()));
+    ws_.factory(TString::Format("RooGaussian::tail_WZ(%s, m_tail_WZ[137], "
+				"sigma_tail_WZ[38])", 
+				params_.var.Data()));
+    ws_.factory("SUM::WZPdf(f_core_WZ[0.555]*sig_WZ,tail_WZ)");
+
+    ws_.factory(TString::Format("SUM::dibosonPdf(f_WW[%.4f]*WWPdf, WZPdf)",
+			       sumWW*WWweight/(sumWW*WWweight+sumWZ*WZweight)));
+
   } else {
     th1diboson->Scale(1., "width");
     RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
@@ -655,7 +674,11 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   RooRealVar sigma("sigma", "#sigma", 80.);
   sigma.setConstant(false);
   RooGaussian bkgGaus("bkgGaus", "bkgGaus", *mass, mean, sigma);
-  RooRealVar f_core("f_core", "f_core", 0.59, 0., 1.);
+  RooRealVar f_g("f_g", "f_g", 0.59, 0., 1.);
+  RooRealVar m_tail("m_tail", "m_tail", 147, 0., 500.);
+  RooRealVar sig_tail("sig_tail", "sig_tail", 30., 0., 200.);
+  RooGaussian bkgGausTail("bkgGausTail", "bkgGausTail", *mass, 
+			  m_tail, sig_tail);
 
   if (allOne) {
     switch (params_.WpJfunction) {
@@ -696,7 +719,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
 			    1e-6));
       break;
     case 9:
-      ws_.import(RooAddPdf("WpJPdf", "WpJPdf", bkgGaus, WpJPdfExp, f_core));
+      ws_.import(RooAddPdf("WpJPdf", "WpJPdf", bkgGaus, WpJPdfExp, f_g));
+      break;
+    case 10:
+      ws_.import(RooAddPdf("WpJPdf", "WpJPdf", bkgGaus, bkgGausTail, f_g));
       break;
     case 6:
       power2.setVal(0.);
@@ -925,6 +951,7 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
     delete tmpHist;
   }
 
+  th1qcd->Print();
   th1qcd->Scale(1., "width");
   RooAbsPdf* qcdPdf = utils_.Hist2Pdf(th1qcd,"qcdPdf", ws_, histOrder);
   delete th1qcd;    

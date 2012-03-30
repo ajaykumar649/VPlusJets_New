@@ -13,7 +13,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
         fitterPars.toyWpJ = False
     fitterPars.QCDDirectory = fitterPars.MCDirectory[:-3]
     fitterPars.initParamsFile = initFile
-    fitterPars.constraintParamsFile = "WpJShapeConstraints.txt";
+    fitterPars.constraintParamsFile = initFile
     fitterPars.DataDirectory = fitterPars.MCDirectory 
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_4p7invfb.root'
     fitterPars.includeMuons = True    
@@ -110,10 +110,10 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     
     fitterPars.cuts = '(fit_status==0) ' + \
                       '&& (W_mt > 50.) ' + \
-                      '&& (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>0.) ' + \
-                      '&& (JetPFCor_Pt[1] > 60) ' + \
+                      '&& (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>20.) ' + \
+                      '&& (JetPFCor_Pt[1] > 55) ' + \
+                      '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5) ' + \
                       '&& %s ' % (jetCut)
-                      ## '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5) ' +
                       ## '&& (fit_chi2 < 20) ' +
 
     return fitterPars
