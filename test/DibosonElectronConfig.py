@@ -1,7 +1,7 @@
 import DibosonConfig
 
-def theConfig(Nj, mcdir = '', initFile = ''):
-    fitterPars = DibosonConfig.theConfig(Nj, mcdir, initFile)
+def theConfig(Nj, mcdir = '', initFile = '', btag = False):
+    fitterPars = DibosonConfig.theConfig(Nj, mcdir, initFile, btag)
     fitterPars.includeElectrons = True
     fitterPars.includeMuons = False
 
