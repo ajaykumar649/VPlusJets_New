@@ -5,16 +5,17 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
     fitterPars.includeElectrons = False
     fitterPars.includeMuons = True
 
-    mvacutval = -0.1
-    if Nj == 3:
-        mvacutval = -0.005
+    fitterPars.cuts += '&& (W_mt>30.) ' + \
+                       '&& (event_met_pfmet>25) ' + \
+                       '&& (W_muon_pt>25.) ' + \
+                       '&& (abs(W_muon_eta)<2.1) ' + \
+                       '&& (abs(W_muon_d0bsp)<0.02) ' 
 
-    #mvacut = 'mva%ijdibnoqgmu > %0.3f' % (Nj, mvacutval)
-    #fitterPars.cuts += '&& (%s) ' % (mvacut)
+    fitterPars.QCDcuts = fitterPars.cuts
+    
+    fitterPars.cuts += '&& ((W_muon_trackiso+W_muon_hcaliso+W_muon_ecaliso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_muon_pt<0.1) '
 
-    #qglcut = 'qgld_Summer11CHS[1] > %0.2f' % (0.35)
-    #fitterPars.cuts += '&& (%s) ' % (qglcut)
-
-    print 'full cuts:',fitterPars.cuts
+    print 'cuts:',fitterPars.cuts
+    print 'QCD cuts:', fitterPars.QCDcuts
     
     return fitterPars

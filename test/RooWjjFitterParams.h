@@ -36,6 +36,7 @@ public:
   TString initParamsFile;
   TString constraintParamsFile;
   TString cuts;
+  TString QCDcuts;
   TString var;
   TString treeName;
   bool toyWpJ;
@@ -43,6 +44,7 @@ public:
   TString electronData;
   double intLumi;
   bool constrainDiboson;
+  bool constrainDibosonShape;
   bool externalConstraints;
   bool constrainWpJShape;
   int WpJfunction;
@@ -104,11 +106,11 @@ RooWjjFitterParams::RooWjjFitterParams() :
   truncRange(false), minTrunc(130.), maxTrunc(170.), blind(false),
   minWmass(65.), maxWmass(95.), doNewPhysics(false),
   doAllPlots(false), initParamsFile(""), constraintParamsFile(""),
-  cuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
+  cuts(""), QCDcuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
   electronData("WenuJets_DataAll_GoldenJSON_2p1invfb.root"),
-  intLumi(2100.), constrainDiboson(true), externalConstraints(true),
-  constrainWpJShape(false),
+  intLumi(2100.), constrainDiboson(true), constrainDibosonShape(false),
+  externalConstraints(true), constrainWpJShape(false),
   WpJfunction(0),
   do4body(false),
   minSBHi(95.), maxSBHi(105.), SBHicut(""), 

@@ -147,12 +147,33 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   }
 
   delete wpjpars;
+
+  RooArgSet * dibosonpars =  ws_.pdf("dibosonPdf")->getParameters(data);
+  RooArgList dibosonconst;
+  TIter dibosonpar(dibosonpars->createIterator());
+  dibosonpar.Reset();
+  while ((param = dynamic_cast<RooRealVar *>(dibosonpar.Next()))) {
+    if (!param->isConstant()) {
+      constPars.addClone(RooConst(param->getVal()));
+      constPars.addClone(RooConst(param->getError()));
+      RooGaussian theConst(TString::Format("const_%s", param->GetName()),
+			   TString::Format("const_%s", param->GetName()),
+			   *param, 
+			   *((RooAbsReal *)constPars.at(constPars.getSize()-2)),
+			   *((RooAbsReal *)constPars.at(constPars.getSize()-1)));
+      dibosonconst.addClone(theConst);
+    }
+  }
+
+  delete dibosonpars;
        
   if (params_.constrainWpJShape) {
     Constraints.add(wpjconst);
   }
   
-  
+  if (params_.constrainDibosonShape) {
+    Constraints.add(dibosonconst);
+  }
   
   loadParameters(params_.initParamsFile);
   if (repeat)
@@ -498,20 +519,19 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(bool parameterize) {
   if (parameterize) {
 
     ws_.factory(TString::Format("RooCBShape::sig_WW(%s, mean_WW[85], "
-				"sigma_WW[8.7], alpha_WW[1.7], n_WW[2.5])", 
+				"expr::sigma_WW('mean_WW*resolution',mean_WW,"
+				"resolution[0.095])"
+				", alpha[1.7], n[2.5])", 
 				params_.var.Data()));
-    ws_.factory(TString::Format("RooGaussian::tail_WW(%s, m_tail_WW[150], "
-				"sigma_tail_WW[43])", 
+    ws_.factory(TString::Format("EXPR::tail('(TMath::Erf((@0-@1)/@2)+1)/2',"
+				"%s, turnOn_diboson[80], width_turnOn[38])", 
 				params_.var.Data()));
-    ws_.factory("SUM::WWPdf(f_core_WW[0.588]*sig_WW,tail_WW)");
-
+    ws_.factory("SUM::WWPdf(f_core[0.588]*sig_WW,tail)");
     ws_.factory(TString::Format("RooCBShape::sig_WZ(%s, mean_WZ[94.5], "
-				"sigma_WZ[9.1], alpha_WZ[1.3], n_WZ[2.5])", 
+				"expr::sigma_WZ('mean_WZ*resolution',mean_WZ,"
+				"resolution), alpha, n)", 
 				params_.var.Data()));
-    ws_.factory(TString::Format("RooGaussian::tail_WZ(%s, m_tail_WZ[137], "
-				"sigma_tail_WZ[38])", 
-				params_.var.Data()));
-    ws_.factory("SUM::WZPdf(f_core_WZ[0.555]*sig_WZ,tail_WZ)");
+    ws_.factory("SUM::WZPdf(f_core*sig_WZ,tail)");
 
     ws_.factory(TString::Format("SUM::dibosonPdf(f_WW[%.4f]*WWPdf, WZPdf)",
 			       sumWW*WWweight/(sumWW*WWweight+sumWZ*WZweight)));
@@ -676,9 +696,9 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   RooGaussian bkgGaus("bkgGaus", "bkgGaus", *mass, mean, sigma);
   RooRealVar f_g("f_g", "f_g", 0.59, 0., 1.);
   RooRealVar m_tail("m_tail", "m_tail", 147, 0., 500.);
-  RooRealVar sig_tail("sig_tail", "sig_tail", 30., 0., 200.);
+  RooRealVar sig_tail("sigma_tail", "sigma_tail", 30., 0., 200.);
   RooGaussian bkgGausTail("bkgGausTail", "bkgGausTail", *mass, 
-			  m_tail, sig_tail);
+			  m_tail, sigma);
 
   if (allOne) {
     switch (params_.WpJfunction) {
@@ -939,14 +959,16 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
 			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
-			       "hist_qcd_mu", false, 1, false);
+			       "hist_qcd_mu", false, 1, false, 1, 
+			       params_.QCDcuts);
     th1qcd->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
 			       "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
-			       "hist_qcd_el", true, 1, false);
+			       "hist_qcd_el", true, 1, false, 1,
+			       params_.QCDcuts);
     th1qcd->Add(tmpHist);
     delete tmpHist;
   }
@@ -1351,7 +1373,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   return ws_.pdf("WpJ4BodyPdf");
 }
 
-RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
+RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm, bool leftLeg) {
   RooRealVar * mass = ws_.var(params_.var);
   mass->setRange("RangeForPlot", params_.minMass, 
 				 params_.maxMass);
@@ -1499,7 +1521,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm) {
   RooHist * tmpHist = sframe->getHist("theData");
   tmpHist->SetTitle("data");
 //   sframe->addObject(dataHist, "samepe");
-  TLegend * legend = RooWjjFitterUtils::legend4Plot(sframe);
+  TLegend * legend = RooWjjFitterUtils::legend4Plot(sframe, leftLeg);
   sframe->addObject(legend);
   if (params_.truncRange) {
     TLine * lowerLine = new TLine(params_.minTrunc, 0., params_.minTrunc, 
@@ -1582,8 +1604,8 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   rframe->addObject(legend);
 
   if (!normalize) {
-    rframe->SetMaximum(ws_.var("nDiboson")->getVal()*(0.1));
-    rframe->SetMinimum(ws_.var("nDiboson")->getVal()*(-0.03));
+    rframe->SetMaximum(fabs(ws_.var("nDiboson")->getVal())*(0.15));
+    rframe->SetMinimum(fabs(ws_.var("nDiboson")->getVal())*(-0.1));
     rframe->GetYaxis()->SetTitle("Events / GeV");
   } else {
     rframe->SetMaximum(5.);

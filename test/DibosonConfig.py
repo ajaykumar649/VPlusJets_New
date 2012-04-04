@@ -6,6 +6,7 @@ from ROOT import RooWjjFitterParams
 def theConfig(Nj, mcdir = '', initFile = '', btag = False):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
+    # fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree_PAT/RD_"
     fitterPars.MCDirectory = "/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/OriginalTree_PAT/"
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
@@ -23,7 +24,7 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
-    fitterPars.minMass = 55.
+    fitterPars.minMass = 40.
     fitterPars.maxMass = 150.
     fitterPars.nbins = 32
     fitterPars.intLumi = 5020.
@@ -82,6 +83,7 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
     
     fitterPars.njets = Nj
     fitterPars.constrainDiboson = False
+    fitterPars.constrainDibosonShape = True
     fitterPars.constrainWpJShape = True
 
     
@@ -108,20 +110,17 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
 ##    jetCut = '(ggdevt == %i)' % (Nj)
 ##     if (Nj < 2):
 ##         jetCut = '((ggdevt == 2) || (ggdevt == 3))'
-
-
-
     
-    fitterPars.cuts = '(W_mt > 50.) ' + \
-                      '&& (sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>40.) ' + \
-                      '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5) '
+    fitterPars.cuts = '(sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>20.) ' + \
+                      '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5) ' + \
+                      '&& (abs(JetPFCor_dphiMET[0])>0.4) '
+    fitterPars.cuts += '&& (JetPFCor_Pt[2]<30) '
+    #fitterPars.cuts += '&& (fit_status==0) '
+
     if btag:
-        fitterPars.cuts += '&& (JetPFCor_Pt[2] < 20) ' + \
-                           '&& (JetPFCor_bDiscriminator[0] > 1.74) ' + \
+        fitterPars.cuts += '&& (JetPFCor_bDiscriminator[0] > 1.74) ' + \
                            '&& (JetPFCor_bDiscriminator[1] > 1.74) '
     else:
-        fitterPars.cuts += '&& (JetPFCor_Pt[1] > 20.) '
-
-
+        fitterPars.cuts += '&& (JetPFCor_Pt[1]>55.) '
 
     return fitterPars

@@ -41,7 +41,7 @@ public:
   RooDataSet * File2Dataset(TString fname, TString dsName,
 			    bool isElectron,
 			    bool trunc = false,
-			    bool noCuts = false) const;
+			    bool noCuts = false, bool weighted = false) const;
 //   RooDataSet * File2DatasetNoCuts(TString fname, TString dsName,
 // 				  bool trunc = false) const;
   TString fitCuts() const;
@@ -57,7 +57,7 @@ public:
 
   static double computeChi2(RooHist& hist, RooAbsPdf& pdf, RooRealVar& obs, 
 			    int& nbin, bool correct = true);
-  static TLegend * legend4Plot(RooPlot * plot);
+  static TLegend * legend4Plot(RooPlot * plot, bool left = false);
   static void activateBranches(TTree & t, bool isElectron = false);
 
   static double dijetEff(unsigned int Njets, std::vector<double> const& eff30,

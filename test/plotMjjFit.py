@@ -2,9 +2,10 @@
 import pyroot_logon
 
 def plot2BodyDist(theFitter, pars, chi2, ndf, 
-                  Err = -1, NP = False, Prefix = "Mjj"):
+                  Err = -1, NP = False, Prefix = "Mjj", Left = False):
     from ROOT import gPad, TLatex, TCanvas, kRed, kCyan, kBlue, \
-         RooFit, RooPlot, RooCurve, RooAbsReal, TGraphErrors, TLine
+         RooFit, RooPlot, RooCurve, RooAbsReal, TGraphErrors, TLine, \
+         RooWjjMjjFitter
 
     if pars.includeMuons and pars.includeElectrons:
         modeString = ''
@@ -15,7 +16,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     else:
         modeString = ''
 
-    mf = theFitter.stackedPlot()
+    mf = theFitter.stackedPlot(False, RooWjjMjjFitter.mjj, Left)
     mf.SetName("%s_Stacked" % (Prefix));
     sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
     sf.SetName("%s_Subtracted" % (Prefix));
@@ -24,7 +25,8 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     pf2 = pf.emptyClone("%s_Pull_Corrected" % (Prefix))
     pf2.SetMinimum(-5.)
     pf2.SetMaximum(5.)
-    lf = theFitter.stackedPlot(True)
+    corrPull = False
+    lf = theFitter.stackedPlot(True, RooWjjMjjFitter.mjj, Left)
     lf.SetName("%s_Stacked_Log" % (Prefix));
 
     if Err > 0:
@@ -87,6 +89,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         sf.findObject('theLegend').SetY1NDC(sf.findObject('theLegend').GetY1NDC() - 0.057)
         sf.findObject('theLegend').SetY1(sf.findObject('theLegend').GetY1NDC())
 
+        corrPull = True
         pf2.addObject(sub2pull(sf.getHist('theData'),
                                sf.findObject('ErrBand')),
                       'p0')
@@ -171,14 +174,16 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
     c4.Print('Wjj_%s_%s_%ijets_Pull.pdf' % (Prefix, modeString, pars.njets))
     c4.Print('Wjj_%s_%s_%ijets_Pull.png' % (Prefix, modeString, pars.njets))
 
-    c5 = TCanvas("c5", "corrected pull")
-    pf2.Draw()
-    c5.SetGridy()
-    pyroot_logon.cmsPrelim(c5, pars.intLumi/1000)
-    c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.pdf' % (Prefix, modeString,
-                                                      pars.njets))
-    c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.png' % (Prefix, modeString,
-                                                      pars.njets))
+    c5 = None
+    if corrPull:
+        c5 = TCanvas("c5", "corrected pull")
+        pf2.Draw()
+        c5.SetGridy()
+        pyroot_logon.cmsPrelim(c5, pars.intLumi/1000)
+        c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.pdf' % (Prefix, modeString,
+                                                          pars.njets))
+        c5.Print('Wjj_%s_%s_%ijets_Pull_Corrected.png' % (Prefix, modeString,
+                                                          pars.njets))
 
     return ([mf,sf,pf2,lf],[cstacked,c2,c3,c5])
 

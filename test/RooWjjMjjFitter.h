@@ -37,7 +37,8 @@ public:
 
   RooAbsPdf * makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body);
 
-  RooPlot * stackedPlot(bool logy = false, fitMode fm = mjj);
+  RooPlot * stackedPlot(bool logy = false, fitMode fm = mjj, 
+			bool leftLeg = false);
   RooPlot * residualPlot(RooPlot * thePlot, TString curveName,
 			 TString pdfName = "", bool normalize = false,
 			 fitMode fm = mjj);

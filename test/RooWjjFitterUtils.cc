@@ -96,6 +96,9 @@ void RooWjjFitterUtils::initialize() {
     effMHT.push_back(new EffTableLoader(params_.eleMHTEffFiles[i].Data()));
     effEleWMt.push_back(new EffTableLoader(params_.eleWMtEffFiles[i].Data()));
   }
+
+  std::cout << "full cuts: " << fullCuts() << '\n';
+
 }
 
 TH1 * RooWjjFitterUtils::newEmptyHist(TString histName, int binMult) const {
@@ -170,7 +173,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         MassV2j_PFCor;
   Float_t         event_met_pfmet;
   Int_t           event_nPV;
-  Int_t           evtNJ;
+  //Int_t           evtNJ;
   Float_t         lepton_pt;
   Float_t         lepton_eta;
   Float_t         W_mt;
@@ -189,7 +192,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
     theTree->SetBranchAddress("event_nPV", &event_nPV);
     theTree->SetBranchAddress("event_met_pfmet", &event_met_pfmet);
-    theTree->SetBranchAddress("ggdevt", &evtNJ);
+    //theTree->SetBranchAddress("ggdevt", &evtNJ);
     if(isElectron) {
       theTree->SetBranchAddress("W_electron_pt", &lepton_pt);
       theTree->SetBranchAddress("W_electron_eta", &lepton_eta);
@@ -247,7 +250,8 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
 
 RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname, 
 					     TString dsName, bool isElectron,
-					     bool trunc, bool noCuts) const {
+					     bool trunc, bool noCuts, 
+					     bool weighted) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);
@@ -257,21 +261,71 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
     return 0;
   }
 
-  TTree * reducedTree = theTree;
+  theTree->Draw(">>" + dsName + "_evtList", 
+		((noCuts) ? TString("") : fullCuts(trunc)),
+		"goff");
+  TEventList * list = (TEventList *)gDirectory->Get(dsName + "_evtList");
 
-  TFile holder("holder_DELETE_ME.root", "recreate");
-  if (!noCuts) {
-    activateBranches(*theTree, isElectron);
-    std::cout << "full cuts: " << fullCuts(trunc) << '\n';
-    reducedTree = theTree->CopyTree( fullCuts(trunc) );
-    delete theTree;
+  activateBranches(*theTree, isElectron);
+
+  Float_t         JetPFCor_Pt[maxJets];
+  Float_t         JetPFCor_Eta[maxJets];
+  Float_t         event_met_pfmet;
+  Int_t           event_nPV;
+  //Int_t           evtNJ;
+  Float_t         lepton_pt;
+  Float_t         lepton_eta;
+  Float_t         W_mt;
+
+  TTreeFormula poi("poi", params_.var, theTree);
+
+  theTree->SetBranchAddress("JetPFCor_Pt",JetPFCor_Pt);
+  theTree->SetBranchAddress("JetPFCor_Eta",JetPFCor_Eta);
+  theTree->SetBranchAddress("event_nPV", &event_nPV);
+  theTree->SetBranchAddress("event_met_pfmet", &event_met_pfmet);
+  //theTree->SetBranchAddress("ggdevt", &evtNJ);
+  if(isElectron) {
+    theTree->SetBranchAddress("W_electron_pt", &lepton_pt);
+    theTree->SetBranchAddress("W_electron_eta", &lepton_eta);
+  } else {
+    theTree->SetBranchAddress("W_muon_pt", &lepton_pt);
+    theTree->SetBranchAddress("W_muon_eta", &lepton_eta);
   }
+  theTree->SetBranchAddress("W_mt", &W_mt);
+
+  RooArgSet cols(*mjj_);
+  RooRealVar evtWgt("evtWgt", "evtWgt", 1.0);
+  RooDataSet * ds;
+  if (weighted) {
+    cols.add(evtWgt);
+    ds = new RooDataSet(dsName, dsName, cols, "evtWgt");
+  } else
+    ds = new RooDataSet(dsName, dsName, cols);
+
+  //ds->Print();
+  for (int event = 0; event < list->GetN(); ++event) {
+    theTree->GetEntry(list->GetEntry(event));
+    mjj_->setVal(poi.EvalInstance());
+    ds->add(*mjj_, effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
+			     JetPFCor_Eta, params_.njets, event_met_pfmet,
+			     isElectron)
+	    );
+  }
+//   TTree * reducedTree = theTree;
+
+//   TFile holder("holder_DELETE_ME.root", "recreate");
+//   if (!noCuts) {
+//     activateBranches(*theTree, isElectron);
+//     std::cout << "full cuts: " << fullCuts(trunc) << '\n';
+//     reducedTree = theTree->CopyTree( fullCuts(trunc) );
+//     delete theTree;
+//   }
 
   //reducedTree->Print();
-  RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
-				   RooArgSet(*mjj_));
+//   RooDataSet * ds = new RooDataSet(dsName, dsName, reducedTree, 
+// 				   RooArgSet(*mjj_));
 
-  delete reducedTree;
+  //delete reducedTree;
   delete treeFile;
 
   return ds;
@@ -428,11 +482,15 @@ double RooWjjFitterUtils::computeChi2(RooHist& hist, RooAbsPdf& pdf,
   return chi2;
 }
 
-TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot) {
+TLegend * RooWjjFitterUtils::legend4Plot(RooPlot * plot, bool left) {
   TObject * theObj;
   TString objName, objTitle;
   //  TLegend * theLeg = new TLegend(0.70, 0.65, 0.92, 0.92, "", "NDC");
-  TLegend * theLeg = new TLegend(0.65, 0.62, 0.92, 0.92, "", "NDC");
+  TLegend * theLeg;
+  if (left) 
+    theLeg = new TLegend(0.2, 0.62, 0.55, 0.92, "", "NDC");
+  else
+    theLeg = new TLegend(0.65, 0.62, 0.92, 0.92, "", "NDC");
   theLeg->SetName("theLegend");
 
   theLeg->SetBorderSize(0);
@@ -469,6 +527,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("JetPFCor_Pz",    1);
   t.SetBranchStatus("JetPFCor_Eta",    1);
   t.SetBranchStatus("JetPFCor_Phi",    1);
+  t.SetBranchStatus("JetPFCor_dphiMET",    1);
   t.SetBranchStatus("JetPFCor_bDiscriminator",    1);
   t.SetBranchStatus("JetPFCor_QGLikelihood",    1);
 
@@ -481,27 +540,33 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("event_nPV",    1);
 
   if (isElectron) {
-    t.SetBranchStatus("W_electron_pt", 1);
-    t.SetBranchStatus("W_electron_eta", 1);
+    t.SetBranchStatus("W_electron_*", 1);
   } else {
-    t.SetBranchStatus("W_muon_pt", 1);
-    t.SetBranchStatus("W_muon_eta", 1);
+    t.SetBranchStatus("W_muon_*", 1);
   }
 
-  t.SetBranchStatus("mva*", 1);
-  t.SetBranchStatus("qgld*", 1);
-  t.SetBranchStatus("ang*", 1);
-  t.SetBranchStatus("*lvjj", 1);
+  if (t.FindBranch("mva2j170mu"))
+    t.SetBranchStatus("mva*", 1);
+  if (t.FindBranch("qgld_Summer11CHS"))
+    t.SetBranchStatus("qgld*", 1);
+  //t.SetBranchStatus("ang*", 1);
+  if (t.FindBranch("fit_lvjj"))
+    t.SetBranchStatus("*lvjj", 1);
   t.SetBranchStatus("W_mt",    1);
   t.SetBranchStatus("W_pt",    1);
   t.SetBranchStatus("W_pzNu1",    1);
   t.SetBranchStatus("W_pzNu2",    1);
-  t.SetBranchStatus("fit_status",    1);
-  t.SetBranchStatus("ggdevt",    1);
-  t.SetBranchStatus("fit_chi2",    1);
-  t.SetBranchStatus("fit_NDF",    1);
+  if (t.FindBranch("fit_status"))
+    t.SetBranchStatus("fit_status",    1);
+  if (t.FindBranch("ggdevt"))
+    t.SetBranchStatus("ggdevt",    1);
+  if (t.FindBranch("fit_chi2"))
+    t.SetBranchStatus("fit_chi2",    1);
+  if (t.FindBranch("fit_NDF"))
+    t.SetBranchStatus("fit_NDF",    1);
 //   t.SetBranchStatus("fit_mlvjj", 1);
-  t.SetBranchStatus("evtNJ",    1);
+  if (t.FindBranch("evtNJ"))
+    t.SetBranchStatus("evtNJ",    1);
 
   t.SetBranchStatus("Mass2j_PFCor",    1);
   t.SetBranchStatus("MassV2j_PFCor",    1);

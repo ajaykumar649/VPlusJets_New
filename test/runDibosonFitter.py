@@ -113,7 +113,7 @@ if (opts.Err >= 0) and (opts.Err < 1):
     opts.Err = sqrt(sig2)
 
 (plots, cans) = plot2BodyDist(theFitter, fitterPars, chi2, ndf,
-                              opts.Err, Prefix = "Diboson")
+                              opts.Err, Prefix = "Diboson", Left = True)
 
 h_total = plots[0].getCurve('h_total')
 theData = plots[0].getHist('theData')
