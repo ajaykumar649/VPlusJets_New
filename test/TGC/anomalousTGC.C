@@ -114,6 +114,28 @@ const string var5 = "sqrt((E3+E4+E5+E6)*(E3+E4+E5+E6)-((px3+px4+px5+px6)*(px3+px
 const string histName5 = "Mass4Body";
 const string title5 = "M_{lnujj} [GeV]";
 
+
+
+const string var6 = "sqrt( (E3+E4)**2 - (pz3+pz4)**2 - (py3+py4)**2 - (px3+px4)**2 )";
+const string histName6 = "LeptonicWmass";
+const string title6 = "Lept. W mass [GeV]";
+
+
+const string var7 = "sqrt( (E5+E6)**2 - (pz5+pz6)**2 - (py5+py6)**2 - (px5+px6)**2 )";
+const string histName7 = "HadronicWmass";
+const string title7 = "Hadromic W mass [GeV]";
+
+const string var8 = "px3+px4+px5+px6+px7";
+const string histName8 = "SumPx";
+const string title8 = "Sum P_{x} [GeV]";
+
+const string var9 = "py3+py4+py5+py6+py7";
+const string histName9 = "SumPy";
+const string title9 = "Sum P_{y} [GeV]";
+
+
+
+
 //define alternate coupling strings
 const string first = "Delta_K_gamma";
 const string second = "Delta_K_Z";
@@ -212,6 +234,10 @@ void anomalousTGC(string coupling=first) {
   MakeComparisonPlot(4, true);
   MakeComparisonPlot(5, true);
 
+  MakeComparisonPlot(6, false);
+  MakeComparisonPlot(7, false);
+  MakeComparisonPlot(8, true);
+  MakeComparisonPlot(9, true);
 }
 
 
@@ -323,12 +349,46 @@ TH1D* draw_hist( string fname, Int_t varIndex, char* name, TTree* tree,
     axis_label = title5;
     cout << "varIndex is five" << endl;
   }
+  else if(varIndex==6) {
+    variable = var6;
+    plotname = histName6;
+    axis_label = title6;
+    cout << "varIndex is six" << endl;
+  }
+  else if(varIndex==7) {
+    variable = var7;
+    plotname = histName7;
+    axis_label = title7;
+    cout << "varIndex is seven" << endl;
+  }
+  else if(varIndex==8) {
+    variable = var8;
+    plotname = histName8;
+    axis_label = title8;
+    cout << "varIndex is eight" << endl;
+  }
+  else if(varIndex==9) {
+    variable = var9;
+    plotname = histName9;
+    axis_label = title9;
+    cout << "varIndex is nine" << endl;
+  }
   else return 0;
 
   if(varIndex==5) {
     bins = 30; 
     dm_min = 150.; 
     dm_max = 500.;
+  }
+  else if(varIndex==6 || varIndex==7) {
+    bins = 32; 
+    dm_min = 40.; 
+    dm_max = 200.;
+  }
+  else if(varIndex==8 || varIndex==9) {
+    bins = 40; 
+    dm_min = -100.; 
+    dm_max = 100.;
   }
   else {
     bins = 18; 
@@ -337,12 +397,13 @@ TH1D* draw_hist( string fname, Int_t varIndex, char* name, TTree* tree,
   }
 
   //////////// now make histogram ////////////////////////
+  TCut mycut("wt*(abs( 0.5 * log((E4 + pz4)/((E4 - pz4)))) < 2.5)");
   TString histname = TString(plotname.c_str()) + 
     TString(varIndex) + TString(name);
   TH1D* hist = new TH1D(histname, "", bins, dm_min, dm_max);
   aesthetics( hist, color );
   hist->Sumw2();
-  tree->Draw( TString(variable.c_str())+TString(">>")+histname, "", "goff");
+  tree->Draw( TString(variable.c_str())+TString(">>")+histname, mycut, "goff");
 
   float xsection = 0.0, error = 0.0;
   GetCrossSection(fname, xsection, error);
