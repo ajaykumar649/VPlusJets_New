@@ -27,7 +27,7 @@ public:
   RooAbsPdf * make4BodyPdf(RooWjjMjjFitter & fitter2body);
   RooAbsData * loadData(bool trunc = false);
 
-  RooAbsPdf * makeDibosonPdf(bool parameterize = false);
+  RooAbsPdf * makeDibosonPdf(int parameterize = 0);
   RooAbsPdf * makeWpJPdf(bool allOne = false);
   RooAbsPdf * makettbarPdf();
   RooAbsPdf * makeSingleTopPdf();

@@ -449,7 +449,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   return ws_.data(dataName);
 }
 
-RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(bool parameterize) {
+RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
 
   //Scale the trees by the Crossection/Ngenerated (43/4225916=1.01753087377979123e-05 for WW and 18.2/4265243=4.22015814808206740e-06 for WZ).
   if (ws_.pdf("dibosonPdf"))
@@ -518,20 +518,37 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(bool parameterize) {
 
   if (parameterize) {
 
-    ws_.factory(TString::Format("RooCBShape::sig_WW(%s, mean_WW[85], "
-				"expr::sigma_WW('mean_WW*resolution',mean_WW,"
-				"resolution[0.095])"
-				", alpha[1.7], n[2.5])", 
-				params_.var.Data()));
-    ws_.factory(TString::Format("EXPR::tail('(TMath::Erf((@0-@1)/@2)+1)/2',"
-				"%s, turnOn_diboson[80], width_turnOn[38])", 
-				params_.var.Data()));
-    ws_.factory("SUM::WWPdf(f_core[0.588]*sig_WW,tail)");
-    ws_.factory(TString::Format("RooCBShape::sig_WZ(%s, mean_WZ[94.5], "
-				"expr::sigma_WZ('mean_WZ*resolution',mean_WZ,"
-				"resolution), alpha, n)", 
-				params_.var.Data()));
-    ws_.factory("SUM::WZPdf(f_core*sig_WZ,tail)");
+    if (parameterize == 1) {
+      ws_.factory(TString::Format("RooCBShape::sig_WW(%s, mean_WW[85], "
+				  "expr::sigma_WW('mean_WW*resolution_WW',"
+				  "mean_WW,resolution_WW[0.095])"
+				  ", alpha[1.7], n[2.5])", 
+				  params_.var.Data()));
+      ws_.factory(TString::Format("RooCBShape::sig_WZ(%s, mean_WZ[85], "
+				  "expr::sigma_WZ('mean_WZ*resolution_WZ',"
+				  "mean_WZ,resolution_WZ[0.095])"
+				  ", alpha[1.7], n[2.5])", 
+				  params_.var.Data()));
+      ws_.factory(TString::Format("EXPR::tail('(TMath::Erf((@0-@1)/@2)+1)/2',"
+				  "%s, turnOn_diboson[80], width_turnOn[38])", 
+				  params_.var.Data()));
+      ws_.factory("SUM::WWPdf(f_core[0.588]*sig_WW,tail)");
+      ws_.factory("SUM::WZPdf(f_core*sig_WZ,tail)");
+    } else {
+      ws_.factory(TString::Format("RooGaussian::sig_WW(%s, mean_WW[85], "
+				  "expr::sigma_WW('mean_WW*resolution_WW',"
+				  "mean_WW,resolution_WW[0.095]))",
+				  params_.var.Data()));
+      ws_.factory(TString::Format("RooGaussian::sig_WZ(%s, mean_WZ[85], "
+				  "expr::sigma_WZ('mean_WZ*resolution_WZ',"
+				  "mean_WZ,resolution_WZ[0.095]))",
+				  params_.var.Data()));
+      ws_.factory(TString::Format("RooBifurGauss::tail(%s, m_tail[70],"
+				  "sig_left[20], sig_right[20])",
+				  params_.var.Data()));
+      ws_.factory("SUM::WWPdf(f_core[0.588]*sig_WW,tail)");
+      ws_.factory("SUM::WZPdf(f_core*sig_WZ,tail)");      
+    }
 
     ws_.factory(TString::Format("SUM::dibosonPdf(f_WW[%.4f]*WWPdf, WZPdf)",
 			       sumWW*WWweight/(sumWW*WWweight+sumWZ*WZweight)));

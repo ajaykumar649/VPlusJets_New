@@ -110,7 +110,8 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
 ##    jetCut = '(ggdevt == %i)' % (Nj)
 ##     if (Nj < 2):
 ##         jetCut = '((ggdevt == 2) || (ggdevt == 3))'
-    
+
+    btagCut = 1.74
     fitterPars.cuts = '(sqrt(JetPFCor_Pt[0]**2+JetPFCor_Pt[1]**2+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))>20.) ' + \
                       '&& (abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5) ' + \
                       '&& (abs(JetPFCor_dphiMET[0])>0.4) '
@@ -118,9 +119,11 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
     #fitterPars.cuts += '&& (fit_status==0) '
 
     if btag:
-        fitterPars.cuts += '&& (JetPFCor_bDiscriminator[0] > 1.74) ' + \
-                           '&& (JetPFCor_bDiscriminator[1] > 1.74) '
+        fitterPars.cuts += '&& ( (JetPFCor_bDiscriminator[0]>%.2f) || (JetPFCor_bDiscriminator[1]>%.2f) ) ' % (btagCut,btagCut)
+        fitterPars.cuts += '&& (JetPFCor_Pt[1]>20) '
+        fitterPars.cuts += '&& (JetPFCor_Pt[2]<20) '
     else:
+        fitterPars.cuts += '&& (JetPFCor_bDiscriminator[0]<%.2f) && (JetPFCor_bDiscriminator[1]<%.2f) ' % (btagCut,btagCut)
         fitterPars.cuts += '&& (JetPFCor_Pt[1]>55.) '
 
     return fitterPars
