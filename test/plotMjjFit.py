@@ -147,7 +147,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         l.DrawLatex(0.55, 0.49,
                     '#chi^{2}/dof = %0.3f/%d' % (chi2, ndf)
                     )
-    pyroot_logon.cmsLabel(cstacked, pars.intLumi/1000)
+    pyroot_logon.cmsLabel(cstacked, pars.intLumi/1000, prelim = True)
     cstacked.Print('Wjj_%s_%s_%ijets_Stacked.pdf' % (Prefix, modeString,
                                                      pars.njets))
     cstacked.Print('Wjj_%s_%s_%ijets_Stacked.png' % (Prefix, modeString,
@@ -162,7 +162,7 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
                                                     pars.njets))
     c3 = TCanvas("c3", "subtracted")
     sf.Draw()
-    pyroot_logon.cmsLabel(c3, pars.intLumi/1000)
+    pyroot_logon.cmsLabel(c3, pars.intLumi/1000, prelim = True)
     c3.Print('Wjj_%s_%s_%ijets_Subtracted.pdf' % (Prefix, modeString,
                                                   pars.njets))
     c3.Print('Wjj_%s_%s_%ijets_Subtracted.png' % (Prefix, modeString,

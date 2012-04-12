@@ -1,2 +1,6 @@
-python runDibosonFitter.py -b -m DibosonMuonConfig -j 2 -W 10 -i WpJDibosonMuonShape.txt >&! log_Diboson_Muon.log
-python runDibosonFitter.py -b -m DibosonElectronConfig -j 2 -W 10 -i WpJDibosonElectronShape.txt >&! log_Diboson_Electron.log
+foreach flavor ( "Muon" "Electron" )
+    echo "fitting $flavor no btags"
+    python runDibosonFitter.py -b -m Diboson"$flavor"Config -j 2 -W -1 >&! log_Diboson_"$flavor".log
+    echo "fitting $flavor wit btags"
+    python runDibosonFitter.py -b -m Diboson"$flavor"Config -j 2 -W 9 -i WpJWZ"$flavor"Shape.txt --btag >&! log_Diboson_"$flavor"_btag.log
+end

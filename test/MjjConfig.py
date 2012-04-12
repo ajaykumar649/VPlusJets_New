@@ -7,12 +7,12 @@ def theConfig(Nj, mcdir = '', initFile = '', toydataFile = '', e_minT = -1.0, e_
     fitterPars = RooWjjFitterParams()
 
     fitterPars.smoothingOrder = 0
-    fitterPars.MCDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/RD_'
+    fitterPars.MCDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree_AOD/RD_'
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = True
-    fitterPars.QCDDirectory = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree/'
+    fitterPars.QCDDirectory = fitterPars.MCDirectory[:-3]
     fitterPars.initParamsFile = initFile
 
     fitterPars.DataDirectory = fitterPars.MCDirectory

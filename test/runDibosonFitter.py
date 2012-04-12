@@ -74,7 +74,7 @@ else:
 
 theFitter = RooWjjMjjFitter(fitterPars)
 
-dibosonParameterize = 1
+dibosonParameterize = 0
 if opts.btag:
     dibosonParameterize = 2
 theFitter.makeDibosonPdf(dibosonParameterize)
@@ -103,14 +103,16 @@ iset = RooArgSet(mass)
 covMatrix = TMatrixDSym(fr.covarianceMatrix())
 
 sig2 = 0.
+sig2All = 0.
 for v1 in range(0, covMatrix.GetNrows()):
-    if ((yields[v1].GetName())[0] == 'n') \
-           and not (yields[v1].GetName() == 'nDiboson'):
-        for v2 in range(0, covMatrix.GetNcols()):
-            if ((yields[v2].GetName())[0] == 'n') \
+    for v2 in range(0, covMatrix.GetNcols()):
+        if ((yields[v1].GetName())[0] == 'n') and \
+               ((yields[v2].GetName())[0] == 'n'):
+            #print v1, yields[v1].GetName(),',', v2, yields[v2].GetName()
+            if not (yields[v1].GetName() == 'nDiboson') \
                    and not (yields[v2].GetName() == 'nDiboson'):
-                #print v1, yields[v1].GetName(),',', v2, yields[v2].GetName()
                 sig2 += covMatrix(v1, v2)
+            sig2All += covMatrix(v1, v2)
 
 from plotMjjFit import plot2BodyDist
 
@@ -118,8 +120,12 @@ if (opts.Err >= 0) and (opts.Err < 1):
     opts.Err = sqrt(sig2)
 
 leftLegend = (not opts.btag)
+PrefixString = "Diboson"
+if opts.btag:
+    PrefixString += "_btag"
 (plots, cans) = plot2BodyDist(theFitter, fitterPars, chi2, ndf,
-                              opts.Err, Prefix = "Diboson", Left = leftLegend)
+                              opts.Err, Prefix = PrefixString,
+                              Left = leftLegend)
 
 h_total = plots[0].getCurve('h_total')
 theData = plots[0].getHist('theData')
@@ -143,6 +149,7 @@ theData = plots[0].getHist('theData')
 ## ## yields.Print("v")
 
 ## usig2 = 0.
+bkgYield = 0.
 totalYield = 0.
 
 ## sigYieldsFile = open('lastMjjSigYield.txt', 'w')
@@ -152,8 +159,10 @@ totalYield = 0.
 ## print '-------------------------------'
 for i in range(0, yields.getSize()):
     theName = yields.at(i).GetName()
-    if (theName[0] == 'n') and not (theName == 'nDiboson'):
+    if (theName[0] == 'n'):
         totalYield += yields.at(i).getVal()
+        if not (theName == 'nDiboson'):
+            bkgYield += yields.at(i).getVal()
 ##         theIntegral = 1.
 ##         if (theName == 'nDiboson'):
 ##             theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
@@ -195,7 +204,8 @@ fr.SetName('nll')
 fr.Print()
 nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
-print 'background yield: %0.0f +/- %0.0f' % (totalYield, sqrt(sig2))
+print 'background yield: %0.0f +/- %0.0f' % (bkgYield, sqrt(sig2))
+print 'Total yield: %0.0f +/- %0.0f' % (totalYield, sqrt(sig2All))
 
 print 'shape file created'
 ShapeFile = TFile('Diboson_%s_%iJets_Fit_Shapes.root' % (modeString, opts.Nj),

@@ -46,7 +46,7 @@ scalingPb = 1000.
 models = [('mu_ZprimeMadGraph_CMSSW428.root', 'el_ZprimeMadGraph_CMSSW428.root', 1.72, "Z'", 'Zprime', kCyan+2, 49998),
           ('mu_TechnicolorPythia_CMSSW428.root', 'el_TechnicolorPythia_CMSSW428.root', 1.58, 'Technicolor', 'Technicolor', kYellow+2, 49800),
           ('mu_WH150qq_CMSSW428.root', 'el_WH150qq_CMSSW428.root', 0.0125, 'WH/ZH', 'WH', kMagenta+2, 50000*1.24669/1.45611),
-          ('', '', 1.0, 'generic Gaussian', 'gaus', kBlue+2, 2.0*scalingPb)
+          ('', '', 1.0, 'generic Gaussian', 'gaus', kBlue+2, 2.*scalingPb)
           ]
 
 hists = []
@@ -86,7 +86,8 @@ for model in models:
     print model[3], 'Ngen: %i Nreco: %0.0f xsec: %0.4f pb' % (model[6], Nreco, model[2]), \
           'equiv integrated lumi: %0.0f pb^(-1)' % (Npb),
     print 'Nreco/(fb^(-1)): %0.3f' % (Nreco*(1000./Npb))
-    print model[3], 'acceptance x efficiency = %04.3g' % (Nreco/N)
+    print model[3], 'acceptance x efficiency = %04.3g' % (Nreco/model[6])
+    ## print model[3], 'acceptance x efficiency = %04.3g' % (Nreco/N)
     tmpHist.Scale(1000./Npb, 'width')
     tmpHist.SetLineColor(model[5])
     tmpHist.SetLineWidth(3)

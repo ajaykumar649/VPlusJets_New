@@ -115,12 +115,20 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   RooGaussian constDiboson("constDiboson", "constDiboson", *nDiboson,
 			   RooConst(nDiboson->getVal()), 
 			   RooConst(nDiboson->getError()));
+  RooRealVar * nWjets = ws_.var("nWjets");
+  RooGaussian constWjets("constWjets", "constWjets", *nWjets,
+			 RooConst(nWjets->getVal()), 
+			 RooConst(nWjets->getError()));
+
   
   //RooArgList ConstrainedVars;
   RooArgList Constraints;
   
   if (params_.constrainDiboson) {
     Constraints.add(constDiboson);
+  }
+  if (params_.constrainWpJ) {
+    Constraints.add(constWjets);
   }
   Constraints.add(constQCD);
   Constraints.add(constSingleTop);
@@ -459,8 +467,9 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
 //   double WZweight = 17./4265243.;
   //NLO Predictions
   int const NgenWW = 4225916, NgenWZ = 4265243;
-  double WWweight = 43./NgenWW;
-  double WZweight = 18.2/NgenWZ;
+  double const WWxsec = 47.0, WZxsec = 18.6;
+  double WWweight = WWxsec/NgenWW;
+  double WZweight = WZxsec/NgenWZ;
 
   int dibosonScale = 1;
   TH1 * th1diboson = utils_.newEmptyHist("th1diboson", dibosonScale);
@@ -468,19 +477,19 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
   TH1 * tmpHist;
 
   double sumWW = 0., sumWZ = 0.;
-  double NWW = 0, NWZ = 0;
+//   double NWW = 0, NWZ = 0;
 
   if (params_.includeMuons) {
     tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW428.root",
 				"hist_ww_mu", false, 0, false, dibosonScale);
     sumWW += tmpHist->Integral();
-    NWW += NgenWW/2.;
+//     NWW += NgenWW/2.;
     th1diboson->Add(tmpHist, WWweight);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW428.root",
 			       "hist_wz_mu", false, 0, false, dibosonScale);
     sumWZ += tmpHist->Integral();
-    NWZ += NgenWZ/2.;
+//     NWZ += NgenWZ/2.;
     th1diboson->Add(tmpHist, WZweight);
     delete tmpHist;
   }
@@ -488,13 +497,13 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
     tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW428.root",
 				"hist_ww_el", true, 0, false, dibosonScale);
     sumWW += tmpHist->Integral();
-    NWW += NgenWW/2.;
+//     NWW += NgenWW/2.;
     th1diboson->Add(tmpHist, WWweight);
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW428.root",
 			       "hist_wz_el", true, 0, false, dibosonScale);
     sumWZ += tmpHist->Integral();
-    NWZ += NgenWZ/2.;
+//     NWZ += NgenWZ/2.;
     th1diboson->Add(tmpHist, WZweight);
     delete tmpHist;
   }
@@ -511,9 +520,13 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
        << " = " <<  initDiboson_ << '\n';
 
   cout <<"----------- WW: acc x eff = " << sumWW*WWweight*params_.intLumi 
-       << "/" << NWW*WWweight*params_.intLumi << " = " <<sumWW/NWW << '\n';
+       << "/" << NgenWW*WWweight*params_.intLumi << " = " <<sumWW/NgenWW 
+       << '\n';
   cout <<"----------- WZ: acc x eff = " << sumWZ*WZweight*params_.intLumi 
-       << "/" << NWZ*WZweight*params_.intLumi << " = " <<sumWZ/NWZ << '\n';
+       << "/" << NgenWZ*WZweight*params_.intLumi << " = " <<sumWZ/NgenWZ 
+       << '\n';
+  cout << "----------- diboson: acc x eff = " << (sumWW/NgenWW*WWxsec + sumWZ/NgenWZ*WZxsec)/(WWxsec + WZxsec)
+       << '\n';
   cout.flush();
 
   if (parameterize) {
@@ -1672,9 +1685,9 @@ void RooWjjMjjFitter::loadParameters(TString fname) {
 
 void RooWjjMjjFitter::resetYields() {
   ws_.var("nWjets")->setVal(initWjets_);
-  ws_.var("nWjets")->setError(TMath::Sqrt(initWjets_));
+  ws_.var("nWjets")->setError(initWjets_*0.05);
   ws_.var("nDiboson")->setVal(initDiboson_);
-  ws_.var("nDiboson")->setError(initDiboson_*0.10);
+  ws_.var("nDiboson")->setError(initDiboson_*0.034);
   ws_.var("nTTbar")->setVal(ttbarNorm_);
   ws_.var("nTTbar")->setError(ttbarNorm_*0.07);
   ws_.var("nSingleTop")->setVal(singleTopNorm_);

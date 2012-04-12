@@ -83,8 +83,9 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
     
     fitterPars.njets = Nj
     fitterPars.constrainDiboson = False
-    fitterPars.constrainDibosonShape = True
-    fitterPars.constrainWpJShape = True
+    fitterPars.constrainDibosonShape = False
+    fitterPars.constrainWpJShape = False
+    fitterPars.constrainWpJ = True
 
     
     fitterPars.doEffCorrections = True
@@ -120,10 +121,9 @@ def theConfig(Nj, mcdir = '', initFile = '', btag = False):
 
     if btag:
         fitterPars.cuts += '&& ( (JetPFCor_bDiscriminator[0]>%.2f) || (JetPFCor_bDiscriminator[1]>%.2f) ) ' % (btagCut,btagCut)
-        fitterPars.cuts += '&& (JetPFCor_Pt[1]>20) '
-        fitterPars.cuts += '&& (JetPFCor_Pt[2]<20) '
+        fitterPars.cuts += '&& (JetPFCor_Pt[1]>35) '
     else:
         fitterPars.cuts += '&& (JetPFCor_bDiscriminator[0]<%.2f) && (JetPFCor_bDiscriminator[1]<%.2f) ' % (btagCut,btagCut)
-        fitterPars.cuts += '&& (JetPFCor_Pt[1]>55.) '
+        fitterPars.cuts += '&& (JetPFCor_Pt[1]>35.) '
 
     return fitterPars
