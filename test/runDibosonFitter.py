@@ -72,11 +72,14 @@ elif fitterPars.includeElectrons:
 else:
     modeString = ''
 
-theFitter = RooWjjMjjFitter(fitterPars)
-
 dibosonParameterize = 0
 if opts.btag:
     dibosonParameterize = 2
+    fitterPars.constrainWpJShape = True
+    fitterPars.constrainDibosonShape = True
+
+theFitter = RooWjjMjjFitter(fitterPars)
+
 theFitter.makeDibosonPdf(dibosonParameterize)
 theFitter.makeFitter((opts.ParamWpJ>=0))
 
