@@ -1,3 +1,9 @@
+def clipCurve(theCurve):
+    if theCurve.GetX()[0] == theCurve.GetX()[1]:
+        theCurve.RemovePoint(0)
+    if theCurve.GetX()[theCurve.GetN()-1] == theCurve.GetX()[theCurve.GetN()-2]:
+        theCurve.RemovePoint(theCurve.GetN()-1)
+    return theCurve
 
 def addPlots(plots):
     from ROOT import RooCurve, RooHist, TLine, TLegend, RooPlot, RooAbsData, \
@@ -9,11 +15,13 @@ def addPlots(plots):
         itemName = plots[0].nameOf(item)
         firstItem = plots[0].getObject(item)
         if (type(firstItem) == RooCurve):
-            fullCurve = firstItem
+            fullCurve = clipCurve(firstItem)
             for plot in range(1, len(plots)):
-                nextCurve = plots[plot].getCurve(itemName)
+                nextCurve = clipCurve(plots[plot].getCurve(itemName))
                 fullCurve = RooCurve(fullCurve.GetName(), fullCurve.GetTitle(),
                                      fullCurve, nextCurve)
+            fullCurve.addPoint(fullCurve.GetX()[fullCurve.GetN()-1], 0)
+            fullCurve.addPoint(fullCurve.GetX()[0], 0)
             fullCurve.SetLineColor(firstItem.GetLineColor());
             fullCurve.SetLineStyle(firstItem.GetLineStyle());
             fullCurve.SetFillColor(firstItem.GetFillColor());
@@ -114,6 +122,8 @@ if __name__ == "__main__":
                       help='output file name')
     parser.add_option('-l', '--lumi', dest='lumi', type='float', default=5020.,
                       help='luminosity in inverse picobarns')
+    parser.add_option('--prefix', dest='prefix', default='Mjj',
+                      help='name for plots')
     (opts, args) = parser.parse_args()
 
     import pyroot_logon
@@ -121,7 +131,8 @@ if __name__ == "__main__":
     from ROOT import TFile, TCanvas, gROOT, RooPlot, gPad, TLine, SetOwnership
     import plotMjjFit
 
-    plots = {'Mjj_Stacked': [], 'Mjj_Subtracted': []}
+    plots = {'%s_Stacked' % (opts.prefix): [],
+             '%s_Subtracted' % (opts.prefix): []}
     #print plots
     cans = []
 
@@ -150,15 +161,23 @@ if __name__ == "__main__":
 
         outPlot.Write()
 
-        if (plot == 'Mjj_Subtracted'):
-            outPlot.SetMaximum(outPlot.GetMaximum()*1.4)
-            corrPull = plotMjjFit.sub2pull(outPlot.getHist('theData'),
-                                           outPlot.findObject('ErrBand'))
+        if (plot == '%s_Subtracted' % (opts.prefix)):
+            outPlot.SetMaximum(outPlot.GetMaximum()*1.3)
+            outPlot.SetMinimum(outPlot.GetMinimum()*1.1)
+            if outPlot.findObject('ErrBand'):
+                corrPull = plotMjjFit.sub2pull(outPlot.getHist('theData'),
+                                               outPlot.findObject('ErrBand'))
+            else:
+                corrPull = plotMjjFit.sub2pull(outPlot.getHist('theData'),
+                                               outPlot.findObject('h_dibosonPdf'))
+            
             corrPull.SetMinimum(-5.)
             corrPull.SetMaximum(5.)
             corrPull.GetXaxis().SetTitle('m_{jj} (GeV)')
             corrPull.GetYaxis().SetTitle('pull (#sigma)')
-            corrPull.GetXaxis().Set(corrPull.GetN(), 30., 400.)
+            corrPull.GetXaxis().Set(corrPull.GetN(),
+                                    outPlot.GetXaxis().GetXmin(),
+                                    outPlot.GetXaxis().GetXmax())
             canpf = TCanvas()
             canpf.SetGridy()
             cans.append(canpf)
@@ -173,10 +192,12 @@ if __name__ == "__main__":
                     SetOwnership(newLine, False)
             pyroot_logon.cmsLabel(canpf, opts.lumi/1000.)
             gPad.Update()
-            canpf.Print('%s_combined.png' % ('Mjj_Pull'))
-            canpf.Print('%s_combined.pdf' % ('Mjj_Pull'))
+            canpf.Print('%s_%s_combined.png' % (opts.prefix, 'Pull'))
+            canpf.Print('%s_%s_combined.pdf' % (opts.prefix, 'Pull'))
             corrPull.Write()
 
         gPad.Update()
         can.Print('%s_combined.png' % (plot))
         can.Print('%s_combined.pdf' % (plot))
+
+    outFile.Close()

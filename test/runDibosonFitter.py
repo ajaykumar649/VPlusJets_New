@@ -86,16 +86,24 @@ theFitter.makeFitter((opts.ParamWpJ>=0))
 #theFitter.getWorkSpace().Print()
 fr = theFitter.fit()
 
-chi2 = Double(0.)
+# chi2 = Double(0.)
 #ndf = Long(2)
-## extraNdf = 0
+extraNdf = 0
+if not opts.btag:
+    extraNdf = 2
 ## if (fitterPars.doNewPhysics):
 ##     extraNdf += 1
 ## if not fitterPars.constrainDiboson:
 ##     extraNdf += 1
 ## ndf = Long(3+extraNdf)
-ndf = Long(2)
-theFitter.computeChi2(ndf)
+ndf = Long(1+extraNdf)
+print ' *** uncorrected chi2 ***'
+chi2 = theFitter.computeChi2(ndf, False)
+print ' *** corrected chi2 ***'
+ndf = Long(1+extraNdf)
+chi2 = theFitter.computeChi2(ndf, True)
+print ' *** '
+chi2 = 0
 # chi2frame.Draw()
 
 # assert False, "fit done"
@@ -122,7 +130,7 @@ from plotMjjFit import plot2BodyDist
 if (opts.Err >= 0) and (opts.Err < 1):
     opts.Err = sqrt(sig2)
 
-leftLegend = (not opts.btag)
+leftLegend = True #(not opts.btag)
 PrefixString = "Diboson"
 if opts.btag:
     PrefixString += "_btag"
@@ -211,8 +219,8 @@ print 'background yield: %0.0f +/- %0.0f' % (bkgYield, sqrt(sig2))
 print 'Total yield: %0.0f +/- %0.0f' % (totalYield, sqrt(sig2All))
 
 print 'shape file created'
-ShapeFile = TFile('Diboson_%s_%iJets_Fit_Shapes.root' % (modeString, opts.Nj),
-                  'recreate')
+ShapeFile = TFile('%s_%s_%iJets_Fit_Shapes.root' % (PrefixString, modeString,
+                                                    opts.Nj), 'recreate')
 h_total.Write()
 theData.Write()
 fr.Write()

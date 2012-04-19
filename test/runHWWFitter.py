@@ -531,6 +531,7 @@ fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
                                                  RooFit.LineColor(kBlue+1))
 
 cdebug.cd()
+pyroot_logon.cmsLabel(cdebug, pars4.intLumi/1000, prelim=True)
 sbf.Draw()
 cdebug.Modified()
 cdebug.Update()

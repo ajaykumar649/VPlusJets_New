@@ -1634,8 +1634,8 @@ RooPlot * RooWjjMjjFitter::residualPlot(RooPlot * thePlot, TString curveName,
   rframe->addObject(legend);
 
   if (!normalize) {
-    rframe->SetMaximum(fabs(ws_.var("nDiboson")->getVal())*(0.15));
-    rframe->SetMinimum(fabs(ws_.var("nDiboson")->getVal())*(-0.1));
+    rframe->SetMaximum(rframe->GetMaximum()*1.2);
+    rframe->SetMinimum(rframe->GetMinimum()*1.1);
     rframe->GetYaxis()->SetTitle("Events / GeV");
   } else {
     rframe->SetMaximum(5.);

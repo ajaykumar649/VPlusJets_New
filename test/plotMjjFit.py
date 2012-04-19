@@ -50,7 +50,8 @@ def plot2BodyDist(theFitter, pars, chi2, ndf,
         ErrBand = TGraphErrors(h_dibosonPdf.GetN(), h_dibosonPdf.GetX(),
                                h_dibosonPdf.GetY())
         for pt in range(1, ErrBand.GetN()):
-            ErrBand.SetPointError(pt, 0, h_ErrUp.GetY()[pt-1])
+            ErrBand.SetPointError(pt, 0,
+                                  h_ErrUp.interpolate(ErrBand.GetX()[pt]))
         ErrBand.SetName("ErrBand")
         ErrBand.SetTitle("Uncertainty")
         ErrBand.SetLineColor(kRed)
