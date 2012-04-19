@@ -1,4 +1,4 @@
-void MyRunMuon(double myflag=20112250, bool isQCD=false)
+void MyRunMuon(double myflag=20112250, bool isQCD=false, int runflag=0)
 {
   gSystem->Load("libFWCoreFWLite.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
@@ -40,6 +40,6 @@ void MyRunMuon(double myflag=20112250, bool isQCD=false)
   gROOT->ProcessLine(".L kanamuon.C+");
   gROOT->ProcessLine("kanamuon runover");
   //Set true/false for isQCD
-  char mycmd[500]; sprintf(mycmd,"runover.myana(%.d,%i)",myflag, isQCD); cout << "running :: "<<mycmd << endl;
+  char mycmd[500]; sprintf(mycmd,"runover.myana(%.d,%i,%i)",myflag, isQCD,runflag); cout << "running :: "<<mycmd << endl;
   gROOT->ProcessLine(mycmd);
 }

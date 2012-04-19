@@ -1,4 +1,4 @@
-void MyRunElec(double myflag=20112250, bool isQCD=false)
+void MyRunElec(double myflag=20112250, bool isQCD=false, int runflag)
 {
   gSystem->Load("libFWCoreFWLite.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
@@ -40,6 +40,6 @@ void MyRunElec(double myflag=20112250, bool isQCD=false)
   gROOT->ProcessLine(".L kanaelec.C+");
   gROOT->ProcessLine("kanaelec runover");
   //Set true/false for isQCD
-  char mycmd[500]; sprintf(mycmd,"runover.myana(%.d,%i)",myflag, isQCD); cout << "running :: "<<mycmd << endl;
+  char mycmd[500]; sprintf(mycmd,"runover.myana(%.d,%i,%i)",myflag, isQCD, runflag); cout << "running :: "<<mycmd << endl;
   gROOT->ProcessLine(mycmd);
 }
