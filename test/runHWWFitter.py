@@ -391,7 +391,7 @@ print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
 #assert(False)
 
-cdebug = TCanvas('cdebug', 'debug')
+cWpJ = TCanvas('cWpJ', 'W+jets shape')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst, opts.alpha)
 pars4.initParamsFile = 'lastSigYield.txt'
 fitter4 = RooWjjMjjFitter(pars4)
@@ -511,7 +511,7 @@ c = fitter4.getWorkSpace().var('c')
 c.Print()
 cNom = c.getVal()
 
-sbf = cdebug.FindObject("SideBandPlot")
+sbf = cWpJ.FindObject("SideBandPlot")
 print sbf
 if not sbf:
     sbf = gDirectory.Get("SideBandPlot")
@@ -530,28 +530,28 @@ fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
                                                  RooFit.Name('syst_down'),
                                                  RooFit.LineColor(kBlue+1))
 
-cdebug.cd()
-pyroot_logon.cmsLabel(cdebug, pars4.intLumi/1000, prelim=True)
+cWpJ.cd()
 sbf.Draw()
-cdebug.Modified()
-cdebug.Update()
+pyroot_logon.cmsLabel(cWpJ, pars4.intLumi/1000, prelim=True)
+cWpJ.Modified()
+cWpJ.Update()
 
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
-                                                   opts.Nj))
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
-                                                   opts.Nj))
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
-                                                   opts.Nj))
+cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
+                                                 opts.Nj))
+cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
+                                                 opts.Nj))
+cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
+                                                  opts.Nj))
 
 sbf.SetMinimum(1e-4)
-cdebug.SetLogy()
-cdebug.Update()
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.pdf' % (opts.mH, modeString,
-                                                       opts.Nj))
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.png' % (opts.mH, modeString,
-                                                       opts.Nj))
-cdebug.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.root' % (opts.mH, modeString,
-                                                        opts.Nj))
+cWpJ.SetLogy()
+cWpJ.Update()
+cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.pdf' % (opts.mH, modeString,
+                                                     opts.Nj))
+cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.png' % (opts.mH, modeString,
+                                                     opts.Nj))
+cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.root' % (opts.mH, modeString,
+                                                      opts.Nj))
 
 
 print 'shape file created'

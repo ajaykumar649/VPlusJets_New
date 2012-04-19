@@ -550,7 +550,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   if (t.FindBranch("qgld_Summer11CHS"))
     t.SetBranchStatus("qgld*", 1);
   //t.SetBranchStatus("ang*", 1);
-  if (t.FindBranch("fit_lvjj"))
+  if (t.FindBranch("fit_mlvjj"))
     t.SetBranchStatus("*lvjj", 1);
   t.SetBranchStatus("W_mt",    1);
   t.SetBranchStatus("W_pt",    1);
