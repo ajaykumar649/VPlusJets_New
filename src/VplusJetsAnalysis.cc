@@ -223,31 +223,34 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   else  fastJetRho =  -999999.9;
 
   /////// Pileup density "rho" for lepton isolation subtraction /////
-  edm::Handle<double> rhoLepIso;
-  const edm::InputTag eventrhoLepIso(JetsFor_rho_lepIso, "rho");
-  iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
-  if( *rhoLepIso == *rhoLepIso) lepIsoRho = *rhoLepIso;
-  else  lepIsoRho =  -999999.9;
+  //edm::Handle<double> rhoLepIso;
+  //const edm::InputTag eventrhoLepIso(JetsFor_rho_lepIso, "rho");
+  //iEvent.getByLabel(eventrhoLepIso, rhoLepIso);
+  //if( *rhoLepIso == *rhoLepIso) lepIsoRho = *rhoLepIso;
+  //else  lepIsoRho =  -999999.9;
 
 
   /////// CHARGED-HADRON-SUBTRACTED versions of pileup density rho:
 
 
   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
-  edm::Handle<double> rhoCHS;
-  const edm::InputTag eventrhoCHS(JetsFor_rhoCHS, "rho");
-  iEvent.getByLabel(eventrhoCHS,rhoCHS);
-  if( *rhoCHS == *rhoCHS) fastJetRhoCHS = *rhoCHS;
-  else  fastJetRhoCHS =  -999999.9;
+  //edm::Handle<double> rhoCHS;
+  //const edm::InputTag eventrhoCHS(JetsFor_rhoCHS, "rho");
+  //iEvent.getByLabel(eventrhoCHS,rhoCHS);
+  //if( *rhoCHS == *rhoCHS) fastJetRhoCHS = *rhoCHS;
+  //else  fastJetRhoCHS =  -999999.9;
 
   /////// Pileup density "rho" for lepton isolation subtraction /////
-  edm::Handle<double> rhoLepIsoCHS;
-  const edm::InputTag eventrhoLepIsoCHS(JetsFor_rho_lepIsoCHS, "rho");
-  iEvent.getByLabel(eventrhoLepIsoCHS, rhoLepIsoCHS);
-  if( *rhoLepIsoCHS == *rhoLepIsoCHS) lepIsoRhoCHS = *rhoLepIsoCHS;
-  else  lepIsoRhoCHS =  -999999.9;
+  //edm::Handle<double> rhoLepIsoCHS;
+  //const edm::InputTag eventrhoLepIsoCHS(JetsFor_rho_lepIsoCHS, "rho");
+  //iEvent.getByLabel(eventrhoLepIsoCHS, rhoLepIsoCHS);
+  //if( *rhoLepIsoCHS == *rhoLepIsoCHS) lepIsoRhoCHS = *rhoLepIsoCHS;
+  //else  lepIsoRhoCHS =  -999999.9;
 
-
+  // Notice! use only one rho everywhere, now four rhos have identical value
+  lepIsoRho     = fastJetRho;
+  fastJetRhoCHS = fastJetRho;
+  lepIsoRhoCHS  = fastJetRho;
 
   /////////// GenMET information & MC Pileup Summary Info  //////////
   mcPUtotnvtx = 0;

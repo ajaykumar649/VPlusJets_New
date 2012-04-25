@@ -38,9 +38,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ############################################
 if not isMC:
-    process.GlobalTag.globaltag = 'GR_R_42_V19::All'
+    process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 else:
-    process.GlobalTag.globaltag = 'START42_V13::All'
+    process.GlobalTag.globaltag = 'START52_V9::All'
 
 OutputFileName = "WmunuJetAnalysisntuple.root"
 numEventsToRun = 1000
@@ -70,8 +70,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-    '/store/user/lnujj/PATProduction/jindal/WW_TuneZ2_7TeV_pythia6_tauola/SQWaT_PAT_42X_Fall11_v3/3156aed375cb9d84362f1cc2ea98a9c4/pat_42x_fall11_85_1_XsL.root'
-#    '/store/user/pdudero/CMSSW428/WenuJets_136033-149442_EG-Run2010A-Apr21ReReco-v1-FNAL-v0/dudero/EG/SQWaT_PAT_42X_WenuJets_EG-Run2010A-Apr21ReReco-v1-FNAL-v0/1e4fa898029d17da5da94d6b8e8535d9/pat_42x_data_9_1_d5n.root'
+    '/store/user/lnujj/PATtuples/sboutle/WW_TuneZ2star_8TeV_pythia6_tauola/SQWaT_PATtup_52X_notrig_v2/368fd2e0a75a42231defe3e16c847509/pat_52x_test_1_1_cmX.root'
 ) )
 
 
