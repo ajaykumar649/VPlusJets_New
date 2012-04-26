@@ -593,7 +593,9 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + "mu_WpJ_CMSSW428.root",
+    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+			       //"mu_W4Jets_CMSSW428.root",
+			       "mu_WpJ_CMSSW428.root",
 			       "hist_wpj_mu", false, 1, params_.toyWpJ);
     th1WpJ->Add(tmpHist);
     delete tmpHist;
@@ -620,7 +622,9 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   }
 
   if (params_.includeElectrons) {
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + "el_WpJ_CMSSW428.root",
+    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+			       //"el_W4Jets_CMSSW428.root",
+			       "el_WpJ_CMSSW428.root",
 			       "hist_wpj_el", true, 1, params_.toyWpJ);
     th1WpJ->Add(tmpHist);
     delete tmpHist;
@@ -1951,10 +1955,10 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
     delete fullInt;
     delete SBInt;
   }
-//   for (ibin = 1; ibin <= nbins; ++ibin) {
-//     if (hist.GetBinContent(ibin) < 0.) 
-//       hist.SetBinContent(ibin, 1e-4);
-//   }
+  // for (ibin = 1; ibin <= nbins; ++ibin) {
+  //   if (hist.GetBinContent(ibin) <= 0.) 
+  //     hist.SetBinContent(ibin, 1e-3);
+  // }
 }
 
 void RooWjjMjjFitter::addHistograms(TH1& hist1, TH1& hist2, double weight) {

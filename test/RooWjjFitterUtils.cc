@@ -567,6 +567,8 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
 //   t.SetBranchStatus("fit_mlvjj", 1);
   if (t.FindBranch("evtNJ"))
     t.SetBranchStatus("evtNJ",    1);
+  if (t.FindBranch("vbf_event"))
+    t.SetBranchStatus("vbf_*", 1);
 
   t.SetBranchStatus("Mass2j_PFCor",    1);
   t.SetBranchStatus("MassV2j_PFCor",    1);
