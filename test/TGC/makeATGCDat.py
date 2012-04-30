@@ -11,7 +11,7 @@ ConfigFile = "inputWWToLnuJJ.DAT"
 
 
 def changeConfigFile(change1, change2):
-    subdir = "Lambda_Z_" + str(change1) + "Delta_Kgamma_" + str(change2)  
+    subdir = "Lambda_Z_" + str(change1) + "_Delta_Kgamma_" + str(change2)  
     dirName = "/uscmst1b_scratch/lpc1/3DayLifetime/kalanand/" +  subdir
     child = os.system("mkdir "+dirName)
     child0 = os.system("ln -s "+dirName + " " + subdir)
@@ -33,7 +33,9 @@ def changeConfigFile(change1, change2):
             line=line.replace("0.0d0", str(-0.3009 * change2)+"d0")            
         fout.write(line)
     print pset_cfg + " has been written.\n"
-    command = "./submitToCondor.py -c " + subdir + "/"+ pset_cfg 
+    command = "cd "+ subdir
+    child5 = os.system(command)           
+    command = "./submitToCondor.py -c " + pset_cfg 
     print "Submitting job: " + command + "\n"
     child9 = os.system(command)     
 
