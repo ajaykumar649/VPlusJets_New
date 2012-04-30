@@ -202,7 +202,7 @@ def submit_jobs(array,ini_cfgfile,launch_path, input_file, output_dir):
     print submitcommand+"\n"
     
     if not istest:
-        child   = os.popen(submitcommand)
+        child   = os.system(submitcommand)
     else:
         print "Not submitting into condor batch farm. This is only a test"
         
