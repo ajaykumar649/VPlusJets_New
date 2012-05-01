@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseElectrons
 from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseMuons
-isQCD = True
+isQCD = False
 
 isolationCutString = cms.string("")
 if isQCD:

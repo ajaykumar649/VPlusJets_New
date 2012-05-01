@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #WP80 electrons, only track iso, remove H/E cut
 
 
-isQCD = True
+isQCD = False
 
 superclusterCutString_EB = cms.string("")
 superclusterCutString_EE = cms.string("")

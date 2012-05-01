@@ -1,23 +1,39 @@
 import FWCore.ParameterSet.Config as cms
 
 #WP80 electrons, only track iso, remove H/E cut
-tightElectrons = cms.EDFilter("PATElectronRefSelector",
-    src = cms.InputTag( "selectedPatElectronsPFlow" ),
+
+
+isQCD = False
+
+superclusterCutString_EB = cms.string("")
+superclusterCutString_EE = cms.string("")
+isolationCutString = cms.string("")
+
+if isQCD:
+    superclusterCutString_EB = "1==1"
+    superclusterCutString_EE = "1==1"
+    isolationCutString = "(dr03TkSumPt/p4.Pt >0.05)"
+else:
+    superclusterCutString_EB = "( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )&&( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    superclusterCutString_EE = "( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )&&( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    isolationCutString = "(dr03TkSumPt/p4.Pt <0.1)"
+
+
+tightElectrons = cms.EDFilter("GsfElectronRefSelector",
+    src = cms.InputTag( "gsfElectrons" ),
     cut = cms.string(
     "(ecalDrivenSeed==1) && (abs(superCluster.eta)<2.5)"
     " && !(1.4442<abs(superCluster.eta)<1.566)"
     " && (et>20.0)"
     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))"
-    " && (dr03TkSumPt/p4.Pt <0.1)"    
+    " && " + isolationCutString +
     " && ((isEB"
     " && (sigmaIetaIeta<0.01)"
-    " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
-    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
+    " && " + superclusterCutString_EB +
     ")"
     " || (isEE"
     " && (sigmaIetaIeta<0.03)"
-    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )"
-    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
+    " && " + superclusterCutString_EE +
     "))"
     )
 )
