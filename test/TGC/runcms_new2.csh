@@ -10,8 +10,8 @@ endif
 
 cp -r /uscms_data/d2/kalanand/software/MCFM .
 cd MCFM/Bin
-./mcfm {OUTDIR}/{CONFIGFILE}
-mv *.rz  /uscms_data/d2/kalanand/software/MCFM/Bin/{OUTDIR}/
+./mcfm {CONFIGFILE}
+mv *.rz  /uscmst1b_scratch/lpc1/3DayLifetime/kalanand/{OUTDIR}/
 
 
 if ( $? == 0 ) then 
