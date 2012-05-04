@@ -1,8 +1,9 @@
 #!/bin/tcsh
 
 # convert all .rz files in a given directory to .root file and then hadd them.
+source setup_h2root
 cd $1
-source ../setup_h2root
+
 
 foreach datafile ( `ls *.rz` ) 
 	echo "submitting: h2root $datafile" 
