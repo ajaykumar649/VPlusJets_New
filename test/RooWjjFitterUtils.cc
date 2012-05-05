@@ -545,7 +545,7 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
     t.SetBranchStatus("W_muon_*", 1);
   }
 
-  if (t.FindBranch("mva2j170mu"))
+  if ((t.FindBranch("mva2j400mu")) || (t.FindBranch("mva2j400el")))
     t.SetBranchStatus("mva*", 1);
   if (t.FindBranch("qgld_Summer11CHS"))
     t.SetBranchStatus("qgld*", 1);
