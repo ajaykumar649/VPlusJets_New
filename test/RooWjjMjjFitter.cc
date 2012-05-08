@@ -323,6 +323,61 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
 
   ws_.import(totalPdf);
 
+  bool ToyMCGenerate=false;
+  if ( ToyMCGenerate ) {
+    /////*** Begin Toy MC Generation Code ***/////
+    //   char I_char[5];
+    //   sprintf(I_char,"%i",params_.njets);
+    //   TString I_str=I_char;
+    TString L_str="mu_";
+
+    ///No btag:
+    TString Tag_str="NoBtag_";
+    Int_t Offset=470839;
+
+    cout << "Generating Diboson" << endl;
+    generateToyMCSet(dibosonPdf,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/Diboson_"+ L_str + Tag_str+"2j_GenMC.root",1100*2000,5004+Offset);
+
+    //  resetfSUfMU(0.0,0.0);
+    cout << "Generating Wjj - default" << endl;
+    generateToyMCSet(WpJPdfNom,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/WjjDef_"+ L_str + Tag_str+"2j_GenMC.root",1100*70000,1837+Offset);
+
+    //  resetfSUfMU(1.0,0.0);
+    cout << "Generating Wjj - ScaleUp" << endl;
+    generateToyMCSet(WpJPdfSU,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/WjjSU_"+ L_str + Tag_str+"2j_GenMC.root",1100*5000,1632+Offset);
+
+    //  resetfSUfMU(-1.0,0.0);
+    cout << "Generating Wjj - ScaleDown" << endl;
+    generateToyMCSet(WpJPdfSD,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/WjjSD_"+ L_str + Tag_str+"2j_GenMC.root",1100*5000,44991+Offset);
+
+    //  resetfSUfMU(0.0,1.0);
+    cout << "Generating Wjj - MatchingUp" << endl;
+    generateToyMCSet(WpJPdfMU,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/WjjMU_"+ L_str + Tag_str+"2j_GenMC.root",1100*5000,607+Offset);
+
+    //  resetfSUfMU(0.0,-1.0);
+    cout << "Generating Wjj - MatchingDown" << endl;
+    generateToyMCSet(WpJPdfMD,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/WjjMD_"+ L_str + Tag_str+"2j_GenMC.root",1100*10000,4803+Offset);
+
+    cout << "Generating tt" << endl;
+    generateToyMCSet(ttPdf,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/tt_"+ L_str + Tag_str+"2j_GenMC.root",1100*2000,5753+Offset);
+
+    cout << "Generating singleTop" << endl;
+    generateToyMCSet(stPdf,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/singleTop_"+ L_str + Tag_str+"2j_GenMC.root",1100*1000,2237+Offset);
+
+    cout << "Generating qcd" << endl;
+    generateToyMCSet(qcdPdf,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/qcd_"+ L_str + Tag_str+"2j_GenMC.root",1100*500,1891+Offset);
+
+    cout << "Generating zjets" << endl;
+    generateToyMCSet(ZpJPdf,"/uscms_data/d1/ilyao/DibosonS12/ErrorScans/1KMCSource/zjets_"+ L_str + Tag_str+"2j_GenMC.root",1100*5000,8058+Offset);
+
+
+    ///With btag (mc for the fit not yet ready):
+    //   TString Tab_str="WithBtag_";
+    //   Int_t Offset=129839;
+
+    /////*** End Toy MC Generation Code ***/////
+  }
+
   return ws_.pdf("totalPdf"); 
 }
 
@@ -387,70 +442,89 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   QCDError_ = 0.;
 
   double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
-  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5;
-  double ermu2jet = 0.004214, ermu3jet = 0.0040797;
+  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.004214, ermu3jet = 0.0040797;
 
-  if (params_.fitToyDataset) {
-    RooDataSet * tds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
-					   params_.toydataFile, 
-					   "data_muon",false,
-					   trunc, true);
-    tds->Print();
 
-    double fracel=0.5;
-    double fracmu=0.5;
-    if ( params_.njets==3 ) {
-      fracel=0.442;
-      fracmu=0.558;
-      QCDNorm_ += (rmu3jet*fracmu+rel3jet*fracel)*tds->sumEntries();
-      QCDError_ += TMath::Power(ermu3jet*fracmu*tds->sumEntries(),2);
-      QCDError_ += TMath::Power(erel3jet*fracel*tds->sumEntries(),2);
+//   if (params_.fitToyDataset) {
+//     RooDataSet * tds;
+//     tds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
+// 					   params_.toydataFile, 
+// 					   "data_muon",false,
+// 					   trunc, true);
+//     tds->Print();
+
+//     double fracel=0.5;
+//     double fracmu=0.5;
+//     if ( params_.njets==3 ) {
+//       fracel=0.442;
+//       fracmu=0.558;
+//       QCDNorm_ += (rmu3jet*fracmu+rel3jet*fracel)*tds->sumEntries();
+//       QCDError_ += TMath::Power(ermu3jet*fracmu*tds->sumEntries(),2);
+//       QCDError_ += TMath::Power(erel3jet*fracel*tds->sumEntries(),2);
+//     } else {
+//       fracel=0.434;
+//       fracmu=0.566;
+//       QCDNorm_ += (rmu2jet*fracmu+rel2jet*fracel)*tds->sumEntries();
+//       QCDError_ += TMath::Power(ermu2jet*fracmu*tds->sumEntries(),2);
+//       QCDError_ += TMath::Power(erel2jet*fracel*tds->sumEntries(),2);
+//     }
+//     data.append(*tds);
+//     delete tds;
+
+//   } else {
+  if (params_.includeMuons) {
+    RooDataSet * mds;
+    if (params_.fitToyDataset) {
+      mds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
+				params_.toydataFile, 
+				"data_muon",false,
+				trunc, true);
+
     } else {
-      fracel=0.434;
-      fracmu=0.566;
-      QCDNorm_ += (rmu2jet*fracmu+rel2jet*fracel)*tds->sumEntries();
-      QCDError_ += TMath::Power(ermu2jet*fracmu*tds->sumEntries(),2);
-      QCDError_ += TMath::Power(erel2jet*fracel*tds->sumEntries(),2);
+      mds = utils_.File2Dataset(params_.DataDirectory + 
+				params_.muonData, "data_muon", 
+				false, trunc, false);
     }
-    data.append(*tds);
-    delete tds;
+    mds->Print();
 
-  } else {
-    if (params_.includeMuons) {
-      RooDataSet * mds = utils_.File2Dataset(params_.DataDirectory + 
-					     params_.muonData, "data_muon", 
-					     false, trunc, false);
-      mds->Print();
-
-      /// Note: for the 2+3 jets we use the 2jet bin coefficients
-      if ( params_.njets==3 ) {
-	QCDNorm_ += rmu3jet*mds->sumEntries();
-	QCDError_ += TMath::Power(ermu3jet*mds->sumEntries(),2);
-      } else {
-	QCDNorm_ += rmu2jet*mds->sumEntries();
-	QCDError_ += TMath::Power(ermu2jet*mds->sumEntries(),2);
-      }
-      data.append(*mds);
-      delete mds;
+    /// Note: for the 2+3 jets we use the 2jet bin coefficients
+    if ( params_.njets==3 ) {
+      QCDNorm_ += rmu3jet*mds->sumEntries();
+      QCDError_ += TMath::Power(ermu3jet*mds->sumEntries(),2);
+    } else {
+      QCDNorm_ += rmu2jet*mds->sumEntries();
+      QCDError_ += TMath::Power(ermu2jet*mds->sumEntries(),2);
     }
-    if (params_.includeElectrons) {
-      RooDataSet * eds = utils_.File2Dataset(params_.DataDirectory + 
-					     params_.electronData, 
-					     "data_electron", true, trunc, 
-					     false);
-      eds->Print();
-      if ( params_.njets==3 ) {
-	QCDNorm_ += rel3jet*eds->sumEntries();
-	QCDError_ += TMath::Power(erel3jet*eds->sumEntries(),2);
-      } else {
-	QCDNorm_ += rel2jet*eds->sumEntries();
-	QCDError_ += TMath::Power(erel2jet*eds->sumEntries(),2);
-      }
-
-      data.append(*eds);
-      delete eds;
-    }
+    data.append(*mds);
+    delete mds;
   }
+  if (params_.includeElectrons) {
+    RooDataSet * eds;
+    if (params_.fitToyDataset) {
+      eds = utils_.File2Dataset(params_.ToyDatasetDirectory + 
+				params_.toydataFile, 
+				"data_electron", true, trunc, 
+				false);
+    } else {
+      eds = utils_.File2Dataset(params_.DataDirectory + 
+				params_.electronData, 
+				"data_electron", true, trunc, 
+				false);
+    }
+      
+    eds->Print();
+    if ( params_.njets==3 ) {
+      QCDNorm_ += rel3jet*eds->sumEntries();
+      QCDError_ += TMath::Power(erel3jet*eds->sumEntries(),2);
+    } else {
+      QCDNorm_ += rel2jet*eds->sumEntries();
+      QCDError_ += TMath::Power(erel2jet*eds->sumEntries(),2);
+    }
+
+    data.append(*eds);
+    delete eds;
+  }
+    //}
   QCDError_ = TMath::Sqrt(QCDError_);
   ws_.import(data);
 
@@ -470,6 +544,12 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
   double const WWxsec = 47.0, WZxsec = 18.6;
   double WWweight = WWxsec/NgenWW;
   double WZweight = WZxsec/NgenWZ;
+  //VBF Predictions
+  int const NgenVBFWpWm = 454720, NgenVBFWmWp = 112991;
+  double const VBFWpWmxsec = 0.0009, VBFWmWpxsec = 0.0009;
+  double VBFWpWmweight = VBFWpWmxsec/NgenVBFWpWm;
+  double VBFWmWpweight = VBFWmWpxsec/NgenVBFWmWp;
+
 
   int dibosonScale = 1;
   TH1 * th1diboson = utils_.newEmptyHist("th1diboson", dibosonScale);
@@ -477,37 +557,52 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
   TH1 * tmpHist;
 
   double sumWW = 0., sumWZ = 0.;
+  double sumVBFWpWm = 0., sumVBFWmWp = 0.;
 //   double NWW = 0, NWZ = 0;
+  if (params_.overwriteDibosonPDFWithVBFWW) {
+    if (params_.includeMuons) {
+      tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_qiangli-WpWmEW_CMSSW428.root",
+				 "hist_ww_mu", false, 0, false, dibosonScale);
+      sumVBFWpWm += tmpHist->Integral();
+      th1diboson->Add(tmpHist, VBFWpWmweight);
+      delete tmpHist;
 
-  if (params_.includeMuons) {
-    tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW428.root",
-				"hist_ww_mu", false, 0, false, dibosonScale);
-    sumWW += tmpHist->Integral();
-//     NWW += NgenWW/2.;
-    th1diboson->Add(tmpHist, WWweight);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW428.root",
-			       "hist_wz_mu", false, 0, false, dibosonScale);
-    sumWZ += tmpHist->Integral();
-//     NWZ += NgenWZ/2.;
-    th1diboson->Add(tmpHist, WZweight);
-    delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_qiangli_qed6_CMSSW428.root",
+				 "hist_ww_mu", false, 0, false, dibosonScale);
+      sumVBFWmWp += tmpHist->Integral();
+      th1diboson->Add(tmpHist, VBFWmWpweight);
+      delete tmpHist;
+    }
+  } else {
+    if (params_.includeMuons) {
+      tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW428.root",
+				  "hist_ww_mu", false, 0, false, dibosonScale);
+      sumWW += tmpHist->Integral();
+      //     NWW += NgenWW/2.;
+      th1diboson->Add(tmpHist, WWweight);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW428.root",
+				 "hist_wz_mu", false, 0, false, dibosonScale);
+      sumWZ += tmpHist->Integral();
+      //     NWZ += NgenWZ/2.;
+      th1diboson->Add(tmpHist, WZweight);
+      delete tmpHist;
+    }
+    if (params_.includeElectrons) {
+      tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW428.root",
+				  "hist_ww_el", true, 0, false, dibosonScale);
+      sumWW += tmpHist->Integral();
+      //     NWW += NgenWW/2.;
+      th1diboson->Add(tmpHist, WWweight);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW428.root",
+				 "hist_wz_el", true, 0, false, dibosonScale);
+      sumWZ += tmpHist->Integral();
+      //     NWZ += NgenWZ/2.;
+      th1diboson->Add(tmpHist, WZweight);
+      delete tmpHist;
+    }
   }
-  if (params_.includeElectrons) {
-    tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW428.root",
-				"hist_ww_el", true, 0, false, dibosonScale);
-    sumWW += tmpHist->Integral();
-//     NWW += NgenWW/2.;
-    th1diboson->Add(tmpHist, WWweight);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW428.root",
-			       "hist_wz_el", true, 0, false, dibosonScale);
-    sumWZ += tmpHist->Integral();
-//     NWZ += NgenWZ/2.;
-    th1diboson->Add(tmpHist, WZweight);
-    delete tmpHist;
-  }
-
 //   std::cout << "min bin: " << th1diboson->FindBin(params_.minFit)
 // 	    << " max bin: " << th1diboson->FindBin(params_.maxFit) 
 // 	    << " n bins: " << th1diboson->GetNbinsX()
@@ -515,19 +610,35 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
   initDiboson_ = th1diboson->Integral(th1diboson->FindBin(params_.minFit),
 				      th1diboson->FindBin(params_.maxFit)-1) * 
     params_.intLumi;
-  cout << "-------- Number of expected WW+WZ events = " 
-       << th1diboson->Integral() << " x " << params_.intLumi 
-       << " = " <<  initDiboson_ << '\n';
+  if (params_.overwriteDibosonPDFWithVBFWW) {
+    cout << "-------- Number of expected VBFWW events = " 
+	 << th1diboson->Integral() << " x " << params_.intLumi 
+	 << " = " <<  initDiboson_ << '\n';
 
-  cout <<"----------- WW: acc x eff = " << sumWW*WWweight*params_.intLumi 
-       << "/" << NgenWW*WWweight*params_.intLumi << " = " <<sumWW/NgenWW 
-       << '\n';
-  cout <<"----------- WZ: acc x eff = " << sumWZ*WZweight*params_.intLumi 
-       << "/" << NgenWZ*WZweight*params_.intLumi << " = " <<sumWZ/NgenWZ 
-       << '\n';
-  cout << "----------- diboson: acc x eff = " << (sumWW/NgenWW*WWxsec + sumWZ/NgenWZ*WZxsec)/(WWxsec + WZxsec)
-       << '\n';
-  cout.flush();
+    cout <<"----------- VBFWpWm: acc x eff = " << sumVBFWpWm*WWweight*params_.intLumi 
+	 << "/" << NgenVBFWpWm*WWweight*params_.intLumi << " = " <<sumVBFWpWm/NgenVBFWpWm
+	 << '\n';
+    cout <<"----------- VBFWmWp: acc x eff = " << sumVBFWmWp*WWweight*params_.intLumi 
+	 << "/" << NgenVBFWmWp*WWweight*params_.intLumi << " = " <<sumVBFWmWp/NgenVBFWmWp
+	 << '\n';
+    cout << "----------- VBFWW: acc x eff = " << (sumVBFWpWm/NgenVBFWpWm*VBFWpWmxsec + sumVBFWmWp/NgenVBFWmWp*VBFWmWpxsec)/(VBFWpWmxsec + VBFWmWpxsec)
+	 << '\n';
+    cout.flush();
+  } else {
+    cout << "-------- Number of expected WW+WZ events = " 
+	 << th1diboson->Integral() << " x " << params_.intLumi 
+	 << " = " <<  initDiboson_ << '\n';
+
+    cout <<"----------- WW: acc x eff = " << sumWW*WWweight*params_.intLumi 
+	 << "/" << NgenWW*WWweight*params_.intLumi << " = " <<sumWW/NgenWW 
+	 << '\n';
+    cout <<"----------- WZ: acc x eff = " << sumWZ*WZweight*params_.intLumi 
+	 << "/" << NgenWZ*WZweight*params_.intLumi << " = " <<sumWZ/NgenWZ 
+	 << '\n';
+    cout << "----------- diboson: acc x eff = " << (sumWW/NgenWW*WWxsec + sumWZ/NgenWZ*WZxsec)/(WWxsec + WZxsec)
+	 << '\n';
+    cout.flush();
+  }
 
   if (parameterize) {
 

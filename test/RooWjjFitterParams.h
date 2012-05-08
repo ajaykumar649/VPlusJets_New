@@ -43,6 +43,7 @@ public:
   TString muonData;
   TString electronData;
   double intLumi;
+  bool overwriteDibosonPDFWithVBFWW;
   bool constrainDiboson;
   bool constrainDibosonShape;
   bool externalConstraints;
@@ -110,7 +111,8 @@ RooWjjFitterParams::RooWjjFitterParams() :
   cuts(""), QCDcuts(""), var("Mass2j_PFCor"), treeName("WJet"), toyWpJ(false),
   muonData("WmunuJets_DataAll_GoldenJSON_2p1invfb.root"),
   electronData("WenuJets_DataAll_GoldenJSON_2p1invfb.root"),
-  intLumi(2100.), constrainDiboson(true), constrainDibosonShape(false),
+  intLumi(2100.), overwriteDibosonPDFWithVBFWW(false), 
+  constrainDiboson(true), constrainDibosonShape(false),
   externalConstraints(true), constrainWpJShape(false), constrainWpJ(false),
   WpJfunction(0),
   do4body(false),

@@ -55,8 +55,7 @@ from math import sqrt
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
-fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile,
-                              opts.btag)
+fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.btag, opts.toydataFile)
 
 fitterPars.WpJfunction = opts.ParamWpJ
 #fitterPars.truncRange = True

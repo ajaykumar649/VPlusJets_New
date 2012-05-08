@@ -23,7 +23,8 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.includeMuons = True    
     fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root'
     fitterPars.includeElectrons = True
-   
+    fitterPars.overwriteDibosonPDFWithVBFWW = True
+    
     fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
     fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
