@@ -142,6 +142,7 @@ everything else : same as zero
         gPad.Update()
         gPad.WaitPrimitive()
 
+    bgHist.Scale(1., 'width')
     tmpfilename = 'tmp_H%i_%s_%iJets.root' % (opts.mHbasis, modeString, opts.Nj)
     foutput = TFile(tmpfilename, 'recreate')
 
