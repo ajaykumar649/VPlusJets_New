@@ -55,13 +55,14 @@ using namespace std;
 //const string inputDirPath = "/pnfs/cms/WAX/11/store/user/lnujj/MCFM_WW_aTGC";
 const string inputDirPath = "dcap://cmsdca1.fnal.gov:24140/pnfs/fnal.gov/usr/cms/WAX/11/store/user/lnujj/MCFM_WW_aTGC/Grid2D_LambdaZ_KappaGamma";
 const string f0Name = "WW_NLO_norm";
-string fName[7];
+const int NVARS = 7;
+string fName[NVARS];
 const string treeName = "h300";
-TFile* f[7];
-TTree* tree[7];
+TFile* f[NVARS];
+TTree* tree[NVARS];
 TFile* fSM;
 TTree* treeSM;
-
+TFile* fOutput;
 
 const string var1 = "sqrt(px5*px5+py5*py5)";
 const string histName1 = "Jet1pT";
@@ -106,7 +107,7 @@ const string title9 = "Sum P_{y} [GeV]";
 
 
 //define alternate coupling strings
-string steps[7] = {"-0.6", "-0.4", "-0.2", "0.0", "0.2", "0.4", "0.6"};
+string steps[NVARS] = {"-0.6", "-0.4", "-0.2", "0.0", "0.2", "0.4", "0.6"};
 
 
 
@@ -117,7 +118,7 @@ void title_binning( const char title[], int bins,
 		    float min, float max );
 TLegend* legend( std::string label, std::vector<TH1D*> &hist, bool upperleft=false);
 //////void scaling( TH1D* hist, Int_t dm_max, bool doTruncation=false );
-void draw_hist( Int_t varIndex, bool doYaxisTitle, std::vector<TH1D*> &hist);
+void draw_hist( Int_t varIndex, std::vector<TH1D*> &hist);
 TH1D* get_ratio( TH1D* hist_denominator, TH1D* hist_numerator);
 void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY=false );
 void GetCrossSection(string paramName, float& xsec, float& err);
@@ -134,11 +135,10 @@ void GetCrossSection(string paramName, float& xsec, float& err);
 
 ////////////// primary function //////////////////////////
 void anomalousTGC() {
-  fSM = TFile::Open( (inputDirPath+"/LambdaZ_0.0_dKgamma_0.0.root").c_str(), "read");
-  treeSM = (TTree*)fSM->Get(treeName.c_str());
+  // for (int j=0; j<NVARS; ++j) { runAnomalousTGC(j); }
+  // for (int j=5; j<7; ++j) { runAnomalousTGC(j); }
 
-  for (int j=0; j<7; ++j) { runAnomalousTGC(j); }
-
+  runAnomalousTGC(4);
 }
 
 
@@ -151,14 +151,19 @@ void anomalousTGC() {
 ////////////// utility  function //////////////////////////
 void runAnomalousTGC(int atgcIndex) {
 
+  fSM = TFile::Open( (inputDirPath+"/LambdaZ_0.0_dKgamma_0.0.root").c_str(), "read");
+  treeSM = (TTree*)fSM->Get(treeName.c_str());
+
   char temp[100];
-  sprintf(temp, "#lambda_Z = %.1f, #kappa#gamma = ", 0.2*(atgcIndex-3));
+  sprintf(temp, "Histograms_ratio_aTGC_LambdaZ%.1f.root", 0.2*(atgcIndex-3));
+  fOutput = new TFile(temp, "recreate");
+  sprintf(temp, "#lambda_{Z} = %.1f", 0.2*(atgcIndex-3));
   std::string label = string(temp);
 
 
   // read the input samples for various values of aTGC parameters
-  int normtree[7];
-  for(int i=0; i<7; ++i) {
+  int normtree[NVARS];
+  for(int i=0; i<NVARS; ++i) {
     sprintf(temp, "LambdaZ_%.1f_dKgamma_%.1f.root", 0.2*(atgcIndex-3), 0.2*(i-3));
     fName[i] = string(temp);
     f[i] = TFile::Open( (inputDirPath+"/"+fName[i]).c_str(), "read");
@@ -168,7 +173,7 @@ void runAnomalousTGC(int atgcIndex) {
 
 
   ///////////// Print out the tree names and number of entries etc. /////////////
-  for(int i=0; i<7; ++i) {
+  for(int i=0; i<NVARS; ++i) {
     cout << fName[i].c_str() << " : "  << treeName.c_str() << " : " << normtree[i] << endl;
   }
 
@@ -178,16 +183,18 @@ void runAnomalousTGC(int atgcIndex) {
 
 
   // Filling histograms for the five kinematic variables, e.g., W pT
-  MakeComparisonPlot(label, 1, true);
-  MakeComparisonPlot(label, 2, true);
-  MakeComparisonPlot(label, 3, true);
-  MakeComparisonPlot(label, 4, true);
-  MakeComparisonPlot(label, 5, true);
+  MakeComparisonPlot(label, 1, false);
+  MakeComparisonPlot(label, 2, false);
+  MakeComparisonPlot(label, 3, false);
+  MakeComparisonPlot(label, 4, false);
+  MakeComparisonPlot(label, 5, false);
 
   MakeComparisonPlot(label, 6, false);
   MakeComparisonPlot(label, 7, false);
-  MakeComparisonPlot(label, 8, true);
-  MakeComparisonPlot(label, 9, true);
+  MakeComparisonPlot(label, 8, false);
+  MakeComparisonPlot(label, 9, false);
+  fOutput->Close();
+  delete fOutput;
 }
 
 
@@ -216,13 +223,17 @@ void title_binning( const char title[], int bins, float min, float max ) {
 
 
 TLegend* legend( std::string label, std::vector<TH1D*> &hist, bool upperleft) {
-  Double_t x1=0.7, y1=0.49;
-  if(upperleft) x1=0.22;
-  Double_t  x2=x1+0.2, y2=y1+0.42;
-  TLegend *l = new TLegend( x1, y1, x2, y2 );
 
-  for(int i=0; i<7; ++i) {
-    l->AddEntry(hist[i], (label+steps[i]).c_str(), "lp");
+  Double_t x1=0.6, y1=0.65;
+  if(upperleft) x1=0.22;
+  Double_t  x2=x1+0.3, y2=y1+0.27;
+  TLegend *l = new TLegend( x1, y1, x2, y2 );
+  l->SetHeader(label.c_str());
+  char temp[100];
+
+  for(int i=0; i<NVARS; ++i) {
+    sprintf(temp, "#Delta#kappa_{#gamma} = %.1f", 0.2*(i-3));
+    l->AddEntry(hist[i], temp, "lp");
   }
   l->SetFillColor(0);
   return l;
@@ -252,7 +263,7 @@ TLegend* legend( std::string label, std::vector<TH1D*> &hist, bool upperleft) {
 
 
 
-void draw_hist( Int_t varIndex, bool doYaxisTitle, std::vector<TH1D*> &hist){
+void draw_hist( Int_t varIndex, std::vector<TH1D*> &hist){
 
   string variable;
   string plotname;
@@ -334,9 +345,9 @@ void draw_hist( Int_t varIndex, bool doYaxisTitle, std::vector<TH1D*> &hist){
     dm_max = 100.;
   }
   else {
-    bins = 18; 
+    bins = 14; 
     dm_min = 50.; 
-    dm_max = 500.;
+    dm_max = 400.;
   }
 
   //////////// now make histogram ////////////////////////
@@ -345,8 +356,8 @@ void draw_hist( Int_t varIndex, bool doYaxisTitle, std::vector<TH1D*> &hist){
   const char title[100]="";
   title_binning(title, bins, dm_min, dm_max);
 
-  for(int i=0; i<7; ++i) {
-    histname = TString(plotname) + TString(varIndex) + TString(steps[i]);
+  for(int i=0; i<NVARS; ++i) {
+    histname = TString(plotname) + TString(steps[i]);
     hist[i] = new TH1D(histname, "", bins, dm_min, dm_max);
 
     Color_t color = kBlack;
@@ -369,22 +380,21 @@ void draw_hist( Int_t varIndex, bool doYaxisTitle, std::vector<TH1D*> &hist){
 
     hist[i]->Scale(0.001*xsection/tree[i]->GetEntries());
     hist[i]->GetXaxis()->SetTitle(axis_label.c_str());
-    //   if (doYaxisTitle){
     hist[i]->SetNdivisions(505);      
     hist[i]->GetYaxis()->SetTitle(title);
-    // } // if
 
     hist[i]->Print();
   }
 
 
   ///// Fill the SM histogram 
-  histname = TString(plotname) + TString(varIndex) + "SM";
-  hist[7] = new TH1D(histname, "", bins, dm_min, dm_max);
+  histname = TString(plotname) + TString("SM");
+  hist[NVARS] = new TH1D(histname, "", bins, dm_min, dm_max);
+  hist[NVARS]->Sumw2();
   treeSM->Draw( TString(variable.c_str())+TString(">>")+histname, "", "goff");
   GetCrossSection("SM", xsection, error);
-  hist[7]->Scale(0.001*xsection/treeSM->GetEntries());
-  hist[7]->Print();
+  hist[NVARS]->Scale(0.001*xsection/treeSM->GetEntries());
+  hist[NVARS]->Print();
 
 } // draw_hist
 
@@ -424,16 +434,15 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
   else return;
 
   TString atgcLabel(label);
-  atgcLabel.ReplaceAll("#lambda_Z = ", "_");
-  atgcLabel.ReplaceAll(", #kappa#gamma = ", "");
+  atgcLabel.ReplaceAll("#lambda_{Z} = ", "_");
 
 
   // get and draw the basic graphs for comparisons with anomalous couplings
-  std::vector<TH1D*> hist(8);
-  draw_hist( varIndex, false, hist);
-  TH1D* ratio_hist[7];
-  for(int i=0; i<7; ++i) {
-    ratio_hist[i] = get_ratio( hist[7], hist[i] );
+  std::vector<TH1D*> hist(NVARS+1);
+  draw_hist( varIndex, hist);
+  TH1D* ratio_hist[NVARS];
+  for(int i=0; i<NVARS; ++i) {
+    ratio_hist[i] = get_ratio( hist[NVARS], hist[i] );
   }
 
 
@@ -446,9 +455,10 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
   TCanvas* c1 = new TCanvas( ("can1_"+plotname).c_str(), plotname.c_str(), 500, 500);
   hist[0]->Draw("pe");
   hist[0]->Draw("same chist");
-  for(int i=0; i<7; ++i) { hist[i]->Draw("pe same"); hist[i]->Draw("same chist"); }
+  for(int i=0; i<NVARS; ++i) { hist[i]->Draw("pe same"); hist[i]->Draw("same chist"); }
   if(doLogY) c1->SetLogy();
-  TLegend* l =  legend( label, hist );
+  TLegend* l1 =  legend( label, hist );
+  l1->Draw(); 
   c1->Print(TString(plotname)+atgcLabel+TString(".png")); 
 
 
@@ -457,14 +467,23 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
 
   // draw ratio between the normal and each anomalous coupling
   TCanvas* c2 = new TCanvas( ("can2_"+plotname).c_str(), plotname.c_str(), 500, 500);
-  ratio_hist[1]->GetYaxis()->SetRangeUser(0.8, 1.8); 
+  ratio_hist[1]->GetYaxis()->SetRangeUser(0.999, 10.); 
   ratio_hist[1]->Draw("pe"); 
   ratio_hist[1]->Draw("same chist");
-  for(int i=0; i<7; ++i) { ratio_hist[i]->Draw("pe same"); ratio_hist[i]->Draw("same chist"); }
+  for(int i=0; i<NVARS; ++i) { 
+    ratio_hist[i]->GetYaxis()->SetRangeUser(0.999, 10.); 
+    ratio_hist[i]->Draw("pe same"); 
+    ratio_hist[i]->Draw("same chist"); 
+  }
+  c2->Update();
+  if(doLogY) c2->SetLogy();
   TLegend* l2 =  legend( label, hist, true );
   l2->Draw();
   c2->Print(TString(plotname)+atgcLabel+TString("_ratio.png")); 
 
+
+  fOutput->cd();
+  for(int i=0; i<NVARS; ++i) {  ratio_hist[i]->Write(); }
 
   delete c1;
   delete c2;
@@ -476,8 +495,61 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
 
 //////////////////////// Get the right cross section for each sample ////////////
 void GetCrossSection(string paramName, float& xsec, float& err) {
-  if(paramName.compare("SM")==0) { xsec =       856.199; err =     1.045;}
 
+  if(paramName.compare("SM")==0) { xsec =       871.321; err =     0.933;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_-0.6.root")==0) { xsec =      2009.016;     err = 1.278;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_-0.4.root")==0) { xsec =      1960.101;     err = 1.293;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_-0.2.root")==0) { xsec =      1928.489;     err = 1.274;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_0.0.root")==0) { xsec =      1915.580;     err = 1.288;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_0.2.root")==0) { xsec =      1920.435;     err = 1.327;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_0.4.root")==0) { xsec =      1943.721;     err = 1.281;}
+  if(paramName.compare("LambdaZ_-0.6_dKgamma_0.6.root")==0) { xsec =      1986.124;     err = 1.290;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_-0.6.root")==0) { xsec =      1412.035;     err = 0.929;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_-0.4.root")==0) { xsec =      1362.865;     err = 1.000;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_-0.2.root")==0) { xsec =      1330.305;     err = 0.959;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_0.0.root")==0) { xsec =      1317.236;     err = 0.889;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_0.2.root")==0) { xsec =      1322.865;     err = 0.889;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_0.4.root")==0) { xsec =      1345.060;     err = 0.893;}
+  if(paramName.compare("LambdaZ_-0.4_dKgamma_0.6.root")==0) { xsec =      1386.598;     err = 0.936;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_-0.6.root")==0) { xsec =      1066.104;     err = 0.699;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_-0.4.root")==0) { xsec =      1016.150;     err = 0.716;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_-0.2.root")==0) { xsec =       983.940;     err = 0.674;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_0.0.root")==0) { xsec =       970.492;     err = 0.706;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_0.2.root")==0) { xsec =       975.325;     err = 0.717;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_0.4.root")==0) { xsec =       997.318;     err = 0.717;}
+  if(paramName.compare("LambdaZ_-0.2_dKgamma_0.6.root")==0) { xsec =      1039.045;     err = 0.704;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_-0.6.root")==0) { xsec =       968.721;     err = 0.833;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_-0.4.root")==0) { xsec =       917.636;     err = 1.035;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_-0.2.root")==0) { xsec =       886.128;     err = 0.992;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_0.0.root")==0) { xsec =       871.321;     err = 0.933;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_0.2.root")==0) { xsec =       876.816;     err = 0.859;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_0.4.root")==0) { xsec =       898.762;     err = 1.196;}
+  if(paramName.compare("LambdaZ_0.0_dKgamma_0.6.root")==0) { xsec =       939.693;     err = 0.796;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_-0.6.root")==0) { xsec =      1120.865;     err = 0.761;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_-0.4.root")==0) { xsec =      1069.652;     err = 0.750;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_-0.2.root")==0) { xsec =      1037.285;     err = 0.723;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_0.0.root")==0) { xsec =      1023.622;     err = 0.759;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_0.2.root")==0) { xsec =      1026.999;     err = 0.751;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_0.4.root")==0) { xsec =      1048.993;     err = 0.703;}
+  if(paramName.compare("LambdaZ_0.2_dKgamma_0.6.root")==0) { xsec =      1088.660;     err = 0.788;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_-0.6.root")==0) { xsec =      1521.679;     err = 0.999;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_-0.4.root")==0) { xsec =      1470.608;     err = 0.981;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_-0.2.root")==0) { xsec =      1437.806;     err = 0.931;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_0.0.root")==0) { xsec =      1422.839;     err = 0.997;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_0.2.root")==0) { xsec =      1427.382;     err = 0.973;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_0.4.root")==0) { xsec =      1447.684;     err = 1.080;}
+  if(paramName.compare("LambdaZ_0.4_dKgamma_0.6.root")==0) { xsec =      1487.612;     err = 0.938;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_-0.6.root")==0) { xsec =      2172.604;     err = 1.419;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_-0.4.root")==0) { xsec =      2122.149;     err = 1.356;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_-0.2.root")==0) { xsec =      2088.321;     err = 1.352;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_0.0.root")==0) { xsec =      2072.907;     err = 1.387;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_0.2.root")==0) { xsec =      2074.902;     err = 1.341;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_0.4.root")==0) { xsec =      2097.831;     err = 1.328;}
+  if(paramName.compare("LambdaZ_0.6_dKgamma_0.6.root")==0) { xsec =      2138.094;     err = 1.358;}
+
+
+  /*
+  if(paramName.compare("SM")==0) { xsec =       856.199; err =     1.045;}
   if(paramName.compare("LambdaZ_-0.6_dKgamma_-0.6.root")==0) { xsec =      2049.823; err =     1.385;}
   if(paramName.compare("LambdaZ_-0.6_dKgamma_-0.4.root")==0) { xsec =      2001.091; err =     1.351;}
   if(paramName.compare("LambdaZ_-0.6_dKgamma_-0.2.root")==0) { xsec =      1971.554; err =     1.372;}
@@ -529,7 +601,7 @@ void GetCrossSection(string paramName, float& xsec, float& err) {
   if(paramName.compare("LambdaZ_0.6_dKgamma_0.6.root")==0) { xsec =      2188.084; err =     1.431;}
  
 
-  /*
+ 
   ///// all numbers are in the units of fb ///////////
   if(paramName.compare("SM")==0) { xsec =       693.0 ; err =      0.7 ;}
   if(paramName.compare("Delta_g1_Z-0.25d0")==0) { xsec =       697.238 ; err =      1.855 ;}
