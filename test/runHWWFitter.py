@@ -5,77 +5,6 @@
 ##       python runHWWFitter.py -m HWWMuonsConfig -j 2 -H 300 -W <N>
 ######################################################
 
-def NgenHiggs(mH, includeElectron, includeMuon):
-    Ngen = {160 : (109992,9.080,0.133),
-            170 : (109989,7.729,0.141),
-            180 : (109325,6.739,0.137),
-            190 : (109986,5.896,0.115),
-            200 : (109315,5.249,0.108),
-            250 : (109992,3.312,0.103),
-            300 : (109990,2.422,0.101),
-            350 : (109313,2.306,0.099),
-            400 : (107879,2.032,0.0852),
-            450 : (107158,1.359,0.0808),
-            500 : (107169,0.849,0.0799),
-            550 : (107870,0.528,0.0806),
-            600 : (108561,0.327,0.0818)}
-
-    retVal = 0
-    if includeElectron:
-        retVal += Ngen[mH][0]/2
-    if includeMuon:
-        retVal += Ngen[mH][0]/2
-
-    return (retVal,Ngen[mH])
-
-def NgenVBFHiggs(mH, includeElectron, includeMuon):
-    Ngen = {160 : 169351,
-            170 : 161768,
-            180 : 219267,
-            190 : 213014,
-            200 : 217423,
-            250 : 218679,
-            300 : 217427,
-            350 : 213673,
-            400 : 204894,
-            450 : 164553,
-            500 : 218520,
-            550 : 215938,
-            600 : 214510
-            }
-
-    retVal = 0
-    if includeElectron:
-        retVal += Ngen[mH]/2
-    if includeMuon:
-        retVal += Ngen[mH]/2
-
-    return retVal
-
-def NgenHWWTauNu(mH, includeElectron, includeMuon):
-    Ngen = {160 : 109993,
-            170 : 102459,
-            180 : 105475,
-            190 : 109985,
-            200 : 93789,
-            250 : 105936,
-            300 : 102570,
-            350 : 105270,
-            400 : 106818,
-            450 : 104259,
-            500 : 104268,
-            550 : 106658,
-            600 : 109970
-            }
-    retVal = 0
-    if includeElectron:
-        retVal += Ngen[mH]/2
-    if includeMuon:
-        retVal += Ngen[mH]/2
-
-    return retVal
-
-
 from optparse import OptionParser
 
 wpjhelp = '''Parameterization for W+jets fit ---
@@ -412,47 +341,47 @@ pf4.SetName("Mlvjj_Pull")
 lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 lf4.SetName("Mlvjj_log")
 
-fitUtils = RooWjjFitterUtils(pars4)
-HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
-VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
-                                                            modeString))
-TauNuHiggsHist = fitUtils.newEmptyHist('HWWTauNu%i_%s_shape' % (opts.mH,
-                                                                modeString))
+import HWWSignalShapes
+# fitUtils = RooWjjFitterUtils(pars4)
+# HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
+# VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
+#                                                             modeString))
+# TauNuHiggsHist = fitUtils.newEmptyHist('HWWTauNu%i_%s_shape' % (opts.mH,
+#                                                                 modeString))
 
-if pars4.includeMuons:
-    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-                                 'mu_HWWMH%i_CMSSW428.root' % (opts.mH),
-                                 'HWW%i_mu' % (opts.mH), False, 1, False)
-    HiggsHist.Add(thehist)
-    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-                                 'mu_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
-                                 'VBFHWW%i_mu' % (opts.mH), False, 1, False)
-    VBFHiggsHist.Add(thehist)
-    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-                                 'mu_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
-                                 'HWWTauNu%i_mu' % (opts.mH), False, 1, False)
-    TauNuHiggsHist.Add(thehist)
+# if pars4.includeMuons:
+#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+#                                  'mu_HWWMH%i_CMSSW428.root' % (opts.mH),
+#                                  'HWW%i_mu' % (opts.mH), False, 1, False)
+#     HiggsHist.Add(thehist)
+#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+#                                  'mu_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
+#                                  'VBFHWW%i_mu' % (opts.mH), False, 1, False)
+#     VBFHiggsHist.Add(thehist)
+#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+#                                  'mu_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
+#                                  'HWWTauNu%i_mu' % (opts.mH), False, 1, False)
+#     TauNuHiggsHist.Add(thehist)
 
-if pars4.includeElectrons:
-    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-                                 'el_HWWMH%i_CMSSW428.root' % (opts.mH),
-                                 'HWW%i_el' % (opts.mH), True, 1, False)
-    HiggsHist.Add(thehist)
-    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-                                 'el_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
-                                 'VBFHWW%i_el' % (opts.mH), True, 1, False)
-    VBFHiggsHist.Add(thehist)
-    thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-                                 'el_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
-                                 'HWWTauNu%i_el' % (opts.mH), True, 1, False)
-    TauNuHiggsHist.Add(thehist)
+# if pars4.includeElectrons:
+#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+#                                  'el_HWWMH%i_CMSSW428.root' % (opts.mH),
+#                                  'HWW%i_el' % (opts.mH), True, 1, False)
+#     HiggsHist.Add(thehist)
+#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+#                                  'el_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
+#                                  'VBFHWW%i_el' % (opts.mH), True, 1, False)
+#     VBFHiggsHist.Add(thehist)
+#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
+#                                  'el_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
+#                                  'HWWTauNu%i_el' % (opts.mH), True, 1, False)
+#     TauNuHiggsHist.Add(thehist)
 
+sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH)
 
 extraFactor = 10.
-(Ngen,otherdata) = NgenHiggs(opts.mH, pars4.includeElectrons,
-                             pars4.includeMuons)
-HiggsHist.Scale(1./float(Ngen), 'width')
-SigVisual = TH1D(HiggsHist)
+(Ngen,otherdata) = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
+SigVisual = TH1D(sigHists['HWW'])
 SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)
 SigVisual.SetLineWidth(3)
@@ -460,17 +389,6 @@ SigVisual.Scale(pars4.intLumi*extraFactor*otherdata[1]*otherdata[2])
 SigVisual.Print()
 SigVisualLog = TH1D(SigVisual)
 SigVisualLog.SetName("SigVisualLog")
-
-NgenVBF = NgenVBFHiggs(opts.mH, pars4.includeElectrons, pars4.includeMuons)
-VBFHiggsHist.Scale(1./float(NgenVBF),'width')
-
-NgenTauNu = NgenHWWTauNu(opts.mH, pars4.includeElectrons, pars4.includeMuons)
-TauNuHiggsHist.Scale(1./float(NgenTauNu), 'width')
-
-print "Ngen Higgs:",Ngen,"VBF Higgs:",NgenVBF,"HWW -> tau nu jj:",NgenTauNu
-HiggsHist.Print()
-VBFHiggsHist.Print()
-TauNuHiggsHist.Print()
 
 c4body = TCanvas('c4body', '4 body stacked')
 mf4.addTH1(SigVisual, "hist")
@@ -575,9 +493,11 @@ theData.Write()
 h_total_up.Write();
 h_total_down.Write();
 
-HiggsHist.Write()
-VBFHiggsHist.Write()
-TauNuHiggsHist.Write()
+for mode in sigHists:
+    sigHists[mode].Write()
+# HiggsHist.Write()
+# VBFHiggsHist.Write()
+# TauNuHiggsHist.Write()
 
 mf.Write()
 pf.Write()
