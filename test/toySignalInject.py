@@ -88,6 +88,7 @@ everything else : same as zero
         RooCurve, TH1D, RooAbsData
     import re
     import HWWSignalShapes
+    import templateMorph
 
     
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
@@ -117,7 +118,8 @@ everything else : same as zero
     SignalHist = HWWSignalShapes.makeHiggsHist(opts.mH, pars4, 'HWW')
     SignalHist.Scale(otherdata[1]*otherdata[2]*pars4.intLumi* \
                          opts.factor/otherdata[0])
-
+    print "signal only"
+    SignalHist.Print()
     if opts.debug:
         print 'drawing signal histogram...'
         SignalHist.Draw()
@@ -130,23 +132,22 @@ everything else : same as zero
     bfile = TFile(basisFilename)
     bgCurve = bfile.Get('h_total')
     theData = bfile.Get('theData')
-    oldDataHist = TH1D(SignalHist)
-    oldDataHist.Reset('ices')
-    oldDataHist.SetName('oldDataHist')
-    oldDataHist.SetTitle('oldDataHist')
-    oldDataHist = RooHistToHist(theData, oldDataHist, opts.debug)
-
     if opts.debug:
+        oldDataHist = TH1D(SignalHist)
+        oldDataHist.Reset('ices')
+        oldDataHist.SetName('oldDataHist')
+        oldDataHist.SetTitle('oldDataHist')
+        oldDataHist = RooHistToHist(theData, oldDataHist, opts.debug)
+
         print 'drawing old data...'
         oldDataHist.Draw()
         theData.Draw("pz")
         gPad.Update()
         gPad.WaitPrimitive()
 
-    import templateMorph
-    oldDataHist = templateMorph.scaleUnwidth(oldDataHist)
+        oldDataHist = templateMorph.scaleUnwidth(oldDataHist)
 
-    oldDataHist.Print()
+        oldDataHist.Print()
 
     bgHist = TH1D(SignalHist)
     bgHist.Reset('ices')
@@ -157,14 +158,15 @@ everything else : same as zero
     tmpData = RooHist(bgHist, 0, 1, RooAbsData.SumW2)
     tmpHist = TH1D(bgHist)
 
-    if opts.debug:
-        print 'drawing toy data bg residuals before signal addition...'
-        resid = tmpData.makeResidHist(bfile.Get('h_total'))
-        resid.Draw('apz')
-        gPad.Update()
-        gPad.WaitPrimitive()
+    # if opts.debug:
+    #     print 'drawing toy data bg residuals before signal addition...'
+    #     resid = tmpData.makeResidHist(bfile.Get('h_total'))
+    #     resid.Draw('apz')
+    #     gPad.Update()
+    #     gPad.WaitPrimitive()
 
     bgHist = templateMorph.scaleUnwidth(bgHist)
+    print 'background only'
     bgHist.Print()
 
     bgHist.Add(SignalHist)
@@ -177,6 +179,8 @@ everything else : same as zero
         gPad.Update()
         gPad.WaitPrimitive()
 
+    print 'background + signal injection'
+    bgHist.Print()
     bgHist.Scale(1., 'width')
     tmpfilename = 'tmp_H%i_%s_%iJets.root' % (opts.mHbasis, modeString, opts.Nj)
     foutput = TFile(tmpfilename, 'recreate')
