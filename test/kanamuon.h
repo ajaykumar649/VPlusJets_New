@@ -285,6 +285,7 @@ public :
    Float_t         event_BeamSpot_y;
    Float_t         event_BeamSpot_z;
    Int_t           numW;
+   Float_t         event_mcPU_trueInteractions;
    Float_t         event_mcPU_nvtx[3];
    Float_t         event_fastJetRhoCHS;
    Float_t         event_RhoForLeptonIsolationCHS;
@@ -556,6 +557,7 @@ public :
    TBranch        *b_event_BeamSpot_z;   //!
    TBranch        *b_numW;   //!
    TBranch        *b_event_mcPU_nvtx;   //!
+   TBranch        *b_event_mcPU_trueInteractions;   //!
    TBranch        *b_event_fastJetRhoCHS;   //!
    TBranch        *b_event_RhoForLeptonIsolationCHS;   //!
 
@@ -913,6 +915,7 @@ void kanamuon::Init(TTree *tree)
    fChain->SetBranchAddress("event_BeamSpot_z", &event_BeamSpot_z, &b_event_BeamSpot_z);
    fChain->SetBranchAddress("numW", &numW, &b_numW);
    fChain->SetBranchAddress("event_mcPU_nvtx", event_mcPU_nvtx, &b_event_mcPU_nvtx);
+   fChain->SetBranchAddress("event_mcPU_trueInteractions", &event_mcPU_trueInteractions, &b_event_mcPU_trueInteractions);
    fChain->SetBranchAddress("event_fastJetRhoCHS", &event_fastJetRhoCHS, &b_event_fastJetRhoCHS);
    fChain->SetBranchAddress("event_RhoForLeptonIsolationCHS", &event_RhoForLeptonIsolationCHS, &b_event_RhoForLeptonIsolationCHS);
    Notify();
