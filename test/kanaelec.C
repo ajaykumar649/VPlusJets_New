@@ -789,7 +789,7 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
     nb = newtree->GetEntry(jentry);   nbytes += nb;
     // Cut variable definitions
     double jess    = 1.00; // control the jet energy scale
-    double electroniso = (W_electron_trackiso+W_electron_hcaliso+W_electron_ecaliso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_electron_pt;
+    double electroniso = (W_electron_pfiso_chargedHadronIso+W_electron_pfiso_photonIso+W_electron_pfiso_neutralHadronIso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_electron_pt;
     double dijetpt = sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+
 			  JetPFCor_Pt[1]*JetPFCor_Pt[1]+
 			  2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]));

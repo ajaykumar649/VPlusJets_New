@@ -752,7 +752,7 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
     nb = newtree->GetEntry(jentry);   nbytes += nb;
     // Cut variable definitions
     double jess    = 1.00; // control the jet energy scale
-    double muoniso = (W_muon_trackiso+W_muon_hcaliso+W_muon_ecaliso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_muon_pt;
+    double muoniso = (W_muon_pfiso_sumChargedHadronPt+W_muon_pfiso_sumNeutralHadronEt+W_muon_pfiso_sumPhotonEt-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_muon_pt;
     double dijetpt = sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+
 			  JetPFCor_Pt[1]*JetPFCor_Pt[1]+
 			  2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]));
