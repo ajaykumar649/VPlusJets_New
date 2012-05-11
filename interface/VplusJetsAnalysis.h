@@ -127,6 +127,7 @@ namespace ewk
     float genMETSign;
     float genMETPhi;
 
+    float mcPUtrueInteractions;
     float mcPUtotnvtx;
     float mcPUbx[3];
     float mcPUnvtx[3];
