@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #WP80 electrons, only track iso, remove H/E cut
 
-
 isQCD = False
 
 superclusterCutString_EB = cms.string("")
@@ -19,8 +18,8 @@ else:
     isolationCutString = "(dr03TkSumPt/p4.Pt <0.1)"
 
 
-tightElectrons = cms.EDFilter("GsfElectronRefSelector",
-    src = cms.InputTag( "gsfElectrons" ),
+tightElectrons = cms.EDFilter("PATElectronRefSelector",
+    src = cms.InputTag( "selectedPatElectronsPFlow" ),
     cut = cms.string(
     "(ecalDrivenSeed==1) && (abs(superCluster.eta)<2.5)"
     " && !(1.4442<abs(superCluster.eta)<1.566)"
