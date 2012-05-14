@@ -10,10 +10,7 @@ LDFLAGS := `root-config --libs`
 
 all : exe
 
-exe: makeDataCardSingleBin.exe makeDataCardShapes.exe makeDataCardFromTable.exe makeDataCardShapes4tgc.exe
-
-makeDataCardSingleBin.exe: makeDataCardSingleBin.o systematics.o
-	${CXX} -g -o $@ $^  ${LDFLAGS}
+exe: makeDataCardShapes.exe makeDataCardFromTable.exe makeDataCardShapes4tgc.exe
 
 makeDataCardShapes.exe: makeDataCardShapes.o
 	${CXX} -g -o $@ $^  ${LDFLAGS}
@@ -28,6 +25,3 @@ makeDataCardShapes.o: makeDataCardShapes.cc hwwshapes.C dcutils.C hwwinputs.h mj
 
 makeDataCardShapes4tgc.o: makeDataCardShapes4tgc.cc dcutils.C atgcinputs.h
 
-makeDataCardSingleBin.o: systematics.h makeDataCardSingleBin.hh
-
-systematics.o: systematics.h
