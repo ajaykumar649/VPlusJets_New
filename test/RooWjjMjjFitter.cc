@@ -199,17 +199,26 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   RooAbsPdf * fitPdf = totalPdf;
   if (!params_.externalConstraints) {
     Constraints.add(*totalPdf);
-    fitPdf = new RooProdPdf("fitPdf", "fitPdf", Constraints);
+    ws_.import(RooProdPdf("fitPdf", "fitPdf", Constraints));
+    fitPdf = ws_.pdf("fitPdf");
+    // fitPdf->Print("v");
   }
+  std::cout << "is fitter extended? " << fitPdf->canBeExtended()
+	    << " must be extended? " << fitPdf->mustBeExtended()
+	    << " extend mode: " << fitPdf->extendMode()
+	    << " expedted events: " << fitPdf->expectedEvents(data->get())
+	    << " fit range: " << rangeString_
+	    << '\n';
+
   fitResult = fitPdf->fitTo(*data, Save(true), 
-			    ( (params_.externalConstraints) ?
-			      ExternalConstraints(Constraints) :
-			      Constrained() ),
+			    // ( (params_.externalConstraints) ?
+			    //   ExternalConstraints(Constraints) :
+			    //   Constrained() ),
 			    RooFit::Extended(true), 
 			    RooFit::Minos(false), 
 			    RooFit::Hesse(true),
 			    PrintEvalErrors(-1),
-			    RooFit::Range(rangeString_),
+			    // RooFit::Range(rangeString_),
 			    Warnings(false) 
 			    );
   
@@ -227,12 +236,14 @@ double RooWjjMjjFitter::computeChi2(int& ndf, bool correct) {
   mass->setBinning(plotBins);
   RooAbsData * data = ws_.data("data");
 
-  TH1 * dataHist = utils_.newEmptyHist("theData");
-  RooTreeDataStore * dataStore = 
-    dynamic_cast<RooTreeDataStore *>(data->store());
-  dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
-					 "theData"),
-			 utils_.fitCuts(), "goff");
+  TH1 * dataHist = data->createHistogram("theData", *mass, 
+					 RooFit::Binning("plotBinning"));
+  // TH1 * dataHist = utils_.newEmptyHist("theData");
+  // RooTreeDataStore * dataStore = 
+  //   dynamic_cast<RooTreeDataStore *>(data->store());
+  // dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
+  // 					 "theData"),
+  // 			 utils_.fitCuts(), "goff");
   //dataHist->Scale(1., "width");
   RooHist h_data(*dataHist, 0., 1, errorType_, 1.0,
 		 false);
@@ -377,6 +388,8 @@ RooAbsPdf * RooWjjMjjFitter::makeFitter(bool allOne) {
 
     /////*** End Toy MC Generation Code ***/////
   }
+
+  ws_.Print();
 
   return ws_.pdf("totalPdf"); 
 }
@@ -540,8 +553,10 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
 //   double WWweight = 53./4225916.;
 //   double WZweight = 17./4265243.;
   //NLO Predictions
-  int const NgenWW = 4225916, NgenWZ = 4265243;
-  double const WWxsec = 47.0, WZxsec = 18.6;
+  // int const NgenWW = 4225916, NgenWZ = 4265243;
+  int const NgenWW = 10000431, NgenWZ = 10000283;
+  // double const WWxsec = 47.0, WZxsec = 18.6;
+  double const WWxsec = 57.1097, WZxsec = 32.3161;
   double WWweight = WWxsec/NgenWW;
   double WZweight = WZxsec/NgenWZ;
   //VBF Predictions
@@ -589,13 +604,13 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
     }
   } else {
     if (params_.includeMuons) {
-      tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW428.root",
+      tmpHist  = utils_.File2Hist(params_.MCDirectory+"mu_WW_CMSSW525.root",
 				  "hist_ww_mu", false, 0, false, dibosonScale);
       sumWW += tmpHist->Integral();
       //     NWW += NgenWW/2.;
       th1diboson->Add(tmpHist, WWweight);
       delete tmpHist;
-      tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW428.root",
+      tmpHist = utils_.File2Hist(params_.MCDirectory+"mu_WZ_CMSSW525.root",
 				 "hist_wz_mu", false, 0, false, dibosonScale);
       sumWZ += tmpHist->Integral();
       //     NWZ += NgenWZ/2.;
@@ -603,13 +618,13 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
       delete tmpHist;
     }
     if (params_.includeElectrons) {
-      tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW428.root",
+      tmpHist  = utils_.File2Hist(params_.MCDirectory+"el_WW_CMSSW525.root",
 				  "hist_ww_el", true, 0, false, dibosonScale);
       sumWW += tmpHist->Integral();
       //     NWW += NgenWW/2.;
       th1diboson->Add(tmpHist, WWweight);
       delete tmpHist;
-      tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW428.root",
+      tmpHist = utils_.File2Hist(params_.MCDirectory+"el_WZ_CMSSW525.root",
 				 "hist_wz_el", true, 0, false, dibosonScale);
       sumWZ += tmpHist->Integral();
       //     NWZ += NgenWZ/2.;
@@ -693,9 +708,8 @@ RooAbsPdf * RooWjjMjjFitter::makeDibosonPdf(int parameterize) {
 
   } else {
     th1diboson->Scale(1., "width");
-    RooAbsPdf * dibosonPdf = utils_.Hist2Pdf(th1diboson, "dibosonPdf",
-					     ws_, histOrder);
-    ws_.import(*dibosonPdf);
+    utils_.Hist2Pdf(th1diboson, "dibosonPdf", ws_, histOrder);
+    //ws_.import(*dibosonPdf);
     //delete dibosonPdf;
   }
 
@@ -723,37 +737,39 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
       tmpHist = utils_.File2Hist("/uscms_data/d2/kalanand/WjjTrees/FromPATTuples/mu_WbbMG_CMSSW428.root",
 				 "hist_wpj_mu", false, 1, params_.toyWpJ);
       th1WpJ->Add(tmpHist);
-      cout << "NWJetDefaultHistEntries=" << th1WpJ->GetEntries() << endl;
+      // cout << "NWJetDefaultHistEntries=" << th1WpJ->GetEntries() << endl;
       delete tmpHist;
     } else {
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 				 //"mu_W4Jets_CMSSW428.root",
-				 "mu_WpJ_CMSSW428.root",
+				 "mu_WpJ_CMSSW525.root",
 				 "hist_wpj_mu", false, 1, params_.toyWpJ);
       th1WpJ->Add(tmpHist);
-      cout << "NWJetDefaultHistEntries=" << th1WpJ->GetEntries() << endl;
+      // cout << "NWJetDefaultHistEntries=" << th1WpJ->GetEntries() << endl;
       delete tmpHist;
     }
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "mu_WpJmatchingup_CMSSW428.root",
-			       "hist_wpj_mu_mu", false, 1, params_.toyWpJ);
-    th1WpJMU->Add(tmpHist);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "mu_WpJmatchingdown_CMSSW428.root",
-			       "hist_wpj_mu_md", false, 1, params_.toyWpJ);
-    th1WpJMD->Add(tmpHist);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "mu_WpJscaleup_CMSSW428.root",
-			       "hist_wpj_mu_su", false, 1, params_.toyWpJ);
-    th1WpJSU->Add(tmpHist);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "mu_WpJscaledown_CMSSW428.root",
-			       "hist_wpj_mu_sd", false, 1, params_.toyWpJ);
-    th1WpJSD->Add(tmpHist);
-    delete tmpHist;
+    if (params_.WpJfunction < 0) {
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "mu_WpJmatchingup_CMSSW525.root",
+				 "hist_wpj_mu_mu", false, 1, params_.toyWpJ);
+      th1WpJMU->Add(tmpHist);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "mu_WpJmatchingdown_CMSSW525.root",
+				 "hist_wpj_mu_md", false, 1, params_.toyWpJ);
+      th1WpJMD->Add(tmpHist);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "mu_WpJscaleup_CMSSW525.root",
+				 "hist_wpj_mu_su", false, 1, params_.toyWpJ);
+      th1WpJSU->Add(tmpHist);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "mu_WpJscaledown_CMSSW525.root",
+				 "hist_wpj_mu_sd", false, 1, params_.toyWpJ);
+      th1WpJSD->Add(tmpHist);
+      delete tmpHist;
+    }
   }
 
   if (params_.includeElectrons) {
@@ -768,35 +784,39 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     } else {
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
 				 //"el_W4Jets_CMSSW428.root",
-				 "el_WpJ_CMSSW428.root",
+				 "el_WpJ_CMSSW525.root",
 				 "hist_wpj_el", true, 1, params_.toyWpJ);
       th1WpJ->Add(tmpHist);
       delete tmpHist;
     }
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "el_WpJmatchingup_CMSSW428.root",
-			       "hist_wpj_el_mu", true, 1, params_.toyWpJ);
-    th1WpJMU->Add(tmpHist);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "el_WpJmatchingdown_CMSSW428.root",
-			       "hist_wpj_el_md", true, 1, params_.toyWpJ);
-    th1WpJMD->Add(tmpHist);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "el_WpJscaleup_CMSSW428.root",
-			       "hist_wpj_el_su", true, 1, params_.toyWpJ);
-    th1WpJSU->Add(tmpHist);
-    delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-			       "el_WpJscaledown_CMSSW428.root",
-			       "hist_wpj_el_sd", true, 1, params_.toyWpJ);
-    th1WpJSD->Add(tmpHist);
-    delete tmpHist;
+    if (params_.WpJfunction < 0) {
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "el_WpJmatchingup_CMSSW525.root",
+				 "hist_wpj_el_mu", true, 1, params_.toyWpJ);
+      th1WpJMU->Add(tmpHist);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "el_WpJmatchingdown_CMSSW525.root",
+				 "hist_wpj_el_md", true, 1, params_.toyWpJ);
+      th1WpJMD->Add(tmpHist);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "el_WpJscaleup_CMSSW525.root",
+				 "hist_wpj_el_su", true, 1, params_.toyWpJ);
+      th1WpJSU->Add(tmpHist);
+      delete tmpHist;
+      tmpHist = utils_.File2Hist(params_.WpJDirectory + 
+				 "el_WpJscaledown_CMSSW525.root",
+				 "hist_wpj_el_sd", true, 1, params_.toyWpJ);
+      th1WpJSD->Add(tmpHist);
+      delete tmpHist;
+    }
   }
 
-  double WJetsCrossX=31314.;
-  double WJetsNGen=81352581.;
+  // double WJetsCrossX=31314.;
+  double WJetsCrossX=36257.2;
+  // double WJetsNGen=81352581.;
+  double WJetsNGen=18385043;
   if ( params_.useWbbPDF ) {
     WJetsCrossX=85.6;
     WJetsNGen=22503418;
@@ -829,36 +849,19 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   nWjets.setConstant(false);
   nWjets.setError(TMath::Sqrt(initWjets_));
 
-  RooAbsPdf * WpJPdfSU = utils_.Hist2Pdf(th1WpJSU, "WpJPdfSU", ws_, histOrder);
-  RooRealVar fSU("fSU", "f_{scaleUp}", 0., -1., 1.);
-  RooAbsPdf * WpJPdfSD = utils_.Hist2Pdf(th1WpJSD, "WpJPdfSD", ws_, histOrder);
-
-  RooAbsPdf * WpJPdfMU = utils_.Hist2Pdf(th1WpJMU, "WpJPdfMU", ws_, histOrder);
-  RooRealVar fMU("fMU", "f_{matchingUp}", 0., -1., 1.);
-
-  RooAbsPdf * WpJPdfMD = utils_.Hist2Pdf(th1WpJMD, "WpJPdfMD", ws_, histOrder);
-
-  RooAbsPdf * WpJPdfNom = utils_.Hist2Pdf(th1WpJ, "WpJPdfNom", ws_, histOrder);
-
-  RooFormulaVar NMU("NMU", "@0*@1*(@1 >= 0.)", RooArgList(nWjets,fMU));
-  RooFormulaVar NMD("NMD", "@0*@1*(-1)*(@1 < 0.)", RooArgList(nWjets,fMU));
-  RooFormulaVar NSU("NSU", "@0*@1*(@1 >= 0.)", RooArgList(nWjets,fSU));
-  RooFormulaVar NSD("NSD", "@0*@1*(-1)*(@1 < 0.)", RooArgList(nWjets,fSU));
-  RooFormulaVar NNom("NNom", "@0*(1.-abs(@1)-abs(@2))",RooArgList(nWjets,fMU,fSU));
-
   RooRealVar * mass = ws_.var(params_.var);
-  RooRealVar turnOn("turnOn","turnOn", 40.);
+  RooRealVar turnOn("turnOn","turnOn", 40., 10., 200., "GeV");
   turnOn.setConstant(false);
   turnOn.setMin(0.);
-  RooRealVar width("width","width", 15.);
+  RooRealVar width("width","width", 15., 0., 100., "GeV");
   width.setError(5.);
   width.setMin(0.);
   width.setConstant(false);
   RooRealVar seff("seff", "seff", 7000., 0., 10000.);
   seff.setConstant(true);
-  RooRealVar power("power", "power", 2, -100., 1000.);
+  RooRealVar power("power", "power", 2, 0., 5.);
   power.setError(0.2);
-  RooRealVar power2("power2", "power2", 0., -100., 1000.);
+  RooRealVar power2("power2", "power2", 0., -5., 5.);
   power2.setError(0.2);
   RooRealVar mean("mean", "peak", 67);
   mean.setConstant(false);
@@ -943,19 +946,41 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     }
     ws_.import(nWjets);
   } else {
-      RooAddPdf WpJPdf("WpJPdf","WpJPdf", RooArgList(*WpJPdfMU,*WpJPdfMD,
-						     *WpJPdfSU,*WpJPdfSD,
-						     *WpJPdfNom),
-		       RooArgList(NMU, NMD, NSU, NSD, NNom));
-      ws_.import(WpJPdf);
+    RooAbsPdf * WpJPdfSU = 
+      utils_.Hist2Pdf(th1WpJSU, "WpJPdfSU", ws_, histOrder);
+    RooRealVar fSU("fSU", "f_{scaleUp}", 0., -1., 1.);
+    RooAbsPdf * WpJPdfSD = 
+      utils_.Hist2Pdf(th1WpJSD, "WpJPdfSD", ws_, histOrder);
+
+    RooAbsPdf * WpJPdfMU = 
+      utils_.Hist2Pdf(th1WpJMU, "WpJPdfMU", ws_, histOrder);
+    RooRealVar fMU("fMU", "f_{matchingUp}", 0., -1., 1.);
+
+    RooAbsPdf * WpJPdfMD = 
+      utils_.Hist2Pdf(th1WpJMD, "WpJPdfMD", ws_, histOrder);
+
+    RooAbsPdf * WpJPdfNom = 
+      utils_.Hist2Pdf(th1WpJ, "WpJPdfNom", ws_, histOrder);
+
+    RooFormulaVar NMU("NMU", "@0*@1*(@1 >= 0.)", RooArgList(nWjets,fMU));
+    RooFormulaVar NMD("NMD", "@0*@1*(-1)*(@1 < 0.)", RooArgList(nWjets,fMU));
+    RooFormulaVar NSU("NSU", "@0*@1*(@1 >= 0.)", RooArgList(nWjets,fSU));
+    RooFormulaVar NSD("NSD", "@0*@1*(-1)*(@1 < 0.)", RooArgList(nWjets,fSU));
+    RooFormulaVar NNom("NNom", "@0*(1.-abs(@1)-abs(@2))",
+		       RooArgList(nWjets,fMU,fSU));
+
+    RooAddPdf WpJPdf("WpJPdf","WpJPdf", RooArgList(*WpJPdfMU,*WpJPdfMD,
+						   *WpJPdfSU,*WpJPdfSD,
+						   *WpJPdfNom),
+		     RooArgList(NMU, NMD, NSU, NSD, NNom));
+    ws_.import(WpJPdf);
+    delete th1WpJSU;
+    delete th1WpJSD;
+    delete th1WpJMU;
+    delete th1WpJMD;
+    delete th1WpJ;
   }
 
-
-  delete th1WpJSU;
-  delete th1WpJSD;
-  delete th1WpJMU;
-  delete th1WpJMD;
-  delete th1WpJ;
 
   return ws_.pdf("WpJPdf");
   //return WjetsShape;
@@ -967,11 +992,13 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
     return ws_.pdf("ttPdf");
 
   int ttScale = 1;
-  double NttbarGenerated = 3701947.0;
+  // double NttbarGenerated = 3701947.0;
+  double NttbarGenerated = 1203373;
   TH1 * th1tt = utils_.newEmptyHist("th1tt", ttScale);
 
   TH1 * tmpHist;
-  TString TTbarFileSuffix="TTbar_CMSSW428.root";
+  TString TTbarFileSuffix="TTbar_CMSSW525.root";
+  // TString TTbarFileSuffix = "TTjets_CMSSW525.root";
 
   switch ( params_.implementTTbarScaleMatchingSystOption ) {
 
@@ -1016,7 +1043,8 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
   }
 
 
-  ttbarNorm_ = (163./NttbarGenerated) * 
+  // ttbarNorm_ = (163./NttbarGenerated) * 
+  ttbarNorm_ = (225.197/NttbarGenerated) * 
     th1tt->Integral(th1tt->FindBin(params_.minFit),
 		    th1tt->FindBin(params_.maxFit)-1) * 
     params_.intLumi;
@@ -1209,19 +1237,20 @@ RooAbsPdf * RooWjjMjjFitter::makeZpJPdf() {
   TH1 * tmpHist;
 
   if (params_.includeMuons) {
-    tmpHist = utils_.File2Hist(params_.MCDirectory + "mu_ZpJ_CMSSW428.root",
+    tmpHist = utils_.File2Hist(params_.MCDirectory + "mu_ZpJ_CMSSW525.root",
 			       "hist_zpj_mu", false, 1, false, ZpJScale);
     th1ZpJ->Add(tmpHist);
     delete tmpHist;
   }
   if (params_.includeElectrons) {
-    tmpHist = utils_.File2Hist(params_.MCDirectory + "el_ZpJ_CMSSW428.root",
+    tmpHist = utils_.File2Hist(params_.MCDirectory + "el_ZpJ_CMSSW525.root",
 			       "hist_zpj_el", true, 1, false, ZpJScale);
     th1ZpJ->Add(tmpHist);
     delete tmpHist;
   }
 
-  zjetsNorm_ = (3048./36277961.) * 
+  // zjetsNorm_ = (3048./36277961.) * 
+  zjetsNorm_ = (3503.71/14427282) * 
     th1ZpJ->Integral(th1ZpJ->FindBin(params_.minFit),
 		     th1ZpJ->FindBin(params_.maxFit)-1) * 
     params_.intLumi;
@@ -1598,16 +1627,23 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm, bool leftLeg) {
   RooPlot * sframe = mass->frame();
   sframe->SetName("mass_stacked");
   RooAbsData * data = ws_.data("data");
+  data->Print();
 
   TString plotHistName(TString::Format("dataHistPlot_%i", logy));
-  TH1 * dataHist = utils_.newEmptyHist(plotHistName);
-  RooTreeDataStore * dataStore = 
-    dynamic_cast<RooTreeDataStore *>(data->store());
-  dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
-					 plotHistName.Data()),
-			 "", "goff");
-  dataHist->SetTitle("data");
-
+  TH1 * dataHist = data->createHistogram(plotHistName, *mass, 
+					 RooFit::Binning("plotBinning"));
+  dataHist->Print();
+  // TH1 * dataHist = utils_.newEmptyHist(plotHistName);
+  // dataHist->Print();
+  // data->store()->Print();
+  // RooTreeDataStore * dataStore = 
+  //   dynamic_cast<RooTreeDataStore *>(data->store());
+  // dataStore->Print();
+  // dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
+  // 					 plotHistName.Data()),
+  // 			 "", "goff");
+  // dataHist->SetTitle("data");
+  // dataHist->Print();
   
 //   dataHist->Draw();
 //   gPad->Update();

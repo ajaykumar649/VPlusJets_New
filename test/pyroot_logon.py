@@ -65,24 +65,24 @@ gStyle.SetLabelOffset(0.007, "XYZ")
 gStyle.SetLabelSize(0.06, "XYZ")
 gStyle.SetNdivisions(505, "XYZ")
 
-## if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
-##     print "adding RooFit ...",
-##     scramCmd = ['scram','tool','info','roofitcore']
-##     grepCmd = ['grep', 'INCLUDE']
-##     pscram = subprocess.Popen(scramCmd, stdout = subprocess.PIPE)
-##     pgrep = subprocess.Popen(grepCmd, stdin=pscram.stdout,
-##                              stdout=subprocess.PIPE)
-##     pscram.stdout.close()
-##     output = pgrep.communicate()[0]
-##     if (pgrep.returncode == 0):
-##         roofitinc = output.split("=")[1].rstrip()
-##         ## print roofitinc
-##         gROOT.GetInterpreter().AddIncludePath(roofitinc)
-##         roofitinc = '-I"' + roofitinc + '"'
-##         gSystem.AddIncludePath(roofitinc)
-##         print "done"
-##     else:
-##         print "failed"
-##         print 'scram returned:',pscram.returncode,'grep:',pgrep.returncode
+if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
+    print "adding RooFit ...",
+    scramCmd = ['scram','tool','info','roofitcore']
+    grepCmd = ['grep', 'INCLUDE']
+    pscram = subprocess.Popen(scramCmd, stdout = subprocess.PIPE)
+    pgrep = subprocess.Popen(grepCmd, stdin=pscram.stdout,
+                             stdout=subprocess.PIPE)
+    pscram.stdout.close()
+    output = pgrep.communicate()[0]
+    if (pgrep.returncode == 0):
+        roofitinc = output.split("=")[1].rstrip()
+        ## print roofitinc
+        gROOT.GetInterpreter().AddIncludePath(roofitinc)
+        roofitinc = '-I"' + roofitinc + '"'
+        gSystem.AddIncludePath(roofitinc)
+        print "done"
+    else:
+        print "failed"
+        print 'scram returned:',pscram.returncode,'grep:',pgrep.returncode
 
-#print 'end of pyroot_logon'
+print 'end of pyroot_logon'
