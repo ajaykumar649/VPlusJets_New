@@ -240,7 +240,7 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
 		      RooArgList(*mjj_), hist);
   ws.import(newHist);
 
-  RooHistPdf thePdf = RooHistPdf(pdfName, pdfName, //RooArgSet(*massVar_),
+  RooHistPdf thePdf = RooHistPdf(pdfName, pdfName, RooArgSet(*massVar_),
 				 RooArgSet(*mjj_), newHist, order);
   //thePdf.Print();
   ws.import(thePdf, RooFit::RecycleConflictNodes(), RooFit::Silence());

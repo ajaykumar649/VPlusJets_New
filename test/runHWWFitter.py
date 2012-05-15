@@ -94,9 +94,12 @@ theFitter = RooWjjMjjFitter(fitterPars)
 theFitter.makeFitter((opts.ParamWpJ>=0))
 
 totalPdf = theFitter.getWorkSpace().pdf('totalPdf')
-print "is it extended?",totalPdf.canBeExtended()
 #theFitter.getWorkSpace().Print()
 theFitter.getWorkSpace().var('nDiboson').setConstant(False)
+
+# if opts.ParamWpJ < 0:
+#     theFitter.getWorkSpace().var('fMU').setConstant(True)
+#     theFitter.getWorkSpace().var('fSU').setConstant(True)
 
 fr = theFitter.fit()
 
@@ -113,11 +116,11 @@ nexp = theFitter.makeFitter().expectedEvents(iset)
 ndf = Long(fr.floatParsFinal().getSize()-5)
 ndf2 = Long(ndf)
 print 'Corrected chi2'
-chi2 = ndf*1.0
-#chi2 = theFitter.computeChi2(ndf)
+#chi2 = ndf*1.0
+chi2 = theFitter.computeChi2(ndf)
 print 'Raw chi2'
-chi2Raw = ndf2*1.0
-#chi2Raw = theFitter.computeChi2(ndf2, False)
+#chi2Raw = ndf2*1.0
+chi2Raw = theFitter.computeChi2(ndf2, False)
 #dataHist.Print()
 #dataHist.Scale(1., 'width')
 #dataHist.Print()
@@ -185,7 +188,7 @@ if (TMath.Prob(chi2Raw,  ndf2) < 0.05):
     if opts.debug:
         assert(False)
 
-assert(False)
+# assert(False)
 
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
 #yields = theFitter.makeFitter().coefList()

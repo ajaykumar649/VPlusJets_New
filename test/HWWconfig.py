@@ -23,7 +23,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.DataDirectory = fitterPars.MCDirectory
     fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
     fitterPars.includeMuons = True    
-    fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_00p367invfb.root'
+    fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
@@ -65,7 +65,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
-    fitterPars.truncRange = False
+    fitterPars.truncRange = True
     fitterPars.blind = False
     fitterPars.minTrunc = 65.
 
@@ -106,7 +106,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     
     fitterPars.njets = Nj
     fitterPars.constrainDiboson = True
-    fitterPars.externalConstraints = True
+    fitterPars.externalConstraints = False
     
     fitterPars.doEffCorrections = True
     fitterPars.muIdEffFiles.push_back("EffTableDir/muonEffsRecoToIso_ScaleFactors.txt")

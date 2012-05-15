@@ -211,14 +211,14 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
 	    << '\n';
 
   fitResult = fitPdf->fitTo(*data, Save(true), 
-			    // ( (params_.externalConstraints) ?
-			    //   ExternalConstraints(Constraints) :
-			    //   Constrained() ),
+			    ( (params_.externalConstraints) ?
+			      ExternalConstraints(Constraints) :
+			      Constrained() ),
 			    RooFit::Extended(true), 
 			    RooFit::Minos(false), 
 			    RooFit::Hesse(true),
 			    PrintEvalErrors(-1),
-			    // RooFit::Range(rangeString_),
+			    RooFit::Range(rangeString_),
 			    Warnings(false) 
 			    );
   
@@ -750,22 +750,22 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     }
     if (params_.WpJfunction < 0) {
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "mu_WpJmatchingup_CMSSW525.root",
+				 "mu_WpJmatchingup_CMSSW428.root",
 				 "hist_wpj_mu_mu", false, 1, params_.toyWpJ);
       th1WpJMU->Add(tmpHist);
       delete tmpHist;
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "mu_WpJmatchingdown_CMSSW525.root",
+				 "mu_WpJmatchingdown_CMSSW428.root",
 				 "hist_wpj_mu_md", false, 1, params_.toyWpJ);
       th1WpJMD->Add(tmpHist);
       delete tmpHist;
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "mu_WpJscaleup_CMSSW525.root",
+				 "mu_WpJscaleup_CMSSW428.root",
 				 "hist_wpj_mu_su", false, 1, params_.toyWpJ);
       th1WpJSU->Add(tmpHist);
       delete tmpHist;
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "mu_WpJscaledown_CMSSW525.root",
+				 "mu_WpJscaledown_CMSSW428.root",
 				 "hist_wpj_mu_sd", false, 1, params_.toyWpJ);
       th1WpJSD->Add(tmpHist);
       delete tmpHist;
@@ -791,22 +791,22 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     }
     if (params_.WpJfunction < 0) {
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "el_WpJmatchingup_CMSSW525.root",
+				 "el_WpJmatchingup_CMSSW428.root",
 				 "hist_wpj_el_mu", true, 1, params_.toyWpJ);
       th1WpJMU->Add(tmpHist);
       delete tmpHist;
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "el_WpJmatchingdown_CMSSW525.root",
+				 "el_WpJmatchingdown_CMSSW428.root",
 				 "hist_wpj_el_md", true, 1, params_.toyWpJ);
       th1WpJMD->Add(tmpHist);
       delete tmpHist;
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "el_WpJscaleup_CMSSW525.root",
+				 "el_WpJscaleup_CMSSW428.root",
 				 "hist_wpj_el_su", true, 1, params_.toyWpJ);
       th1WpJSU->Add(tmpHist);
       delete tmpHist;
       tmpHist = utils_.File2Hist(params_.WpJDirectory + 
-				 "el_WpJscaledown_CMSSW525.root",
+				 "el_WpJscaledown_CMSSW428.root",
 				 "hist_wpj_el_sd", true, 1, params_.toyWpJ);
       th1WpJSD->Add(tmpHist);
       delete tmpHist;
