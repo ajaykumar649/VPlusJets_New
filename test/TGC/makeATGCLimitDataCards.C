@@ -35,6 +35,8 @@ TFile* fin2;
 TFile* wwShape_file;
 TFile* wzShape_file;
 TFile* wjetsShape_file;
+TFile* wjetsShapeUp_file;
+TFile* wjetsShapeDown_file;
 TFile* ttbar_file;
 TFile* qcd_file1;
 TFile* zjets_file;
@@ -52,6 +54,8 @@ TTree* treedata;
 TTree* treeww;
 TTree* treewz;
 TTree* treewj;
+TTree* treewjUp;
+TTree* treewjDown;
 TTree* treettb;
 TTree* treeqcd;
 TTree* treezj;
@@ -69,6 +73,8 @@ TH1* th1data;
 TH1* th1ww;
 TH1* th1wz;
 TH1* th1wjets;
+TH1* th1wjetsUp;
+TH1* th1wjetsDown;
 TH1* th1Top;
 TH1* th1qcd;
 TH1* th1zjets;
@@ -136,6 +142,13 @@ void makeATGCLimitDataCards(int channel=0) {
     th1wjets  = new TH1D("th1wjets",  "th1wjets", bins, dm_min, dm_max);
     th1wjets->Sumw2();
     treewj->Draw("dijetPt>>th1wjets", the_cut, "goff");
+    th1wjetsUp  = new TH1D("th1wjetsUp",  "th1wjetsUp", bins, dm_min, dm_max);
+    th1wjetsUp->Sumw2();
+    treewjUp->Draw("dijetPt>>th1wjetsUp", the_cut, "goff");
+    th1wjetsDown  = new TH1D("th1wjetsDown",  "th1wjetsDown", bins, dm_min, dm_max);
+    th1wjetsDown->Sumw2();
+    treewjDown->Draw("dijetPt>>th1wjetsDown", the_cut, "goff");
+
 
 
     // ------- Get ttbar ------- 
@@ -182,7 +195,7 @@ void makeATGCLimitDataCards(int channel=0) {
     SetupEmptyHistogram();
 
     //Get signal histogram
-    signalForDisplay = GetSignalHistogram(0.4, 0.0, "signalForDisplay");
+    signalForDisplay = GetSignalHistogram(0.2, 0.0, "signalForDisplay");
 
     // ratio histogram for aTGC display
     signalRatioForDisplay = 
@@ -192,7 +205,8 @@ void makeATGCLimitDataCards(int channel=0) {
       double entry = signalRatioForDisplay->GetBinContent(j);
       signalRatioForDisplay->SetBinContent(j, 1.+entry);
     }
-    signalRatioForDisplay->Smooth(10);
+    signalRatioForDisplay->Smooth(20);
+
 
 
     // Compose the stack
@@ -203,6 +217,52 @@ void makeATGCLimitDataCards(int channel=0) {
     hs->Add(th1wjets);
     hs->Add(th1ww);
     hs->Add(signalForDisplay);
+
+
+
+    // Stack for systematics Up
+//     TF1* formScaleUp = new TF1("formScaleUp", "1.-0.000085*(x-140)", dm_min, dm_max);
+//     TF1* formScaleDown = new TF1("formScaleDown", "1.-0.00006*(x-50)", dm_min, dm_max);
+    TF1* formScaleUp = new TF1("formScaleUp", "1.0+0.01*log(x/100)", dm_min, dm_max);
+    TF1* formScaleDown = new TF1("formScaleDown", "1.0-0.03*log(x/100)", dm_min, dm_max);
+
+    TH1D* systUp = (TH1D*) th1wjetsUp->Clone("systUp");
+    systUp->Add(th1wjets);
+    systUp->Multiply(formScaleUp, 0.5);
+    systUp->Add(th1zjets);
+    systUp->Add(th1qcd);
+    systUp->Add(th1Top);
+    systUp->Add(th1ww);
+    systUp->SetFillColor(0);
+    systUp->SetLineStyle(2);
+    systUp->SetLineColor(2);
+    systUp->SetLineWidth(3);
+
+
+    TH1F* hhratioUp    = (TH1F*) th1data->Clone("hhratioUp")  ;
+    hhratioUp->GetYaxis()->SetRangeUser(0.33, 50.);
+    hhratioUp->Divide(systUp);
+    hhratioUp->SetLineStyle(2);
+    hhratioUp->SetLineColor(2);
+
+
+    // Stack for systematics Down
+    TH1D* systDown = (TH1D*) th1wjetsDown->Clone("systDown");
+    systDown->Add(th1wjets);
+    systDown->Multiply(formScaleDown, 0.5);
+    systDown->Add(th1zjets);
+    systDown->Add(th1qcd);
+    systDown->Add(th1Top);
+    systDown->Add(th1ww);
+    systDown->SetFillColor(0);
+    systDown->SetLineWidth(3);
+    systDown->SetLineStyle(2);
+    systDown->SetLineColor(2);
+    TH1F* hhratioDown    = (TH1F*) th1data->Clone("hhratioDown")  ;
+    hhratioDown->GetYaxis()->SetRangeUser(0.33, 50.);
+    hhratioDown->Divide(systDown);
+    hhratioDown->SetLineStyle(2);
+    hhratioDown->SetLineColor(2);
 
     // ------- Setup the canvas ------- 
     gStyle->SetOptStat(0);
@@ -230,6 +290,8 @@ void makeATGCLimitDataCards(int channel=0) {
     th1totempty->Draw();
     th1data->Draw("esame");
     hs->Draw("samehist");
+    systUp->Draw("samehist");
+    systDown->Draw("samehist");
     //th1tot->Draw("e3same");
     th1data->Draw("esame");
     cmspre(); 
@@ -250,6 +312,8 @@ void makeATGCLimitDataCards(int channel=0) {
 
     th1emptyclone->Draw();
     hhratio->Draw("esame");
+    hhratioUp->Draw("hist lsame");
+    hhratioDown->Draw("hist lsame");
     signalRatioForDisplay->Draw("hist same");
     TLine *line; line = new TLine(dm_min,1.0,dm_max,1.0);
     line->SetLineStyle(1);
@@ -271,11 +335,17 @@ void makeATGCLimitDataCards(int channel=0) {
     th1data->Write("data_obs");
     th1tot->SetName("background");
     th1tot->Write("background");
+    systUp->SetName("background_backshapeUp");
+    systUp->Write("background_backshapeUp");
+    systDown->SetName("background_backshapeDown");
+    systDown->Write("background_backshapeDown");
+
+
     char mysighistname[100];
     for (float m=-0.4; m<0.41; m += 0.04) {
-      for (float n=0.6; n>-0.1; n -= 0.2) {
-	sprintf(mysighistname, "signal_lambdaZ_%0.2f_deltaKappaGamma_%0.1f", m, n);
-	TH1D* stackhist = GetSignalHistogram(m, n, mysighistname);
+      for (float n=0.6; n>-0.7; n -= 0.2) {
+	sprintf(mysighistname, "signal_lambdaZ_%0.2f_deltaKappaGamma_%0.1f", m+0.001, n+0.001);
+	TH1D* stackhist = GetSignalHistogram(m+0.001, n+0.001, mysighistname);
 	outputForLimit->cd();
 	stackhist->Write(); 
 	delete stackhist;
@@ -283,15 +353,15 @@ void makeATGCLimitDataCards(int channel=0) {
     }
 
     /// now fill histograms for lambdaZ = +- 0.6
-    for (float n=0.6; n>-0.1; n -= 0.2) {
-      sprintf(mysighistname, "signal_lambdaZ_%0.2f_deltaKappaGamma_%0.1f", 0.6, n);
-      TH1D* stackhist = GetSignalHistogram(0.6, n, mysighistname);
+    for (float n=0.6; n>-0.7; n -= 0.2) {
+      sprintf(mysighistname, "signal_lambdaZ_%0.2f_deltaKappaGamma_%0.1f", 0.6, n+0.001);
+      TH1D* stackhist = GetSignalHistogram(0.6, n+0.001, mysighistname);
       outputForLimit->cd();
       stackhist->Write(); 
       delete stackhist;
 
-      sprintf(mysighistname, "signal_lambdaZ_%0.2f_deltaKappaGamma_%0.1f", -0.6, n);
-      TH1D* stackhist = GetSignalHistogram(-0.6, n, mysighistname);
+      sprintf(mysighistname, "signal_lambdaZ_%0.2f_deltaKappaGamma_%0.1f", -0.6, n+0.001);
+      TH1D* stackhist = GetSignalHistogram(-0.6, n+0.001, mysighistname);
       outputForLimit->cd();
       stackhist->Write(); 
       delete stackhist;
@@ -313,6 +383,8 @@ void InstantiateTrees() {
     wwShape_file    = new TFile("InData/RD_mu_WW_CMSSW428.root", "READ");
     wzShape_file    = new TFile("InData/RD_mu_WZ_CMSSW428.root", "READ");
     wjetsShape_file = new TFile("InData/RD_mu_WpJ_CMSSW428.root", "READ");
+    wjetsShapeUp_file = new TFile("InData/RD_mu_WpJscaleup_CMSSW428.root", "READ");
+    wjetsShapeDown_file = new TFile("InData/RD_mu_WpJscaledown_CMSSW428.root", "READ");
     ttbar_file      = new TFile("InData/RD_mu_TTbar_CMSSW428.root", "READ");
     qcd_file1       = new TFile("InData/RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root", "READ");
     zjets_file      = new TFile("InData/RD_mu_ZpJ_CMSSW428.root", "READ");
@@ -328,6 +400,8 @@ void InstantiateTrees() {
     wwShape_file    = new TFile("InData/RD_el_WW_CMSSW428.root", "READ");
     wzShape_file    = new TFile("InData/RD_el_WZ_CMSSW428.root", "READ");
     wjetsShape_file = new TFile("InData/RD_el_WpJ_CMSSW428.root", "READ");
+    wjetsShapeUp_file = new TFile("InData/RD_el_WpJscaleup_CMSSW428.root", "READ");
+    wjetsShapeDown_file = new TFile("InData/RD_el_WpJscaledown_CMSSW428.root", "READ");
     ttbar_file      = new TFile("InData/RD_el_TTbar_CMSSW428.root", "READ");
     qcd_file1       = new TFile("InData/RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root", "READ");
     zjets_file      = new TFile("InData/RD_el_ZpJ_CMSSW428.root", "READ");
@@ -348,6 +422,8 @@ void InstantiateTrees() {
   treeww    = (TTree*)    wwShape_file->Get("WJet");
   treewz    = (TTree*)    wzShape_file->Get("WJet");
   treewj    = (TTree*)    wjetsShape_file->Get("WJet");
+  treewjUp  = (TTree*)    wjetsShapeUp_file->Get("WJet");
+  treewjDown = (TTree*)    wjetsShapeDown_file->Get("WJet");
   treettb   = (TTree*)    ttbar_file->Get("WJet");
   treeqcd   = (TTree*)    qcd_file1->Get("WJet");
   treezj    = (TTree*)    zjets_file->Get("WJet");
@@ -364,6 +440,8 @@ void InstantiateTrees() {
   treeww->SetAlias("dijetPt", dijetPt);
   treewz->SetAlias("dijetPt", dijetPt);
   treewj->SetAlias("dijetPt", dijetPt);
+  treewjUp->SetAlias("dijetPt", dijetPt);
+  treewjDown->SetAlias("dijetPt", dijetPt);
   treettb->SetAlias("dijetPt", dijetPt);
   treeqcd->SetAlias("dijetPt", dijetPt);
   treezj->SetAlias("dijetPt", dijetPt);
@@ -400,6 +478,12 @@ void ScaleHistos()
   th1wjets->SetFillColor(kRed);
   th1wjets->SetLineColor(kRed);
   th1wjets->SetLineWidth(0);
+  th1wjetsUp->Scale( th1wjets->Integral() / th1wjetsUp->Integral() );
+  th1wjetsUp->SetLineColor(2);
+  th1wjetsUp->SetLineWidth(3);
+  th1wjetsUp->SetLineStyle(2);
+  th1wjetsDown->Scale( th1wjets->Integral() / th1wjetsDown->Integral() );
+  th1wjetsDown->SetLineStyle(2);
   th1ww->Scale(WW_scale);
   th1ww->SetFillColor(kAzure+8);
   th1ww->SetLineColor(kAzure+8);
@@ -464,6 +548,8 @@ void ScaleHistos()
   th1stopt->Scale (th1data->Integral()/den); std::cout <<"stopt " << th1stopt->Integral() << std::endl;
   th1stoptw->Scale(th1data->Integral()/den); std::cout <<"stoptw "<< th1stoptw->Integral()<< std::endl;
   th1wjets->Scale (th1data->Integral()/den); std::cout <<"wjets " << th1wjets->Integral() << std::endl;
+  th1wjetsUp->Scale (th1data->Integral()/den); std::cout <<"wjetsUp " << th1wjetsUp->Integral() << std::endl;
+  th1wjetsDown->Scale (th1data->Integral()/den); std::cout <<"wjetsDown " << th1wjetsDown->Integral() << std::endl;
   th1ww->Scale    (th1data->Integral()/den); std::cout <<"ww "    << th1ww->Integral()    << std::endl;
   th1wz->Scale    (th1data->Integral()/den); std::cout << "wz "   << th1wz->Integral()    << std::endl;
   th1zjets->Scale (th1data->Integral()/den); std::cout << "z "    << th1zjets->Integral() << std::endl;
@@ -520,7 +606,7 @@ void ScaleHistos()
   hhratio    = (TH1F*) th1data->Clone("hhratio")  ;
   hhratio->Sumw2();
   hhratio->SetMarkerSize(1.25);
-  hhratio->GetYaxis()->SetRangeUser(0.33, 15.);
+  hhratio->GetYaxis()->SetRangeUser(0.33, 50.);
   hhratio->Divide(th1tot);
   double binError(0.0), mcbinentry(0.0), mcerror(0.0);
   for(int i=0; i<hhratio->GetNbinsX(); ++i) {
@@ -552,7 +638,8 @@ TLegend* GetLegend()
   Leg->AddEntry(th1Top,  "top",  "f");
   Leg->AddEntry(th1qcd,  "QCD",  "f");
   Leg->AddEntry(th1zjets,  "Z+Jets",  "f");
-  Leg->AddEntry(signalForDisplay,  "aTGC: #Lambda_{Z}=0.4, #Delta#kappa_{#gamma}=0.0",  "l");
+  Leg->AddEntry(th1wjetsUp,  "Shape syst.",  "f");
+  Leg->AddEntry(signalForDisplay,  "aTGC: #Lambda_{Z}=0.2, #Delta#kappa_{#gamma}=0",  "l");
   // Leg->AddEntry(th1tot,  "MC Uncertainty",  "f");
   Leg->SetFillColor(0);
 
@@ -576,7 +663,7 @@ void SetupEmptyHistogram()
 
 
   th1emptyclone = new TH1D("th1emptyclone", "th1emptyclone", bins, dm_min, dm_max);
-  th1emptyclone->GetYaxis()->SetRangeUser(0.33,15.);
+  th1emptyclone->GetYaxis()->SetRangeUser(0.33,50.);
   th1emptyclone->GetXaxis()->SetTitle("p_{T}^{jj} [GeV]");
   th1emptyclone->GetXaxis()->SetTitleOffset(0.9);
   th1emptyclone->GetXaxis()->SetTitleSize(0.15);

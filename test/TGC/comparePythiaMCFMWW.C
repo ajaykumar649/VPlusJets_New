@@ -43,7 +43,7 @@ pythia_hist_dummy->SetLineWidth(2);
  mcfm_hist_dijetpt->SetLineColor(2);
  mcfm_hist_dijetpt->SetMarkerColor(2);
  mcfm_hist_dijetpt->SetLineWidth(2);
- mcfm_tree->Draw( TString(var3)+TString(">>mcfm_hist_dijetpt"), "", "goff");
+ mcfm_tree->Draw( TString(var3)+TString(">>mcfm_hist_dijetpt"), "wt", "goff");
  mcfm_hist_dijetpt->Scale(1./mcfm_hist_dijetpt->Integral() );
  //pythia_hist_dummy->Divide(mcfm_hist_dijetpt);
 
@@ -55,8 +55,8 @@ pythia_hist_dummy->SetLineWidth(2);
 
  TCanvas* c1 = new TCanvas("can1_dijetpt", "dijetpt", 500, 500);
  pythia_hist_dijetpt->Draw("pe");
- //mcfm_hist_dijetpt->Draw("same chist");
- pythia_hist_dummy->Draw("same chist");
+ mcfm_hist_dijetpt->Draw("same chist");
+ // pythia_hist_dummy->Draw("same chist");
  Double_t x1=0.7, y1=0.49;
   Double_t  x2=x1+0.2, y2=y1+0.42;
  TLegend* l = new TLegend( x1, y1, x2, y2 );

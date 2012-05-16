@@ -162,7 +162,9 @@ void runAnomalousTGC(float lambdaZ) {
   char temp[100];
   sprintf(temp, "Histograms_ratio_aTGC_LambdaZ%.2f.root", lambdaZ);
   fOutput = new TFile(temp, "recreate");
-  sprintf(temp, "#lambda_{Z} = %.2f", lambdaZ);
+  sprintf(temp, "#lambda_{Z} = 0%d", (int) (lambdaZ*10.));
+  if(lambdaZ<0) 
+    sprintf(temp, "#lambda_{Z} = m0%d", (int) (fabs(lambdaZ*10.)));
   std::string label = string(temp);
 
 
@@ -382,15 +384,15 @@ void draw_hist( Int_t varIndex, std::vector<TH1D*> &hist){
     hist[i]->SetMarkerColor(color);
 
     // aesthetics( hist[i], i+1 );
-    hist[i]->Sumw2();
-    tree[i]->Draw( TString(variable)+TString(">>")+histname, "", "goff");
+    //hist[i]->Sumw2();
+    tree[i]->Draw( TString(variable)+TString(">>")+histname, "wt", "goff");
     //hist[i]->Print();
 
-    GetCrossSection(fName[i], xsection, error);
+    // GetCrossSection(fName[i], xsection, error);
     //cout << "cross section = " << xsection  << " +- " << error << endl;
 
-    double myscale = 0.001*xsection/hist[i]->GetEntries();
-    hist[i]->Scale(myscale);
+    //double myscale = 0.001*xsection/hist[i]->GetEntries();
+    //hist[i]->Scale(myscale);
     hist[i]->GetXaxis()->SetTitle(axis_label.c_str());
     hist[i]->SetNdivisions(505);      
     hist[i]->GetYaxis()->SetTitle(title);
@@ -402,10 +404,10 @@ void draw_hist( Int_t varIndex, std::vector<TH1D*> &hist){
   ///// Fill the SM histogram 
   histname = TString(plotname) + TString("SM");
   hist[NVARS] = new TH1D(histname, "", bins, dm_min, dm_max);
-  hist[NVARS]->Sumw2();
-  treeSM->Draw( TString(variable.c_str())+TString(">>")+histname, "", "goff");
-  GetCrossSection("SM", xsection, error);
-  hist[NVARS]->Scale(0.001*xsection/treeSM->GetEntries());
+  //hist[NVARS]->Sumw2();
+  treeSM->Draw( TString(variable.c_str())+TString(">>")+histname, "wt", "goff");
+  //GetCrossSection("SM", xsection, error);
+  //hist[NVARS]->Scale(0.001*xsection/treeSM->GetEntries());
   hist[NVARS]->Print();
 
 } // draw_hist
@@ -465,9 +467,9 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
   //gStyle->SetPadRightMargin(0.28);
 
   TCanvas* c1 = new TCanvas( ("can1_"+plotname).c_str(), plotname.c_str(), 500, 500);
-  hist[0]->Draw("pe");
-  hist[0]->Draw("same chist");
-  for(int i=0; i<NVARS; ++i) { hist[i]->Draw("pe same"); hist[i]->Draw("same chist"); }
+  hist[0]->Draw("p");
+  hist[0]->Draw("same lhist");
+  for(int i=0; i<NVARS; ++i) { hist[i]->Draw("p same"); hist[i]->Draw("same lhist"); }
   if(doLogY) c1->SetLogy();
   TLegend* l1 =  legend( label, hist );
   l1->Draw(); 
@@ -479,13 +481,14 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
 
   // draw ratio between the normal and each anomalous coupling
   TCanvas* c2 = new TCanvas( ("can2_"+plotname).c_str(), plotname.c_str(), 500, 500);
-  ratio_hist[1]->GetYaxis()->SetRangeUser(0.999, 10.); 
-  ratio_hist[1]->Draw("pe"); 
-  ratio_hist[1]->Draw("same chist");
+  double ymax = ratio_hist[1]->GetMaximum() * 1.2;
+  ratio_hist[1]->GetYaxis()->SetRangeUser(0.999, ymax); 
+  ratio_hist[1]->Draw("p"); 
+  ratio_hist[1]->Draw("same lhist");
   for(int i=0; i<NVARS; ++i) { 
-    ratio_hist[i]->GetYaxis()->SetRangeUser(0.999, 10.); 
-    ratio_hist[i]->Draw("pe same"); 
-    ratio_hist[i]->Draw("same chist"); 
+    ratio_hist[i]->GetYaxis()->SetRangeUser(0.999, 120.); 
+    ratio_hist[i]->Draw("p same"); 
+    ratio_hist[i]->Draw("same lhist"); 
   }
   c2->Update();
   if(doLogY) c2->SetLogy();
@@ -495,7 +498,7 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
 
 
   fOutput->cd();
-  for(int i=0; i<NVARS; ++i) {  ratio_hist[i]->Write(); }
+  for(int i=0; i<NVARS; ++i) {  ratio_hist[i]->Write(); hist[i]->Write();}
 
   delete c1;
   delete c2;
