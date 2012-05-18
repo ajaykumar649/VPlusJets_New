@@ -10,15 +10,12 @@ LDFLAGS := `root-config --libs`
 
 all : exe
 
-exe: makeDataCardShapes.exe makeDataCardFromTable.exe makeDataCardShapes4tgc.exe
+exe: makeDataCardShapes.exe makeDataCardShapes4tgc.exe
 
 makeDataCardShapes.exe: makeDataCardShapes.o
 	${CXX} -g -o $@ $^  ${LDFLAGS}
 
 makeDataCardShapes4tgc.exe: makeDataCardShapes4tgc.o
-	${CXX} -g -o $@ $^  ${LDFLAGS}
-
-makeDataCardFromTable.exe: makeDataCardFromTable.o
 	${CXX} -g -o $@ $^  ${LDFLAGS}
 
 makeDataCardShapes.o: makeDataCardShapes.cc hwwshapes.C dcutils.C hwwinputs.h mjjinputs.h hwwutils.C
