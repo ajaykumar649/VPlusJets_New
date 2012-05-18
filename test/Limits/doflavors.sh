@@ -11,8 +11,8 @@ fi
 
 #for channel in el2jetCMS el3jetCMS mu2jetCMS mu3jetCMS
 #for channel in el2jetCMS
-#for flavor in el mu
-for channel in hwwelnu2jCMS hwwelnu3jCMS hwwmunu2jCMS hwwmunu3jCMS
+for flavor in el mu
+#for channel in hwwelnu2jCMS hwwelnu3jCMS hwwmunu2jCMS hwwmunu3jCMS
 do
     echo "Making cards for flavor $flavor"
     for rootf in ${DIR}/hww-histo-shapes-${1}[-_]M=??0.root

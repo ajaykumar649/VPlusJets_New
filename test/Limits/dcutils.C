@@ -99,7 +99,7 @@ void fmtDataCardFile(int massgev,
        it != cd.data.channels.end();
        it++) {
     //fprintf(dcFile,"%12d",(int)it->second);
-    fprintf(dcFile,"%12g",it->second);
+    fprintf(dcFile,"%12.5f",it->second);
   }
   
   fprintf(dcFile,"\n--------------------\n");

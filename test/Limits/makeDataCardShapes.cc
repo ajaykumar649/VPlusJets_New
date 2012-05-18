@@ -560,8 +560,8 @@ makeDataCardFiles(int argc, char*argv[])
   }
 
 #ifdef ISHWW
-  readHxsTable   ("ggHtable.txt");  // to get the signal x-sec uncertainties
-  readHxsTable   ("vbfHtable.txt"); // to get the signal x-sec uncertainties
+  readHxsTable   ("ggHtable7tev.txt");  // to get the signal x-sec uncertainties
+  readHxsTable   ("vbfHtable7tev.txt"); // to get the signal x-sec uncertainties
 #endif
 
   map<int,CardData_t> m_cards;

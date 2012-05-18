@@ -17,29 +17,32 @@
 
 #include "tdrstyle.C"
 
+#include "hwwinputs.h"
+
 //#define LOGSCALE
 
 ////CMS Preliminary label and lumi -- upper left corner
 void cmsLumi(bool prelim)
 {
-  const float LUMINOSITY = 5.0;
+  const float LUMINOSITY = intlumipbinv * global_scale/1000.;
   TLatex latex;
   latex.SetNDC();
   latex.SetTextSize(0.04);
   latex.SetTextFont(42);
 
   latex.SetTextAlign(31); // align right
-  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7 TeV");
+  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 8 TeV");
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(11); // align left
     latex.DrawLatex(0.5,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY));
+    //latex.DrawLatex(0.45,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1} (scaled)", LUMINOSITY));
   }
   latex.SetTextAlign(11); // align left
   latex.DrawLatex(0.18,0.96,prelim ? "CMS preliminary" : "CMS");
 }
 
 void plotLimit(TString limitFile = "limit-cfginfo.tab",
-	       bool plotObs = true,
+	       bool plotObs = false,
 	       bool plotPrelim=true)
 {
   double m[50],obs[50],exp[50],sig1hi[50],sig1lo[50],sig2hi[50],sig2lo[50];
@@ -105,7 +108,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
 #ifdef LOGSCALE
   mg->GetYaxis()->SetRangeUser(5e-2,40) ;
 #else
-  mg->GetYaxis()->SetRangeUser(0,8) ;
+  mg->GetYaxis()->SetRangeUser(0,30) ;
 #endif
 
   //mg->Draw("A");
@@ -143,7 +146,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
   TString output1=limitFile, output2=limitFile;
 
   output1.Replace(limitFile.Length()-4,4, plotObs ? ".png" : "_exponly.png");
-  output2.Replace(limitFile.Length()-4,4, ".eps");
+  output2.Replace(limitFile.Length()-4,4, plotObs ? ".eps" : "_exponly.eps");
 
   gPad->SaveAs(output1.Data());
   gPad->SaveAs(output2.Data());

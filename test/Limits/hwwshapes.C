@@ -63,19 +63,33 @@ void writesig(TFile *allHistFile,
   double norm     = 
     hd.ggHcspb*
     //ovflwcor*
+    scalefrom7to8tev*
+    global_scale* 
     intlumipbinv*
     hd.br2lnujj / 2; // DIV 2 because Jake divides Ngen by two!!
     
-  printf("norm=%f * %f * %f\n", hd.ggHcspb, intlumipbinv, hd.br2lnujj);
+  //printf("norm=%f * %f * %f\n", hd.ggHcspb, intlumipbinv, hd.br2lnujj);
   hggHin->Scale(norm);
 
   // VBF signal
-  norm = hd.vbfcspb*intlumipbinv*hd.br2lnujj / 2;  // *ovflwcor
+  norm =
+    hd.vbfcspb*
+    intlumipbinv*
+    global_scale* 
+    scalefrom7to8tev*
+    hd.br2lnujj / 2;  // *ovflwcor
   hVBFin->Scale(norm);
 
   // one W goes to tau+nu:
   // not *2 because Jake divides Ngen by two
-  norm = hd.ggHcspb*intlumipbinv*hd.br2ww*W2qqBR*W2taunuBR;
+  norm =
+    hd.ggHcspb*
+    intlumipbinv*
+    global_scale* 
+    scalefrom7to8tev*
+    hd.br2ww*
+    W2qqBR*
+    W2taunuBR;
 
   hggH2taunuin->Scale(norm);
 
@@ -106,7 +120,11 @@ void writesig(TFile *allHistFile,
 void writeGraph2TH1(TGraph *ingr, TH1 *outh, int binwidth, TFile *fout)
 {
   for (int ibin=1; ibin <= outh->GetNbinsX(); ibin++)
-    outh->SetBinContent(ibin,(double)binwidth * ingr->Eval(outh->GetBinCenter(ibin)));
+    outh->SetBinContent(ibin,
+			(double)binwidth *
+			global_scale *
+			ingr->Eval(outh->GetBinCenter(ibin))
+			);
 
   fout->WriteTObject(outh);
 }
@@ -117,9 +135,12 @@ void writeRooCurve2TH1(RooCurve *crv, TH1 *outh, int binwidth, TFile *fout)
 {
   for (int ibin=1; ibin <= outh->GetNbinsX(); ibin++)
 #if 1
-    outh->SetBinContent(ibin,(double)binwidth * crv->average(outh->GetXaxis()->GetBinLowEdge(ibin),
-							     outh->GetXaxis()->GetBinUpEdge(ibin)
-							     )
+    outh->SetBinContent(ibin,
+			(double)binwidth *
+			global_scale *
+			crv->average(outh->GetXaxis()->GetBinLowEdge(ibin),
+				     outh->GetXaxis()->GetBinUpEdge(ibin)
+				     )
 			);
 #else
   outh->SetBinContent(ibin,(double)binwidth * crv->Eval(outh->GetXaxis()->GetBinCenter(ibin)));
@@ -140,6 +161,10 @@ void writedataback(TFile *fout,
 {
   int nbins = (int)(xmax-xmin)/binwidth;
   assert(nbins);
+
+  if (global_scale != 1.0) {
+    cout << "\n\nWARNING!! global_scale is set to " << global_scale << endl << endl;
+  }
 
   TString name = Form("data_obs_%s_Mass_%d",channames[ichan],massgev);
   TH1D *data   = new TH1D(name,name, nbins,xmin,xmax);
@@ -264,8 +289,8 @@ void hwwshapes(const TString& nametag = "",
 	       int lochan=0,
 	       int hichan=NUMCHAN-1)
 {
-  readHxsTable   ("ggHtable.txt");
-  readHxsTable   ("vbfHtable.txt");
+  readHxsTable   ("ggHtable7tev.txt");
+  readHxsTable   ("vbfHtable7tev.txt");
   readBRtable    ("twikiBRtable.txt");
 
   // Get all inputs
