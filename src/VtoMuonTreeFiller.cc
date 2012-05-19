@@ -118,6 +118,7 @@ void ewk::VtoMuonTreeFiller::SetBranches()
 
   SetBranch( &mu1_d0bsp,         lept1+"_d0bsp" );
   SetBranch( &mu1_dz000,         lept1+"_dz000" );
+  SetBranch( &mu1_dzPV,         lept1+"_dzPV" );
 
   SetBranch( &mu1pfiso_sumChargedHadronPt,            lept1+"_pfiso_sumChargedHadronPt" );
   SetBranch( &mu1pfiso_sumChargedParticlePt,          lept1+"_pfiso_sumChargedParticlePt" );
@@ -201,6 +202,8 @@ void ewk::VtoMuonTreeFiller::init()
 
   mu1_d0bsp           = -99999.;
   mu1_dz000           = -99999.;
+  mu1_dzPV            = -99999.;
+  mu1_IP3D            = -99999.;
 
   mu1pfiso_sumChargedHadronPt   = -99999.;
   mu1pfiso_sumChargedParticlePt = -99999.;
@@ -398,7 +401,9 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent, int vecBosonIndex)
     } else {
       const pat::Muon* patmuon1 = dynamic_cast<const pat::Muon *>( &*muon1);
       mu1_d0bsp = patmuon1->dB(pat::Muon::BS2D) ;
-	  mu1_dz000 = patmuon1->dB(pat::Muon::PV2D);
+      mu1_dz000 = patmuon1->dB(pat::Muon::PV2D);
+      mu1_IP3D = patmuon1->dB(pat::Muon::PV3D);
+      if(fabs(mu1_IP3D)>fabs(mu1_dz000)&&mu1_IP3D<1000) mu1_dzPV = sqrt(mu1_IP3D*mu1_IP3D-mu1_dz000*mu1_dz000);
     }
     // pf isolation
     //mu1_pfiso_chargedHadronIso = muon1->pfIsolationVariables().chargedHadronIso;

@@ -125,6 +125,8 @@ namespace ewk {
     
     float mu1_d0bsp;
     float mu1_dz000;
+    float mu1_dzPV;
+    float mu1_IP3D;
   
     float mu1_pfiso_chargedHadronIso;
     float mu1_pfiso_photonIso;
