@@ -831,7 +831,8 @@ Double_t Summer2012[60] = {
     nb = newtree->GetEntry(jentry);   nbytes += nb;
     // Cut variable definitions
     double jess    = 1.00; // control the jet energy scale
-    double muoniso = (W_muon_pfiso_sumChargedHadronPt+W_muon_pfiso_sumNeutralHadronEt+W_muon_pfiso_sumPhotonEt-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_muon_pt;
+//    double muoniso = (W_muon_pfiso_sumChargedHadronPt+W_muon_pfiso_sumNeutralHadronEt+W_muon_pfiso_sumPhotonEt-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_muon_pt;
+    double muoniso = (W_muon_pfiso_sumChargedHadronPt+max(0.,W_muon_pfiso_sumNeutralHadronEt+W_muon_pfiso_sumPhotonEt-0.5*W_muon_pfiso_sumPUPt))/W_muon_pt;
     double dijetpt = sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+
 			  JetPFCor_Pt[1]*JetPFCor_Pt[1]+
 			  2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]));
@@ -925,12 +926,12 @@ Double_t Summer2012[60] = {
 
     // Event Selection Requirement for Standard vs QCD events
     if ( !isQCD ) {
-      //keep muons with iso<0.1 && event_met_pfmet>25.
-      if ( !(muoniso<0.1)          ) isgengdevt=0;
+      //keep muons with iso<0.20(loose=0.20;tight=0.12) && event_met_pfmet>25.
+      if ( !(muoniso<0.12)         ) isgengdevt=0;
       if ( !(event_met_pfmet>25.0) ) isgengdevt=0;
     } else {
-      //keep muons with iso>0.1
-      if ( !(muoniso>0.1)          ) isgengdevt=0;
+      //keep muons with iso>0.20 (loose=0.20;tight=0.12)
+      if ( !(muoniso>0.20)         ) isgengdevt=0;
     }
 
 
