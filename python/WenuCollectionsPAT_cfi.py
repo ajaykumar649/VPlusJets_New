@@ -64,7 +64,7 @@ looseElectrons = cms.EDFilter("PATElectronRefSelector",
     " && !(1.4442<abs(superCluster.eta)<1.566)"
     " && (ecalEnergy*sin(superClusterPosition.theta)>20.0)"
     " && (gsfTrack.trackerExpectedHitsInner.numberOfHits == 0)"
-    " && (dr03TkSumPt/p4.Pt <0.2)" 
+    " && (dr03TkSumPt/p4.Pt <0.2)"
     " && ((isEB"
     " && (sigmaIetaIeta<0.01)"
     " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
@@ -89,8 +89,8 @@ looseElectronFilter = cms.EDFilter("PATCandViewCountFilter",
 ##  Define loose muon selection for veto ######
 looseMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("selectedPatMuonsPFlow"),
-    cut = cms.string("pt>10 && isGlobalMuon && isTrackerMuon && abs(eta)<2.5"
-                     " && (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt< 0.3")     
+    cut = cms.string("pt>10 &&isPFMuon && (isGlobalMuon || isTrackerMuon) && abs(eta)<2.5"
+                     " && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt< 0.2")     
 )
 
 looseMuonFilter = cms.EDFilter("PATCandViewCountFilter",

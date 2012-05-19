@@ -6,23 +6,21 @@ isQCD = False
 
 isolationCutString = cms.string("")
 if isQCD:
-    isolationCutString = "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt> 0.1"
+    isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt> 0.20" 
 else:
-    isolationCutString = "(isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt< 0.3"
+    isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt< 0.12"
 
 tightMuons = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("selectedPatMuonsPFlow"),
-    cut = cms.string("pt>20 && isGlobalMuon && isTrackerMuon && abs(eta)<2.4"
+    cut = cms.string("pt>20 && isGlobalMuon && isPFMuon && abs(eta)<2.4"
                      " && globalTrack().normalizedChi2<10"
-                     " && innerTrack().numberOfValidHits>10"
                      " && globalTrack().hitPattern().numberOfValidMuonHits>0"
                      " && globalTrack().hitPattern().numberOfValidPixelHits>0"
-                     " && numberOfMatches>1"
+                     " && numberOfMatchedStations>1"
+                     " && globalTrack().hitPattern().trackerLayersWithMeasurement>5"
                      " && " + isolationCutString
                      )
 )
-
-
 
 WToMunu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("tightMuons patMETsPFlow"),
