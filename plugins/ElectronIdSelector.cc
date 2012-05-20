@@ -26,7 +26,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 
@@ -112,7 +111,7 @@ ElectronIdSelector<T>::ElectronIdSelector(const edm::ParameterSet& iConfig)
 
 //______________________________________________________________________________
 template<typename T>
-ElectronIdSelector<T::~ElectronIdSelector(){}
+ElectronIdSelector<T>::~ElectronIdSelector(){}
 
 
 
@@ -148,7 +147,7 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
     // -------- Make sure that the electron is within acceptance ------
     bool isEB = ele.isEB();
     bool isEE = ele.isEE();
-    bool inAcceptance = (isEB || isEE) && (ele.ecalDrivenSeed==1);
+    bool inAcceptance = (isEB || isEE) && (ele.ecalDrivenSeed()==1);
     float pt  = ele.p4().Pt();
 
 
@@ -170,9 +169,9 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
    else isolation = pf_isolation;
 
     // -------- Compute ID ------
-   Double_t sihih   = fabs(electron.sigmaIetaIeta());
-   Double_t Dphi    = fabs(electron.deltaPhiSuperClusterTrackAtVtx());
-   Double_t Deta    = fabs(electron.deltaEtaSuperClusterTrackAtVtx());
+   Double_t sihih   = fabs(ele.sigmaIetaIeta());
+   Double_t Dphi    = fabs(ele.deltaPhiSuperClusterTrackAtVtx());
+   Double_t Deta    = fabs(ele.deltaEtaSuperClusterTrackAtVtx());
    //Double_t HoE     = fabs(electron.hadronicOverEm());
 
     Int_t innerHits = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
@@ -188,20 +187,20 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 
     // -------- if cut-based ID -----------------
     if( !useMVAbasedID_ ) {
-      isTight = (pt>30.) && inAcceptanc && (innerHits==0) && 
+      isTight = (pt>30.) && inAcceptance && (innerHits==0) && 
 	(isolation<0.05) && (!isConv) && 
 	((isEB && sihih<0.01 && Dphi<0.03 && Deta<0.004) || 
-	 (isEE && sihsih<0.03 && Dphi<0.02 && Deta<0.005)); 
+	 (isEE && sihih<0.03 && Dphi<0.02 && Deta<0.005)); 
       
-      isLoose = (pt>20.) && inAcceptanc && (innerHits<=1) && 
+      isLoose = (pt>20.) && inAcceptance && (innerHits<=1) && 
 	(isolation<0.1) && (!isConv) && 
 	((isEB && sihih<0.01 && Dphi<0.8 && Deta<0.007) || 
-	 (isEE && sihsih<0.03 && Dphi<0.07 && Deta<0.005)); 
+	 (isEE && sihih<0.03 && Dphi<0.07 && Deta<0.005)); 
 
-      isQCD = (pt>20.) && inAcceptanc && (innerHits<=1) && 
+      isQCD = (pt>20.) && inAcceptance && (innerHits<=1) && 
 	(isolation>0.1) && (!isConv) && 
 	((isEB && sihih<0.01 && Dphi<0.8 && Deta<0.007) || 
-	 (isEE && sihsih<0.03 && Dphi<0.07 && Deta<0.005)); 
+	 (isEE && sihih<0.03 && Dphi<0.07 && Deta<0.005)); 
     }
     //-------- if MVA-based ID -----------------
 
