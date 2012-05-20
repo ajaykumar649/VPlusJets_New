@@ -136,7 +136,7 @@ void GetCrossSection(string paramName, float& xsec, float& err);
 ////////////// primary function //////////////////////////
 void anomalousTGC(float value) {
 
-  // runAnomalousTGC(-1.*value); 
+  //runAnomalousTGC(-1.*value); 
   runAnomalousTGC(value);
 
 
@@ -162,9 +162,7 @@ void runAnomalousTGC(float lambdaZ) {
   char temp[100];
   sprintf(temp, "Histograms_ratio_aTGC_LambdaZ%.2f.root", lambdaZ);
   fOutput = new TFile(temp, "recreate");
-  sprintf(temp, "#lambda_{Z} = 0%d", (int) (lambdaZ*10.));
-  if(lambdaZ<0) 
-    sprintf(temp, "#lambda_{Z} = m0%d", (int) (fabs(lambdaZ*10.)));
+  sprintf(temp, "#lambda_{Z} = %.2f", lambdaZ);
   std::string label = string(temp);
 
 
@@ -194,11 +192,11 @@ void runAnomalousTGC(float lambdaZ) {
 
 
   // Filling histograms for the five kinematic variables, e.g., W pT
-//   MakeComparisonPlot(label, 1, false);
-//   MakeComparisonPlot(label, 2, false);
-//   MakeComparisonPlot(label, 3, false);
+  MakeComparisonPlot(label, 1, false);
+  MakeComparisonPlot(label, 2, false);
+  MakeComparisonPlot(label, 3, false);
   MakeComparisonPlot(label, 4, false);
-//   MakeComparisonPlot(label, 5, false);
+  MakeComparisonPlot(label, 5, false);
 
 //   MakeComparisonPlot(label, 6, false);
 //   MakeComparisonPlot(label, 7, false);
@@ -447,8 +445,11 @@ void  MakeComparisonPlot( std::string label, Int_t varIndex, bool doLogY ){
   else if(varIndex==5) plotname = histName5;
   else return;
 
+
   TString atgcLabel(label);
   atgcLabel.ReplaceAll("#lambda_{Z} = ", "_");
+  atgcLabel.ReplaceAll("0.", "0");
+  atgcLabel.ReplaceAll("-", "m");
 
 
   // get and draw the basic graphs for comparisons with anomalous couplings

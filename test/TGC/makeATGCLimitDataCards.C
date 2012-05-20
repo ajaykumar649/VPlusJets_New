@@ -335,10 +335,20 @@ void makeATGCLimitDataCards(int channel=0) {
     th1data->Write("data_obs");
     th1tot->SetName("background");
     th1tot->Write("background");
-    systUp->SetName("background_backshapeUp");
-    systUp->Write("background_backshapeUp");
-    systDown->SetName("background_backshapeDown");
-    systDown->Write("background_backshapeDown");
+    char* tempname = "background_backshapeUp";
+    if(channel==0) tempname = "background_munobtag_backshapeUp";
+    if(channel==1) tempname = "background_elnobtag_backshapeUp";
+    if(channel==2) tempname = "background_mubtag_backshapeUp";
+    if(channel==3) tempname = "background_elbtag_backshapeUp";
+    systUp->SetName(tempname);
+    systUp->Write(tempname);
+    tempname = "background_backshapeDown";
+    if(channel==0) tempname = "background_munobtag_backshapeDown";
+    if(channel==1) tempname = "background_elnobtag_backshapeDown";
+    if(channel==2) tempname = "background_mubtag_backshapeDown";
+    if(channel==3) tempname = "background_elbtag_backshapeDown";
+    systDown->SetName(tempname);
+    systDown->Write(tempname);
 
 
     char mysighistname[100];
