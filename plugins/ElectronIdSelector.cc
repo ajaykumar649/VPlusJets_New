@@ -173,13 +173,17 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
    Double_t Dphi    = fabs(ele.deltaPhiSuperClusterTrackAtVtx());
    Double_t Deta    = fabs(ele.deltaEtaSuperClusterTrackAtVtx());
    //Double_t HoE     = fabs(electron.hadronicOverEm());
+   Double_t abseta  = fabs(ele.eta());
 
     Int_t innerHits = ele.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
  
     Double_t dist = ele.convDist(); // default value is -9999 if conversion partner not found
     Double_t dcot = ele.convDcot(); // default value is -9999 if conversion partner not found
     Bool_t isConv = fabs(dist) < 0.02 && fabs(dcot) < 0.02;
-
+    Double_t mvaOut = -2;
+     const pat::Electron* patele = dynamic_cast<const pat::Electron *>( &ele );
+     if(patele->isElectronIDAvailable("mvaTrigV0"))
+           mvaOut =  patele->electronID("mvaTrigV0");
 
     bool isTight = false;  /////// <--- equivalent to WP70
     bool isLoose = false;  /////// <--- equivalent to WP90
@@ -203,7 +207,15 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 	 (isEE && sihih<0.03 && Dphi<0.07 && Deta<0.005)); 
     }
     //-------- if MVA-based ID -----------------
+      isTight = (pt>30.) && ( 
+        ( abseta <= 0.8 && mvaOut > 0.977&& pf_isolation < 0.093) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.956 && pf_isolation < 0.095) ||
+        ( abseta > 1.479 && mvaOut > 0.966 && pf_isolation < 0.171) );
 
+      isLoose = (pt>20.) && ( 
+        ( abseta <= 0.8 && mvaOut > 0.877 && pf_isolation < 0.177 ) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.794 && pf_isolation <0.180 ) ||
+        ( abseta > 1.479 && mvaOut > 0.846 && pf_isolation < 0.244) );
 
     /// ------- Finally apply selection --------
     if(applyTightID_ && isTight) isPassing[iElec]= true;
