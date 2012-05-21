@@ -49,6 +49,8 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/ColorCorrel.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
+const float BTAG_DISCRIM_DEFAULT=-999.;
+
 ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree, 
 				  const std::string jetType,
 				  const edm::ParameterSet iConfig)
@@ -420,13 +422,13 @@ void ewk::JetTreeFiller::init()
     DR[j] = -10.0;
     DphiMET[j] = -10.0;
     Response[j] = -1.0;
-    bDiscriminator[j] = -1.0;
-    bDiscriminatorSSVHE[j] = -1.0;
-    bDiscriminatorTCHE[j] = -1.0;
-    bDiscriminatorCSV[j] = -1.0;
-    bDiscriminatorJP[j] = -1.0;
-    bDiscriminatorSSVHP[j] = -1.0;
-    bDiscriminatorTCHP[j] = -1.0;
+    bDiscriminator[j] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorSSVHE[j] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorTCHE[j] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorCSV[j] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorJP[j] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorSSVHP[j] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorTCHP[j] = BTAG_DISCRIM_DEFAULT;
     secVertexMass[j] = -1.0;
 
     VjetMass2[j] = -1.0;
@@ -699,8 +701,8 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
     unsigned int closestIndex = 10000;
       
     // compute B-tag discriminator
-    bDiscriminator[iJet] = -1.0;
-    bDiscriminatorSSVHE[iJet] = -1.0;
+    bDiscriminator[iJet] = BTAG_DISCRIM_DEFAULT;
+    bDiscriminatorSSVHE[iJet] = BTAG_DISCRIM_DEFAULT;
     secVertexMass[iJet] = -1.0;
     if(runoverAOD){
       for (unsigned int i = 0; i != bTagsSSVHE.size(); ++i) {
@@ -748,7 +750,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	  
 
       // ------------- TC-HE ------------------------
-      bDiscriminatorTCHE[iJet] = -1.0;
+      bDiscriminatorTCHE[iJet] = BTAG_DISCRIM_DEFAULT;
       closestDistance = 100000.0;
       closestIndex = 10000;
       
@@ -764,7 +766,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	bDiscriminatorTCHE[iJet] = bTagsTCHE[closestIndex].second;
 
       // ------------- CSV ------------------------
-      bDiscriminatorCSV[iJet] = -1.0;
+      bDiscriminatorCSV[iJet] = BTAG_DISCRIM_DEFAULT;
       closestDistance = 100000.0;
       closestIndex = 10000;
       
@@ -780,7 +782,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	bDiscriminatorCSV[iJet] = bTagsCSV[closestIndex].second;
 
       // ------------- JP ------------------------
-      bDiscriminatorJP[iJet] = -1.0;
+      bDiscriminatorJP[iJet] = BTAG_DISCRIM_DEFAULT;
       closestDistance = 100000.0;
       closestIndex = 10000;
       
@@ -796,7 +798,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	bDiscriminatorJP[iJet] = bTagsJP[closestIndex].second;
 
       // ------------- SSV-HP ------------------------
-      bDiscriminatorSSVHP[iJet] = -1.0;
+      bDiscriminatorSSVHP[iJet] = BTAG_DISCRIM_DEFAULT;
       closestDistance = 100000.0;
       closestIndex = 10000;
       
@@ -812,7 +814,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 	bDiscriminatorSSVHP[iJet] = bTagsSSVHP[closestIndex].second;
 
       // ------------- TC-HP ------------------------
-      bDiscriminatorTCHP[iJet] = -1.0;
+      bDiscriminatorTCHP[iJet] = BTAG_DISCRIM_DEFAULT;
       closestDistance = 100000.0;
       closestIndex = 10000;
       
