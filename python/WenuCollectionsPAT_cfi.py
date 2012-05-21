@@ -15,7 +15,7 @@ if isQCD:
 tightElectrons = cms.EDProducer("PATElectronIdSelector",
     src = cms.InputTag( "selectedPatElectronsPFlow" ),
     idLabel = cms.string("tight"),
-    useMVAbasedID_   = cms.bool(False)                          
+    useMVAbasedID_   = cms.bool(True)
 )
 
 
