@@ -217,6 +217,11 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
         ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.794 && pf_isolation <0.180 ) ||
         ( abseta > 1.479 && mvaOut > 0.846 && pf_isolation < 0.244) );
 
+      isQCD = (pt>20.) && ( 
+        ( abseta <= 0.8 && mvaOut > -1. && pf_isolation > 0.177 ) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > -1. && pf_isolation >0.180 ) ||
+        ( abseta > 1.479 && mvaOut > -1. && pf_isolation > 0.244) );
+
     /// ------- Finally apply selection --------
     if(applyTightID_ && isTight) isPassing[iElec]= true;
     if(applyLooseID_ && isLoose) isPassing[iElec]= true;
