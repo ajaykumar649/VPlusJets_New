@@ -158,6 +158,8 @@ namespace ewk {
     float e1_convradius;
     float e1_d0bsp;
     float e1_dz000; 
+    float e1_mvaTrigV0;
+    float e1_mvaNonTrigV0;
   
     float e1_pfiso_chargedHadronIso;
     float e1_pfiso_photonIso;

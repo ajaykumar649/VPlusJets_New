@@ -55,7 +55,6 @@ ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree,
   name_     = name;
   Vtype_    = iConfig.getParameter<std::string>("VBosonType"); 
   LeptonType_ = iConfig.getParameter<std::string>("LeptonType");
-
   if( !(tree==0) && LeptonType_=="electron") SetBranches();
 }
 
@@ -144,6 +143,8 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &ise1WP70,         lept1+"_isWP70" );
   SetBranch( &e1_d0bsp,         lept1+"_d0bsp" );
   SetBranch( &e1_dz000,         lept1+"_dz000" );
+  SetBranch( &e1_mvaTrigV0,         lept1+"_mvaTrigV0" );
+  SetBranch( &e1_mvaNonTrigV0,         lept1+"_mvaNonTrigV0" );
 
   SetBranch( &e1_pfiso_chargedHadronIso,         lept1+"_pfiso_chargedHadronIso" );
   SetBranch( &e1_pfiso_photonIso,                lept1+"_pfiso_photonIso" );
@@ -291,6 +292,8 @@ void ewk::VtoElectronTreeFiller::init()
   e1_convradius      = -10.;
   e1_d0bsp           = -99999.;
   e1_dz000           = -99999.;
+  e1_mvaTrigV0       = -99999.;
+  e1_mvaNonTrigV0    = -99999.;
 
   e1_pfiso_chargedHadronIso       = -99999.;
   e1_pfiso_photonIso              = -99999.;
@@ -585,12 +588,18 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
      const pat::Electron* patel1 = dynamic_cast<const pat::Electron *>( &*ele1 );
 	 e1_d0bsp = patel1->dB(pat::Electron::BS2D) ;
 	 e1_dz000 = patel1->dB(pat::Electron::PV2D); 
+
+         if(patel1->isElectronIDAvailable("mvaNonTrigV0"))
+           e1_mvaNonTrigV0 =  patel1->electronID("mvaNonTrigV0");
+         if(patel1->isElectronIDAvailable("mvaTrigV0"))
+           e1_mvaTrigV0 =  patel1->electronID("mvaTrigV0");
    }
  	   
    // PF Isolation 
    e1_pfiso_chargedHadronIso = e1->pfIsolationVariables().chargedHadronIso;
    e1_pfiso_photonIso        = e1->pfIsolationVariables().photonIso;
    e1_pfiso_neutralHadronIso = e1->pfIsolationVariables().neutralHadronIso;
+
   }
 
   ////////// electron #2 quantities //////////////
