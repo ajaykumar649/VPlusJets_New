@@ -4,7 +4,8 @@ COMBINE_ARGS="-v0 -M Asymptotic --minosAlgo stepping"
 
 for datacard in $*
 do
-  DIR=`dirname $datacard`
+#  DIR=`dirname $datacard`
+  DIR=.
   file=`basename $datacard .txt`
   suffix=${file##datacard_}
   lz=`echo $suffix | egrep -o "lz[0-9\.\-]+" | sed 's#lz##g'`
