@@ -11,7 +11,7 @@ do
   dkg=`echo $suffix | egrep -o "dkg[0-9\.\-]+" | sed 's#dkg##g'`
   echo "combine $COMBINE_ARGS -n _atgc_$suffix $datacard > ${DIR}/limit_${suffix}.log 2>&1"
 
-  if [ `bashcalc.sh "$lz >= 0.36 || $lz <= -0.36"` ]
+  if [ `echo "scale=4; $lz >= 0.36 || $lz <= -0.36" | bc ; exit` ]
   then
       combine $COMBINE_ARGS --rMax=0.5 -n _atgc_$suffix $datacard > ${DIR}/limit_${suffix}.log 2>&1
   else
