@@ -100,9 +100,9 @@ namespace ewk
     int bunch; 
     int nPV; 
     int mNVB;
-    float mPVx[30];
-    float mPVy[30];
-    float mPVz[30];
+    float mPVx[60];
+    float mPVy[60];
+    float mPVz[60];
     float mBSx;
     float mBSy;
     float mBSz;

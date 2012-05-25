@@ -135,7 +135,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   iEvent.getByLabel( mPrimaryVertex, recVtxs);
   for(unsigned int ind=0;ind<recVtxs->size();ind++) 
     {
-      if(nPV>30) continue;
+      if(nPV>=60) continue;
       mPVx[nPV] =   -10000.0;
       mPVy[nPV] =   -10000.0;
       mPVz[nPV] =   -10000.0;
