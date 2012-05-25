@@ -31,6 +31,7 @@
 // Header file
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/METzCalculator.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/ElectronEffectiveArea.h"
 
 
 
@@ -149,6 +150,7 @@ void ewk::VtoElectronTreeFiller::SetBranches()
   SetBranch( &e1_pfiso_chargedHadronIso,         lept1+"_pfiso_chargedHadronIso" );
   SetBranch( &e1_pfiso_photonIso,                lept1+"_pfiso_photonIso" );
   SetBranch( &e1_pfiso_neutralHadronIso,         lept1+"_pfiso_neutralHadronIso" );
+  SetBranch( &e1_pfIsoEA,         lept1+"_pfIsoEA" );
 
 
   ////////////////////////////////////////////////////////
@@ -298,6 +300,8 @@ void ewk::VtoElectronTreeFiller::init()
   e1_pfiso_chargedHadronIso       = -99999.;
   e1_pfiso_photonIso              = -99999.;
   e1_pfiso_neutralHadronIso       = -99999.;
+  e1_EffArea                      = 0.;
+  e1_pfIsoEA                      = -99999.;
 
   e2px              = -99999.;
   e2py              = -99999.;
@@ -373,8 +377,11 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
    edm::Handle<edm::View<reco::MET> > pfmet;
    iEvent.getByLabel(mInputMet, pfmet);
 
-
-
+ /////// Pileup density "rho" in the event from fastJet pileup calculation /////
+  edm::Handle<double> rho;
+  const edm::InputTag eventrho("kt6PFJets", "rho");
+  iEvent.getByLabel(eventrho,rho);
+  double fastJetRho = *rho;
 
   nTightElectron = 0;
   nLooseElectron = 0;
@@ -550,7 +557,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
     e1_dist          = ele1->convDist();
     e1_dcot          = ele1->convDcot();
     e1_convradius    = ele1->convRadius();
-
+    
     if( ele1->isEB() ) {
       ise1WP95      = (e1_missingHits<=1) && (e1_trackiso/e1Et<0.15) && (e1_ecaliso/e1Et<2.0) 
 	&& (e1_hcaliso/e1Et<0.12) && (e1_SigmaIetaIeta<0.01) && (fabs(e1_DeltaPhiIn)<0.8) 
@@ -599,6 +606,11 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
    e1_pfiso_chargedHadronIso = e1->pfIsolationVariables().chargedHadronIso;
    e1_pfiso_photonIso        = e1->pfIsolationVariables().photonIso;
    e1_pfiso_neutralHadronIso = e1->pfIsolationVariables().neutralHadronIso;
+   e1_EffArea = ElectronEffectiveArea::GetElectronEffectiveArea( ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03 , e1_sc_Eta , ElectronEffectiveArea::kEleEAData2012);
+   e1_pfIsoEA = (e1_pfiso_chargedHadronIso +
+                      max(0.,e1_pfiso_neutralHadronIso +
+                      e1_pfiso_photonIso  -
+                      e1_EffArea*fastJetRho)) / e1Pt;
 
   }
 

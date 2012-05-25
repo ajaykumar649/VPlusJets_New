@@ -164,6 +164,8 @@ namespace ewk {
     float e1_pfiso_chargedHadronIso;
     float e1_pfiso_photonIso;
     float e1_pfiso_neutralHadronIso;    
+    float e1_pfIsoEA;    
+    float e1_EffArea;    
 
     ///////////////////
 
