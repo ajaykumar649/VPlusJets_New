@@ -254,6 +254,7 @@ public :
    Int_t           W_muon_numberOfMatches;
    Float_t         W_muon_d0bsp;
    Float_t         W_muon_dz000;
+   Float_t         W_muon_dzPV;
    Float_t         W_muon_pfiso_sumChargedHadronPt;
    Float_t         W_muon_pfiso_sumChargedParticlePt;
    Float_t         W_muon_pfiso_sumNeutralHadronEt;

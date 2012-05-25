@@ -281,6 +281,8 @@ public :
    Int_t           W_electron_missingHits;
    Float_t         W_electron_dist;
    Float_t         W_electron_dcot;
+   Float_t         W_electron_mvaTrigV0;
+   Float_t         W_electron_mvaNonTrigV0;
    Float_t         W_electron_convradius;
    Bool_t          W_electron_isWP95;
    Bool_t          W_electron_isWP80;
@@ -290,6 +292,7 @@ public :
    Float_t         W_electron_pfiso_chargedHadronIso;
    Float_t         W_electron_pfiso_photonIso;
    Float_t         W_electron_pfiso_neutralHadronIso;
+   Float_t         W_electron_pfIsoEA;
    Int_t           event_runNo;
    Int_t           event_evtNo;
    Int_t           event_lumi;
@@ -583,6 +586,8 @@ public :
    TBranch        *b_W_electron_missingHits;   //!
    TBranch        *b_W_electron_dist;   //!
    TBranch        *b_W_electron_dcot;   //!
+   TBranch        *b_W_electron_mvaTrigV0;   //!
+   TBranch        *b_W_electron_mvaNonTrigV0;   //!
    TBranch        *b_W_electron_convradius;   //!
    TBranch        *b_W_electron_isWP95;   //!
    TBranch        *b_W_electron_isWP80;   //!
@@ -592,6 +597,7 @@ public :
    TBranch        *b_W_electron_pfiso_chargedHadronIso;   //!
    TBranch        *b_W_electron_pfiso_photonIso;   //!
    TBranch        *b_W_electron_pfiso_neutralHadronIso;   //!
+   TBranch        *b_W_electron_pfIsoEA;   //!
    TBranch        *b_event_runNo;   //!
    TBranch        *b_event_evtNo;   //!
    TBranch        *b_event_lumi;   //!
@@ -972,6 +978,8 @@ void kanaelec::Init(TTree *tree)
    fChain->SetBranchAddress("W_electron_missingHits", &W_electron_missingHits, &b_W_electron_missingHits);
    fChain->SetBranchAddress("W_electron_dist", &W_electron_dist, &b_W_electron_dist);
    fChain->SetBranchAddress("W_electron_dcot", &W_electron_dcot, &b_W_electron_dcot);
+   fChain->SetBranchAddress("W_electron_mvaTrigV0", &W_electron_mvaTrigV0, &b_W_electron_mvaTrigV0);
+   fChain->SetBranchAddress("W_electron_mvaNonTrigV0", &W_electron_mvaNonTrigV0, &b_W_electron_mvaNonTrigV0);
    fChain->SetBranchAddress("W_electron_convradius", &W_electron_convradius, &b_W_electron_convradius);
    fChain->SetBranchAddress("W_electron_isWP95", &W_electron_isWP95, &b_W_electron_isWP95);
    fChain->SetBranchAddress("W_electron_isWP80", &W_electron_isWP80, &b_W_electron_isWP80);
@@ -981,6 +989,7 @@ void kanaelec::Init(TTree *tree)
    fChain->SetBranchAddress("W_electron_pfiso_chargedHadronIso", &W_electron_pfiso_chargedHadronIso, &b_W_electron_pfiso_chargedHadronIso);
    fChain->SetBranchAddress("W_electron_pfiso_photonIso", &W_electron_pfiso_photonIso, &b_W_electron_pfiso_photonIso);
    fChain->SetBranchAddress("W_electron_pfiso_neutralHadronIso", &W_electron_pfiso_neutralHadronIso, &b_W_electron_pfiso_neutralHadronIso);
+   fChain->SetBranchAddress("W_electron_pfIsoEA", &W_electron_pfIsoEA, &b_W_electron_pfIsoEA);
    fChain->SetBranchAddress("event_runNo", &event_runNo, &b_event_runNo);
    fChain->SetBranchAddress("event_evtNo", &event_evtNo, &b_event_evtNo);
    fChain->SetBranchAddress("event_lumi", &event_lumi, &b_event_lumi);

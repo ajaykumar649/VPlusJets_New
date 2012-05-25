@@ -54,21 +54,21 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
-const TString inDataDir  = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/MergFile/";
+const TString inDataDir  = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v2/Ntuples/";
 const TString inQCDDir   = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample_PAT/MergFile/";
-const TString outDataDir = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTreeDebug/";
+const TString outDataDir = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v2/RDtrees/";
 const std::string fDir   = "EffTableDir/";
  
 void kanamuon::myana(double myflag, bool isQCD, int runflag)
 {
   TChain * myChain;
   // 2011 data
-  if (myflag == 20110000 || myflag == -100){
+  if (myflag == 20120000 || myflag == -100){
     myChain = new TChain("WJet");  
 
     if ( !isQCD ) {
-      myChain->Add(                    inDataDir + "WmunuJets_DataAll_GoldenJSON_4p7invfb.root");
-      Init(myChain);Loop( 20110000,runflag, outDataDir + "RD_WmunuJets_DataAll_GoldenJSON_4p7invfb");
+      myChain->Add(                    inDataDir + "WmunuJets_DataAllSingleMuonTrigger_GoldenJSON_0p9invfb.root");
+      Init(myChain);Loop( 20120000,runflag, outDataDir + "RD_WmunuJets_DataAll_GoldenJSON_0p9invfb");
     } else {
       myChain->Add(                    inQCDDir +     "WmunuJets_DataAll_GoldenJSON_5invfb.root");
       Init(myChain);Loop( 20110000,runflag, outDataDir + "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb", isQCD);
@@ -112,10 +112,20 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "mu_TTbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111008,runflag, outDataDir + "RD_mu_TTbar_CMSSW428");
     }
+    if (myflag == 20121008 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_TTbar_CMSSW525.root"); 
+      Init(myChain);Loop( 20121008,runflag, outDataDir + "RD_mu_TTbar_CMSSW525");
+    }
     if (myflag == 20111009 || myflag == -500){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "mu_WpJ_CMSSW428.root"); 
       Init(myChain);Loop( 20111009,runflag, outDataDir + "RD_mu_WpJ_CMSSW428");
+    }
+    if (myflag == 20121009 || myflag == -500){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_WpJ_CMSSW525.root"); 
+      Init(myChain);Loop( 20121009,runflag, outDataDir + "RD_mu_WpJ_CMSSW525");
     }
     if (myflag == 20111010 || myflag == -200){
       myChain = new TChain("WJet");  
@@ -156,6 +166,11 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "mu_ZpJ_CMSSW428.root"); 
       Init(myChain);Loop( 20111017,runflag, outDataDir + "RD_mu_ZpJ_CMSSW428");
+    }
+    if (myflag == 20121017 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_ZpJ_CMSSW525.root"); 
+      Init(myChain);Loop( 20121017,runflag, outDataDir + "RD_mu_ZpJ_CMSSW525");
     }
     if (myflag == 20111018 || myflag ==  999){ // set 999 not run!!
       myChain = new TChain("WJet");  
@@ -737,7 +752,7 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
 */  
 // S7 MC PU True profile - hardcoded, wow
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupMCReweightingUtilities
- TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-193557_8TeV_PromptReco_Collisions12_true.root" );
+ TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-194076_8TeV_PromptReco_Collisions12_true.root" );
  TH1F* PU_intended = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
  TH1F* PU_generated = new TH1F("PU_generated","Generated pileup distribution (i.e., MC)",60,0.,60);
 Double_t Summer2012[60] = {
@@ -886,7 +901,7 @@ Double_t Summer2012[60] = {
 
 
     // Pile up Re-weighting
-    if (wda>20110999) {
+    if (wda>20120999) {
 //      puwt      =    LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
       puwt      =    weights_->GetBinContent(int(event_mcPU_trueInteractions+0.01)+1);   
 //      puwt_up   = up_LumiWeights_.weight3D(event_mcPU_nvtx[0], event_mcPU_nvtx[1], event_mcPU_nvtx[2]);   
@@ -917,10 +932,11 @@ Double_t Summer2012[60] = {
     bool  isgengdevt = 0;
     if (JetPFCor_Pt[0]>Jpt 
 	&& JetPFCor_Pt[1]>Jpt 
-	&& W_mt>50.
+	&& W_mt>30.
 	&& W_muon_pt>25.
-	&& fabs(W_muon_d0bsp)<0.02
-	&& fabs(W_muon_eta)<2.1
+	&& fabs(W_muon_dz000)<0.02
+	&& fabs(W_muon_dzPV)<0.5
+        && fabs(W_muon_eta)<2.4
         ) isgengdevt = 1;
 
 
@@ -931,7 +947,7 @@ Double_t Summer2012[60] = {
       if ( !(event_met_pfmet>25.0) ) isgengdevt=0;
     } else {
       //keep muons with iso>0.20 (loose=0.20;tight=0.12)
-      if ( !(muoniso>0.20)         ) isgengdevt=0;
+      if ( !(muoniso>0.12)         ) isgengdevt=0;
     }
 
 
