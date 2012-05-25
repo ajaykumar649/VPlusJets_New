@@ -26,7 +26,7 @@ const double siglumiunc     = 0.022;
 const double signal_xs_unc  = 0.034;
 
 // for cut-and-count limits:
-const double dijetptmingev  = 200.;
+const double dijetptmingev  = 300.;
 
 const float LAMBDAZ_MIN = -0.18;
 const float LAMBDAZ_MAX =  0.18;
@@ -38,7 +38,8 @@ const float dKG_INC = 0.1;
 
 // FILE/HISTO STRUCTURE: assumed same name objects contained in different files for the different inputs
 
-const char *dir = "/uscms_data/d2/kalanand/junk/vplusjets/CMSSW_4_2_8/src/ElectroWeakAnalysis/VPlusJets/test/TGC/";
+//const char *dir = "/uscms_data/d2/kalanand/junk/vplusjets/CMSSW_4_2_8/src/ElectroWeakAnalysis/VPlusJets/test/TGC/";
+const char *dir = ".";
 
 // ordered the same as the inputs
 //
