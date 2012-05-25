@@ -14,7 +14,7 @@ if isQCD:
 ## modified WP70
 tightElectrons = cms.EDProducer("PATElectronIdSelector",
     src = cms.InputTag( "selectedPatElectronsPFlow" ),
-    idLabel = cms.string("tight"),
+    idLabel = cms.string(tightEleIdLabel),
     useMVAbasedID_   = cms.bool(True)
 )
 
@@ -39,7 +39,7 @@ bestWToEnu =cms.EDFilter("LargestPtCandViewSelector",
 ##  Define loose electron selection for veto ######
 ## modified WP90
 looseElectrons = tightElectrons.clone()
-looseElectrons.idLabel = cms.string("loose")
+looseElectrons.idLabel = cms.string(looseEleIdLabel)
 looseElectronFilter = cms.EDFilter("PATCandViewCountFilter",
     minNumber = cms.uint32(1),
     maxNumber = cms.uint32(1),
@@ -51,7 +51,8 @@ looseElectronFilter = cms.EDFilter("PATCandViewCountFilter",
 looseMuons = cms.EDFilter("PATMuonRefSelector",
     src = cms.InputTag("selectedPatMuonsPFlow"),
     cut = cms.string("pt>10 &&isPFMuon && (isGlobalMuon || isTrackerMuon) && abs(eta)<2.5"
-                     " && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt< 0.2")     
+                    " && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt< 0.2"
+    )     
 )
 
 looseMuonFilter = cms.EDFilter("PATCandViewCountFilter",

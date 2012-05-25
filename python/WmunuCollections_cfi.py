@@ -3,24 +3,31 @@ import FWCore.ParameterSet.Config as cms
 from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseElectrons
 from ElectroWeakAnalysis.VPlusJets.WenuCollections_cfi import looseMuons
 
+isQCD = False
+
+isolationCutString = cms.string("")
+if isQCD:
+    isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt> 0.12" 
+else:
+    isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt< 0.12"
+
 tightMuons = cms.EDFilter("MuonSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string("pt>20 && isGlobalMuon && isTrackerMuon && abs(eta)<2.4"
+    cut = cms.string("pt>20 && isGlobalMuon && isPFMuon && abs(eta)<2.4"
                      " && globalTrack().normalizedChi2<10"
-                     " && innerTrack().numberOfValidHits>10"
                      " && globalTrack().hitPattern().numberOfValidMuonHits>0"
                      " && globalTrack().hitPattern().numberOfValidPixelHits>0"
-                     " && numberOfMatches>1"
-                     " && (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)/pt< 0.3"
+                     " && numberOfMatchedStations>1"
+                     " && globalTrack().hitPattern().trackerLayersWithMeasurement>5"
+                     " && " + isolationCutString
                      )
 )
-
 
 
 WToMunu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("tightMuons pfMet"),
 ## Note: the 'mt()' method doesn't compute the transverse mass correctly, so we have to do it by hand.
-    cut = cms.string('daughter(0).pt >20 && daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>40'), 
+    cut = cms.string('daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>30'), 
     checkCharge = cms.bool(False),
 )
 

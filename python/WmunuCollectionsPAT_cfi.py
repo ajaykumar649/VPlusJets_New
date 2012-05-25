@@ -6,7 +6,7 @@ isQCD = False
 
 isolationCutString = cms.string("")
 if isQCD:
-    isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt> 0.20" 
+    isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt> 0.12" 
 else:
     isolationCutString = "(pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt< 0.12"
 
@@ -25,7 +25,7 @@ tightMuons = cms.EDFilter("PATMuonSelector",
 WToMunu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("tightMuons patMETsPFlow"),
 ## Note: the 'mt()' method doesn't compute the transverse mass correctly, so we have to do it by hand.
-    cut = cms.string('daughter(0).pt >20 && daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>40'), 
+    cut = cms.string(' daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>30'), 
     checkCharge = cms.bool(False),
 )
 
