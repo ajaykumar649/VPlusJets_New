@@ -1,13 +1,13 @@
 #include <iostream>
 #include <map>
-#include <vector>
+#include <deque>
 #include <stdio.h>
 #include "TString.h"
 
 struct ProcData_t {
   ProcData_t() : name(""),procindex(-1) {}
   TString name;
-  int procindex;
+  int procindex;                                             // index to be put into the datacard!
   std::map<TString,double> channels;
   std::map<TString,vector<pair<double,double> > > systrates; /*  TString = systname
 								 vector index over channels
@@ -35,8 +35,8 @@ struct CardData_t {
   int nbackproc;
   ProcData_t data;   // data is identified separately as "observation"
   std::vector<ShapeFiles_t> shapespecs;
-  std::vector<ProcData_t> processes;
-  std::map<TString,int> pname2index;
+  std::deque<ProcData_t> processes; // push_front for signal, push_back for background
+  std::map<TString,int> pname2index;  // map from process name to the deque index in "processes"
   std::map<TString,TString> systematics; // name, pdf function
 };
 
@@ -120,12 +120,14 @@ void fmtDataCardFile(int massgev,
    * YIELDS PER BIN/PROCESS
    ****************************************/
 
+  //--------------------------------------------------------------------------------
+#ifdef PROC_MAJOR_CHAN_MINOR_ORDERING
+
   // Example:
   //--------------------
-  //bin           chan1    chan1      chan1  
-  //process       Signal   WJets      WW 
-  //process         0      1      2  
-  //rate           53.44 1898.97  268.52 
+  //bin           chan1    chan2    chan1   chan2   chan1    chan2
+  //process       Signal   Signal   WJets   WJets     WW       WW
+  //process         0        0        1       1        2        2  
   //--------------------
 
   // these are the signal and background loops
@@ -137,8 +139,6 @@ void fmtDataCardFile(int massgev,
       fprintf(dcFile,"%12s",it->first.Data());
   fprintf(dcFile,"\n");
   
-  map<TString,ProcData_t>::const_iterator pit;
-
   fprintf(dcFile,"process                            ");
   for (int j=0; j<=jmax; j++)
     for (int k=0; k<nbins; k++)
@@ -193,6 +193,91 @@ void fmtDataCardFile(int massgev,
     }
     fprintf(dcFile,"\n");
   }
+
+  //--------------------------------------------------------------------------------
+#else // CHAN_MAJOR_PROC_MINOR_ORDERING
+
+  // all processes must have the same channels!
+
+  // Example:
+  //--------------------
+  //bin           chan1    chan1    chan1   chan2    chan2    chan2
+  //process       Signal   WJets      WW    Signal   WJets      WW
+  //process         0        1         2      0        1         2  
+  //--------------------
+
+  // these are the signal and background loops
+  fprintf(dcFile,"bin                                ");
+  for (map<TString,double>::const_iterator it=cd.processes[0].channels.begin();
+       it != cd.processes[0].channels.end();
+       it++)
+    for (int j=0; j<=jmax; j++)
+      fprintf(dcFile,"%12s",it->first.Data());
+  fprintf(dcFile,"\n");
+  
+  fprintf(dcFile,"process                            ");
+  for (int k=0; k<nbins; k++)
+    for (int j=0; j<=jmax; j++)
+      fprintf(dcFile,"%12s",cd.processes[j].name.Data());
+  fprintf(dcFile,"\n");
+
+  fprintf(dcFile,"process                            ");
+  for (int k=0; k<nbins; k++)
+    for (int j=0; j<=jmax; j++)
+      fprintf(dcFile,"%12d",cd.processes[j].procindex);
+  fprintf(dcFile,"\n");
+
+  fprintf(dcFile,"rate                               ");
+  for (map<TString,double>::const_iterator chit=cd.processes[0].channels.begin();
+       chit != cd.processes[0].channels.end();
+       chit++) {
+    TString channame = chit->first;
+    for (int j=0; j<=jmax; j++) {
+      map<TString,double>::const_iterator it=cd.processes[j].channels.find(channame);
+      if (it==cd.processes[j].channels.end()) {
+	cerr << "couldn't find channel " << channame << " for process " << j << endl;
+	exit(-1);
+      }
+      fprintf(dcFile,"%12.2f",max(it->second,0.001));
+    }
+  }
+  fprintf(dcFile,"\n");
+
+  fprintf(dcFile,"--------------------\n");
+
+  /****************************************
+   * SYSTEMATICS
+   ****************************************/
+
+  map<TString,TString>::const_iterator sit;
+  for (sit  = cd.systematics.begin();
+       sit != cd.systematics.end();
+       sit++) {
+    const TString& name = sit->first;
+    const TString& pdf  = sit->second;
+    fprintf(dcFile,"%-32s %5s",name.Data(),pdf.Data());
+    for (int k=0; k<nbins; k++) {
+      for (int j=0; j<=jmax; j++) {
+	const ProcData_t& pd = cd.processes[j];
+	map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(sit->first);
+	if (rit == pd.systrates.end()) {
+	  fprintf(dcFile,"       -    ");
+	} else {
+	  const vector<pair<double,double> >& rates = rit->second;
+	  pair<double,double> rate = rates.at(k);
+	  if (rate.second == 0.0)        // expect the UP (second) to contain single-sided error values
+	    fprintf(dcFile,"       -    ");
+	  else if (rate.first == 0.0)
+	    fprintf(dcFile,"  %7.4g   ",rate.second);
+	  else
+	    fprintf(dcFile," %g/%g ",rate.first,rate.second);
+	}
+      }
+    }
+    fprintf(dcFile,"\n");
+  }
+
+#endif
 
   fclose(dcFile);
 }                                                               // fmtDataCardFile

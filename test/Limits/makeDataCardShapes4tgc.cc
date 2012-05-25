@@ -110,11 +110,9 @@ makeNewCard(TH1           *inhist,
   if( procname.Contains("data") ) {
     card.data = pd; // done.
   } else {
-    int index=0;
 
     if( procname.Contains("ignal") ) {                              // signal
 
-      card.processes.resize(1);
       card.nsigproc++;
 
       pd.procindex = 1-card.nsigproc; /* process index for signal processes required to be distinct,
@@ -135,15 +133,10 @@ makeNewCard(TH1           *inhist,
     } else {                                                        //background
       card.nbackproc++;
       pd.procindex = card.nbackproc;
-
-      // must reserve index 0 for signal,
-      // so give this process index 1
-      index = 1;
-      card.processes.resize(2);
     }
 
-    card.pname2index[procname]= index;
-    card.processes[index]    = pd;
+    card.processes.push_back(pd);
+    card.pname2index[procname]= 0;
 
   } // else not data
 
@@ -194,7 +187,6 @@ addToCard(CardData_t&    card,
   card.systematics[leptsyst]     = "lnN"; // common across same-flavor channels
   card.systematics[sigXSsyst]    = "lnN";
 
-  int index=0;
   if( procname.Contains("data") )         // data observation
 
     if (!card.data.name.Length()) {             // first channel of data encountered
@@ -209,7 +201,6 @@ addToCard(CardData_t&    card,
 
   else if( procname.Contains("ignal") ) { // signal expectation
 
-    assert(card.processes.size());  // space for index 0 s/b reserved by now
     assert(!systname.Length());     // shape based systematics for signal not implemented yet
 
     pair<double,double> lumipair(0.0, 1+siglumiunc);
@@ -225,8 +216,6 @@ addToCard(CardData_t&    card,
 					 as well as 0 or negative */
 
       pd.channels.insert(channel);
-      index = card.processes.size();
-      card.pname2index[pd.name] = index;
 
       pd.systrates["lumi"].resize(nchan,lumipair);
       pd.systrates[trigsyst].resize(nchan,zeropair);
@@ -236,9 +225,17 @@ addToCard(CardData_t&    card,
       pd.systrates[sigXSsyst].resize(nchan,zeropair);
       pd.systrates[sigXSsyst][ichan].second = 1+signal_xs_unc;
 
-      card.processes.push_back(pd);
+      // put new signal in front, have to adjust the mapped indices for all the rest.
+      // This maintains the proper ordering of processes in the datacard (for LandS)
+      //
+      for (pit = card.pname2index.begin(); pit != card.pname2index.end(); pit++)
+	pit->second++;
 
-    }else {                                // another channel for signal, presumably
+      card.processes.push_front(pd);
+
+      card.pname2index[pd.name] = 0;
+
+    } else {                                // another channel for signal, presumably
       ProcData_t& pd = card.processes[pit->second];
       assert(pd.name.Length());             // process should exist here
       assert(!pd.name.CompareTo(procname)); // must be the same
@@ -280,9 +277,8 @@ addToCard(CardData_t&    card,
       pd.name = procname;
       pd.procindex = card.nbackproc;
       pd.channels.insert(channel);
-      index = card.processes.size();
-      card.pname2index[pd.name] = index;
 
+      card.pname2index[pd.name] = (int)card.processes.size();
       card.processes.push_back(pd);
 
     } else {                                /* either another channel, or a shape
@@ -332,7 +328,7 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
 #endif
 
   for (int ichan=0; ichan<NUMCHAN; ichan++) {
-    fnames[ichan] = TString(dir)+TString(inputfiles[ichan]); // TString(argv[ichan+1]);
+    fnames[ichan] = TString(dir)+"/"+TString(inputfiles[ichan]); // TString(argv[ichan+1]);
     fps[ichan] = new TFile(fnames[ichan]);
     if (fps[ichan]->IsZombie()) {
       cerr << "Couldn't open file " << fnames[ichan] << endl;
