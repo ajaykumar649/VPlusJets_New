@@ -454,8 +454,11 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   QCDNorm_ = 0.;
   QCDError_ = 0.;
 
-  double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
-  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.004214, ermu3jet = 0.0040797;
+  //  double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
+  //  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.004214, ermu3jet = 0.0040797;
+
+  double rel2jet = 0.0637, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
+  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.005, ermu3jet = 0.005;
 
 
 //   if (params_.fitToyDataset) {
@@ -1064,20 +1067,27 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
   if (ws_.pdf("stPdf"))
     return ws_.pdf("stPdf");
 
+#if 0
   // --------- s channel cross section: Tbar - 1.44 pb, events_gen = 137980; T - 3.19 pb, events_gen = 259971
   // --------- t channel cross section: Tbar - 22.65 pb, events_gen = 1944826; T - 41.92 pb, events_gen = 3900171
   // --------- tW channel cross section: Tbar - 7.87 pb, events_gen = 787629; T - 7.87 pb, events_gen = 795379
   // --------- https://twiki.cern.ch/twiki/bin/viewauth/CMS/SingleTopSigma 
-
-  double STopWeight = 3.19/259971;
-  double STopBarWeight = 1.44/137980;
-  double TTopWeight = 41.92/3900171;
-  double TTopBarWeight = 22.65/1944826;
-  double TWTopWeight = 7.87/795379;
-  double TWTopBarWeight = 7.87/787629;
-
+  double STopWeight     =  3.19 /  259971;
+  double STopBarWeight  =  1.44 /  137980;
+  double TTopWeight     = 41.92 / 3900171;
+  double TTopBarWeight  = 22.65 / 1944826;
+  double TWTopWeight    =  7.87 /  795379;
+  double TWTopBarWeight =  7.87 /  787629;
+#else
+  // xsecs from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
+  double STopBarWeight  =  1.75776 /  139974;
+  double TTopWeight     = 55.531   /   23777;
+  double TTopBarWeight  = 30.0042  / 1935072;
+  double TWTopWeight    = 11.1773  /  497658;
+  double TWTopBarWeight = 11.1773  /  493460;
+#endif
   std::cout << "s channel tbar: " << STopBarWeight
-	    << " t: " << STopWeight << "\n"
+    //	    << " t: " << STopWeight << "\n"
 	    << "t channel tbar: " << TTopBarWeight
 	    << " t: " << TTopWeight << "\n"
 	    << "tW channel tbar: " << TWTopBarWeight
@@ -1091,37 +1101,37 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
   TH1 * tmpHist;
   if (params_.includeMuons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopS_Tbar_CMSSW428.root",
+			       "mu_STopS_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, STopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopS_T_CMSSW428.root",
+			       "mu_STopT_T_CMSSW525.root", // "mu_STopS_T_CMSSW525.root", -- missing
 			       "hist_st_mu", false, 1, false, stScale);
-    th1st->Add(tmpHist, STopWeight);
+    th1st->Add(tmpHist, TTopWeight); // STopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopT_Tbar_CMSSW428.root",
+			       "mu_STopT_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopT_T_CMSSW428.root",
+			       "mu_STopT_T_CMSSW525.root",
 			       "hist_st_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TTopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopTW_Tbar_CMSSW428.root",
+			       "mu_STopTW_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TWTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopTW_T_CMSSW428.root",
+			       "mu_STopTW_T_CMSSW525.root",
 			       "hist_st_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TWTopWeight);
 //     tmpHist->Print();
@@ -1129,37 +1139,37 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopS_Tbar_CMSSW428.root",
+			       "el_STopS_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, STopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopS_T_CMSSW428.root",
+			       "el_STopT_T_CMSSW525.root", // "el_STopS_T_CMSSW525.root", -- missing
 			       "hist_st_el", true, 1, false, stScale);
-    th1st->Add(tmpHist, STopWeight);
+    th1st->Add(tmpHist, TTopWeight); // STopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopT_Tbar_CMSSW428.root",
+			       "el_STopT_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopT_T_CMSSW428.root",
+			       "el_STopT_T_CMSSW525.root",
 			       "hist_st_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TTopWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopTW_Tbar_CMSSW428.root",
+			       "el_STopTW_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TWTopBarWeight);
 //     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopTW_T_CMSSW428.root",
+			       "el_STopTW_T_CMSSW525.root",
 			       "hist_st_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TWTopWeight);
 //     tmpHist->Print();
@@ -1209,7 +1219,7 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
+			       "RDQCD_WenuJets_Isog0p3NoElMVA_1p6invfb.root", // "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
 			       "hist_qcd_el", true, 1, false, 1,
 			       params_.QCDcuts);
     th1qcd->Add(tmpHist);
