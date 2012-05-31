@@ -70,7 +70,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
     fitterPars.truncRange = True
-    fitterPars.blind = False
+    fitterPars.blind = True
     fitterPars.minTrunc = 65.
 
     binMin = fitterPars.minMass
@@ -139,7 +139,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
 
     fitterPars.cuts = '(fit_status==0) ' + \
                       '&& %s ' % (jetCut) + \
-                      '&& (W_mt > 50) ' + \
+                      '&& (W_mt > 30) ' + \
                       '&& (fit_mlvjj > %0.1f) && (fit_mlvjj < %0.1f) ' % \
                       (minMlvjj, maxMlvjj)
 

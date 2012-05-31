@@ -96,48 +96,88 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   RooArgSet * params = totalPdf->getParameters(data);
   loadParameters(params_.constraintParamsFile);
   
-  RooRealVar * nQCD = ws_.var("nQCD");
-  RooGaussian constQCD("constQCD","constQCD", *nQCD, RooConst(nQCD->getVal()),
-		       RooConst(nQCD->getError())) ;
-  RooRealVar * nTTbar = ws_.var("nTTbar");
-  RooGaussian constTTbar("constTTbar","constTTbar", *nTTbar, 
-			 RooConst(nTTbar->getVal()),
-			 RooConst(nTTbar->getError())) ;
-  RooRealVar * nSingleTop = ws_.var("nSingleTop");
-  RooGaussian constSingleTop("constSingleTop","constSingleTop", *nSingleTop, 
-			     RooConst(nSingleTop->getVal()),
-			     RooConst(nSingleTop->getError())) ;
-  RooRealVar * nZjets = ws_.var("nZjets");
-  RooGaussian constZpJ("constZpJ", "constZpJ", *nZjets, 
-		       RooConst(nZjets->getVal()), 
-		       RooConst(nZjets->getError()));
-  RooRealVar * nDiboson = ws_.var("nDiboson");
-  RooGaussian constDiboson("constDiboson", "constDiboson", *nDiboson,
-			   RooConst(nDiboson->getVal()), 
-			   RooConst(nDiboson->getError()));
-  RooRealVar * nWjets = ws_.var("nWjets");
-  RooGaussian constWjets("constWjets", "constWjets", *nWjets,
-			 RooConst(nWjets->getVal()), 
-			 RooConst(nWjets->getError()));
+  TString yieldNames[6] = {TString("nQCD"),
+			   TString("nTTbar"),
+			   TString("nSingleTop"),
+			   TString("nZjets"),
+			   TString("nDiboson"),
+			   TString("nWjets")};
+
+  RooArgList constPars;
+  RooArgList yieldconst;
+  RooArgList Constraints;
+
+  double sumNonWpJ = 0;
+
+  for (int nn = 0; nn < 6; ++nn) {
+    RooRealVar * yield = ws_.var(yieldNames[nn]);
+    if ( (!yield->isConstant()) && 
+	 (yield->getVal() + yield->getError() > 0.5) ) {
+      constPars.addClone(RooConst(yield->getVal()));
+      constPars.addClone(RooConst(yield->getError()));
+      RooGaussian yc(TString::Format("const_%s", yieldNames[nn].Data()),
+		     TString::Format("const_%s", yieldNames[nn].Data()),
+		     *yield,
+		     *((RooAbsReal *)constPars.at(constPars.getSize()-2)),
+		     *((RooAbsReal *)constPars.at(constPars.getSize()-1)));
+      if (nn == 4) {
+	if (params_.constrainDiboson)
+	  yieldconst.addClone(yc);
+      } else if (nn == 5) {
+	if (params_.constrainWpJ)
+	  yieldconst.addClone(yc);
+      } else {
+	yieldconst.addClone(yc);
+      }
+    } else {
+      yield->setConstant();
+    }
+
+    if (nn < 5)
+      sumNonWpJ += yield->getVal();    
+  }
+  
+  Constraints.add(yieldconst);
+  // RooRealVar * nQCD = ws_.var("nQCD");
+  // RooGaussian constQCD("constQCD","constQCD", *nQCD, RooConst(nQCD->getVal()),
+  // 		       RooConst(nQCD->getError())) ;
+  // RooRealVar * nTTbar = ws_.var("nTTbar");
+  // RooGaussian constTTbar("constTTbar","constTTbar", *nTTbar, 
+  // 			 RooConst(nTTbar->getVal()),
+  // 			 RooConst(nTTbar->getError())) ;
+  // RooRealVar * nSingleTop = ws_.var("nSingleTop");
+  // RooGaussian constSingleTop("constSingleTop","constSingleTop", *nSingleTop, 
+  // 			     RooConst(nSingleTop->getVal()),
+  // 			     RooConst(nSingleTop->getError())) ;
+  // RooRealVar * nZjets = ws_.var("nZjets");
+  // RooGaussian constZpJ("constZpJ", "constZpJ", *nZjets, 
+  // 		       RooConst(nZjets->getVal()), 
+  // 		       RooConst(nZjets->getError()));
+  // RooRealVar * nDiboson = ws_.var("nDiboson");
+  // RooGaussian constDiboson("constDiboson", "constDiboson", *nDiboson,
+  // 			   RooConst(nDiboson->getVal()), 
+  // 			   RooConst(nDiboson->getError()));
+  // RooRealVar * nWjets = ws_.var("nWjets");
+  // RooGaussian constWjets("constWjets", "constWjets", *nWjets,
+  // 			 RooConst(nWjets->getVal()), 
+  // 			 RooConst(nWjets->getError()));
 
   
-  //RooArgList ConstrainedVars;
-  RooArgList Constraints;
+  // //RooArgList ConstrainedVars;
   
-  if (params_.constrainDiboson) {
-    Constraints.add(constDiboson);
-  }
-  if (params_.constrainWpJ) {
-    Constraints.add(constWjets);
-  }
-  Constraints.add(constQCD);
-  Constraints.add(constSingleTop);
-  Constraints.add(constZpJ);
-  Constraints.add(constTTbar);
+  // if (params_.constrainDiboson) {
+  //   Constraints.add(constDiboson);
+  // }
+  // if (params_.constrainWpJ) {
+  //   Constraints.add(constWjets);
+  // }
+  // Constraints.add(constQCD);
+  // Constraints.add(constSingleTop);
+  // Constraints.add(constZpJ);
+  // Constraints.add(constTTbar);
 
   RooArgSet * wpjpars =  ws_.pdf("WpJPdf")->getParameters(data);
   RooArgList wpjconst;
-  RooArgList constPars;
   TIter par(wpjpars->createIterator());
   par.Reset();
   RooRealVar * param;
@@ -197,12 +237,21 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
   std::cout << "*** ***\n\n";
   
   RooAbsPdf * fitPdf = totalPdf;
-  if (!params_.externalConstraints) {
+  if (ws_.pdf("fitPdf"))
+    fitPdf = ws_.pdf("fitPdf");
+  else if (!params_.externalConstraints) {
     Constraints.add(*totalPdf);
     ws_.import(RooProdPdf("fitPdf", "fitPdf", Constraints));
     fitPdf = ws_.pdf("fitPdf");
     // fitPdf->Print("v");
   }
+  std::cout << "N data: " << data->sumEntries()
+	    << " non WpJ yields: " << sumNonWpJ
+	    << " difference: " << data->sumEntries() - sumNonWpJ
+	    << '\n';
+
+  ws_.var("nWjets")->setVal(data->sumEntries() - sumNonWpJ);
+
   std::cout << "is fitter extended? " << fitPdf->canBeExtended()
 	    << " must be extended? " << fitPdf->mustBeExtended()
 	    << " extend mode: " << fitPdf->extendMode()
@@ -237,6 +286,7 @@ double RooWjjMjjFitter::computeChi2(int& ndf, bool correct) {
   RooAbsData * data = ws_.data("data");
 
   TH1 * dataHist = data->createHistogram("theData", *mass, 
+					 RooFit::Cut(utils_.fitCuts()),
 					 RooFit::Binning("plotBinning"));
   // TH1 * dataHist = utils_.newEmptyHist("theData");
   // RooTreeDataStore * dataStore = 
@@ -819,7 +869,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   // double WJetsCrossX=31314.;
   double WJetsCrossX=36257.2;
   // double WJetsNGen=81352581.;
-  double WJetsNGen=18385043;
+  double WJetsNGen=18393090;
   if ( params_.useWbbPDF ) {
     WJetsCrossX=85.6;
     WJetsNGen=22503418;
@@ -996,7 +1046,7 @@ RooAbsPdf * RooWjjMjjFitter::makettbarPdf() {
 
   int ttScale = 1;
   // double NttbarGenerated = 3701947.0;
-  double NttbarGenerated = 1203373;
+  double NttbarGenerated = 6736135;
   TH1 * th1tt = utils_.newEmptyHist("th1tt", ttScale);
 
   TH1 * tmpHist;
@@ -1080,14 +1130,15 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
   double TWTopBarWeight =  7.87 /  787629;
 #else
   // xsecs from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
-  double STopBarWeight  =  1.75776 /  139974;
+  double STopWeight     = 3.89394 / 259971;
+  double STopBarWeight  = 1.75776 /  139974;
   double TTopWeight     = 55.531   /   23777;
   double TTopBarWeight  = 30.0042  / 1935072;
   double TWTopWeight    = 11.1773  /  497658;
   double TWTopBarWeight = 11.1773  /  493460;
 #endif
   std::cout << "s channel tbar: " << STopBarWeight
-    //	    << " t: " << STopWeight << "\n"
+	    << " t: " << STopWeight << "\n"
 	    << "t channel tbar: " << TTopBarWeight
 	    << " t: " << TTopWeight << "\n"
 	    << "tW channel tbar: " << TWTopBarWeight
@@ -1104,37 +1155,31 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 			       "mu_STopS_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, STopBarWeight);
-//     tmpHist->Print();
     delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "mu_STopT_T_CMSSW525.root", // "mu_STopS_T_CMSSW525.root", -- missing
-			       "hist_st_mu", false, 1, false, stScale);
-    th1st->Add(tmpHist, TTopWeight); // STopWeight);
-//     tmpHist->Print();
-    delete tmpHist;
+    // tmpHist = utils_.File2Hist(params_.MCDirectory + 
+    // 			       "mu_STopS_T_CMSSW525.root",
+    // 			       "hist_st_mu", false, 1, false, stScale);
+    // th1st->Add(tmpHist, STopWeight);
+    // delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopT_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TTopBarWeight);
-//     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopT_T_CMSSW525.root",
 			       "hist_st_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TTopWeight);
-//     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopTW_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TWTopBarWeight);
-//     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopTW_T_CMSSW525.root",
 			       "hist_st_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, TWTopWeight);
-//     tmpHist->Print();
     delete tmpHist;
   }
   if (params_.includeElectrons) {
@@ -1142,37 +1187,31 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 			       "el_STopS_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, STopBarWeight);
-//     tmpHist->Print();
     delete tmpHist;
-    tmpHist = utils_.File2Hist(params_.MCDirectory + 
-			       "el_STopT_T_CMSSW525.root", // "el_STopS_T_CMSSW525.root", -- missing
-			       "hist_st_el", true, 1, false, stScale);
-    th1st->Add(tmpHist, TTopWeight); // STopWeight);
-//     tmpHist->Print();
-    delete tmpHist;
+    // tmpHist = utils_.File2Hist(params_.MCDirectory + 
+    // 			       "el_STopS_T_CMSSW525.root",
+    // 			       "hist_st_el", true, 1, false, stScale);
+    // th1st->Add(tmpHist, STopWeight);
+    // delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopT_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TTopBarWeight);
-//     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopT_T_CMSSW525.root",
 			       "hist_st_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TTopWeight);
-//     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopTW_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TWTopBarWeight);
-//     tmpHist->Print();
     delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopTW_T_CMSSW525.root",
 			       "hist_st_el", true, 1, false, stScale);
     th1st->Add(tmpHist, TWTopWeight);
-//     tmpHist->Print();
     delete tmpHist;
   }
 
@@ -1463,11 +1502,11 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   c.setConstant(false);
   c.Print();
   RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
-  RooRealVar turnOn("turnOn4", "turnOn4", 170.);
+  RooRealVar turnOn("turnOn4", "turnOn4", 162.);
   turnOn.setConstant(false);
-  RooRealVar width("width4", "width4", 15.);
+  RooRealVar width("width4", "width4", 5.5);
   RooGenericPdf erf("WpJ4BodyErf","erf",
-		    "(TMath::Erf((@0-@1)/@2)+1)",
+		    "(TMath::Erf((@0-@1)/@2)+1)/2.",
 		    RooArgList(*mass, turnOn, width));
   RooFitResult * fr = 0;
   mass->setRange("SBFitRange", params_.minMass, localMax);
@@ -1776,7 +1815,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm, bool leftLeg) {
     ++comp;
   }
   theData->SetName("theData");
-  sframe->addPlotable(theData, "pe");
+  sframe->addPlotable(theData, "pe", ((params_.blind)&&(fm == mlnujj)));
 //   data->plotOn(sframe, RooFit::DataError(errorType_), Name("theData"),
 // 	       RooFit::Binning(plotBins));
   RooHist * tmpHist = sframe->getHist("theData");
@@ -2161,8 +2200,9 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
 	      << '\n';
     tempHist = 
       shapesSB.ws_.pdf(pdfName)->createHistogram(pdfName + "_tempHist", *m4b);
-//     tempHist->Print();
+    tempHist->Print();
     tempHist->Scale( fitter2body.ws_.var(normName)->getVal()/tempHist->Integral() * SBInt->getVal()/fullInt->getVal() );
+    tempHist->Print();
     for (ibin = 1; ibin <= nbins; ++ibin) {
       x = tempHist->GetBinCenter(ibin);
       if ((x < m4min) || (x >= m4max)) {
@@ -2170,13 +2210,14 @@ void RooWjjMjjFitter::subtractHistogram(TH1& hist, SideBand sideBand,
 	tempHist->SetBinError(ibin, 0);
       }
     }
-    tempHist->Print();
-//     tempHist->Draw();
-//     gPad->Update();
-//     gPad->WaitPrimitive();
-    if ( fitter2body.ws_.var(normName)->getVal() * 
-	 SBInt->getVal()/fullInt->getVal() >= hist.Integral()*0.001)
+    // tempHist->Draw();
+    // gPad->Update();
+    // gPad->WaitPrimitive();
+    if ( ( tempHist->Integral() > hist.Integral()*0.001 ) && 
+	 ( tempHist->Integral() < hist.Integral() ) )
       hist.Add(tempHist, -1.);
+    else
+      std::cout << "didn't subtract " << tempHist->GetName() << '\n';
 
     delete tempHist;
     delete fullInt;

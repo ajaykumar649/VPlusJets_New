@@ -68,7 +68,8 @@ from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      kBlue, TH1D, TMath, gDirectory
 from math import sqrt
 
-RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
+if not opts.debug:
+    RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 fitterPars = config.theConfig(opts.Nj, opts.mcdir, opts.startingFile, opts.mH,
                               opts.mvaCut, opts.qgCut)
 
@@ -103,17 +104,24 @@ theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 
 fr = theFitter.fit()
 
-# tries = 1
-# while (fr.covQual() != 3) and (tries < 2):
-#     print "Fit didn't converge well.  Will try again."
-#     fr = theFitter.fit(True)
-#     tries += 1
+tries = 1
+ndf = Long(fr.floatParsFinal().getSize()-5)
+while (fr.covQual() < 2) and (tries < 2):
+    print "Fit didn't converge well.  Will try again."
+    theFitter.getWorkSpace().var('nDiboson').setConstant()
+    theFitter.getWorkSpace().var('nTTbar').setConstant()
+    theFitter.getWorkSpace().var('nSingleTop').setConstant()
+    theFitter.getWorkSpace().var('nQCD').setConstant()
+    theFitter.getWorkSpace().var('nZjets').setConstant()
+    theFitter.getWorkSpace().var('nWjets').setConstant()
+    fr = theFitter.fit()
+    ndf = Long(fr.floatParsFinal().getSize())
+    tries += 1
 
 mass = theFitter.getWorkSpace().var(fitterPars.var)
 iset = RooArgSet(mass)
 nexp = theFitter.makeFitter().expectedEvents(iset)
 
-ndf = Long(fr.floatParsFinal().getSize()-5)
 ndf2 = Long(ndf)
 print 'Corrected chi2'
 #chi2 = ndf*1.0
@@ -152,7 +160,7 @@ l.SetTextFont(42)
 
 cs = TCanvas("cs", "stacked")
 mf.Draw()
-l.DrawLatex(0.22, 0.85,
+l.DrawLatex(0.66, 0.55,
             '#chi^{{2}}/dof = {0:0.3f}/{1}'.format(chi2, ndf)
             )
 pyroot_logon.cmsPrelim(cs, fitterPars.intLumi/1000)
@@ -261,8 +269,11 @@ for i in range(0, yields.getSize()):
             theIntegral = dibosonInt.getVal()/dibosonFullInt.getVal()
         elif (theName == 'nWjets'):
             theIntegral = WpJInt.getVal()/WpJFullInt.getVal()
-            WpJNonPoissonError = sqrt(yields.at(i).getError()**2 - \
-                                      yields.at(i).getVal())
+            if (yields.at(i).getError()**2 > yields.at(i).getVal()):
+                WpJNonPoissonError = sqrt(yields.at(i).getError()**2 - \
+                                              yields.at(i).getVal())
+            else:
+                WpJNonPoissonError = 0.
         elif (theName == 'nTTbar'):
             theIntegral = ttbarInt.getVal()/ttbarFullInt.getVal()
         elif (theName == 'nSingleTop'):

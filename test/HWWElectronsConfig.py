@@ -52,14 +52,18 @@ def theConfig(Nj, mcdir = '', initFile = '', mH=400, mvaCut = None,
     fitterPars.includeMuons = False
     fitterPars.includeElectrons = True
 
+    fitterPars.cuts += '&& (abs(JetPFCor_dphiMET[0])>0.8) ' + \
+        '&& (W_electron_pt > 35) '
+    fitterPars.QCDcuts = fitterPars.cuts
+
     if (mvaCut):
         mvaCutValues = mvaCut
     
-    fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues) + \
-                       '&& (W_electron_pt > 35) '
-    if not qgCut:
-        qgCut = optPars[11]
-    fitterPars.cuts += '&& (%s > %f) ' % ("qgld_Summer11CHS[1]",qgCut)
+    fitterPars.cuts += '&& (%s > %f) ' % (mvaVarNames,mvaCutValues)
+    
+    # if not qgCut:
+    #     qgCut = optPars[11]
+    # fitterPars.cuts += '&& (%s > %f) ' % ("qgld_Summer11CHS[1]",qgCut)
 
     print '2-body cuts:', fitterPars.cuts
 
