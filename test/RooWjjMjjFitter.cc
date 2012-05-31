@@ -1502,6 +1502,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   c.setConstant(false);
   c.Print();
   RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
+  RooGenericPdf powerPdf("powerPdf", "TMath::Power(@0, @1)", 
+			 RooArgList(*mass, c));
   RooRealVar turnOn("turnOn4", "turnOn4", 162.);
   turnOn.setConstant(false);
   RooRealVar width("width4", "width4", 5.5);
@@ -1650,10 +1652,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   gPad->Modified();
   gPad->Update();
   
-  cout << "chi2/ndf: " << sbf->chiSquare(fr->floatParsFinal().getSize())
-       << " n bins: " << sbf->GetNbinsX();
-
   if (fr) {
+    cout << "chi2/ndf: " << sbf->chiSquare(fr->floatParsFinal().getSize())
+	 << " n bins: " << sbf->GetNbinsX();
+
     cout << " parameters: " << fr->floatParsFinal().getSize();
     delete fr;
   }
