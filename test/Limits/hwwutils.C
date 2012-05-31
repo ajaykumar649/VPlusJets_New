@@ -30,7 +30,7 @@ std::map<int,HdataPerMassPt> m_signals; // signal (Higgs) data per mass point
 
 //================================================================================
 
-void readHxsTable(const TString& fname)
+void readHxsTable(const TString& fname, double scale=1.0)
 {
   cout << "Reading cross sections table from " << fname << endl;
 
@@ -52,12 +52,14 @@ void readHxsTable(const TString& fname)
 		  &hd.vbfscaleunchi,&hd.vbfscaleunclo,
 		  &hd.vbfpdfunchi,&hd.vbfpdfunclo
 		  );
+      hd.vbfcspb       *= scale;
     } else {
       n += sscanf(str,"%*d %lf %*f %*f %lf %lf %lf %lf",
 		  &hd.ggHcspb,
 		  &hd.ggHscaleunchi,&hd.ggHscaleunclo,
 		  &hd.ggHpdfunchi,&hd.ggHpdfunclo
 		  );
+      hd.ggHcspb       *= scale;
     }
     if (n != 6) {
       cerr << "Error reading from file " << fname << endl;

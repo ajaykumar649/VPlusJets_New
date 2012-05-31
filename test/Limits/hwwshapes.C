@@ -63,7 +63,6 @@ void writesig(TFile *allHistFile,
   double norm     = 
     hd.ggHcspb*
     //ovflwcor*
-    scalefrom7to8tev*
     global_scale* 
     intlumipbinv*
     hd.br2lnujj / 2; // DIV 2 because Jake divides Ngen by two!!
@@ -76,7 +75,6 @@ void writesig(TFile *allHistFile,
     hd.vbfcspb*
     intlumipbinv*
     global_scale* 
-    scalefrom7to8tev*
     hd.br2lnujj / 2;  // *ovflwcor
   hVBFin->Scale(norm);
 
@@ -86,7 +84,6 @@ void writesig(TFile *allHistFile,
     hd.ggHcspb*
     intlumipbinv*
     global_scale* 
-    scalefrom7to8tev*
     hd.br2ww*
     W2qqBR*
     W2taunuBR;
@@ -178,8 +175,13 @@ void writedataback(TFile *fout,
 
   TH1D *backup = new TH1D(name+"Up",  name+"Up",  nbins,xmin,xmax);
   TH1D *backdn = new TH1D(name+"Down",name+"Down",nbins,xmin,xmax);
-  
-  writeGraph2TH1   (dbk.data,   data,   binwidth, fout);
+
+  if (BLINDING)
+    // write background expectation into data histogram
+    writeRooCurve2TH1(dbk.backnm, data, binwidth, fout);
+  else
+    writeGraph2TH1   (dbk.data,   data,   binwidth, fout);
+
   writeRooCurve2TH1(dbk.backnm, backnm, binwidth, fout);
   writeRooCurve2TH1(dbk.backup, backup, binwidth, fout);
   writeRooCurve2TH1(dbk.backdn, backdn, binwidth, fout);
@@ -289,8 +291,8 @@ void hwwshapes(const TString& nametag = "",
 	       int lochan=0,
 	       int hichan=NUMCHAN-1)
 {
-  readHxsTable   ("ggHtable7tev.txt");
-  readHxsTable   ("vbfHtable7tev.txt");
+  readHxsTable   ("ggHtable8tev.txt");
+  readHxsTable   ("vbfHtable7tev.txt", scalefrom7to8tev);
   readBRtable    ("twikiBRtable.txt");
 
   // Get all inputs

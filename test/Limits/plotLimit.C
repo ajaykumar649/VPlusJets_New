@@ -108,7 +108,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
 #ifdef LOGSCALE
   mg->GetYaxis()->SetRangeUser(5e-2,40) ;
 #else
-  mg->GetYaxis()->SetRangeUser(0,30) ;
+  mg->GetYaxis()->SetRangeUser(0,14) ;
 #endif
 
   //mg->Draw("A");

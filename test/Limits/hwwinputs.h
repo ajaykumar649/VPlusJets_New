@@ -5,9 +5,11 @@
 
 #define NUMCHAN 4
 
+const bool BLINDING = true;
+
 // must be put in lexicographical order
 //
-#if 0
+#if 1
 // for combination:
 const char *channames[NUMCHAN] = {
   "hwwelnu2j"
@@ -15,6 +17,7 @@ const char *channames[NUMCHAN] = {
   ,"hwwmunu2j"
   ,"hwwmunu3j"
 };
+#define ELORMUCHAR 3
 #else
 const char *channames[NUMCHAN] = {
   "el2jetCMS"
@@ -22,6 +25,7 @@ const char *channames[NUMCHAN] = {
   ,"mu2jetCMS"
   ,"mu3jetCMS"
 };
+#define ELORMUCHAR 0
 #endif
 
 const char *channames2[NUMCHAN] = {
@@ -31,16 +35,13 @@ const char *channames2[NUMCHAN] = {
   ,"Muon"
 };
 
-const double mutrigeff      = 0.975;
-const double eltrigeff      = 0.821;
+const double mutrigeff      = 1.0;
+const double eltrigeff      = 1.0;
 const double sigtrigeffunc  = 0.01;
 const double siglepteffunc  = 0.02;
-//const double siglumiunc     = 0.045;
-//const double siglumiunc     = 0.036;
 const double siglumiunc     = 0.022;
 
-//const double intlumipbinv = 5020.0;
-const double intlumipbinv = 560.6;
+const double intlumipbinv = 1600.0;
 
 const double W2qqBR    = 0.6770;
 const double W2taunuBR = 0.1125;
@@ -55,8 +56,7 @@ const double scalefrom7to8tev = 1.3;
 #ifdef INTERPPTS
 const int NUMMASSPTS=23;
 #else
-//const int NUMMASSPTS=12;
-const int NUMMASSPTS=11;
+const int NUMMASSPTS=12;
 #endif
 
 //--------------------------------------------------
@@ -76,7 +76,7 @@ const int masspts[NUMMASSPTS] = {
   420,440,             // new interpolated points
 #endif
 
-  450,500,550 // ,600
+  450,500,550,600
 };
 
 //--------------------------------------------------
@@ -96,7 +96,7 @@ const int xminpermass[NUMMASSPTS] = {
   300,340,             // new interpolated points
 #endif
 
-  340,340,340 // ,340
+  340,340,340,340
 };
 
 //--------------------------------------------------
@@ -116,7 +116,7 @@ const int xmaxpermass[NUMMASSPTS] = {
   780,780,             // new interpolated points
 #endif
 
-  780,780,780 // ,780
+  780,780,780,780
 };
 
 //--------------------------------------------------
@@ -136,7 +136,7 @@ const int binwpermass[NUMMASSPTS] = {
   40,40,               // new interpolated points
 #endif
 
-  40,40,40 // ,40
+  40,40,40,40
 };
 
 //--------------------------------------------------
@@ -148,7 +148,7 @@ const int binwpermass[NUMMASSPTS] = {
 // ordered the same as the channels
 //
 const char *dir =
-  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW0p6Result";
+  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
 
 const char *inputfilesfmtstr[NUMCHAN] = {
   "H%d_Electron_2Jets_Fit_Shapes.root",
@@ -160,24 +160,42 @@ const char *inputfilesfmtstr[NUMCHAN] = {
 const char *dataobjname = "theData";
 const char *bkgdobjname = "h_total";
 
-// First limit of 2012, 560/pb
+// 2012 ICHEP preapproval freeze, 1.60/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
-  /*170*/   0.007,   0.012,   0.005,   0.008,
-  /*180*/   0.013,   0.012,   0.011,   0.009,
-  /*190*/   0.014,   0.012,   0.013,   0.009,
-  /*200*/   0.015,   0.021,   0.013,   0.012,
-  /*250*/   0.021,   0.020,   0.012,   0.020,
-  /*300*/   0.023,   0.031,   0.013,   0.037,
-  /*350*/   0.024,   0.044,   0.024,   0.047,
-  /*400*/   0.020,   0.040,   0.028,   0.039,
-  /*450*/   0.026,   0.102,   0.040,   0.100,
-  /*500*/   0.035,   0.081,   0.041,   0.132,
-  /*550*/   0.036,   0.056,   0.020,   0.097,
-  //  /*600*/   0.047,	  ,   0.040,   0.138,
+  /*170*/   1.005,   1.006,   1.000,    1.006,
+  /*180*/   1.009,   1.007,   1.006,    1.005,
+  /*190*/   1.009,   1.007,   1.006,    1.006,
+  /*200*/   1.009,   1.013,   1.006,    1.008,
+  /*250*/   1.008,   1.018,   1.008,    1.010,
+  /*300*/   1.008,   1.014,   1.013,    1.015,
+  /*350*/   1.012,   1.032,   1.017,    1.025,
+  /*400*/   1.010,   1.035,   1.013,    1.025,
+  /*450*/   1.012,   1.056,   1.019,    1.045,
+  /*500*/   1.011,   1.050,   1.018,    1.050,
+  /*550*/   1.012,   1.035,   1.020,    1.035,
+  /*600*/   1.013,   1.049,   1.020,    1.049,
 };
 
 #if 0
+// First limit of 2012, 560/pb
+double backnormerr[NUMMASSPTS*NUMCHAN] = {
+  /*         el2j     el3j     mu2j     mu3j */
+  /*170*/   1.007,   1.012,   1.005,   1.008,
+  /*180*/   1.013,   1.012,   1.011,   1.009,
+  /*190*/   1.014,   1.012,   1.013,   1.009,
+  /*200*/   1.015,   1.021,   1.013,   1.012,
+  /*250*/   1.021,   1.020,   1.012,   1.020,
+  /*300*/   1.023,   1.031,   1.013,   1.037,
+  /*350*/   1.024,   1.044,   1.024,   1.047,
+  /*400*/   1.020,   1.040,   1.028,   1.039,
+  /*450*/   1.026,   1.102,   1.040,   1.100,
+  /*500*/   1.035,   1.081,   1.041,   1.132,
+  /*550*/   1.036,   1.056,   1.020,   1.097,
+  //  /*600*/   1.047,	  ,   1.040,   1.138,
+};
+
+
 // With MVA+Q/G, lumi=5.0/fb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
@@ -219,35 +237,35 @@ double backnormerr[NUMMASSPTS*NUMCHAN] = {
 // Cross-check says it just doesn't matter...so make it simple
 double sigselefferrpct[NUMMASSPTS*NUMCHAN] = {
   /*        el2j   el3j   mu2j   mu3j */
-  /*170*/   7.00,  7.00,  7.00,  7.00,
-  /*180*/   7.00,  7.00,  7.00,  7.00,
-  /*190*/   7.00,  7.00,  7.00,  7.00,
-  /*200*/   7.00,  7.00,  7.00,  7.00,
-  /*250*/   7.00,  7.00,  7.00,  7.00,
-  /*300*/   7.00,  7.00,  7.00,  7.00,
+  /*170*/   10.0,  10.0,  10.0,  10.0,
+  /*180*/   10.0,  10.0,  10.0,  10.0,
+  /*190*/   10.0,  10.0,  10.0,  10.0,
+  /*200*/   10.0,  10.0,  10.0,  10.0,
+  /*250*/   10.0,  10.0,  10.0,  10.0,
+  /*300*/   10.0,  10.0,  10.0,  10.0,
 #ifdef INTERPPTS
   // interpolated points
-  /*305*/   7.00,  7.00,  7.00,  7.00,
-  /*310*/   7.00,  7.00,  7.00,  7.00,
-  /*315*/   7.00,  7.00,  7.00,  7.00,
-  /*320*/   7.00,  7.00,  7.00,  7.00,
-  /*325*/   7.00,  7.00,  7.00,  7.00,
-  /*330*/   7.00,  7.00,  7.00,  7.00,
-  /*335*/   7.00,  7.00,  7.00,  7.00,
-  /*340*/   7.00,  7.00,  7.00,  7.00,
-  /*345*/   7.00,  7.00,  7.00,  7.00,
+  /*305*/   10.0,  10.0,  10.0,  10.0,
+  /*310*/   10.0,  10.0,  10.0,  10.0,
+  /*315*/   10.0,  10.0,  10.0,  10.0,
+  /*320*/   10.0,  10.0,  10.0,  10.0,
+  /*325*/   10.0,  10.0,  10.0,  10.0,
+  /*330*/   10.0,  10.0,  10.0,  10.0,
+  /*335*/   10.0,  10.0,  10.0,  10.0,
+  /*340*/   10.0,  10.0,  10.0,  10.0,
+  /*345*/   10.0,  10.0,  10.0,  10.0,
 #endif
-  /*350*/   7.00,  7.00,  7.00,  7.00,
-  /*400*/   7.00,  7.00,  7.00,  7.00,
+  /*350*/   10.0,  10.0,  10.0,  10.0,
+  /*400*/   10.0,  10.0,  10.0,  10.0,
 #ifdef INTERPPTS
   // interpolated points
-  /*420*/   7.00,  7.00,  7.00,  7.00,
-  /*440*/   7.00,  7.00,  7.00,  7.00,
+  /*420*/   10.0,  10.0,  10.0,  10.0,
+  /*440*/   10.0,  10.0,  10.0,  10.0,
 #endif
-  /*450*/   7.00,  7.00,  7.00,  7.00,
-  /*500*/  13.00, 13.00, 13.00, 13.00,
-  /*550*/  13.00, 13.00, 13.00, 13.00,
-  //  /*600*/  13.00, 13.00, 13.00, 13.00
+  /*450*/   10.0,  10.0,  10.0,  10.0,
+  /*500*/   10.0,  10.0,  10.0,  10.0,
+  /*550*/   10.0,  10.0,  10.0,  10.0,
+  /*600*/   10.0,  10.0,  10.0,  10.0
 };
 
 double ggsigaccptsyst[NUMMASSPTS] = {
@@ -281,7 +299,7 @@ double ggsigaccptsyst[NUMMASSPTS] = {
   /*450*/ 1.027,
   /*500*/ 1.029,
   /*550*/ 1.032,
-  //  /*600*/ 1.036
+  /*600*/ 1.036
 };
 
 double qqsigaccptsyst[NUMMASSPTS] = {
@@ -314,7 +332,7 @@ double qqsigaccptsyst[NUMMASSPTS] = {
   /*450*/ 1.007,
   /*500*/ 1.009,
   /*550*/ 1.009,
-  // /*600*/ 1.007
+  /*600*/ 1.007
 };
 
 

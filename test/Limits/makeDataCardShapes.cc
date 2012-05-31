@@ -115,7 +115,7 @@ makeNewCard(TH1           *inhist,
   TString bckgrdsyst = "CMS_"+TString(channames[ichanref])+"_norm_back"; // channel-dependent
   TString signalsyst = "CMS_"+TString(channames[ichanref])+"_eff_sig";   // channel-dependent
 
-  char elormu = channames[ichanref][0];
+  char elormu = channames[ichanref][ELORMUCHAR];
   TString trigsyst   = "CMS_trigger_"+TString(elormu);
   TString leptsyst   = "CMS_eff_"+TString(elormu);
 
@@ -267,7 +267,7 @@ addToCard(CardData_t&    card,
   TString bckgrdsyst = "CMS_"+channame+"_norm_back"; // channel-dependent
   TString signalsyst = "CMS_"+channame+"_eff_sig";   // channel-dependent
 
-  char elormu = channame[0];
+  char elormu = channame[ELORMUCHAR];
   TString trigsyst   = "CMS_trigger_"+TString(elormu);
   TString leptsyst   = "CMS_eff_"+TString(elormu);
 
@@ -556,8 +556,8 @@ makeDataCardFiles(int argc, char*argv[])
   }
 
 #ifdef ISHWW
-  readHxsTable   ("ggHtable7tev.txt");  // to get the signal x-sec uncertainties
-  readHxsTable   ("vbfHtable7tev.txt"); // to get the signal x-sec uncertainties
+  readHxsTable   ("ggHtable8tev.txt");  // to get the signal x-sec uncertainties
+  readHxsTable   ("vbfHtable7tev.txt",scalefrom7to8tev); // to get the signal x-sec uncertainties
 #endif
 
   map<int,CardData_t> m_cards;
