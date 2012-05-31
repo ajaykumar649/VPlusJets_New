@@ -28,7 +28,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-
+#include "ElectroWeakAnalysis/VPlusJets/interface/ElectronEffectiveArea.h"
 
 
 #include <memory>
@@ -78,7 +78,7 @@ ElectronIdSelector<T>::ElectronIdSelector(const edm::ParameterSet& iConfig)
   : src_    (iConfig.getParameter<edm::InputTag>     ("src"))
   , moduleLabel_(iConfig.getParameter<std::string>   ("@module_label"))
   , idLabel_(iConfig.existsAs<std::string>("idLabel") ? iConfig.getParameter<std::string>("idLabel") : "loose")
-  , useMVAbasedID_(iConfig.existsAs<bool>("useMVAbasedID") ? iConfig.getParameter<bool>("useMVAbasedID") : false)
+  , useMVAbasedID_(iConfig.existsAs<bool>("useMVAbasedID") ? iConfig.getParameter<bool>("useMVAbasedID") : true)
   , useDetectorIsolation_(iConfig.existsAs<bool>("useDetectorIsolation") ? iConfig.getParameter<bool>("useDetectorIsolation") : false)
   , nTot_(0)
   , nPassed_(0)
@@ -157,16 +157,23 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 			       std::max(0.,ele.dr03EcalRecHitSumEt()-1.0) + 
 			       ele.dr03HcalTowerSumEt() - 
 			       PI*0.3*0.3*fastJetRho) / pt;
-
+/*
    ////// The pfIso are done in dR=0.4 
    float pf_isolation = (ele.pfIsolationVariables().chargedHadronIso + 
 			 ele.pfIsolationVariables().neutralHadronIso + 
 			 ele.pfIsolationVariables().photonIso  - 
 			 PI*0.4*0.4*fastJetRho) / pt;
+*/
+   float EffArea = ElectronEffectiveArea::GetElectronEffectiveArea( ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03 , ele.eta() , ElectronEffectiveArea::kEleEAData2011);
+   float pfIso03EA = (ele.pfIsolationVariables().chargedHadronIso + 
+                      max(0.,ele.pfIsolationVariables().neutralHadronIso +
+                      ele.pfIsolationVariables().photonIso  -
+                      EffArea*fastJetRho)) / pt;
+ 
 
    float isolation = 0.;
    if(useDetectorIsolation_) isolation = detector_isolation;
-   else isolation = pf_isolation;
+   else isolation = pfIso03EA;
 
     // -------- Compute ID ------
    Double_t sihih   = fabs(ele.sigmaIetaIeta());
@@ -205,23 +212,23 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 	(isolation>0.1) && (!isConv) && 
 	((isEB && sihih<0.01 && Dphi<0.8 && Deta<0.007) || 
 	 (isEE && sihih<0.03 && Dphi<0.07 && Deta<0.005)); 
-    }
+    } else {
     //-------- if MVA-based ID -----------------
       isTight = (pt>30.) && ( 
-        ( abseta <= 0.8 && mvaOut > 0.977&& pf_isolation < 0.093) ||
-        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.956 && pf_isolation < 0.095) ||
-        ( abseta > 1.479 && mvaOut > 0.966 && pf_isolation < 0.171) );
+        ( abseta <= 0.8 && mvaOut > 0.977&& pfIso03EA < 0.093) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.956 && pfIso03EA < 0.095) ||
+        ( abseta > 1.479 && mvaOut > 0.966 && pfIso03EA < 0.171) );
 
       isLoose = (pt>20.) && ( 
-        ( abseta <= 0.8 && mvaOut > 0.877 && pf_isolation < 0.177 ) ||
-        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.794 && pf_isolation <0.180 ) ||
-        ( abseta > 1.479 && mvaOut > 0.846 && pf_isolation < 0.244) );
+        ( abseta <= 0.8 && mvaOut > 0.877 && pfIso03EA < 0.177 ) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.794 && pfIso03EA <0.180 ) ||
+        ( abseta > 1.479 && mvaOut > 0.846 && pfIso03EA < 0.244) );
 
       isQCD = (pt>20.) && ( 
-        ( abseta <= 0.8 && mvaOut > -1. && pf_isolation > 0.177 ) ||
-        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > -1. && pf_isolation >0.180 ) ||
-        ( abseta > 1.479 && mvaOut > -1. && pf_isolation > 0.244) );
-
+        ( abseta <= 0.8 && mvaOut > -1. && pfIso03EA > 0.177 ) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > -1. && pfIso03EA >0.180 ) ||
+        ( abseta > 1.479 && mvaOut > -1. && pfIso03EA > 0.244) );
+     }
     /// ------- Finally apply selection --------
     if(applyTightID_ && isTight) isPassing[iElec]= true;
     if(applyLooseID_ && isLoose) isPassing[iElec]= true;
