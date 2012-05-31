@@ -606,7 +606,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
    e1_pfiso_chargedHadronIso = e1->pfIsolationVariables().chargedHadronIso;
    e1_pfiso_photonIso        = e1->pfIsolationVariables().photonIso;
    e1_pfiso_neutralHadronIso = e1->pfIsolationVariables().neutralHadronIso;
-   e1_EffArea = ElectronEffectiveArea::GetElectronEffectiveArea( ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03 , e1_sc_Eta , ElectronEffectiveArea::kEleEAData2012);
+   e1_EffArea = ElectronEffectiveArea::GetElectronEffectiveArea( ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03 , e1_sc_Eta , ElectronEffectiveArea::kEleEAData2011);
    e1_pfIsoEA = (e1_pfiso_chargedHadronIso +
                       max(0.,e1_pfiso_neutralHadronIso +
                       e1_pfiso_photonIso  -
