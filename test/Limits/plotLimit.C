@@ -45,7 +45,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
 	       bool plotObs = false,
 	       bool plotPrelim=true)
 {
-  double m[50],obs[50],exp[50],sig1hi[50],sig1lo[50],sig2hi[50],sig2lo[50];
+  double m[100],obs[100],exp[100],sig1hi[100],sig1lo[100],sig2hi[100],sig2lo[100];
   char line[256];
 
   FILE *fp=fopen(limitFile.Data(),"r");
@@ -128,7 +128,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
   mg->GetHistogram()->DrawCopy("sameaxis");
   mg->GetHistogram()->DrawCopy("sameaxig");
 
-  TLegend *leg = new TLegend(0.58, 0.77, 0.95, 0.94, NULL, "brNDC");
+  TLegend *leg = new TLegend(0.38, 0.77, 0.75, 0.94, NULL, "brNDC");
   leg->SetTextSize(0.04);
   leg->SetTextFont(42);
   leg->SetFillColor(0);

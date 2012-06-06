@@ -100,13 +100,39 @@ void readBRtable(const std::string& fname)
 
 //================================================================================
 
-void makeTheoretUncert4Sig(int imass,
+int findMasspt2use(int massgev)
+{
+  // NB: the scheme of which mass to use for uncertainties must be coordinated manually
+  //     with which shapes are used in the interpolation of points!
+  //
+  // find nearest masspoint, use that mass for the uncertainty info
+  int mindiff = INT_MAX;
+  int imass2use=-1;
+
+  // adjust the mass2use for some interpolated points
+  //int comparemassgev = (massgev >= 222 && massgev <= 225) ? 250 : massgev;
+  int comparemassgev = massgev;
+
+  for (int i=0; i<NUMMASSPTS; i++) {
+    int diff = abs(comparemassgev-masspts[i]);
+    if (diff < mindiff) {
+      mindiff = diff;
+      imass2use = i;
+    }
+    else if (diff > mindiff) break; // assume increasing order, so not going to find better!
+  }
+  assert(imass2use>=0);
+
+  return imass2use;
+}
+
+//================================================================================
+
+void makeTheoretUncert4Sig(int massgev,
 			   const TString& procname,
 			   pair<double,double>& pdfunc,   // down/up pair to put in card
 			   pair<double,double>& scaleunc) // down/up pair to put in card
 {
-  int massgev = masspts[imass];
-
   std::map<int,HdataPerMassPt>::const_iterator it =  m_signals.find(massgev);
   if (it == m_signals.end()) {
     cerr << "Mass " << massgev << "GeV not represented in signal tables." << endl;
@@ -114,6 +140,10 @@ void makeTheoretUncert4Sig(int imass,
   }
     
   const HdataPerMassPt& hd = it->second;
+
+  int imass2use = findMasspt2use(massgev);
+
+  cout << "Using mass " << masspts[imass2use] << "GeV for uncertainties."<<endl;
 
   if (procname.Contains("qq") ) { // vbf process
 #if 0
@@ -131,7 +161,7 @@ void makeTheoretUncert4Sig(int imass,
 #endif
     // add signal acceptance effect of PDF variation in quadrature:
     pdfunc.second = 1.0 + sqrt((pdfunc.second-1)*(pdfunc.second-1) +
-			       (qqsigaccptsyst[imass]-1)*(qqsigaccptsyst[imass]-1));
+			       (qqsigaccptsyst[imass2use]-1)*(qqsigaccptsyst[imass2use]-1));
   } else { // default gg fusion process
 #if 0
     // this version gives two sided inputs to combine
@@ -148,7 +178,7 @@ void makeTheoretUncert4Sig(int imass,
 #endif
     // add signal acceptance effect of PDF variation in quadrature:
     pdfunc.second = 1.0 + sqrt((pdfunc.second-1)*(pdfunc.second-1) +
-			       (ggsigaccptsyst[imass]-1)*(ggsigaccptsyst[imass]-1));
+			       (ggsigaccptsyst[imass2use]-1)*(ggsigaccptsyst[imass2use]-1));
   }
 
 }                                                         // makeTheoretUncert4Sig

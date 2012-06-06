@@ -9,6 +9,7 @@ Some important constants are set at the top of the file.
 #include <set>
 #include <vector>
 #include <math.h>
+#include <climits>
 #include <stdio.h>
 #include <stdlib.h>
 #include "TFile.h"
@@ -36,7 +37,8 @@ tokNameGetInfo(const TString& hname,
 	       TString& procname,
 	       TString& systname,
 	       int&     ichan,
-	       int&     imass)
+	       int&     imass,
+	       bool&    isinterp)
 {
   char name[128];
 
@@ -63,14 +65,21 @@ tokNameGetInfo(const TString& hname,
   }
 
   // if there's a mass embedded in the name it has to be now:
+  int massgev=0;
   if (hname.Contains("Mass")) {
     tok = strtok(NULL,"_");    assert(tok); assert(!strcmp(tok,"Mass"));
-    tok = strtok(NULL,"_");    assert(tok); int massgev = atoi(tok);
+    tok = strtok(NULL,"_");    assert(tok); massgev = atoi(tok);
 
     for (imass=0;massgev!=masspts[imass] && imass<NUMMASSPTS; imass++) ;
-    if (imass>=NUMMASSPTS) {
-      cerr << "mass point M=" << massgev << " GeV not found, skipping" << endl;
-      return 0;
+    if (imass<NUMMASSPTS) {
+      isinterp=false;
+    } else {
+      for (imass=0;massgev!=interpolatedmasspts[imass]; imass++) 
+	if (interpolatedmasspts[imass] < 0) {
+	  cerr << "mass point M=" << massgev << " GeV not found, skipping" << endl;
+	  return 0;
+	}
+      isinterp=true;
     }
   }
 
@@ -83,7 +92,8 @@ tokNameGetInfo(const TString& hname,
     }
   }
 
-  cout << "Read process=" << setw(10) << procname << ", channel=" << channame << ", mass=" << masspts[imass];
+  cout<<"Read process="<<setw(10)<<procname<<", channel="<<channame<<", mass="<<massgev;
+  if (isinterp) cout << " (interpolated)";
   if (systname.Length()) cout << ", systname = " << systname;
 
   return 1;
@@ -96,6 +106,7 @@ makeNewCard(TH1           *inhist,
 	    const TString& procname,
 	    const TString& systname,
 	    const int      imass,
+	    const bool     isinterp, // interpolated mass point
 	    const int      ichanref,
 	    const int      ichan,
 	    const int      nchan
@@ -112,15 +123,15 @@ makeNewCard(TH1           *inhist,
 
   // all cards have these by default; these are the non-shape-based systematics
   //
-  TString bckgrdsyst = "CMS_"+TString(channames[ichanref])+"_norm_back"; // channel-dependent
-  TString signalsyst = "CMS_"+TString(channames[ichanref])+"_eff_sig";   // channel-dependent
+  TString bckgrdsyst = Form("CMS_%s_norm_back_%dTeV",channames[ichanref],beamcomenergytev); // channel-dependent
+  TString signalsyst = Form("CMS_%s_eff_sig_%dTeV",channames[ichanref],beamcomenergytev);   // channel-dependent
 
   char elormu = channames[ichanref][ELORMUCHAR];
-  TString trigsyst   = "CMS_trigger_"+TString(elormu);
+  //TString trigsyst   = "CMS_trigger_"+TString(elormu);
   TString leptsyst   = "CMS_eff_"+TString(elormu);
 
   card.systematics[bckgrdsyst]     = "lnN";
-  card.systematics[trigsyst]       = "lnN"; // common across same-flavor channels
+  //card.systematics[trigsyst]       = "lnN"; // common across same-flavor channels
   card.systematics[leptsyst]       = "lnN"; // common across same-flavor channels
   card.systematics["lumi"]         = "lnN"; // common across channels
 #ifdef ISHWW
@@ -131,7 +142,9 @@ makeNewCard(TH1           *inhist,
   card.systematics["QCDscale_ggH"] = "lnN"; // common across channels for ggF process
   card.systematics["QCDscale_qqH"] = "lnN"; // common across channels for VBF process
 
-  if (masspts[imass] >= 300) {
+  int massgev = isinterp ? interpolatedmasspts[imass] : masspts[imass];
+
+  if (massgev >= 300) {
     // add "heavy Higgs" uncertainty
     // https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HeavyHiggs
     card.systematics["theoryUncXS_HighMH"] = "lnN";
@@ -171,7 +184,7 @@ makeNewCard(TH1           *inhist,
 
       pair<double,double> pdfunc, scaleunc;   // down/up pair to put in card
 
-      makeTheoretUncert4Sig(imass, procname, pdfunc, scaleunc);
+      makeTheoretUncert4Sig(massgev, procname, pdfunc, scaleunc);
 
       if (procname.Contains("qq") ) { // VBF process
 
@@ -184,8 +197,6 @@ makeNewCard(TH1           *inhist,
 	pd.systrates["QCDscale_ggH"].resize(nchan,scaleunc);
       }
 
-      int massgev = masspts[imass];
-
       if (massgev >= 300) {
 	// add "heavy Higgs" uncertainty
 	// https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HeavyHiggs
@@ -197,22 +208,25 @@ makeNewCard(TH1           *inhist,
       pair<double,double> lumipair(0.0, 1+siglumiunc);
 
       pd.systrates["lumi"].resize(nchan,lumipair);
-      pd.systrates[trigsyst].resize(nchan,zeropair);
-      pd.systrates[trigsyst][ichan].second = 1+sigtrigeffunc;
+      //pd.systrates[trigsyst].resize(nchan,zeropair);
+      //pd.systrates[trigsyst][ichan].second = 1+sigtrigeffunc;
       pd.systrates[leptsyst].resize(nchan,zeropair);
-      pd.systrates[leptsyst][ichan].second = 1+siglepteffunc;
+      pd.systrates[leptsyst][ichan].second = 1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
 #ifdef ISHWW
       pd.systrates[signalsyst].resize(nchan,zeropair);
       pd.systrates[signalsyst][ichan].second =
-	1.0 + (sigselefferrpct[imass*NUMCHAN+ichanref]/100.);
+	//1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+	1.0 + (sigselefferrpct8tev)/100.;
 #endif
     } else {                                                        //background
       card.nbackproc++;
       pd.procindex = card.nbackproc;
 
+      int imass2use = findMasspt2use(massgev);
+    
       if ( pd.name.Contains("kgr") ) {
 	pd.systrates[bckgrdsyst].resize(nchan,zeropair);
-	pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass*NUMCHAN+ichanref];
+	pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass2use*NUMCHAN+ichanref];
       }
 
       if (systname.Length()) {
@@ -241,6 +255,7 @@ addToCard(CardData_t&    card,
 	  const TString& procname, // process name 
 	  const TString& systname, // name of (shape) systematic applied
 	  const int      imass,    // mass index
+	  const bool     isinterp, // interpolated mass point
 	  const int      ichanref, // channel reference index
 	  const int      ichan,    // channel index
 	  const int      nchan     // number of channels in card
@@ -264,20 +279,22 @@ addToCard(CardData_t&    card,
   channel.first  = channame;
   channel.second = inhist->Integral();
 
-  TString bckgrdsyst = "CMS_"+channame+"_norm_back"; // channel-dependent
-  TString signalsyst = "CMS_"+channame+"_eff_sig";   // channel-dependent
+  TString bckgrdsyst = Form("CMS_%s_norm_back_%dTeV",channame.Data(),beamcomenergytev); // channel-dependent
+  TString signalsyst = Form("CMS_%s_eff_sig_%dTeV",channame.Data(),beamcomenergytev);   // channel-dependent
 
   char elormu = channame[ELORMUCHAR];
-  TString trigsyst   = "CMS_trigger_"+TString(elormu);
+  //TString trigsyst   = "CMS_trigger_"+TString(elormu);
   TString leptsyst   = "CMS_eff_"+TString(elormu);
 
   card.systematics[bckgrdsyst]   = "lnN";
 #ifdef ISHWW
   card.systematics[signalsyst]   = "lnN";
 #endif
-  card.systematics[trigsyst]     = "lnN"; // common across same-flavor channels
+  //card.systematics[trigsyst]     = "lnN"; // common across same-flavor channels
   card.systematics[leptsyst]     = "lnN"; // common across same-flavor channels
 
+  int massgev = isinterp ? interpolatedmasspts[imass] : masspts[imass];
+  
   if( procname.Contains("data") )         // data observation
 
     if (!card.data.name.Length()) {             // first channel of data encountered
@@ -301,7 +318,7 @@ addToCard(CardData_t&    card,
 
     pair<double,double> pdfunc,scaleunc;
 #ifdef ISHWW
-      makeTheoretUncert4Sig(imass, procname, pdfunc, scaleunc);
+    makeTheoretUncert4Sig(massgev, procname, pdfunc, scaleunc);
 #endif
     pair<double,double> lumipair(0.0, 1+siglumiunc);
 
@@ -318,13 +335,15 @@ addToCard(CardData_t&    card,
       pd.channels.insert(channel);
 
       pd.systrates["lumi"].resize(nchan,lumipair);
-      pd.systrates[trigsyst].resize(nchan,zeropair);
-      pd.systrates[trigsyst][ichan].second = 1.0+sigtrigeffunc;
+      //pd.systrates[trigsyst].resize(nchan,zeropair);
+      //pd.systrates[trigsyst][ichan].second = 1.0+sigtrigeffunc;
       pd.systrates[leptsyst].resize(nchan,zeropair);
-      pd.systrates[leptsyst][ichan].second = 1+siglepteffunc;
+      pd.systrates[leptsyst][ichan].second = 1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
 #ifdef ISHWW
       pd.systrates[signalsyst].resize(nchan,zeropair);
-      pd.systrates[signalsyst][ichan].second = 1.0 + (sigselefferrpct[imass*NUMCHAN+ichanref]/100.);
+      pd.systrates[signalsyst][ichan].second = 
+	//1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+	1.0 + (sigselefferrpct8tev)/100.;
 
       if (procname.Contains("qq") ) {
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
@@ -334,7 +353,6 @@ addToCard(CardData_t&    card,
 	pd.systrates["QCDscale_ggH"].resize(nchan,scaleunc);
       }
 
-      int massgev=masspts[imass];
       if (massgev >= 300) {
 	// add "heavy Higgs" uncertainty
 	// https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HeavyHiggs
@@ -360,19 +378,20 @@ addToCard(CardData_t&    card,
       assert(!pd.name.CompareTo(procname)); // must be the same
       pd.channels.insert(channel);
 
+#if 0
       // has this signal systematic been initialized for this process?
       map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(trigsyst);
       if (rit == pd.systrates.end()) { //  no
 	pd.systrates[trigsyst].resize(nchan,zeropair);
       }
       pd.systrates[trigsyst][ichan].second   = 1.0 + sigtrigeffunc;
-
+#endif
       // has this signal systematic been initialized for this process?
-      rit = pd.systrates.find(leptsyst);
+      map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(leptsyst);
       if (rit == pd.systrates.end()) { //  no
 	pd.systrates[leptsyst].resize(nchan,zeropair);
       }
-      pd.systrates[leptsyst][ichan].second   = 1.0 + siglepteffunc;
+      pd.systrates[leptsyst][ichan].second = 1.0+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
 
 #ifdef ISHWW
       // has this signal systematic been initialized for this process?
@@ -380,8 +399,9 @@ addToCard(CardData_t&    card,
       if (rit == pd.systrates.end()) { //  no
 	pd.systrates[signalsyst].resize(nchan,zeropair);
       }
-      pd.systrates[signalsyst][ichan].second = 1.0 + (sigselefferrpct[imass*NUMCHAN+ichanref]/100.);
-
+      pd.systrates[signalsyst][ichan].second =
+	//1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+	1.0 + (sigselefferrpct8tev)/100.;
       if (procname.Contains("qq") ) { // vbf process
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
 	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc);
@@ -393,6 +413,8 @@ addToCard(CardData_t&    card,
     }
 
   } else {                               // background process
+
+    int imass2use = findMasspt2use(massgev);
 
     map<TString,int>::iterator pit;
     pit = card.pname2index.find(procname);
@@ -406,7 +428,7 @@ addToCard(CardData_t&    card,
 
       if ( pd.name.Contains("kgr") ) {
 	pd.systrates[bckgrdsyst].resize(nchan,zeropair);
-	pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass*NUMCHAN+ichanref];
+	pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass2use*NUMCHAN+ichanref];
       }
 
       card.pname2index[pd.name] = (int)card.processes.size();
@@ -432,7 +454,7 @@ addToCard(CardData_t&    card,
 	  if (rit == pd.systrates.end()) { //  no
 	    pd.systrates[bckgrdsyst].resize(nchan,zeropair);
 	  }
-	  pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass*NUMCHAN+ichanref];
+	  pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass2use*NUMCHAN+ichanref];
 	}
       }
     }
@@ -477,8 +499,9 @@ makeDataCardContent(TFile *fp, map<int,CardData_t>& m_cards,
     //
     TString procname(""),systname(""),channname("");
     int ichanref=0,imass=0;
+    bool isinterp;
 
-    if (!tokNameGetInfo(hname, procname,systname,ichanref,imass)) {
+    if (!tokNameGetInfo(hname, procname,systname,ichanref,imass,isinterp)) {
       cout << "...skipping."  << endl;
       continue;
     }
@@ -491,7 +514,8 @@ makeDataCardContent(TFile *fp, map<int,CardData_t>& m_cards,
       cout << "...skipping."  << endl;
       continue;  // check if on the list of channels to be done
     }
-    int massgev=masspts[imass];
+
+    int massgev=isinterp ? interpolatedmasspts[imass] : masspts[imass];
 
     // insert into existing cards data map:
 
@@ -499,11 +523,11 @@ makeDataCardContent(TFile *fp, map<int,CardData_t>& m_cards,
     if (it == m_cards.end()) {                                    // new masspoint
 
       m_cards[massgev] = makeNewCard(h1,procname,systname,
-				     imass,ichanref,ichan,channellist.size());
+				     imass,isinterp,ichanref,ichan,channellist.size());
 
     } else {                                                 // existing masspoint
 
-      addToCard(it->second,h1,procname,systname,imass,ichanref,ichan,channellist.size());
+      addToCard(it->second,h1,procname,systname,imass,isinterp,ichanref,ichan,channellist.size());
 
     } // existing masspoint
 
@@ -523,14 +547,19 @@ makeDataCardFiles(int argc, char*argv[])
   TString cfgtag;
 
 #ifdef ISHWW
-  if (infname.Contains("hww-histo-shapes-")) {
+  //TString prefix("hww-histo-shapes-");
+  TString prefix("hwwlvjj.input_");
 #else
-  if (infname.Contains("mjj-histo-shapes-")) {
+  TString prefix("mjj-histo-shapes-");
 #endif
+  if (infname.Contains(prefix)) {
+    int len = prefix.Length();
+    //cout << len << " " << infname.Last('/')+len+1 << " " << infname.Last('.')-infname.Last('/')-len-1 << endl;
+
     if (infname.Contains("/"))
-      cfgtag = infname(infname.Last('/')+18,infname.Last('.')-infname.Last('/')-18);
+      cfgtag = infname(infname.Last('/')+len+1,infname.Last('.')-infname.Last('/')-len-1);
     else
-      cfgtag = infname(17,infname.Last('.')-17);
+      cfgtag = infname(len,infname.Last('.')-len);
     cout << "cfgtag = " << cfgtag << endl;
   }
   
@@ -556,8 +585,9 @@ makeDataCardFiles(int argc, char*argv[])
   }
 
 #ifdef ISHWW
-  readHxsTable   ("ggHtable8tev.txt");  // to get the signal x-sec uncertainties
-  readHxsTable   ("vbfHtable7tev.txt",scalefrom7to8tev); // to get the signal x-sec uncertainties
+  // needed for theoretical uncertainties
+  readHxsTable   (Form("ggHtable%dtev.txt",beamcomenergytev));
+  readHxsTable   (Form("vbfHtable%dtev.txt",beamcomenergytev)); // , scalefrom7to8tev);
 #endif
 
   map<int,CardData_t> m_cards;

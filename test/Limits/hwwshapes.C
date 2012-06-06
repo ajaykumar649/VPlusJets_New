@@ -22,6 +22,18 @@ DataBack_t databack;
 
 //================================================================================
 
+void determineBinning(TH1    *inhist,
+		      double *xmin,
+		      double *xmax,
+		      int    *binwidth)
+{
+  *xmin = inhist->GetXaxis()->GetXmin();
+  *xmax = inhist->GetXaxis()->GetXmax();
+  *binwidth = (int)((*xmax)-(*xmin))/inhist->GetNbinsX();
+}
+
+//================================================================================
+
 void writesig(TFile *allHistFile,
 	      TH1   *hggHin,
 	      TH1   *hggH2taunuin,
@@ -170,8 +182,8 @@ void writedataback(TFile *fout,
   
   TH1D *backnm = new TH1D(name,name, nbins,xmin,xmax);
 
-  name = Form("Bkgrdtot_%s_Mass_%d_CMS_%s_shape_back",
-	      channames[ichan],massgev,channames[ichan]);
+  name = Form("Bkgrdtot_%s_Mass_%d_CMS_%s_shape_back_%dTeV",
+	      channames[ichan],massgev,channames[ichan],beamcomenergytev);
 
   TH1D *backup = new TH1D(name+"Up",  name+"Up",  nbins,xmin,xmax);
   TH1D *backdn = new TH1D(name+"Down",name+"Down",nbins,xmin,xmax);
@@ -189,14 +201,12 @@ void writedataback(TFile *fout,
 
 //================================================================================
 
-void writeHistosPerMass(int imass,
+void writeHistosPerMass(int massgev,
 			const TString& nametag,
 			const TString& dirpar,
 			int lochan,
 			int hichan)
 {
-  int massgev = masspts[imass];
-
   TString indir, outdir;
 
   if (dirpar.Length()) {
@@ -208,11 +218,11 @@ void writeHistosPerMass(int imass,
 
   TFile *fout;
   if (nametag.Length())
-    fout = new TFile(Form("%s/hww-histo-shapes-%s-M=%d.root",
-			  outdir.Data(),nametag.Data(),massgev),"RECREATE");
+    fout = new TFile(Form("%s/hwwlvjj.input_%dTeV-%s-M=%d.root",
+			  outdir.Data(),beamcomenergytev,nametag.Data(),massgev),"RECREATE");
   else
-    fout = new TFile(Form("%s/hww-histo-shapes-M=%d.root",
-			  outdir.Data(),massgev),"RECREATE");
+    fout = new TFile(Form("%s/hwwlvjj.input_%dTeV-M=%d.root",
+			  outdir.Data(),beamcomenergytev,massgev),"RECREATE");
 
   for (int ichan=lochan; ichan<=hichan; ichan++) {
     TString fname = TString(indir) + "/" + Form(inputfilesfmtstr[ichan],massgev);
@@ -246,28 +256,34 @@ void writeHistosPerMass(int imass,
       cerr << "Couldn't get " << name << endl;
       exit(-1);
     }
-    TH1 *ggHsignal = (TH1 *)fp->Get(Form("HWW%d_%s_shape",masspts[imass],channames2[ichan]));
+    TH1 *ggHsignal = (TH1 *)fp->Get(Form("HWW%d_%s_shape",massgev,channames2[ichan]));
     if (!ggHsignal) {
-      cerr << "Couldn't get signal histogram for mass " << masspts[imass] << endl;
+      cerr << "Couldn't get signal histogram for mass " << massgev << endl;
       exit(-1);
     }
 
-    TH1 *ggHtaunu = (TH1 *)fp->Get(Form("HWWTauNu%d_%s_shape",masspts[imass],channames2[ichan]));
+    TH1 *ggHtaunu = (TH1 *)fp->Get(Form("HWWTauNu%d_%s_shape",massgev,channames2[ichan]));
     if (!ggHtaunu) {
-      cerr << "Couldn't get ggHtaunu histogram for mass " << masspts[imass] << endl;
+      cerr << "Couldn't get ggHtaunu histogram for mass " << massgev << endl;
       exit(-1);
     }
 
-    TH1 *VBFsignal = (TH1 *)fp->Get(Form("VBFHWW%d_%s_shape",masspts[imass],channames2[ichan]));
+    TH1 *VBFsignal = (TH1 *)fp->Get(Form("VBFHWW%d_%s_shape",massgev,channames2[ichan]));
     if (!VBFsignal) {
-      cerr << "Couldn't get VBF signal histogram for mass " << masspts[imass] << endl;
+      cerr << "Couldn't get VBF signal histogram for mass " << massgev << endl;
       exit(-1);
     }
+
+    double xmin,xmax;
+    int binwidth;
+    determineBinning(ggHsignal,&xmin,&xmax,&binwidth);
+
+    cout<<"Binning for mass "<<massgev<<": "<<xmin<<","<<xmax<<","<<binwidth<<endl;
 
     writesig      (fout,ggHsignal,ggHtaunu,VBFsignal,massgev,ichan,
-		   xminpermass[imass],xmaxpermass[imass],binwpermass[imass]);
+		   xmin,xmax,binwidth);
     writedataback (fout,databack,massgev,ichan,
-		   xminpermass[imass],xmaxpermass[imass],binwpermass[imass]);
+		   xmin,xmax,binwidth);
   }
 
   fout->Close();
@@ -291,8 +307,8 @@ void hwwshapes(const TString& nametag = "",
 	       int lochan=0,
 	       int hichan=NUMCHAN-1)
 {
-  readHxsTable   ("ggHtable8tev.txt");
-  readHxsTable   ("vbfHtable7tev.txt", scalefrom7to8tev);
+  readHxsTable   (Form("ggHtable%dtev.txt",beamcomenergytev));
+  readHxsTable   (Form("vbfHtable%dtev.txt",beamcomenergytev)); // , scalefrom7to8tev);
   readBRtable    ("twikiBRtable.txt");
 
   // Get all inputs
@@ -301,6 +317,13 @@ void hwwshapes(const TString& nametag = "",
     int mass = masspts[imass];
     if (mass >= lomass &&
 	mass <= himass)
-      writeHistosPerMass(imass, nametag, dirpar,lochan,hichan);
+      writeHistosPerMass(mass, nametag, dirpar,lochan,hichan);
+  }
+  for (int imass=0; ; imass++) {
+    int mass = interpolatedmasspts[imass];
+    if (mass < 0) break;
+    if (mass >= lomass &&
+	mass <= himass)
+      writeHistosPerMass(mass, nametag, dirpar,lochan,hichan);
   }
 }
