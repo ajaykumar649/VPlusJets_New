@@ -215,8 +215,11 @@ makeNewCard(TH1           *inhist,
 #ifdef ISHWW
       pd.systrates[signalsyst].resize(nchan,zeropair);
       pd.systrates[signalsyst][ichan].second =
-	//1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
-	1.0 + (sigselefferrpct8tev)/100.;
+#ifdef SEVENTEV
+	1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+#else
+        1.0 + (sigselefferrpct8tev)/100.;
+#endif
 #endif
     } else {                                                        //background
       card.nbackproc++;
@@ -342,8 +345,11 @@ addToCard(CardData_t&    card,
 #ifdef ISHWW
       pd.systrates[signalsyst].resize(nchan,zeropair);
       pd.systrates[signalsyst][ichan].second = 
-	//1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+#ifdef SEVENTEV
+	1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+#else
 	1.0 + (sigselefferrpct8tev)/100.;
+#endif
 
       if (procname.Contains("qq") ) {
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
@@ -400,8 +406,11 @@ addToCard(CardData_t&    card,
 	pd.systrates[signalsyst].resize(nchan,zeropair);
       }
       pd.systrates[signalsyst][ichan].second =
-	//1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+#ifdef SEVENTEV
+	1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+#else
 	1.0 + (sigselefferrpct8tev)/100.;
+#endif
       if (procname.Contains("qq") ) { // vbf process
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
 	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc);

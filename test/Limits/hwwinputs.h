@@ -3,9 +3,35 @@
 
 #define ISHWW
 
-#define NUMCHAN 4
+#define SEVENTEV
+//#undef SEVENTEV
+
+//================================================================================
+// High-level variables
+
+#ifdef SEVENTEV
+const bool BLINDING = false;
+const double intlumipbinv = 5020.0;
+const int beamcomenergytev = 7;
+
+// ordered the same as the channels
+//
+const char *dir = "/uscms_data/d2/pdudero/HWW/ICHEP2012/7tevInterp_v2";
+
+#else
 
 const bool BLINDING = true;
+const double intlumipbinv = 1600.0;
+const int beamcomenergytev = 8;
+const char *dir =
+  //  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
+  "/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
+
+#endif
+
+//================================================================================
+
+#define NUMCHAN 4
 
 // must be put in lexicographical order
 //
@@ -41,13 +67,8 @@ const double sigtrigeffunc  = 0.01;
 const double siglepteffunc  = 0.02;
 const double siglumiunc     = 0.022;
 
-//const double intlumipbinv = 5020.0;
-const double intlumipbinv = 1600.0;
-
 const double W2qqBR    = 0.6770;
 const double W2taunuBR = 0.1125;
-
-const int beamcomenergytev = 8;
 
 const double global_scale = 1.0;
 //const double global_scale = 5000.0/intlumipbinv;
@@ -92,14 +113,8 @@ const int interpolatedmasspts[] = {
 // inputs are normalized to 1/nent
 
 // FILE/HISTO STRUCTURE: assumed same name objects contained in different files for the different channels
-
 // ordered the same as the channels
 //
-const char *dir =
-  //  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
-  //"/uscms_data/d2/pdudero/HWW/ICHEP2012/7tevInterp";
-  "/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
-
 const char *inputfilesfmtstr[NUMCHAN] = {
   "H%d_Electron_2Jets_Fit_Shapes.root",
   "H%d_Electron_3Jets_Fit_Shapes.root",
@@ -110,6 +125,7 @@ const char *inputfilesfmtstr[NUMCHAN] = {
 const char *dataobjname = "theData";
 const char *bkgdobjname = "h_total";
 
+#ifndef SEVENTEV
 // 2012 ICHEP preapproval freeze, 1.60/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
@@ -126,25 +142,7 @@ double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*550*/   1.012,   1.035,   1.020,    1.035,
   /*600*/   1.013,   1.049,   1.020,    1.049,
 };
-
-#if 0
-// First limit of 2012, 560/pb
-double backnormerr[NUMMASSPTS*NUMCHAN] = {
-  /*         el2j     el3j     mu2j     mu3j */
-  /*170*/   1.007,   1.012,   1.005,   1.008,
-  /*180*/   1.013,   1.012,   1.011,   1.009,
-  /*190*/   1.014,   1.012,   1.013,   1.009,
-  /*200*/   1.015,   1.021,   1.013,   1.012,
-  /*250*/   1.021,   1.020,   1.012,   1.020,
-  /*300*/   1.023,   1.031,   1.013,   1.037,
-  /*350*/   1.024,   1.044,   1.024,   1.047,
-  /*400*/   1.020,   1.040,   1.028,   1.039,
-  /*450*/   1.026,   1.102,   1.040,   1.100,
-  /*500*/   1.035,   1.081,   1.041,   1.132,
-  /*550*/   1.036,   1.056,   1.020,   1.097,
-  //  /*600*/   1.047,	  ,   1.040,   1.138,
-};
-
+#else
 
 // With MVA+Q/G, lumi=5.0/fb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
@@ -166,11 +164,32 @@ double backnormerr[NUMMASSPTS*NUMCHAN] = {
 };
 #endif
 
-//const double sigselefferrpctlomass =  7.0; // 2011 7TeV
-//const double sigselefferrpcthimass = 13.0; // 2011 7TeV
+#if 0
+// First limit of 2012, 560/pb
+double backnormerr[NUMMASSPTS*NUMCHAN] = {
+  /*         el2j     el3j     mu2j     mu3j */
+  /*170*/   1.007,   1.012,   1.005,   1.008,
+  /*180*/   1.013,   1.012,   1.011,   1.009,
+  /*190*/   1.014,   1.012,   1.013,   1.009,
+  /*200*/   1.015,   1.021,   1.013,   1.012,
+  /*250*/   1.021,   1.020,   1.012,   1.020,
+  /*300*/   1.023,   1.031,   1.013,   1.037,
+  /*350*/   1.024,   1.044,   1.024,   1.047,
+  /*400*/   1.020,   1.040,   1.028,   1.039,
+  /*450*/   1.026,   1.102,   1.040,   1.100,
+  /*500*/   1.035,   1.081,   1.041,   1.132,
+  /*550*/   1.036,   1.056,   1.020,   1.097,
+  //  /*600*/   1.047,	  ,   1.040,   1.138,
+};
 
+#endif
+
+#ifdef SEVENTEV
+const double sigselefferrpctlomass =  7.0; // 2011 7TeV
+const double sigselefferrpcthimass = 13.0; // 2011 7TeV
+#else
 const double sigselefferrpct8tev = 10.0; // 2012 8TeV
-
+#endif
 
 double ggsigaccptsyst[NUMMASSPTS] = {
   /*170*/ 1.02,

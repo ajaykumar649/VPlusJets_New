@@ -31,7 +31,7 @@ void cmsLumi(bool prelim)
   latex.SetTextFont(42);
 
   latex.SetTextAlign(31); // align right
-  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 8 TeV");
+  latex.DrawLatex(0.90,0.96,Form("#sqrt{s} = %d TeV",beamcomenergytev));
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(11); // align left
     latex.DrawLatex(0.5,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY));
