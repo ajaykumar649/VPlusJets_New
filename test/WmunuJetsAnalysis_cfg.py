@@ -99,7 +99,7 @@ process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
 ##-------- Muon events of interest --------
 process.HLTMu =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLT_Mu9','HLT_Mu11','HLT_Mu13','HLT_Mu15_v*','HLT_Mu17_v*','HLT_Mu24_v*','HLT_Mu30_v*','HLT_IsoMu17_v*','HLT_IsoMu24_v*','HLT_IsoMu30_v*'),
+     HLTPaths = cms.vstring('HLT_IsoMu24_*','HLT_IsoMu30_*'),
      eventSetupPathsKey = cms.string(''),
      andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
      throw = cms.bool(False) # throw exception on unknown path names
