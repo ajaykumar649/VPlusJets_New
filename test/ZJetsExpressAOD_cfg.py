@@ -10,15 +10,19 @@ process.load('RecoJets.Configuration.RecoJets_cff')
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 # ---- format the message service ---------------------------------------
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 # ---- load geometry package --------------------------------------------
 process.load("Configuration.StandardSequences.Geometry_cff")
 # ---- maximum number of events to run over -----------------------------
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 # ---- define the source ------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+'/store/mc/Summer11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S4_START42_V11-v1/0000/0054D02A-42CD-E011-96DB-002618943868.root',
+'/store/mc/Summer11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S4_START42_V11-v1/0000/004711DF-36CD-E011-BB49-002618943946.root',
+'/store/mc/Summer11/DYToLL_M-50_1jEnh2_2jEnh35_3jEnh40_4jEnh50_7TeV-sherpa/AODSIM/PU_S4_START42_V11-v1/0000/000AED57-4CCD-E011-8811-0026189438CC.root'
+
 #    '/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/873/80730A1C-85DD-E011-A7B2-BCAEC53296F9.root'
 #,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/916/B6C571DF-50DC-E011-88FC-003048D2BBF0.root'
 #,'/store/data/Run2011B/DoubleMu/AOD/PromptReco-v1/000/175/910/6E5E6A3C-EBDC-E011-BAD4-003048F11CF0.root'
@@ -96,7 +100,7 @@ process.source = cms.Source("PoolSource",
 #,'/store/data/Run2011A/DoubleElectron/RECO/May10ReReco-v1/0000/00105624-547B-E011-99F4-003048678AF4.root'
 
 # or MC
-    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06C8E521-62A4-E011-A5E9-0022198F5B1E.root',
+#    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06C8E521-62A4-E011-A5E9-0022198F5B1E.root'
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0669C32E-B69C-E011-8551-E0CB4E553643.root',
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/06634156-5FA4-E011-BEA2-003048D293B4.root',
 #    '/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0660AC04-B59C-E011-BEC7-E0CB4E19F9B4.root',
@@ -189,8 +193,6 @@ process.accepted = cms.EDAnalyzer('ZJetsExpress',
                                   'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v'),
 
 )
-# ---- duplicate the analyzer with different name -----------------------
-process.rejected = process.accepted.clone()
 # ---- filter the required HLT bits -------------------------------------
 process.hltFilter = cms.EDFilter('HLTHighLevel',
     TriggerResultsTag  = cms.InputTag('TriggerResults','','HLT'),
@@ -222,19 +224,28 @@ process.kt6PFJets25.Rho_EtaMax = cms.double(2.5)
 ############# slimming the PFJet collection by raising the pt cut #################
 process.ak5PFJets.jetPtMin = cms.double(15.0)
 
+#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+#process.printTree = cms.EDAnalyzer("ParticleTreeDrawer",
+#                                   src = cms.InputTag("genParticles"),                                                                 
+#                                   printP4 = cms.untracked.bool(False),
+#                                   printPtEtaPhi = cms.untracked.bool(False),
+#                                   printVertex = cms.untracked.bool(False),
+#                                   printStatus = cms.untracked.bool(False),
+#                                   printIndex = cms.untracked.bool(False),
+#                                   status = cms.untracked.vint32( 3 )
+#                                   )
+
+#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+#process.printTree = cms.EDAnalyzer("ParticleListDrawer",
+#  maxEventsToPrint = cms.untracked.int32(2),
+#  printVertex = cms.untracked.bool(False),
+#  src = cms.InputTag("genParticles")
+#)
+
+
 # ---- save all events for any trigger ---------------------
 process.s0 = cms.Sequence(process.kt6PFJets + process.ak5PFJets + process.kt6PFJets25 + process.accepted)
+#process.p0 = cms.Path(process.s0 * process.printTree)
 process.p0 = cms.Path(process.s0)
 process.schedule = cms.Schedule(process.p0)
 
-# ---- first sequence: events that pass the trigger ---------------------
-#process.s1 = cms.Sequence(process.hltFilter + process.kt6PFJets + process.ak5PFJets + process.accepted)
-#process.p1 = cms.Path(process.s1)
-# ---- second sequence: events that fail the trigger --------------------
-#process.s2 = cms.Sequence(~process.hltFilter + process.kt6PFJets + process.ak5PFJets + process.rejected)
-#process.p2 = cms.Path(process.s2)
-
-
-
-# ---- schedule ---------------------------------------------------------
-#process.schedule = cms.Schedule(process.p1,process.p2)
