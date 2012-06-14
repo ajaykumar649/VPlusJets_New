@@ -9,9 +9,9 @@ maxMlvjj = 780.
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
-    #fitterPars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/2012_RDTrees_PAT/RD_"
-##    fitterPars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/RD_'
-    fitterPars.MCDirectory = '/uscms_data/d2/pdudero/HWW/ICHEP2012/Trees/RD_'
+    # fitterPars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/2012_RDTrees_PAT/RD_"
+    fitterPars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/RD_'
+    # fitterPars.MCDirectory = '/uscms_data/d2/pdudero/HWW/ICHEP2012/Trees/RD_'
 ##     fitterPars.WpJDirectory = str(fitterPars.MCDirectory).replace("PAT", "AOD")
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
@@ -23,17 +23,17 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory
     #fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
-    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_1p6invfb.root'
+    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_3p5invfb.root'
     fitterPars.includeMuons = True    
     #fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
-    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_1p6invfb.root'
+    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root'
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
     fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 30
-    fitterPars.intLumi = 1600.
+    fitterPars.intLumi = 3500.
     # fitterPars.intLumi = 539.385+21.297
     # fitterPars.intLumi = 297.848+21.297+48.465
     
@@ -113,20 +113,17 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.externalConstraints = False
     
     fitterPars.doEffCorrections = True
-    fitterPars.muIdEffFiles.push_back("EffTableDir/muonEffsRecoToIso_ScaleFactors.txt")
-##    fitterPars.muHLTEffFiles.push_back("EffTableDir/muonEffsIsoToHLT_data_LP_LWA.txt")
-    fitterPars.muHLTEffFiles.push_back("EffTableDir/FullyEfficient.txt")
+    fitterPars.muIdEffFiles.push_back("EffTable2012/scaleFactor-2012A-PromptReco-v1-PFMM-RecoToIso.txt")
+    fitterPars.muHLTEffFiles.push_back("EffTable2012/efficiency-2012A-PromptReco-v1-PFMM-IsoToIsoMuHLT.txt")
     fitterPars.lumiPerEpochMuon.push_back(fitterPars.intLumi)
 
     
-    fitterPars.eleIdEffFiles.push_back("EffTableDir/eleEffsRecoToWP80_ScaleFactors.txt")
-    fitterPars.eleRecoEffFiles.push_back("EffTableDir/eleEffsSCToReco_ScaleFactors.txt")
-##    fitterPars.eleHLTEffFiles.push_back("EffTableDir/eleEffsSingleElectron.txt")
-    fitterPars.eleHLTEffFiles.push_back("EffTableDir/FullyEfficient.txt")
+    fitterPars.eleIdEffFiles.push_back("EffTable2012/scaleFactor-2012A-PromptReco-v1-GsfElectronToId.txt")
+    fitterPars.eleRecoEffFiles.push_back("EffTable2012/scaleFactor-2012A-PromptReco-v1-SCToElectron.txt")
+    fitterPars.eleHLTEffFiles.push_back("EffTable2012/efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt")
     fitterPars.eleJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
     fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/FullyEfficient_Jet2NoJet1.txt")
     fitterPars.eleMHTEffFiles.push_back("EffTableDir/FullyEfficient_MHT.txt")
-##    fitterPars.eleWMtEffFiles.push_back("EffTableDir/WMt50TriggerEfficiency.txt")
     fitterPars.eleWMtEffFiles.push_back("EffTableDir/FullyEfficient.txt")
     fitterPars.lumiPerEpochElectron.push_back(fitterPars.intLumi)
 

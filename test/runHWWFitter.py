@@ -468,6 +468,7 @@ fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
 cWpJ.cd()
 sbf.Draw()
 pyroot_logon.cmsLabel(cWpJ, pars4.intLumi/1000, prelim=True)
+cWpJ.Update()
 cWpJ.Modified()
 cWpJ.Update()
 
@@ -475,18 +476,20 @@ cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.pdf' % (opts.mH, modeString,
                                                  opts.Nj))
 cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.png' % (opts.mH, modeString,
                                                  opts.Nj))
-cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
-                                                  opts.Nj))
+# cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape.root' % (opts.mH, modeString,
+#                                                   opts.Nj))
 
 sbf.SetMinimum(1e-4)
 cWpJ.SetLogy()
+cWpJ.Update()
+cWpJ.Modified()
 cWpJ.Update()
 cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.pdf' % (opts.mH, modeString,
                                                      opts.Nj))
 cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.png' % (opts.mH, modeString,
                                                      opts.Nj))
-cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.root' % (opts.mH, modeString,
-                                                      opts.Nj))
+# cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.root' % (opts.mH, modeString,
+#                                                       opts.Nj))
 
 
 print 'shape file created'

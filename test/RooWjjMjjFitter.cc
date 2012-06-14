@@ -1131,11 +1131,11 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 #else
   // xsecs from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
   double STopWeight     = 3.89394 / 259971;
-  double STopBarWeight  = 1.75776 /  139974;
-  double TTopWeight     = 55.531   /   23777;
-  double TTopBarWeight  = 30.0042  / 1935072;
-  double TWTopWeight    = 11.1773  /  497658;
-  double TWTopBarWeight = 11.1773  /  493460;
+  double STopBarWeight  = 1.75776 / 139974;
+  double TTopWeight     = 55.531  /  23777;
+  double TTopBarWeight  = 30.0042 /1935072;
+  double TWTopWeight    = 11.1773 / 497658;
+  double TWTopBarWeight = 11.1773 / 493460;
 #endif
   std::cout << "s channel tbar: " << STopBarWeight
 	    << " t: " << STopWeight << "\n"
@@ -1156,11 +1156,11 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 			       "hist_stbar_mu", false, 1, false, stScale);
     th1st->Add(tmpHist, STopBarWeight);
     delete tmpHist;
-    // tmpHist = utils_.File2Hist(params_.MCDirectory + 
-    // 			       "mu_STopS_T_CMSSW525.root",
-    // 			       "hist_st_mu", false, 1, false, stScale);
-    // th1st->Add(tmpHist, STopWeight);
-    // delete tmpHist;
+    tmpHist = utils_.File2Hist(params_.MCDirectory + 
+    			       "mu_STopS_T_CMSSW525.root",
+    			       "hist_st_mu", false, 1, false, stScale);
+    th1st->Add(tmpHist, STopWeight);
+    delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "mu_STopT_Tbar_CMSSW525.root",
 			       "hist_stbar_mu", false, 1, false, stScale);
@@ -1188,11 +1188,11 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
 			       "hist_stbar_el", true, 1, false, stScale);
     th1st->Add(tmpHist, STopBarWeight);
     delete tmpHist;
-    // tmpHist = utils_.File2Hist(params_.MCDirectory + 
-    // 			       "el_STopS_T_CMSSW525.root",
-    // 			       "hist_st_el", true, 1, false, stScale);
-    // th1st->Add(tmpHist, STopWeight);
-    // delete tmpHist;
+    tmpHist = utils_.File2Hist(params_.MCDirectory + 
+    			       "el_STopS_T_CMSSW525.root",
+    			       "hist_st_el", true, 1, false, stScale);
+    th1st->Add(tmpHist, STopWeight);
+    delete tmpHist;
     tmpHist = utils_.File2Hist(params_.MCDirectory + 
 			       "el_STopT_Tbar_CMSSW525.root",
 			       "hist_stbar_el", true, 1, false, stScale);
@@ -1448,17 +1448,24 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	    << th1wjets->GetBinError(localBin)
 	    << '\n';
 
+  double localMin = params_.minMass;
+  if (params_.model == 4)
+    localMin = th1wjets->GetBinLowEdge(2);
+  mass->setRange("SBFitRange", localMin, localMax);
+
   th1wjets->Scale(1./th1wjets->Integral());
   RooDataHist theSBDataNorm("theSBDataNorm", "theSBDataNorm", 
 			    RooArgList(*mass), th1wjets);
-//   TF1 * fitf = 0;
-//   if (params_.model == 1) {
-//     TString fitString("exp([0]*x)*[0]/(exp([0]*[1])-exp([0]*[2]))");
-//     fitf = new TF1("fitf", fitString, params_.minMass, localMax);
-//     fitf->SetParameter(0, -0.015);
-//     fitf->FixParameter(1, localMax);
-//     fitf->FixParameter(2, params_.minMass);
-
+  TF1 * fitf = 0;
+  if (params_.model == 1) {
+    // TString fitString("exp([0]*x)*[0]/(exp([0]*[1])-exp([0]*[2]))");
+    TString fitString("exp([0]*x+[1])");
+    fitf = new TF1("fitf", fitString, localMin, localMax);
+    fitf->SetParameter(0, -0.015);
+    fitf->SetParameter(1, 6.0);
+    // fitf->FixParameter(1, localMax);
+    // fitf->FixParameter(2, params_.minMass);
+  }
 //   } else if (params_.model == 2) {
 //     fitf = new TF1("fitf", "[0]/TMath::Power(x-[2], [1])", 
 // 		   params_.minMass, localMax);
@@ -1511,9 +1518,6 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 		    "(TMath::Erf((@0-@1)/@2)+1)/2.",
 		    RooArgList(*mass, turnOn, width));
   RooFitResult * fr = 0;
-  mass->setRange("SBFitRange", params_.minMass, localMax);
-  if (params_.model == 4)
-    mass->setRange("SBFitRange", th1wjets->GetBinLowEdge(2), localMax);
   double diff = 0, newErr = 0;
   switch (params_.model) {
   case 4:
@@ -1535,21 +1539,46 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	       RooFit::RenameVariable("c", "c_up"),
 	       RooFit::RenameAllNodes("up"));
     ws_.Print();
-    ws_.pdf("WpJ4BodyPdf_down")->fitTo(theSBAlphaDown, 
-				       RooFit::Minos(false),
-				       RooFit::SumW2Error(false),
-				       RooFit::Range("SBFitRange")
-				       );
-    ws_.pdf("WpJ4BodyPdf_up")->fitTo(theSBAlphaUp, 
-				       RooFit::Minos(false),
-				       RooFit::SumW2Error(false),
-				       RooFit::Range("SBFitRange")
-				       );
-    fr = ws_.pdf("WpJ4BodyPdf")->fitTo(theSBData, RooFit::Minos(false),
-				       RooFit::SumW2Error(false),
-				       RooFit::Range("SBFitRange"),
-				       RooFit::Save(true));
 
+    // ws_.pdf("WpJ4BodyPdf_down")->chi2FitTo(theSBAlphaDown, 
+    // 					   RooFit::Minos(false),
+    // 					   RooFit::DataError(RooAbsData::SumW2),
+    // 					   RooFit::Range("SBFitRange")
+    // 					   );
+    // ws_.pdf("WpJ4BodyPdf_up")->chi2FitTo(theSBAlphaUp, 
+    // 					 RooFit::Minos(false),
+    // 					 RooFit::DataError(RooAbsData::SumW2),
+    // 					 RooFit::Range("SBFitRange")
+    // 					 );
+    // fr = ws_.pdf("WpJ4BodyPdf")->chi2FitTo(theSBData, RooFit::Minos(false),
+    // 					   RooFit::DataError(RooAbsData::SumW2),
+    // 					   RooFit::Range("SBFitRange"),
+    // 					   RooFit::Save(true));
+    ws_.pdf("WpJ4BodyPdf_down")->fitTo(theSBAlphaDown, 
+    				       RooFit::Minos(false),
+    				       RooFit::SumW2Error(false),
+    				       RooFit::Range("SBFitRange")
+    				       );
+    ws_.pdf("WpJ4BodyPdf_up")->fitTo(theSBAlphaUp, 
+    				       RooFit::Minos(false),
+    				       RooFit::SumW2Error(false),
+    				       RooFit::Range("SBFitRange")
+    				       );
+    fr = ws_.pdf("WpJ4BodyPdf")->fitTo(theSBData, RooFit::Minos(false),
+    				       RooFit::SumW2Error(false),
+    				       RooFit::Range("SBFitRange"),
+    				       RooFit::Save(true));
+    if ((fr->covQual() != 3) && (fitf)) {
+      th1wjets->Fit(fitf, "RI0");
+      ws_.var("c")->setVal(fitf->GetParameter(0));
+      ws_.var("c")->setError(fitf->GetParError(0));
+      alphaDownHist->Fit(fitf, "RI0");
+      ws_.var("c_down")->setVal(fitf->GetParameter(0));
+      ws_.var("c_down")->setError(fitf->GetParError(0));
+      alphaUpHist->Fit(fitf, "RI0");
+      ws_.var("c_up")->setVal(fitf->GetParameter(0));
+      ws_.var("c_up")->setError(fitf->GetParError(0));
+    }    
     diff = 
       TMath::Max(fabs(ws_.var("c")->getVal() - ws_.var("c_down")->getVal()),
 		 fabs(ws_.var("c")->getVal() - ws_.var("c_up")->getVal()));
