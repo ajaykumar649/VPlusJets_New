@@ -1511,9 +1511,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
   RooGenericPdf powerPdf("powerPdf", "TMath::Power(@0, @1)", 
 			 RooArgList(*mass, c));
-  RooRealVar turnOn("turnOn4", "turnOn4", 162.);
-  turnOn.setConstant(false);
+  RooRealVar turnOn("turnOn4", "turnOn4", 161.);
+  // turnOn.setConstant(false);
   RooRealVar width("width4", "width4", 5.5);
+  width.setConstant(false);
   RooGenericPdf erf("WpJ4BodyErf","erf",
 		    "(TMath::Erf((@0-@1)/@2)+1)/2.",
 		    RooArgList(*mass, turnOn, width));

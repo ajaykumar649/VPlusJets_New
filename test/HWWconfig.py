@@ -70,7 +70,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     print "mass range:",fitterPars.minMass,'-',fitterPars.maxMass
     
     fitterPars.truncRange = True
-    fitterPars.blind = True
+    fitterPars.blind = False
     fitterPars.minTrunc = 65.
 
     binMin = fitterPars.minMass
