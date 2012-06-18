@@ -137,10 +137,13 @@ makeNewCard(TH1           *inhist,
 #ifdef ISHWW
   card.systematics[signalsyst]     = "lnN";
   card.systematics["pdf_gg"]       = "lnN"; // common across channels for ggF process
-  card.systematics["pdf_qqbar"]    = "lnN"; // common across channels for VBF process
+  //card.systematics["pdf_qqbar"]    = "lnN"; // common across channels for VBF process
   
-  card.systematics["QCDscale_ggH"] = "lnN"; // common across channels for ggF process
-  card.systematics["QCDscale_qqH"] = "lnN"; // common across channels for VBF process
+  card.systematics["QCDscale_ggH"]    = "lnN"; // common across channels for ggF process 2j bin
+  card.systematics["QCDscale_ggH1in"] = "lnN"; // common across channels for ggF process 2j/3j bins
+  card.systematics["QCDscale_ggH2in"] = "lnN"; // common across channels for ggF process 3j bin
+  card.systematics["UEPS"]            = "lnN"; // common across channels for ggF process 2j/3j bins
+  //card.systematics["QCDscale_qqH"]  = "lnN"; // common across channels for VBF process
 
   int massgev = isinterp ? interpolatedmasspts[imass] : masspts[imass];
 
@@ -182,19 +185,32 @@ makeNewCard(TH1           *inhist,
       // insert signal lumi and xsec systematics now
 #ifdef ISHWW
 
-      pair<double,double> pdfunc, scaleunc;   // down/up pair to put in card
+      // down/up pairs to put in card
+      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
 
-      makeTheoretUncert4Sig(massgev, procname, pdfunc, scaleunc);
+      makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
 
       if (procname.Contains("qq") ) { // VBF process
 
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc);
+	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
 
       } else { // default gg fusion
 
 	pd.systrates["pdf_gg"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_ggH"].resize(nchan,scaleunc);
+	pd.systrates["QCDscale_ggH"].resize(nchan,zeropair);
+	pd.systrates["QCDscale_ggH1in"].resize(nchan,zeropair);
+	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
+	pd.systrates["UEPS"].resize(nchan,zeropair);
+	if (ichanref & 1) { // odd channel, 3jet bin
+	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichanref] = scaleunc3;
+	  pd.systrates["UEPS"][ichanref]            = ueps1;
+	} else { // even channel, 2jet bin
+	  pd.systrates["QCDscale_ggH"][ichanref]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc1;
+	  pd.systrates["UEPS"][ichanref]            = ueps0;
+	}
       }
 
       if (massgev >= 300) {
@@ -319,9 +335,9 @@ addToCard(CardData_t&    card,
 
     assert(!systname.Length());     // shape based systematics for signal not implemented yet
 
-    pair<double,double> pdfunc,scaleunc;
+    pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
 #ifdef ISHWW
-    makeTheoretUncert4Sig(massgev, procname, pdfunc, scaleunc);
+    makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
 #endif
     pair<double,double> lumipair(0.0, 1+siglumiunc);
 
@@ -353,10 +369,22 @@ addToCard(CardData_t&    card,
 
       if (procname.Contains("qq") ) {
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc);
+	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
       } else {
 	pd.systrates["pdf_gg"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_ggH"].resize(nchan,scaleunc);
+	pd.systrates["QCDscale_ggH"].resize(nchan,zeropair);
+	pd.systrates["QCDscale_ggH1in"].resize(nchan,zeropair);
+	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
+	pd.systrates["UEPS"].resize(nchan,zeropair);
+	if (ichanref & 1) { // odd channel, 3jet bin
+	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichanref] = scaleunc3;
+	  pd.systrates["UEPS"][ichanref]            = ueps1;
+	} else { // even channel, 2jet bin
+	  pd.systrates["QCDscale_ggH"][ichanref]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc1;
+	  pd.systrates["UEPS"][ichanref]            = ueps0;
+	}
       }
 
       if (massgev >= 300) {
@@ -413,10 +441,17 @@ addToCard(CardData_t&    card,
 #endif
       if (procname.Contains("qq") ) { // vbf process
 	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc);
+	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
       } else {
-	pd.systrates["pdf_gg"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_ggH"].resize(nchan,scaleunc);
+	if (ichanref & 1) { // odd channel, 3jet bin
+	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichanref] = scaleunc3;
+	  pd.systrates["UEPS"][ichanref]            = ueps1;
+	} else { // even channel, 2jet bin
+	  pd.systrates["QCDscale_ggH"][ichanref]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc1;
+	  pd.systrates["UEPS"][ichanref]            = ueps0;
+	}
       }
 #endif
     }
@@ -597,6 +632,7 @@ makeDataCardFiles(int argc, char*argv[])
   // needed for theoretical uncertainties
   readHxsTable   (Form("ggHtable%dtev.txt",beamcomenergytev));
   readHxsTable   (Form("vbfHtable%dtev.txt",beamcomenergytev)); // , scalefrom7to8tev);
+  readJetBinErrTable("jetbinerr.txt");
 #endif
 
   map<int,CardData_t> m_cards;
