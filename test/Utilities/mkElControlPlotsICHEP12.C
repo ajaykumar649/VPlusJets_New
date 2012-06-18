@@ -22,7 +22,7 @@
 /*
 
 */
-void cmspre()
+void cmspre(double intlumifbinv)
 {
   TLatex latex;
   latex.SetNDC();
@@ -31,7 +31,7 @@ void cmspre()
   latex.SetTextAlign(31); // align right
   latex.DrawLatex(0.85,0.93,"#sqrt{s} = 8 TeV");
   latex.SetTextAlign(31); // align right
-  latex.DrawLatex(0.65,0.93,Form("#int #font[12]{L} dt = %.1f fb^{-1}", 1.6));
+  latex.DrawLatex(0.65,0.93,Form("#int #font[12]{L} dt = %.1f fb^{-1}", (float)intlumifbinv));
 
   latex.SetTextAlign(11); // align left
 //  latex.DrawLatex(0.15,0.93,"CMS,  #sqrt{s} = 7 TeV");//preliminary 2011");
@@ -66,7 +66,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 		    bool dovbf=false)
 {
     gROOT->ProcessLine(".L tdrstyle.C");
-  const double intLUMI = 1600.;
+  const double intLUMI = 3500.;
   const double WJets_scale   = 36257.2* intLUMI/16718489; // V
   const double W4Jets_scale  = 172.6 * intLUMI/5000700;
   const double WW_scale      = 57.1097   * intLUMI/9758217; // V
@@ -108,33 +108,33 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 //    { "JetPFCor_Pt[1]/Mass2j_PFCor",
 //                          0.3, 0.7,  20, 2, "Jet 2 p_{T}/m_{jj}", "jet2pt_ov_mjj", 0.25, 0.75, 25, 0, 0, 0 },
 
-    { "JetPFCor_Pt[0]",   40,   300, 27, 3, "Leading Jet  p_{T}", "jetld_pt",      20,  300, 28, 0, 0, 1 },
-    { "JetPFCor_Pt[1]",   30,   200, 17, 3, "Jet 2 p_{T}",        "jetnt_pt",      20,  200, 18, 0, 0, 0 },
-    { "JetPFCor_Eta[0]", -2.5 , 2.5, 25, 1, "Leading Jet  #eta",  "jetld_eta",   -2.7 , 2.7, 27, 0, 0, 0 },
-    { "JetPFCor_Eta[1]", -2.5 , 2.5, 25, 1, "Jet 2 #eta",         "jetnt_eta",   -2.7 , 2.7, 27, 0, 0, 0 },
+    { "JetPFCor_Pt[0]",   30,   200, 17, 3, "Leading Jet  p_{T}", "jetld_pt",      20,  200, 18, 0, 0, 1 },
+#if 0
+    { "JetPFCor_Pt[1]",   30,   150, 12, 3, "Jet 2 p_{T}",        "jetnt_pt",      20,  150, 13, 0, 0, 0 },
+    { "JetPFCor_Eta[0]", -2.4 , 2.4, 12, 1, "Leading Jet  #eta",  "jetld_eta",   -2.6 , 2.6, 13, 0, 0, 0 },
+    { "JetPFCor_Eta[1]", -2.4 , 2.4, 12, 1, "Jet 2 #eta",         "jetnt_eta",   -2.6 , 2.6, 13, 0, 0, 0 },
 
-    { "Mass2j_PFCor",     40, 400, 36, 3,   "m_{jj} (GeV)",            "mjj",       30,  400, 37, 0, 0, 0 },
-    { "W_mt",             30, 170, 28, 3,   "W Transverse Mass (GeV)", "W_mt",      20,  170, 30, 0, 0, 1 },
+    { "Mass2j_PFCor",     40, 400, 18, 3,   "m_{jj} (GeV)",            "mjj",       20,  400, 19, 0, 0, 0 },
+    { "W_mt",             30, 140, 11, 3,   "W Transverse Mass (GeV)", "W_mt",      20,  140, 12, 0, 0, 1 },
 
-    { "event_met_pfmet",  25, 205, 18, 3,   "pf MET (GeV)",  "event_met_pfmet",     15, 205, 19, 0, 0, 0 },
-    { "JetPFCor_Mass[0]", 0,   80, 16, 3,   "Leading Jet Mass (GeV)", "jet1_mass",   0, 80, 16, 0, 0, 0 },
-    { "JetPFCor_Mass[1]", 0,   50, 10, 3,   "Jet 2 Mass (GeV)",       "jet2_mass",   0, 50, 10, 0, 0, 0 },
+    { "event_met_pfmet",  25, 155, 13, 3,   "pf MET (GeV)",  "event_met_pfmet",     15, 155, 14, 0, 0, 0 },
 
     { "sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+JetPFCor_Pt[1]*JetPFCor_Pt[1]+2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]))",
-                          45, 305, 26, 3,   "Dijet System p_{T} (GeV)", "dijet_pt", 35, 305, 27, 0, 0, 0},  
+                          45, 205, 16, 3,   "Dijet System p_{T} (GeV)", "dijet_pt", 35, 205, 17, 0, 0, 0},  
 
     { "(JetPFCor_Eta[0]-JetPFCor_Eta[1])",
-                         -3.0, 3.0, 30, 1,  "#Delta #eta (j,j)",    "deltaeta_jj",   -3.2,  3.2, 32, 0, 0, 0 },
-    { "W_muon_pt",         25, 175, 50, 3,  "Muon p_{T} (GeV)",     "W_muon_pt",       22,  175, 51, 0, 0, 0 },
-    { "W_muon_eta",      -2.1, 2.1, 21, 1,  "Muon #eta",            "W_muon_eta",    -2.5,  2.5, 25, 0, 0, 0 },
-    { "W_electron_et",     35, 180, 58, 0,  "Electron e_{T} (GeV)", "W_electron_et",   30,  180, 60, 0, 0, 0 }, 
-    { "W_electron_eta",  -2.5, 2.5, 25, 1,  "Electron #eta",        "W_electron_eta", -3.,   3., 30, 0, 0, 0 },
+                         -3.0, 3.0, 15, 1,  "#Delta #eta (j,j)",    "deltaeta_jj",   -3.2,  3.2, 16, 0, 0, 0 },
+    { "W_muon_pt",         20, 150, 13, 3,  "Muon p_{T} (GeV)",     "W_muon_pt",       20,  150, 13, 0, 0, 0 },
+    { "W_muon_eta",      -2.5, 2.5, 10, 1,  "Muon #eta",            "W_muon_eta",    -2.5,  2.5, 10, 0, 0, 0 },
+    { "W_electron_et",     30, 150, 12, 0,  "Electron e_{T} (GeV)", "W_electron_et",   30,  150, 12, 0, 0, 0 }, 
+    { "W_electron_eta",  -2.5, 2.5, 10, 1,  "Electron #eta",        "W_electron_eta", -3.,   3., 12, 0, 0, 0 },
 
-    { "JetPFCor_dphiMET[0]", -3.2, 3.2, 32, 1, "#Delta #phi (Leading Jet, MET)", "deltaphi_jetldmet", -3.5, 3.5, 35, 0, 0, 0 },
+    { "JetPFCor_dphiMET[0]", -3.14, 3.14, 16, 1, "#Delta #phi (Leading Jet, MET)", "deltaphi_jetldmet", -3.4, 3.4, 17, 0, 0, 0 },
 
 
     { "sqrt((JetPFCor_Eta[0]-JetPFCor_Eta[1])**2+(abs(abs(abs(JetPFCor_Phi[0]-JetPFCor_Phi[1])-TMath::Pi())-TMath::Pi()))**2)",
-                             0.4, 5.0, 46, 1, "#Delta R_{jj}",    "deltaRjj", 0.0, 5.4, 54, 0, 0, 1},
+                             0.4, 5.0, 23, 1, "#Delta R_{jj}",    "deltaRjj", 0.0, 5.4, 27, 0, 0, 1},
+#endif
     { "", 0.0,0.0,0,0,"","",0.,0.,0.,0,0,0 }
   };
 
@@ -143,15 +143,15 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
   const plotVar_t higgsplotvars[] = {
   //    plotvar MINRange  MAXRange  NBINS  slog xlabel     outfile  AMINRange  AMAXRange ANBINS mva_in hplot drawleg
 
-    { "MassV2j_PFCor",     140, 700, 28, 3, "m_{l#nujj} (GeV)",  "mlvjj",     120, 700, 29, 0, 0, 1 },
+    { "MassV2j_PFCor",     140, 700, 14, 3, "m_{l#nujj} (GeV)",  "mlvjj",     100, 700, 15, 0, 0, 1 },
 //    { "MassV2j_PFCor",     140, 700, 56, 3, "m_{l#nujj} (GeV)",  "mlvjj",     110, 700, 59, 0, 0, 1 },
     { "ptlvjj",              0, 150, 15, 3, "p_{T} of WW (GeV)", "ptlvjj",      0, 150, 15, 1, 0, 0 },
     { "ylvjj",            -2.5, 2.5, 25, 1, "WW rapidity" ,      "etalvjj",  -3.0, 3.0, 30, 1, 0, 0 },
-    { "ang_ha",              0,   1, 10, 1, "Cos #theta_{1}" ,   "ha",          0,   1, 10, 1, 0, 1 },
-    { "ang_hb",              0,   1, 10, 1, "Cos #theta_{2}" ,   "hb",          0,   1, 10, 1, 0, 0 },
+    { "ang_ha",              0,   1,  5, 1, "Cos #theta_{1}" ,   "ha",          0,   1,  5, 1, 0, 1 },
+    { "ang_hb",              0,   1,  5, 1, "Cos #theta_{2}" ,   "hb",          0,   1,  5, 1, 0, 0 },
     { "ang_hs",           -1.0,   1, 20, 1, "Cos #theta*" ,      "hs",       -1.0,   1, 20, 1, 0, 0 },
-    { "ang_phi",          -3.2, 3.2, 32, 6, "#Phi (rad)" ,       "phi",      -3.5, 3.5, 35, 1, 0, 0 },
-    { "ang_phib",         -3.2, 3.2, 32, 6, "#Phi_{1} (rad)",    "phib",     -3.5, 3.5, 35, 1, 0, 0 },
+    { "ang_phi",          -3.2, 3.2, 16, 6, "#Phi (rad)" ,       "phi",      -3.6, 3.6, 18, 1, 0, 0 },
+    { "ang_phib",         -3.2, 3.2, 16, 6, "#Phi_{1} (rad)",    "phib",     -3.6, 3.6, 18, 1, 0, 0 },
     { "W_electron_charge",-1.2, 1.2, 24, 1, "Electron Charge" ,  "charge",   -1.2, 1.2, 24, 1, 0, 0 },
     { "W_muon_charge",    -1.2, 1.2, 24, 1, "Muon Charge" ,      "charge",   -1.2, 1.2, 24, 1, 0, 0 },
 /*
@@ -218,7 +218,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
  
   //  TCut the_cut("(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<200)&&fit_status==0)");
   //TCut the_cut("TopWm>0");
-  TCut the_cut("effwt*puwt*((ggdevt==2||ggdevt==3) && fit_status==0 &&abs(JetPFCor_dphiMET[0])>0.8 )");
+  TCut the_cut("effwt*puwt*((ggdevt==2||ggdevt==3) && fit_status==0 &&abs(JetPFCor_dphiMET[0])>0.8)");
 //  TCut the_cut("effwt*puwt*((ggdevt==2||ggdevt==3) && fit_status==0) ");
   if (dovbf)
     the_cut = TCut("vbf_event");
@@ -240,7 +240,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 
 
   if (domu) {
-    fin2            = new TFile("InData/RD_SingleMu_0p56fb_Golden.root", "read");
+    fin2            = new TFile("InData/RD_WmunuJets_DataAll_GoldenJSON_3p5invfb.root", "read");
 //    H190_file       = new TFile("InData/RD_mu_HWWMH190_CMSSW428.root", "READ");
 //    H500_file       = new TFile("InData/RD_mu_HWWMH500_CMSSW428.root", "READ");
     wwShape_file    = new TFile("InData/RD_mu_WW_CMSSW525.root", "READ");
@@ -248,18 +248,18 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
     if (dovbf)
       wjetsShape_file = new TFile("InData/RD_mu_W4Jets_CMSSW428.root","READ");
     else
-      wjetsShape_file = new TFile("InData/RD_mu_Wjets_CMSSW525.root", "READ");
-    ttbar_file      = new TFile("InData/RD_mu_TTjets_CMSSW525.root", "READ");
+      wjetsShape_file = new TFile("InData/RD_mu_WpJ_CMSSW525.root", "READ");
+    ttbar_file      = new TFile("InData/RD_mu_TTbar_CMSSW525.root", "READ");
 //    qcd_file1       = new TFile("InData/RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root", "READ");
-    qcd_file1       = new TFile("InData/RD_mu_QCDMu_CMSSW525.root", "READ");
-    zjets_file      = new TFile("InData/RD_mu_DY_CMSSW525.root", "READ");
-//    stops_file      = new TFile("InData/RD_mu_STopS_T_CMSSW428.root", "READ");
-//    stopt_file      = new TFile("InData/RD_mu_STopT_T_CMSSW428.root", "READ");
-//    stoptW_file     = new TFile("InData/RD_mu_STopTW_T_CMSSW428.root", "READ");
+//    qcd_file1       = new TFile("InData/RD_mu_QCDMu_CMSSW525.root", "READ");
+    zjets_file      = new TFile("InData/RD_mu_ZpJ_CMSSW525.root", "READ");
+    stops_file      = new TFile("InData/RD_mu_STopS_T_CMSSW525.root", "READ");
+    stopt_file      = new TFile("InData/RD_mu_STopT_T_CMSSW525.root", "READ");
+    stoptW_file     = new TFile("InData/RD_mu_STopTW_T_CMSSW525.root", "READ");
 
   } else { // electrons
 
-    fin2            = new TFile("InData/RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_1p6invfb.root", "READ");
+    fin2            = new TFile("InData/RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root", "READ");
 //    H190_file       = new TFile("InData/RD_el_HWWMH190_CMSSW428.root", "READ");
 //    H500_file       = new TFile("InData/RD_el_HWWMH500_CMSSW428.root", "READ");
     wwShape_file    = new TFile("InData/RD_el_WW_CMSSW525.root", "READ");
@@ -272,7 +272,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
     qcd_file1       = new TFile("InData/RDQCD_WenuJets_Isog0p3NoElMVA_1p6invfb.root", "READ");
 //    qcd_file1       = new TFile("InData/RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb2011.root", "READ");
     zjets_file      = new TFile("InData/RD_el_ZpJ_CMSSW525.root", "READ");
-//    stops_file      = new TFile("InData/RD_el_STopS_T_CMSSW525.root", "READ");
+    stops_file      = new TFile("InData/RD_el_STopS_T_CMSSW525.root", "READ");
     stopt_file      = new TFile("InData/RD_el_STopT_T_CMSSW525.root", "READ");
     stoptW_file     = new TFile("InData/RD_el_STopTW_T_CMSSW525.root", "READ");
   }
@@ -289,7 +289,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
   TTree* treettb   = (TTree*)      ttbar_file->Get("WJet");
   TTree* treeqcd   = (TTree*)       qcd_file1->Get("WJet");
   TTree* treezj    = (TTree*)      zjets_file->Get("WJet");
-//  TTree* treests   = (TTree*)      stops_file->Get("WJet");
+  TTree* treests   = (TTree*)      stops_file->Get("WJet");
   TTree* treestt   = (TTree*)      stopt_file->Get("WJet");
   TTree* treestw   = (TTree*)     stoptW_file->Get("WJet");
 
@@ -378,14 +378,14 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 
     // Get Single top
 
-//    TH1* th1stops = new TH1D("th1stops", "th1stops", pv.NBINS, pv.MINRange, pv.MAXRange);
+    TH1* th1stops = new TH1D("th1stops", "th1stops", pv.NBINS, pv.MINRange, pv.MAXRange);
     TH1* th1stopt = new TH1D("th1stopt", "th1stopt", pv.NBINS, pv.MINRange, pv.MAXRange);
     TH1* th1stoptw = new TH1D("th1stoptw", "th1stoptw", pv.NBINS, pv.MINRange, pv.MAXRange);
-//    th1stops->Sumw2();
+    th1stops->Sumw2();
     th1stopt->Sumw2();
     th1stoptw->Sumw2();
 
-//    treests->Draw(TString(pv.plotvar)+TString(">>th1stops"), the_cut, "goff");
+    treests->Draw(TString(pv.plotvar)+TString(">>th1stops"), the_cut, "goff");
     treestt->Draw(TString(pv.plotvar)+TString(">>th1stopt"), the_cut, "goff");
     treestw->Draw(TString(pv.plotvar)+TString(">>th1stoptw"), the_cut, "goff");
 
@@ -434,9 +434,9 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
     th1Top->SetLineColor(kGreen+2);
     th1Top->SetLineWidth(0);
 
-//    th1stops->Scale(STopS_scale);
-//    th1stops->SetFillColor(7);
-//    th1stops->SetLineWidth(2);
+    th1stops->Scale(STopS_scale);
+    th1stops->SetFillColor(7);
+    th1stops->SetLineWidth(2);
     th1stopps->Scale(SToppS_scale);
     th1stopps->SetFillColor(7);
     th1stopps->SetLineWidth(2);
@@ -482,7 +482,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
   
     double den_qcd = 
       th1Top->Integral()+
-//      th1stops->Integral()+
+      th1stops->Integral()+
       th1stopt->Integral()+
       th1stoptw->Integral()+
       th1stopps->Integral()+
@@ -506,7 +506,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 
     double den = 
       th1Top->Integral()+
-//      th1stops->Integral()+
+      th1stops->Integral()+
       th1stopt->Integral()+
       th1stoptw->Integral()+
       th1stopps->Integral()+
@@ -523,7 +523,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 
     th1qcd->Scale   (th1data->Integral()/den); std::cout <<"qcd "   << th1qcd->Integral()   << std::endl;
     th1Top->Scale   (th1data->Integral()/den); std::cout <<"tt "    << th1Top->Integral()   << std::endl;
-//    th1stops->Scale (th1data->Integral()/den); std::cout <<"stops " << th1stops->Integral() << std::endl;
+    th1stops->Scale (th1data->Integral()/den); std::cout <<"stops " << th1stops->Integral() << std::endl;
     th1stopt->Scale (th1data->Integral()/den); std::cout <<"stopt " << th1stopt->Integral() << std::endl;
     th1stoptw->Scale(th1data->Integral()/den); std::cout <<"stoptw "<< th1stoptw->Integral()<< std::endl;
     th1stopps->Scale (th1data->Integral()/den); std::cout <<"stops " << th1stopps->Integral() << std::endl;
@@ -536,7 +536,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 
     double den2 =
       th1Top->Integral()+
-//      th1stops->Integral()+
+      th1stops->Integral()+
       th1stopt->Integral()+
       th1stoptw->Integral()+
       th1stopps->Integral()+
@@ -552,7 +552,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
 
     th1Top->Add(th1stoptw,1);
     th1Top->Add(th1stopt,1);
-//    th1Top->Add(th1stops,1);
+    th1Top->Add(th1stops,1);
     th1Top->Add(th1stopptw,1);
     th1Top->Add(th1stoppt,1);
     th1Top->Add(th1stopps,1);
@@ -669,7 +669,7 @@ void mkElControlPlotsICHEP12(bool domu=false,bool domva=false,
     th1tot->Draw("e2same");
 
     th1data->Draw("esame");
-    cmspre();    
+    cmspre(intLUMI/1000.0);
     if (pv.drawleg ==1)  Leg->Draw();  
     // th1data->Draw("Axissame");
     gPad->RedrawAxis();
