@@ -632,7 +632,7 @@ makeDataCardFiles(int argc, char*argv[])
   // needed for theoretical uncertainties
   readHxsTable   (Form("ggHtable%dtev.txt",beamcomenergytev));
   readHxsTable   (Form("vbfHtable%dtev.txt",beamcomenergytev)); // , scalefrom7to8tev);
-  readJetBinErrTable("jetbinerr.txt");
+  readJetBinErrTable("jetbinerrtable.txt");
 #endif
 
   map<int,CardData_t> m_cards;
