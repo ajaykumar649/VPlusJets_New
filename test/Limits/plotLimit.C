@@ -25,6 +25,7 @@
 void cmsLumi(bool prelim)
 {
   const float LUMINOSITY = intlumipbinv * global_scale/1000.;
+  const float LUMINOSITY = 3.5;
   TLatex latex;
   latex.SetNDC();
   latex.SetTextSize(0.04);
@@ -32,6 +33,7 @@ void cmsLumi(bool prelim)
 
   latex.SetTextAlign(31); // align right
   latex.DrawLatex(0.90,0.96,Form("#sqrt{s} = %d TeV",beamcomenergytev));
+  //latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7TeV/8TeV");
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(11); // align left
     latex.DrawLatex(0.5,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY));
@@ -42,7 +44,7 @@ void cmsLumi(bool prelim)
 }
 
 void plotLimit(TString limitFile = "limit-cfginfo.tab",
-	       bool plotObs = false,
+	       bool plotObs = true,
 	       bool plotPrelim=true)
 {
   double m[100],obs[100],exp[100],sig1hi[100],sig1lo[100],sig2hi[100],sig2lo[100];
@@ -108,7 +110,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
 #ifdef LOGSCALE
   mg->GetYaxis()->SetRangeUser(5e-2,40) ;
 #else
-  mg->GetYaxis()->SetRangeUser(0,14) ;
+  mg->GetYaxis()->SetRangeUser(0,8) ;
 #endif
 
   //mg->Draw("A");
