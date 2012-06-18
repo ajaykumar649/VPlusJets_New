@@ -3,8 +3,11 @@
 
 #define ISHWW
 
-#define SEVENTEV
-//#undef SEVENTEV
+//#define SEVENTEV
+#undef SEVENTEV
+
+//#define DO_INTERP
+#undef DO_INTERP
 
 //================================================================================
 // High-level variables
@@ -16,16 +19,25 @@ const int beamcomenergytev = 7;
 
 // ordered the same as the channels
 //
-const char *dir = "/uscms_data/d2/pdudero/HWW/ICHEP2012/7tevInterp_v2";
+const char *dir = "/uscms_data/d2/pdudero/HWW/ICHEP2012/7tevInterp";
 
 #else
 
-const bool BLINDING = true;
-const double intlumipbinv = 1600.0;
+//const bool BLINDING = true;
+const bool BLINDING = false;
+
+const double intlumipbinv = 3500.0;
 const int beamcomenergytev = 8;
 const char *dir =
-  //  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
-  "/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
+  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5ResultUnblind";
+  //"/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
+
+const double global_scale = 1.0;
+//const double global_scale = 5000.0/intlumipbinv;
+//const double scalefrom7to8tev = 1.3;
+
+const double scaleBRforTau = 1.5;
 
 #endif
 
@@ -70,16 +82,13 @@ const double siglumiunc     = 0.022;
 const double W2qqBR    = 0.6770;
 const double W2taunuBR = 0.1125;
 
-const double global_scale = 1.0;
-//const double global_scale = 5000.0/intlumipbinv;
-const double scalefrom7to8tev = 1.3;
-
-const int NUMMASSPTS=12;
 
 //--------------------------------------------------
 
+const int NUMMASSPTS=6;
 const int masspts[NUMMASSPTS] = {
-  170, 180, 190, 200, 250, 300, 350, 400, 450, 500, 550, 600
+  //170, 180, 190, 200, 250, 300, 350, 400, 450, 500, 550, 600
+  200, 300, 400, 450, 500, 600
 };
 
 //--------------------------------------------------
@@ -126,22 +135,17 @@ const char *dataobjname = "theData";
 const char *bkgdobjname = "h_total";
 
 #ifndef SEVENTEV
-// 2012 ICHEP preapproval freeze, 1.60/pb
+// 2012 ICHEP pre-unblinding, 14June, 3.50/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
-  /*170*/   1.005,   1.006,   1.000,    1.006,
-  /*180*/   1.009,   1.007,   1.006,    1.005,
-  /*190*/   1.009,   1.007,   1.006,    1.006,
-  /*200*/   1.009,   1.013,   1.006,    1.008,
-  /*250*/   1.008,   1.018,   1.008,    1.010,
-  /*300*/   1.008,   1.014,   1.013,    1.015,
-  /*350*/   1.012,   1.032,   1.017,    1.025,
-  /*400*/   1.010,   1.035,   1.013,    1.025,
-  /*450*/   1.012,   1.056,   1.019,    1.045,
-  /*500*/   1.011,   1.050,   1.018,    1.050,
-  /*550*/   1.012,   1.035,   1.020,    1.035,
-  /*600*/   1.013,   1.049,   1.020,    1.049,
+  /*200*/   1.007,   1.009,   1.004,   1.005, 
+  /*300*/   1.006,   1.009,   1.010,   1.009, 
+  /*400*/   1.009,   1.021,   1.007,   1.018, 
+  /*450*/   1.011,   1.022,   1.014,   1.031, 
+  /*500*/   1.011,   1.000,   1.014,   1.000, 
+  /*600*/   1.012,   1.040,   1.013,   1.000, 
 };
+
 #else
 
 // With MVA+Q/G, lumi=5.0/fb
@@ -165,6 +169,24 @@ double backnormerr[NUMMASSPTS*NUMCHAN] = {
 #endif
 
 #if 0
+
+// 2012 ICHEP preapproval freeze, 1.60/pb
+double backnormerr[NUMMASSPTS*NUMCHAN] = {
+  /*         el2j     el3j     mu2j     mu3j */
+  /*170*/   1.005,   1.006,   1.000,    1.006,
+  /*180*/   1.009,   1.007,   1.006,    1.005,
+  /*190*/   1.009,   1.007,   1.006,    1.006,
+  /*200*/   1.009,   1.013,   1.006,    1.008,
+  /*250*/   1.008,   1.018,   1.008,    1.010,
+  /*300*/   1.008,   1.014,   1.013,    1.015,
+  /*350*/   1.012,   1.032,   1.017,    1.025,
+  /*400*/   1.010,   1.035,   1.013,    1.025,
+  /*450*/   1.012,   1.056,   1.019,    1.045,
+  /*500*/   1.011,   1.050,   1.018,    1.050,
+  /*550*/   1.012,   1.035,   1.020,    1.035,
+  /*600*/   1.013,   1.049,   1.020,    1.049,
+};
+
 // First limit of 2012, 560/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
@@ -192,34 +214,33 @@ const double sigselefferrpct8tev = 10.0; // 2012 8TeV
 #endif
 
 double ggsigaccptsyst[NUMMASSPTS] = {
-  /*170*/ 1.02,
-  /*180*/ 1.02,
-  /*190*/ 1.02,
+  //  /*170*/ 1.02,
+  //  /*180*/ 1.02,
+  //  /*190*/ 1.02,
   /*200*/ 1.02,
-  /*250*/ 1.015,
+  //  /*250*/ 1.015,
   /*300*/ 1.020,
-  /*350*/ 1.023,
+  //  /*350*/ 1.023,
   /*400*/ 1.024,
   /*450*/ 1.027,
   /*500*/ 1.029,
-  /*550*/ 1.032,
+  //  /*550*/ 1.032,
   /*600*/ 1.036
 };
 
 double qqsigaccptsyst[NUMMASSPTS] = {
-  /*170*/ 1.02,
-  /*180*/ 1.02,
-  /*190*/ 1.02,
+  //  /*170*/ 1.02,
+  //  /*180*/ 1.02,
+  //  /*190*/ 1.02,
   /*200*/ 1.02,
-  /*250*/ 1.011,
+  //  /*250*/ 1.011,
   /*300*/ 1.009,
-  /*350*/ 1.008,
+  //  /*350*/ 1.008,
   /*400*/ 1.006,
   /*450*/ 1.007,
   /*500*/ 1.009,
-  /*550*/ 1.009,
+  //  /*550*/ 1.009,
   /*600*/ 1.007
 };
-
 
 #endif // _HWWCHANNELS_H
