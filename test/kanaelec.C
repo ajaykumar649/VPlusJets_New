@@ -54,10 +54,12 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
-const TString inDataDir  = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v2/Ntuples/";
-const TString inQCDDir   = "/uscms_data/d2/yangf/ana/WuvWjj/QCDControlSample_PAT/MergFile/";
-const TString outDataDir = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v2/RDtrees/";
-const std::string fDir   = "EffTableDir/";
+//const TString inDataDir  = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
+const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
+const TString inQCDDir   = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
+const TString outDataDir = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/RDtrees/";
+//const std::string fDir   = "EffTableDir/";
+const std::string fDir   = "EffTable2012/";
 
 void kanaelec::myana(double myflag, bool isQCD, int runflag)
 {
@@ -81,11 +83,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
     myChain = new TChain("WJet"); 
     
     if ( !isQCD ) {
-      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_0p9invfb.root"); 
-      Init(myChain);Loop( 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_0p9invfb");
+      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root"); 
+      Init(myChain);Loop( 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb");
     } else {
-      myChain->Add(                    inQCDDir +     "WenuJets_DataAll_GoldenJSON_5invfb.root"); 
-      Init(myChain);Loop( 20120000,runflag, outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb", isQCD);
+      myChain->Add(                    inQCDDir +     "WenuJets_DataAll_GoldenJSON_1p6invfb.root"); 
+      Init(myChain);Loop( 20120000,runflag, outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_1p6invfb", isQCD);
     }
   }
   
@@ -118,30 +120,60 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_STopS_Tbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111002,runflag, outDataDir + "RD_el_STopS_Tbar_CMSSW428");
     }
+    if (myflag == 20121002 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_STopS_Tbar_CMSSW525.root"); 
+      Init(myChain);Loop( 20121002,runflag, outDataDir + "RD_el_STopS_Tbar_CMSSW525");
+    }
     if (myflag == 20111003 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopS_T_CMSSW428.root"); 
       Init(myChain);Loop( 20111003,runflag, outDataDir + "RD_el_STopS_T_CMSSW428");
+    }
+    if (myflag == 20121003 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_STopS_T_CMSSW525_1of26filesmissing.root"); 
+      Init(myChain);Loop( 20121003,runflag, outDataDir + "RD_el_STopS_T_CMSSW525");
     }
     if (myflag == 20111004 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopT_Tbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111004,runflag, outDataDir + "RD_el_STopT_Tbar_CMSSW428");
     }
+    if (myflag == 20121004 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_STopT_Tbar_CMSSW525.root"); 
+      Init(myChain);Loop( 20121004,runflag, outDataDir + "RD_el_STopT_Tbar_CMSSW525");
+    }
     if (myflag == 20111005 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopT_T_CMSSW428.root"); 
       Init(myChain);Loop( 20111005,runflag, outDataDir + "RD_el_STopT_T_CMSSW428");
+    }
+    if (myflag == 20121005 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_STopT_T_CMSSW525.root"); 
+      Init(myChain);Loop( 20121005,runflag, outDataDir + "RD_el_STopT_T_CMSSW525");
     }
     if (myflag == 20111006 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopTW_Tbar_CMSSW428.root"); 
       Init(myChain);Loop( 20111006,runflag, outDataDir + "RD_el_STopTW_Tbar_CMSSW428");
     }
+    if (myflag == 20121006 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_STopTW_Tbar_CMSSW525.root"); 
+      Init(myChain);Loop( 20121006,runflag, outDataDir + "RD_el_STopTW_Tbar_CMSSW525");
+    }
     if (myflag == 20111007 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_STopTW_T_CMSSW428.root"); 
       Init(myChain);Loop( 20111007,runflag, outDataDir + "RD_el_STopTW_T_CMSSW428");
+    }
+    if (myflag == 20121007 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_STopTW_T_CMSSW525.root"); 
+      Init(myChain);Loop( 20121007,runflag, outDataDir + "RD_el_STopTW_T_CMSSW525");
     }
     if (myflag == 20111008 || myflag == -200){
       myChain = new TChain("WJet");  
@@ -196,10 +228,20 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_WW_CMSSW428.root"); 
       Init(myChain);Loop( 20111015,runflag, outDataDir + "RD_el_WW_CMSSW428");
     }
+    if (myflag == 20121015 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_WW_CMSSW525.root"); 
+      Init(myChain);Loop( 20121015,runflag, outDataDir + "RD_el_WW_CMSSW525");
+    }
     if (myflag == 20111016 || myflag == -200){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_WZ_CMSSW428.root"); 
       Init(myChain);Loop( 20111016,runflag, outDataDir + "RD_el_WZ_CMSSW428");
+    }
+    if (myflag == 20121016 || myflag == -200){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_WZ_CMSSW525.root"); 
+      Init(myChain);Loop( 20121016,runflag, outDataDir + "RD_el_WZ_CMSSW525");
     }
     if (myflag == 20111017 || myflag == -200){
       myChain = new TChain("WJet");  
@@ -263,6 +305,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH180_CMSSW428.root"); 
       Init(myChain);Loop( 20112180,runflag, outDataDir + "RD_el_HWWMH180_CMSSW428");
     }
+    if (myflag == 20122180 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH180_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122180,runflag, outDataDir + "RD_el_HWWMH180_CMSSW525_private");
+    }
     if (myflag == 20112190 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW428.root"); 
@@ -272,6 +319,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH200_CMSSW428.root"); 
       Init(myChain);Loop( 20112200,runflag, outDataDir + "RD_el_HWWMH200_CMSSW428");
+    }
+    if (myflag == 20122200 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH200_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122200,runflag, outDataDir + "RD_el_HWWMH200_CMSSW525_private");
     }
     if (myflag == 20112250 || myflag == -300){
       myChain = new TChain("WJet");  
@@ -283,6 +335,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH300_CMSSW428.root"); 
       Init(myChain);Loop( 20112300,runflag, outDataDir + "RD_el_HWWMH300_CMSSW428");
     }
+    if (myflag == 20122300 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH300_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122300,runflag, outDataDir + "RD_el_HWWMH300_CMSSW525_private");
+    }
     if (myflag == 20112350 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW428.root"); 
@@ -293,25 +350,50 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH400_CMSSW428.root"); 
       Init(myChain);Loop( 20112400,runflag, outDataDir + "RD_el_HWWMH400_CMSSW428");
     }
+    if (myflag == 20122400 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH400_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122400,runflag, outDataDir + "RD_el_HWWMH400_CMSSW525_private");
+    }
     if (myflag == 20112450 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH450_CMSSW428.root"); 
       Init(myChain);Loop( 20112450,runflag, outDataDir + "RD_el_HWWMH450_CMSSW428");
+    }
+    if (myflag == 20122450 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH450_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122450,runflag, outDataDir + "RD_el_HWWMH450_CMSSW525_private");
     }
     if (myflag == 20112500 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH500_CMSSW428.root"); 
       Init(myChain);Loop( 20112500,runflag, outDataDir + "RD_el_HWWMH500_CMSSW428");
     }
+    if (myflag == 20122500 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH500_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122500,runflag, outDataDir + "RD_el_HWWMH500_CMSSW525_private");
+    }
     if (myflag == 20112550 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH550_CMSSW428.root"); 
       Init(myChain);Loop( 20112550,runflag, outDataDir + "RD_el_HWWMH550_CMSSW428");
     }
+    if (myflag == 20122550 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH550_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122550,runflag, outDataDir + "RD_el_HWWMH550_CMSSW525_private");
+    }
     if (myflag == 20112600 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH600_CMSSW428.root"); 
       Init(myChain);Loop( 20112600,runflag, outDataDir + "RD_el_HWWMH600_CMSSW428");
+    }
+    if (myflag == 20122600 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH600_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122600,runflag, outDataDir + "RD_el_HWWMH600_CMSSW525_private");
     }
 
     // VBF Higgs MC Signal
@@ -784,13 +866,14 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
   ReadMVA3jdibnoqgel mvaReader3jdibnoqgel( DBnoqg_inputVarsMVA ); 
 
   // For Efficiency Correction
-  EffTableLoader eleIdEff(         fDir + "eleEffsRecoToWP80_ScaleFactors.txt");
-  EffTableLoader eleRecoEff(       fDir + "eleEffsSCToReco_ScaleFactors.txt");
-  EffTableLoader eleHLTEff(        fDir + "eleEffsSingleElectron.txt");
+  EffTableLoader eleIdEff(         fDir + "scaleFactor-2012A-PromptReco-v1-GsfElectronToId.txt");
+  EffTableLoader eleRecoEff(       fDir + "scaleFactor-2012A-PromptReco-v1-SCToElectron.txt");
+  EffTableLoader eleHLTEff(        fDir + "efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt");
   EffTableLoader eleJ30Eff(        fDir + "FullyEfficient.txt");
   EffTableLoader eleJ25NoJ30Eff(   fDir + "FullyEfficient_Jet2NoJet1.txt");
   EffTableLoader eleMHTEff(        fDir + "FullyEfficient_MHT.txt");
-  EffTableLoader eleWMtEff(        fDir + "WMt50TriggerEfficiency.txt");
+//  EffTableLoader eleWMtEff(        fDir + "WMt50TriggerEfficiency.txt");
+  EffTableLoader eleWMtEff(        fDir + "FullyEfficient.txt");
 
   // Pile up Re-weighting
 /*
@@ -805,7 +888,7 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
 */
 // S7 MC PU True profile - hardcoded, wow
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupMCReweightingUtilities
- TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-194076_8TeV_PromptReco_Collisions12_true.root" );
+ TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-194479_8TeV_PromptReco_Collisions12_true.root" );
  TH1F* PU_intended = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
  TH1F* PU_generated = new TH1F("PU_generated","Generated pileup distribution (i.e., MC)",60,0.,60);
 Double_t Summer2012[60] = {
