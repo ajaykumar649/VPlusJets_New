@@ -203,13 +203,13 @@ makeNewCard(TH1           *inhist,
 	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
 	pd.systrates["UEPS"].resize(nchan,zeropair);
 	if (ichanref & 1) { // odd channel, 3jet bin
-	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc2;
-	  pd.systrates["QCDscale_ggH2in"][ichanref] = scaleunc3;
-	  pd.systrates["UEPS"][ichanref]            = ueps1;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
+	  pd.systrates["UEPS"][ichan]            = ueps1;
 	} else { // even channel, 2jet bin
-	  pd.systrates["QCDscale_ggH"][ichanref]    = scaleunc0;
-	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc1;
-	  pd.systrates["UEPS"][ichanref]            = ueps0;
+	  pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
+	  pd.systrates["UEPS"][ichan]            = ueps0;
 	}
       }
 
@@ -224,10 +224,13 @@ makeNewCard(TH1           *inhist,
       pair<double,double> lumipair(0.0, 1+siglumiunc);
 
       pd.systrates["lumi"].resize(nchan,lumipair);
+
       //pd.systrates[trigsyst].resize(nchan,zeropair);
       //pd.systrates[trigsyst][ichan].second = 1+sigtrigeffunc;
       pd.systrates[leptsyst].resize(nchan,zeropair);
+
       pd.systrates[leptsyst][ichan].second = 1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
+
 #ifdef ISHWW
       pd.systrates[signalsyst].resize(nchan,zeropair);
       pd.systrates[signalsyst][ichan].second =
@@ -237,6 +240,7 @@ makeNewCard(TH1           *inhist,
         1.0 + (sigselefferrpct8tev)/100.;
 #endif
 #endif
+
     } else {                                                        //background
       card.nbackproc++;
       pd.procindex = card.nbackproc;
@@ -262,6 +266,7 @@ makeNewCard(TH1           *inhist,
     card.pname2index[procname]= 0;
 
   } // else not data
+
 
   return card;
 }                                                                   // makeNewCard
@@ -377,13 +382,13 @@ addToCard(CardData_t&    card,
 	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
 	pd.systrates["UEPS"].resize(nchan,zeropair);
 	if (ichanref & 1) { // odd channel, 3jet bin
-	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc2;
-	  pd.systrates["QCDscale_ggH2in"][ichanref] = scaleunc3;
-	  pd.systrates["UEPS"][ichanref]            = ueps1;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
+	  pd.systrates["UEPS"][ichan]            = ueps1;
 	} else { // even channel, 2jet bin
-	  pd.systrates["QCDscale_ggH"][ichanref]    = scaleunc0;
-	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc1;
-	  pd.systrates["UEPS"][ichanref]            = ueps0;
+	  pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
+	  pd.systrates["UEPS"][ichan]            = ueps0;
 	}
       }
 
@@ -444,13 +449,13 @@ addToCard(CardData_t&    card,
 	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
       } else {
 	if (ichanref & 1) { // odd channel, 3jet bin
-	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc2;
-	  pd.systrates["QCDscale_ggH2in"][ichanref] = scaleunc3;
-	  pd.systrates["UEPS"][ichanref]            = ueps1;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
+	  pd.systrates["UEPS"][ichan]            = ueps1;
 	} else { // even channel, 2jet bin
-	  pd.systrates["QCDscale_ggH"][ichanref]    = scaleunc0;
-	  pd.systrates["QCDscale_ggH1in"][ichanref] = scaleunc1;
-	  pd.systrates["UEPS"][ichanref]            = ueps0;
+	  pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
+	  pd.systrates["UEPS"][ichan]            = ueps0;
 	}
       }
 #endif
