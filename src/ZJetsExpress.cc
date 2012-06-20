@@ -13,7 +13,7 @@
 //
 // Original Author:  A. Marini, K. Kousouris,  K. Theofilatos
 //         Created:  Mon Oct 31 07:52:10 CDT 2011
-// $Id: ZJetsExpress.cc,v 1.24 2012/03/27 11:46:16 theofil Exp $
+// $Id: ZJetsExpress.cc,v 1.25 2012/06/14 14:52:25 theofil Exp $
 //
 //
 
@@ -336,7 +336,10 @@ class ZJetsExpress : public edm::EDAnalyzer {
       float VBPartonPhi_;
       int VBPartonDM_; // decay mode
       // ---- jet kinematics --------------------------------------------
-      vector<float> *jetPt_,*jetEta_,*jetY_,*jetPhi_,*jetE_,*jetPtGEN_,*jetEtaGEN_,*jetYGEN_,*jetPhiGEN_,*jetEGEN_;
+      vector<float> *jetPt_,*jetEta_,*jetY_,*jetPhi_,*jetE_;
+      vector<float> *jetPtGEN_,*jetEtaGEN_,*jetYGEN_,*jetPhiGEN_,*jetEGEN_;
+      vector<float> *jetPtJEF_,*jetEtaJEF_,*jetYJEF_,*jetPhiJEF_,*jetEJEF_;
+      vector<float> *jetPtPAR_,*jetEtaPAR_,*jetYPAR_,*jetPhiPAR_,*jetEPAR_;
       // ---- jet composition fractions ---------------------------------
       vector<float> *jetCHF_,*jetPHF_,*jetNHF_,*jetMUF_,*jetELF_;
       // ---- other jet properties --------------------------------------
@@ -352,14 +355,20 @@ class ZJetsExpress : public edm::EDAnalyzer {
       // ---- tight rjet id ----------------------------------------------
       vector<int>   *rjetId_; 
       // ---- number of jets --------------------------------------------
-      int nJets_,nJetsGEN_;
+      int nJets_;
+      int nJetsGEN_;
+      int nJetsJEF_;
+      int nJetsPAR_;
       int nRJets_;
       // ---- flag to determine if the Z is one of the 2 leading objects-
       int isZlead_,isZleadGEN_;
       // ---- HT of the two leading objects -----------------------------
       float htLead_,htLeadGEN_;
       // ---- dphi between jets -----------------------------------------
-      float j1j2DPhi_,j1j3DPhi_,j2j3DPhi_,j1j2DPhiGEN_,j1j3DPhiGEN_,j2j3DPhiGEN_;
+      float j1j2DPhi_,j1j3DPhi_,j2j3DPhi_;
+      float j1j2DPhiGEN_,j1j3DPhiGEN_,j2j3DPhiGEN_;
+      float j1j2DPhiJEF_,j1j3DPhiJEF_,j2j3DPhiJEF_;
+      float j1j2DPhiPAR_,j1j3DPhiPAR_,j2j3DPhiPAR_;
       // ---- dR between jets -------------------------------------------
       float j1j2DR_,j1j3DR_,j2j3DR_,j1j2DRGEN_,j1j3DRGEN_,j2j3DRGEN_; 
       // ---- pf met ----------------------------------------------------
@@ -562,10 +571,12 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
   // ----  MC truth block -----------------------------------------------
-  vector<GENPARTICLE>      myGenLeptons;
-  vector<GENPARTICLE>      myJefLeptons;
-  vector<GENPARTICLE>      myParLeptons;
-  vector<TLorentzVector> myGenJets;  
+  vector<GENPARTICLE>      myGENLeptons;
+  vector<GENPARTICLE>      myJEFLeptons;
+  vector<GENPARTICLE>      myPARLeptons;
+  vector<TLorentzVector> myGENJets;  
+  vector<TLorentzVector> myJEFJets;  
+  vector<TLorentzVector> myPARJets;  
   vector<GENPARTICLE> myGenPhotons;  
   TLorentzVector VBParton(0,0,0,0);
   if (!isRealData_) {
@@ -614,7 +625,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
 	if(gen_Dau->pdgId()==23) continue;
 	VBPartonDM = abs(gen_Dau->pdgId());
       }
-      if(VBParton.Pt()>0) {
+      if(VBParton.Pt()>1.0e-3) {
 	VBPartonDM_  = VBPartonDM;
 	VBPartonE_   = VBParton.E();
 	VBPartonPt_  = VBParton.Pt();
@@ -637,7 +648,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
             TLorentzVector lepP4GEN(i_gen->p4().Px(),i_gen->p4().Py(),i_gen->p4().Pz(),i_gen->p4().E());
             aGenLepton.p4    = lepP4GEN; 
             aGenLepton.pdgId = i_gen->pdgId();
-            myGenLeptons.push_back(aGenLepton);
+            myGENLeptons.push_back(aGenLepton);
           }
         }
 
@@ -655,12 +666,25 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
       }
     }
 
+    bool debug(false);
+//    if( iEvent.id().event() == 24656704 && iEvent.id().run() == 1)debug=true;
+
     for(i_gen = gen->begin(); i_gen != gen->end(); i_gen++) {
       if (i_gen->status() == 1) {
         // ---- consider only electron and muon flavors -----------------
         if (abs(i_gen->pdgId()) == 11 || abs(i_gen->pdgId()) == 13) {
 	TLorentzVector lepP4GEN(i_gen->p4().Px(),i_gen->p4().Py(),i_gen->p4().Pz(),i_gen->p4().E()); // bare lepton
 	TLorentzVector jefLepP4GEN(i_gen->p4().Px(),i_gen->p4().Py(),i_gen->p4().Pz(),i_gen->p4().E()); // jef lepton (initially equal to bare)
+
+        if(debug)
+	{
+	  int motherID =0 ;
+	  for(int kk = 0; kk < int(i_gen-> numberOfMothers()); ++kk) {
+	    const GenParticle * gen_Moth = static_cast<const GenParticle*>(i_gen->mother(kk)); // find daughter
+	    motherID = gen_Moth->pdgId();
+	  }
+	  cout << i_gen->pdgId() << " Pt " << i_gen->p4().Pt() << " Eta,Phi = " << i_gen->p4().Eta() << "," << i_gen->p4().Phi() << " status = "<< i_gen->status() << " mother = " << motherID  << endl;
+	}
 	
         // --- now search for status=1 photons in DR=0.1 cone arround the bare lepton
   	for(j_gen = gen->begin(); j_gen != gen->end(); j_gen++) {
@@ -670,17 +694,17 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
             if(DR<0.1) jefLepP4GEN = jefLepP4GEN + phoP4GEN; // dress my  jefLepton
 	  }
 	}
-	// from now on my jefLep is jefed
+	// from now on my jefLep is dressed
 
           // ---- apply geometric and kinematic acceptance -------------
           if( jefLepP4GEN.Pt() > mMinLepPt && (fabs(jefLepP4GEN.Eta())) < mMaxLepEta) {
 	    GENPARTICLE aGenLepton;
             aGenLepton.p4    = jefLepP4GEN;
             aGenLepton.pdgId = i_gen->pdgId();
-            myJefLeptons.push_back(aGenLepton);
+            myJEFLeptons.push_back(aGenLepton);
           }
         }
-      }
+      } // end of status==1 loop
 
       if (i_gen->status() == 3 && (abs(i_gen->pdgId()) == 11 || abs(i_gen->pdgId()) == 13) ) {
           if ((i_gen->pt() > mMinLepPt) && (fabs(i_gen->eta())) < mMaxLepEta) {
@@ -688,58 +712,86 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
             TLorentzVector lepP4GEN(i_gen->p4().Px(),i_gen->p4().Py(),i_gen->p4().Pz(),i_gen->p4().E());
             aGenLepton.p4    = lepP4GEN; 
             aGenLepton.pdgId = i_gen->pdgId();
-            myParLeptons.push_back(aGenLepton);
+            myPARLeptons.push_back(aGenLepton);
           }
+      } // end of status = 3 loop
+    } // end of gen loop
 
-      }
-    }
-
-    hGenLeptons_->Fill(int(myGenLeptons.size()));
+    hGenLeptons_->Fill(int(myGENLeptons.size()));
     // ---- sort the genLeptons -----------------------------------------
-    sort(myGenLeptons.begin(),myGenLeptons.end(),lepSortingRuleGEN);
+    sort(myGENLeptons.begin(),myGENLeptons.end(),lepSortingRuleGEN);
     // ---- sort the jefedLeptons -----------------------------------------
-    sort(myJefLeptons.begin(),myJefLeptons.end(),lepSortingRuleGEN);
+    sort(myJEFLeptons.begin(),myJEFLeptons.end(),lepSortingRuleGEN);
     // ---- sort the parLeptons -----------------------------------------
-    sort(myParLeptons.begin(),myParLeptons.end(),lepSortingRuleGEN);
+    sort(myPARLeptons.begin(),myPARLeptons.end(),lepSortingRuleGEN);
     // ---- sort the genPhotons -----------------------------------------
     sort(myGenPhotons.begin(),myGenPhotons.end(),phoSortingRuleGEN);
     // ---- genjets -----------------------------------------------------
     for(i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++) {
-      // ---- genlepton - genjet cross cleaning -------------------------
-      bool isISO(true);
-      for(unsigned l=0;l<myGenLeptons.size();l++) { 
-        // ---- genjet vs 2 leading genlepton cleaning ------------------
-        if (l >= 2) continue; 
-        if (deltaR(i_genjet->eta(),i_genjet->phi(),myGenLeptons[l].p4.Eta(),myGenLeptons[l].p4.Phi()) < mJetLepIsoR) {
-          isISO = false;
-          continue;
-        }
-      }
-
-      // ---- genjet vs leading leading photon cleaning ------------------
-      if (myGenPhotons.size()>0) {
-       if (deltaR(i_genjet->eta(),i_genjet->phi(),myGenPhotons[0].p4.Eta(),myGenPhotons[0].p4.Phi()) < mJetPhoIsoR) { 
-          isISO = false;
-          continue;
-        }
-      }
-
-      if (!isISO) continue;
       // ---- preselection on genjets -----------------------------------
       if ((i_genjet->pt() < mMinJetPt) || (fabs(i_genjet->eta()) > mMaxJetEta)) continue;
       TLorentzVector aGenJet(i_genjet->p4().Px(),i_genjet->p4().Py(),i_genjet->p4().Pz(),i_genjet->p4().E());
-      myGenJets.push_back(aGenJet);  
+
+      // ---- genlepton - genjet cross cleaning -------------------------
+      bool isISOlepGEN(true);
+      for(unsigned l=0;l<myGENLeptons.size();l++) { 
+        // ---- genjet vs 2 leading genlepton cleaning ------------------
+        if (l >= 2) continue; 
+        if (deltaR(i_genjet->eta(),i_genjet->phi(),myGENLeptons[l].p4.Eta(),myGENLeptons[l].p4.Phi()) < mJetLepIsoR) {
+          isISOlepGEN = false;
+          continue;
+        }
+      }
+      if (isISOlepGEN)myGENJets.push_back(aGenJet);  
+
+      // ---- jeflepton - jefjet cross cleaning -------------------------
+      bool isISOlepJEF(true);
+      for(unsigned l=0;l<myJEFLeptons.size();l++) { 
+        // ---- jefjet vs 2 leading jeflepton cleaning ------------------
+        if (l >= 2) continue; 
+        if (deltaR(i_genjet->eta(),i_genjet->phi(),myJEFLeptons[l].p4.Eta(),myJEFLeptons[l].p4.Phi()) < mJetLepIsoR) {
+          isISOlepJEF = false;
+          continue;
+        }
+      }
+      if (isISOlepJEF)myJEFJets.push_back(aGenJet);  
+
+      // ---- parlepton - parjet cross cleaning -------------------------
+      bool isISOlepPAR(true);
+      for(unsigned l=0;l<myPARLeptons.size();l++) { 
+        // ---- parjet vs 2 leading parlepton cleaning ------------------
+        if (l >= 2) continue; 
+        if (deltaR(i_genjet->eta(),i_genjet->phi(),myPARLeptons[l].p4.Eta(),myPARLeptons[l].p4.Phi()) < mJetLepIsoR) {
+          isISOlepPAR = false;
+          continue;
+        }
+      }
+      if (isISOlepPAR)myPARJets.push_back(aGenJet);  
+
+
+/*
+CCC.      
+      bool isISOphotonGEN(true);
+      // ---- genjet vs leading leading photon cleaning ------------------
+      if (myGenPhotons.size()>0) {
+       if (deltaR(i_genjet->eta(),i_genjet->phi(),myGenPhotons[0].p4.Eta(),myGenPhotons[0].p4.Phi()) < mJetPhoIsoR) { 
+          isISOphotonGEN = false
+          continue;
+        }
+      }
+*/
+
     }// genjet loop
 
 /*
-    cout << myJefLeptons.size() << " " << myGenLeptons.size() << " " << myParLeptons.size() << endl;
-    if( myJefLeptons.size()== myGenLeptons.size() && myParLeptons.size())
+    cout << myJEFLeptons.size() << " " << myGENLeptons.size() << " " << myPARLeptons.size() << endl;
+    if( myJEFLeptons.size()== myGENLeptons.size() && myPARLeptons.size())
     {
-      for(int i=0;i<int(myJefLeptons.size());i++)
+      for(int i=0;i<int(myJEFLeptons.size());i++)
       {
-        float jefedPt = myJefLeptons[i].p4.Pt();
-        float genPt = myGenLeptons[i].p4.Pt();
-        float parPt = myParLeptons[i].p4.Pt();
+        float jefedPt = myJEFLeptons[i].p4.Pt();
+        float genPt = myGENLeptons[i].p4.Pt();
+        float parPt = myPARLeptons[i].p4.Pt();
         cout << " jefed = " << jefedPt << " postFSR = " << genPt << " preFSR = " << parPt  <<" delta = " << jefedPt-genPt << " " << parPt-jefedPt << endl;
       }
     }
@@ -817,6 +869,7 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     aLepton.isoRho = muonIsoRho;
     myLeptons.push_back(aLepton);
   }// muon loop
+
   // ---- loop over electrons -------------------------------------------
   for(View<GsfElectron>::const_iterator i_el = electrons_->begin();i_el != electrons_->end(); ++i_el) {
     float elPt                           = i_el->p4().Pt();
@@ -1214,11 +1267,11 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   TLorentzVector llP4(0,0,0,0);
   if(myLeptons.size()>1) llP4 = myLeptons[0].p4 + myLeptons[1].p4;
   TLorentzVector llP4GEN(0,0,0,0); 
-  if(myGenLeptons.size()>1) llP4GEN = myGenLeptons[0].p4 + myGenLeptons[1].p4;  
+  if(myGENLeptons.size()>1) llP4GEN = myGENLeptons[0].p4 + myGENLeptons[1].p4;  
   TLorentzVector llP4JEF(0,0,0,0); 
-  if(myJefLeptons.size()>1) llP4JEF = myJefLeptons[0].p4 + myJefLeptons[1].p4;  
+  if(myJEFLeptons.size()>1) llP4JEF = myJEFLeptons[0].p4 + myJEFLeptons[1].p4;  
   TLorentzVector llP4PAR(0,0,0,0); 
-  if(myParLeptons.size()>1) llP4PAR = myParLeptons[0].p4 + myParLeptons[1].p4;  
+  if(myPARLeptons.size()>1) llP4PAR = myPARLeptons[0].p4 + myPARLeptons[1].p4;  
 
   // ---- counters ------------------------------------------------------
   nVtx_        = int(vtxZ_->size());
@@ -1227,18 +1280,20 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   nPhotonsGEN_ = int(myGenPhotons.size());
   nJets_       = int(myJets.size());
   nRJets_      = int(myRJets.size());
-  nLeptonsGEN_ = int(myGenLeptons.size()); 
-  nLeptonsJEF_ = int(myJefLeptons.size()); 
-  nLeptonsPAR_ = int(myParLeptons.size()); 
-  nJetsGEN_    = int(myGenJets.size()); 
+  nLeptonsGEN_ = int(myGENLeptons.size()); 
+  nLeptonsJEF_ = int(myJEFLeptons.size()); 
+  nLeptonsPAR_ = int(myPARLeptons.size()); 
+  nJetsGEN_    = int(myGENJets.size()); 
+  nJetsJEF_    = int(myJEFJets.size()); 
+  nJetsPAR_    = int(myPARJets.size()); 
   // ---- Gen To Reco Matching for leptons ------------------------------------------------------
-  for(unsigned gg=0; gg < myGenLeptons.size(); gg++) {                               
+  for(unsigned gg=0; gg < myGENLeptons.size(); gg++) {                               
     lepMatchedDRGEN_->push_back(999);
     lepMatchedGEN_->push_back(999);
     for(unsigned rr = 0; rr < myLeptons.size(); rr++) {
-	float DR = myGenLeptons[gg].p4.DeltaR(myLeptons[rr].p4);
-	bool isSameFlavor = (abs(myGenLeptons[gg].pdgId) == 11 && abs(myLeptons[rr].chid)==1);
-	isSameFlavor = isSameFlavor || (abs(myGenLeptons[gg].pdgId) == 13 && abs(myLeptons[rr].chid)==2);
+	float DR = myGENLeptons[gg].p4.DeltaR(myLeptons[rr].p4);
+	bool isSameFlavor = (abs(myGENLeptons[gg].pdgId) == 11 && abs(myLeptons[rr].chid)==1);
+	isSameFlavor = isSameFlavor || (abs(myGENLeptons[gg].pdgId) == 13 && abs(myLeptons[rr].chid)==2);
 	if(DR<lepMatchedDRGEN_->at(gg) && isSameFlavor) {
 	    lepMatchedGEN_->at(gg) = rr;                              //store recolepton matched index
 	    lepMatchedDRGEN_->at(gg) = DR;                           //store DR with matched GEN lepton
@@ -1259,7 +1314,8 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   }
   if(nPhotonsGEN_>0) {
    float pt = myGenPhotons[0].p4.Pt();
-   float eta = myGenPhotons[0].p4.Eta();
+   float eta =0;
+   if(pt>1.0e-3) eta = myGenPhotons[0].p4.Eta();
    float DR=999;
    if(myPhotons.size()>0)DR = myPhotons[0].p4.DeltaR(myGenPhotons[0].p4);
      hGenPhotonPt_->Fill(pt);
@@ -1272,9 +1328,10 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
 
   for(int rr=0; rr< int(lepMatchedDRGEN_->size()); rr++) {
     if(rr>=2)continue; // do this only for first 2 leptons
-    float pt = myGenLeptons[rr].p4.Pt();
-    float eta = myGenLeptons[rr].p4.Eta();
-    int pdgId =  myGenLeptons[rr].pdgId;
+    float pt = myGENLeptons[rr].p4.Pt();
+    float eta = -999;
+    if(pt>1.0e-3)eta = myGENLeptons[rr].p4.Eta();
+    int pdgId =  myGENLeptons[rr].pdgId;
     float DR = lepMatchedDRGEN_->at(rr);
     if(abs(pdgId)==13) {
       hGenMuonPt_->Fill(pt);
@@ -1304,8 +1361,8 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
   selRECO_ = 0;
   if (!isRealData_) {
     selectionGEN = ((nLeptonsGEN_ > 1) && (nJetsGEN_ >= mMinNjets) && llP4GEN.M()>mMinLLMass); 
-    selectionJEF = ((nLeptonsJEF_ > 1) && (nJetsGEN_ >= mMinNjets) && llP4JEF.M()>mMinLLMass); 
-    selectionPAR = ((nLeptonsPAR_ > 1) && (nJetsGEN_ >= mMinNjets) && llP4PAR.M()>mMinLLMass); 
+    selectionJEF = ((nLeptonsJEF_ > 1) && (nJetsJEF_ >= mMinNjets) && llP4JEF.M()>mMinLLMass); 
+    selectionPAR = ((nLeptonsPAR_ > 1) && (nJetsPAR_ >= mMinNjets) && llP4PAR.M()>mMinLLMass); 
     selectionPHO = ((nPhotonsGEN_ > 0) && (nJetsGEN_ >= mMinNjets));
     selectionGEN += selectionPHO; // merge these two since they are both post fsr
 
@@ -1555,27 +1612,27 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
     // if selection GEN 
     if (selectionGEN || selectionPHO || selectionJEF || selectionPAR) {
 
-      if (selectionGEN) {
+       if (selectionGEN) {
         selGEN_ = 1;
         if(llP4GEN.Pt()>0) {
           llMGEN_                      = llP4GEN.M();
           llPtGEN_                     = llP4GEN.Pt();
           llPhiGEN_                    = llP4GEN.Phi();
-          if(llPtGEN_>0)llYGEN_        = llP4GEN.Rapidity();
-          if(llPtGEN_>0)llEtaGEN_      = llP4GEN.Eta();
-          llDPhiGEN_                   = fabs(myGenLeptons[0].p4.DeltaPhi(myGenLeptons[1].p4));
-          for(unsigned j = 0; j < myGenJets.size(); j++) {
-            jetllDPhiGEN_   ->push_back(fabs(llP4GEN.DeltaPhi(myGenJets[j])));
+          if(llPtGEN_>1.0e-3)llYGEN_        = llP4GEN.Rapidity();
+          if(llPtGEN_>1.0e-3)llEtaGEN_      = llP4GEN.Eta();
+          llDPhiGEN_                   = fabs(myGENLeptons[0].p4.DeltaPhi(myGENLeptons[1].p4));
+          for(unsigned j = 0; j < myGENJets.size(); j++) {
+            jetllDPhiGEN_   ->push_back(fabs(llP4GEN.DeltaPhi(myGENJets[j])));
           }
         }
         TLorentzVector lepP4GEN(0,0,0,0); 
-        for(unsigned l = 0; l < myGenLeptons.size(); l++) {
-          lepP4GEN += myGenLeptons[l].p4;
-          lepPtGEN_     ->push_back(myGenLeptons[l].p4.Pt());
-          lepEtaGEN_    ->push_back(myGenLeptons[l].p4.Eta());
-          lepPhiGEN_    ->push_back(myGenLeptons[l].p4.Phi());
-          lepEGEN_      ->push_back(myGenLeptons[l].p4.Energy());
-          lepChIdGEN_   ->push_back(myGenLeptons[l].pdgId);
+        for(unsigned l = 0; l < myGENLeptons.size(); l++) {
+          lepP4GEN += myGENLeptons[l].p4;
+          lepPtGEN_     ->push_back(myGENLeptons[l].p4.Pt());
+          if(myGENLeptons[l].p4.Pt()>1.0e-3)lepEtaGEN_    ->push_back(myGENLeptons[l].p4.Eta());
+          lepPhiGEN_    ->push_back(myGENLeptons[l].p4.Phi());
+          lepEGEN_      ->push_back(myGENLeptons[l].p4.Energy());
+          lepChIdGEN_   ->push_back(myGENLeptons[l].pdgId);
         }   
       }
 
@@ -1585,21 +1642,21 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
          	llMJEF_                      = llP4JEF.M();
           llPtJEF_                     = llP4JEF.Pt();
           llPhiJEF_                    = llP4JEF.Phi();
-          if(llPtJEF_>0)llYJEF_        = llP4JEF.Rapidity();
-          if(llPtJEF_>0)llEtaJEF_      = llP4JEF.Eta();
-          llDPhiJEF_                   = fabs(myJefLeptons[0].p4.DeltaPhi(myJefLeptons[1].p4));
-          for(unsigned j = 0; j < myGenJets.size(); j++) {
-            jetllDPhiJEF_   ->push_back(fabs(llP4JEF.DeltaPhi(myGenJets[j])));
+          if(llPtJEF_>1.0e-3)llYJEF_        = llP4JEF.Rapidity();
+          if(llPtJEF_>1.0e-3)llEtaJEF_      = llP4JEF.Eta();
+          llDPhiJEF_                   = fabs(myJEFLeptons[0].p4.DeltaPhi(myJEFLeptons[1].p4));
+          for(unsigned j = 0; j < myJEFJets.size(); j++) {
+            jetllDPhiJEF_   ->push_back(fabs(llP4JEF.DeltaPhi(myJEFJets[j])));
           }
         }
         TLorentzVector lepP4JEF(0,0,0,0); 
-        for(unsigned l = 0; l < myJefLeptons.size(); l++) {
-          lepP4JEF += myJefLeptons[l].p4;
-          lepPtJEF_     ->push_back(myJefLeptons[l].p4.Pt());
-          lepEtaJEF_    ->push_back(myJefLeptons[l].p4.Eta());
-          lepPhiJEF_    ->push_back(myJefLeptons[l].p4.Phi());
-          lepEJEF_      ->push_back(myJefLeptons[l].p4.Energy());
-          lepChIdJEF_   ->push_back(myJefLeptons[l].pdgId);
+        for(unsigned l = 0; l < myJEFLeptons.size(); l++) {
+          lepP4JEF += myJEFLeptons[l].p4;
+          lepPtJEF_     ->push_back(myJEFLeptons[l].p4.Pt());
+          if(myJEFLeptons[l].p4.Pt()>1.0e-3)lepEtaJEF_    ->push_back(myJEFLeptons[l].p4.Eta());
+          lepPhiJEF_    ->push_back(myJEFLeptons[l].p4.Phi());
+          lepEJEF_      ->push_back(myJEFLeptons[l].p4.Energy());
+          lepChIdJEF_   ->push_back(myJEFLeptons[l].pdgId);
         }   
       }
 
@@ -1609,62 +1666,98 @@ void ZJetsExpress::analyze(const Event& iEvent, const EventSetup& iSetup)
           llMPAR_                      = llP4PAR.M();
           llPtPAR_                     = llP4PAR.Pt();
           llPhiPAR_                    = llP4PAR.Phi();
-          if(llPtPAR_>0)llYPAR_        = llP4PAR.Rapidity();
-          if(llPtPAR_>0)llEtaPAR_      = llP4PAR.Eta();
-          llDPhiPAR_                   = fabs(myParLeptons[0].p4.DeltaPhi(myParLeptons[1].p4));
-          for(unsigned j = 0; j < myGenJets.size(); j++) {
-            jetllDPhiPAR_   ->push_back(fabs(llP4PAR.DeltaPhi(myGenJets[j])));
+          if(llPtPAR_>1.0e-3)llYPAR_        = llP4PAR.Rapidity();
+          if(llPtPAR_>1.0e-3)llEtaPAR_      = llP4PAR.Eta();
+          llDPhiPAR_                   = fabs(myPARLeptons[0].p4.DeltaPhi(myPARLeptons[1].p4));
+          for(unsigned j = 0; j < myPARJets.size(); j++) {
+            jetllDPhiPAR_   ->push_back(fabs(llP4PAR.DeltaPhi(myPARJets[j])));
           }
         }
         TLorentzVector lepP4PAR(0,0,0,0); 
-        for(unsigned l = 0; l < myParLeptons.size(); l++) {
-          lepP4PAR += myParLeptons[l].p4;
-          lepPtPAR_     ->push_back(myParLeptons[l].p4.Pt());
-          lepEtaPAR_    ->push_back(myParLeptons[l].p4.Eta());
-          lepPhiPAR_    ->push_back(myParLeptons[l].p4.Phi());
-          lepEPAR_      ->push_back(myParLeptons[l].p4.Energy());
-          lepChIdPAR_   ->push_back(myParLeptons[l].pdgId);
+        for(unsigned l = 0; l < myPARLeptons.size(); l++) {
+          lepP4PAR += myPARLeptons[l].p4;
+          lepPtPAR_     ->push_back(myPARLeptons[l].p4.Pt());
+          if(myPARLeptons[l].p4.Pt()>1.0e-3)lepEtaPAR_    ->push_back(myPARLeptons[l].p4.Eta());
+          lepPhiPAR_    ->push_back(myPARLeptons[l].p4.Phi());
+          lepEPAR_      ->push_back(myPARLeptons[l].p4.Energy());
+          lepChIdPAR_   ->push_back(myPARLeptons[l].pdgId);
         }   
       }
 
       if(myGenPhotons.size()>0) {       
         photonPtGEN_     = myGenPhotons[0].p4.Pt();
-        photonEtaGEN_    = myGenPhotons[0].p4.Eta();
+        if(photonPtGEN_>1.0e-3)photonEtaGEN_    = myGenPhotons[0].p4.Eta();
         photonPhiGEN_    = myGenPhotons[0].p4.Phi();
         photonEGEN_      = myGenPhotons[0].p4.Energy();
         if(myPhotons.size()>0)photonRECODRGEN_ = myPhotons[0].p4.DeltaR(myGenPhotons[0].p4); // GEN TO RECO matching
       }   
 
       double prod(1.0),sum(0.0);
-      for(unsigned j = 0; j < myGenJets.size(); j++) {
-        prod *= myGenJets[j].Pt();
-        sum  += myGenJets[j].Pt();
-        jetPtGEN_       ->push_back(myGenJets[j].Pt()); 
-        jetEtaGEN_      ->push_back(myGenJets[j].Eta()); 
-        jetPhiGEN_      ->push_back(myGenJets[j].Phi()); 
-        jetEGEN_        ->push_back(myGenJets[j].Energy()); 
-        jetYGEN_        ->push_back(myGenJets[j].Rapidity());  
+      for(unsigned j = 0; j < myGENJets.size(); j++) {
+        prod *= myGENJets[j].Pt();
+        sum  += myGENJets[j].Pt();
+        jetPtGEN_       ->push_back(myGENJets[j].Pt()); 
+        if(myGENJets[j].Pt()>1.0e-3)jetEtaGEN_      ->push_back(myGENJets[j].Eta()); 
+        jetPhiGEN_      ->push_back(myGENJets[j].Phi()); 
+        jetEGEN_        ->push_back(myGENJets[j].Energy()); 
+        jetYGEN_        ->push_back(myGENJets[j].Rapidity());  
       }
       isZleadGEN_ = 1;
       if (nJetsGEN_ > 0) {
-        mZj1GEN_        = (llP4GEN + myGenJets[0]).M();
-        ptZj1GEN_       = (llP4GEN + myGenJets[0]).Pt();
+        mZj1GEN_        = (llP4GEN + myGENJets[0]).M();
+        ptZj1GEN_       = (llP4GEN + myGENJets[0]).Pt();
 	HTJetSumGEN_    = sum;
         if (nJetsGEN_ > 1) {
-          mj1j2GEN_    = (myGenJets[0] + myGenJets[1]).M();
-          j1j2DPhiGEN_ = fabs(myGenJets[0].DeltaPhi(myGenJets[1]));
-          j1j2DRGEN_   = myGenJets[0].DeltaR(myGenJets[1]);
-          if (llPtGEN_ < myGenJets[1].Pt()) {
+          mj1j2GEN_    = (myGENJets[0] + myGENJets[1]).M();
+          j1j2DPhiGEN_ = fabs(myGENJets[0].DeltaPhi(myGENJets[1]));
+          j1j2DRGEN_   = myGENJets[0].DeltaR(myGENJets[1]);
+          if (llPtGEN_ < myGENJets[1].Pt()) {
             isZleadGEN_ = 0;
           }
           if (nJetsGEN_ > 2) {
-            j1j3DPhiGEN_ = fabs(myGenJets[0].DeltaPhi(myGenJets[2]));
-            j2j3DPhiGEN_ = fabs(myGenJets[1].DeltaPhi(myGenJets[2]));
-            j1j3DRGEN_   = myGenJets[0].DeltaR(myGenJets[2]);
-            j2j3DRGEN_   = myGenJets[1].DeltaR(myGenJets[2]);
+            j1j3DPhiGEN_ = fabs(myGENJets[0].DeltaPhi(myGENJets[2]));
+            j2j3DPhiGEN_ = fabs(myGENJets[1].DeltaPhi(myGENJets[2]));
+            j1j3DRGEN_   = myGENJets[0].DeltaR(myGENJets[2]);
+            j2j3DRGEN_   = myGENJets[1].DeltaR(myGENJets[2]);
           }  
         }
       }
+
+      for(unsigned j = 0; j < myJEFJets.size(); j++) {
+        jetPtJEF_       ->push_back(myJEFJets[j].Pt()); 
+        if(myJEFJets[j].Pt()>1.0e-3)jetEtaJEF_      ->push_back(myJEFJets[j].Eta()); 
+        jetPhiJEF_      ->push_back(myJEFJets[j].Phi()); 
+        jetEJEF_        ->push_back(myJEFJets[j].Energy()); 
+        jetYJEF_        ->push_back(myJEFJets[j].Rapidity());  
+      }
+      if (nJetsJEF_ > 0) {
+        if (nJetsJEF_ > 1) {
+          j1j2DPhiJEF_ = fabs(myJEFJets[0].DeltaPhi(myJEFJets[1]));
+          if (nJetsJEF_ > 2) {
+            j1j3DPhiJEF_ = fabs(myJEFJets[0].DeltaPhi(myJEFJets[2]));
+            j2j3DPhiJEF_ = fabs(myJEFJets[1].DeltaPhi(myJEFJets[2]));
+          }  
+        }
+      }
+
+      for(unsigned j = 0; j < myPARJets.size(); j++) {
+        jetPtPAR_       ->push_back(myPARJets[j].Pt()); 
+        if(myPARJets[j].Pt()>1.0e-3)jetEtaPAR_      ->push_back(myPARJets[j].Eta()); 
+        jetPhiPAR_      ->push_back(myPARJets[j].Phi()); 
+        jetEPAR_        ->push_back(myPARJets[j].Energy()); 
+        jetYPAR_        ->push_back(myPARJets[j].Rapidity());  
+      }
+      if (nJetsPAR_ > 0) {
+        if (nJetsPAR_ > 1) {
+          j1j2DPhiPAR_ = fabs(myPARJets[0].DeltaPhi(myPARJets[1]));
+          if (nJetsPAR_ > 2) {
+            j1j3DPhiPAR_ = fabs(myPARJets[0].DeltaPhi(myPARJets[2]));
+            j2j3DPhiPAR_ = fabs(myPARJets[1].DeltaPhi(myPARJets[2]));
+          }  
+        }
+      }
+
+
     }// if selection GEN 
     myTree_->Fill();
   }// if selectionRECO || selectionGEN
@@ -1747,6 +1840,16 @@ void ZJetsExpress::buildTree()
   jetPhiGEN_         = new std::vector<float>();
   jetEGEN_           = new std::vector<float>();
   jetYGEN_           = new std::vector<float>();
+  jetPtJEF_          = new std::vector<float>(); 
+  jetEtaJEF_         = new std::vector<float>();
+  jetPhiJEF_         = new std::vector<float>();
+  jetEJEF_           = new std::vector<float>();
+  jetYJEF_           = new std::vector<float>();
+  jetPtPAR_          = new std::vector<float>(); 
+  jetEtaPAR_         = new std::vector<float>();
+  jetPhiPAR_         = new std::vector<float>();
+  jetEPAR_           = new std::vector<float>();
+  jetYPAR_           = new std::vector<float>();
   jetllDPhi_         = new std::vector<float>();
   jetPhotonDPhi_     = new std::vector<float>();
   photonPar_         = new std::vector<float>();
@@ -1795,6 +1898,8 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("llY"              ,&llY_               ,"llY/F");
   myTree_->Branch("llEta"            ,&llEta_             ,"llEta/F");
   // ---- photon variables ----------------------------------------------
+/*
+CCC.
   myTree_->Branch("photonPt"         ,&photonPt_          ,"photonPt/F");
   myTree_->Branch("photonE"          ,&photonE_           ,"photonE/F");
   myTree_->Branch("photonEta"        ,&photonEta_         ,"photonEta/F");
@@ -1818,6 +1923,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("FSRphotonJet"     ,&FSRphotonJet_      ,"FSRphotonJet/I");
   myTree_->Branch("FSRphotonPar"     ,"vector<float>"     ,&FSRphotonPar_);
   myTree_->Branch("FSRphotonllM"     ,&FSRphotonllM_      ,"FSRphotonllM/F");
+*/
   // ---- trigger variables ---------------------------------------------
   myTree_->Branch("fired"            ,"vector<int>"       ,&fired_);
   myTree_->Branch("prescaleL1"       ,"vector<int>"       ,&prescaleL1_);
@@ -1852,6 +1958,8 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("jetELF"           ,"vector<float>"     ,&jetELF_);
   myTree_->Branch("jetId"            ,"vector<int>"       ,&jetId_);
   // ---- DR rejected jet variables ------------------------------------
+/*
+CCC.
   myTree_->Branch("rjetPt"           ,"vector<float>"     ,&rjetPt_);
   myTree_->Branch("rjetEta"          ,"vector<float>"     ,&rjetEta_);
   myTree_->Branch("rjetPhi"          ,"vector<float>"     ,&rjetPhi_);
@@ -1868,6 +1976,7 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("rjetMUF"          ,"vector<float>"     ,&rjetMUF_);
   myTree_->Branch("rjetELF"          ,"vector<float>"     ,&rjetELF_);
   myTree_->Branch("rjetId"           ,"vector<int>"       ,&rjetId_);
+*/
   // ---- vertex variables ----------------------------------------------
   myTree_->Branch("vtxZ"             ,"vector<float>"     ,&vtxZ_);
   myTree_->Branch("vtxNdof"          ,"vector<float>"     ,&vtxNdof_);
@@ -1879,12 +1988,19 @@ void ZJetsExpress::buildTree()
   myTree_->Branch("ptZj1GEN"         ,&ptZj1GEN_          ,"ptZj1GEN/F");
   myTree_->Branch("mj1j2GEN"         ,&mj1j2GEN_          ,"mj1j2GEN/F");
   myTree_->Branch("htLeadGEN"        ,&htLeadGEN_         ,"htLeadGEN/F");
-  myTree_->Branch("j1j2DPhiGEN"      ,&j1j2DPhiGEN_       ,"j1j2DPhiGEN/F");
-  myTree_->Branch("j1j3DPhiGEN"      ,&j1j3DPhiGEN_       ,"j1j3DPhiGEN/F");
-  myTree_->Branch("j2j3DPhiGEN"      ,&j2j3DPhiGEN_       ,"j2j3DPhiGEN/F");
   myTree_->Branch("j1j2DRGEN"        ,&j1j2DRGEN_         ,"j1j2DRGEN/F");
   myTree_->Branch("j1j3DRGEN"        ,&j1j3DRGEN_         ,"j1j3DRGEN/F");
   myTree_->Branch("j2j3DRGEN"        ,&j2j3DRGEN_         ,"j2j3DRGEN/F");
+
+  myTree_->Branch("j1j2DPhiGEN"      ,&j1j2DPhiGEN_       ,"j1j2DPhiGEN/F");
+  myTree_->Branch("j1j3DPhiGEN"      ,&j1j3DPhiGEN_       ,"j1j3DPhiGEN/F");
+  myTree_->Branch("j2j3DPhiGEN"      ,&j2j3DPhiGEN_       ,"j2j3DPhiGEN/F");
+  myTree_->Branch("j1j2DPhiJEF"      ,&j1j2DPhiJEF_       ,"j1j2DPhiJEF/F");
+  myTree_->Branch("j1j3DPhiJEF"      ,&j1j3DPhiJEF_       ,"j1j3DPhiJEF/F");
+  myTree_->Branch("j2j3DPhiJEF"      ,&j2j3DPhiJEF_       ,"j2j3DPhiJEF/F");
+  myTree_->Branch("j1j2DPhiPAR"      ,&j1j2DPhiPAR_       ,"j1j2DPhiPAR/F");
+  myTree_->Branch("j1j3DPhiPAR"      ,&j1j3DPhiPAR_       ,"j1j3DPhiPAR/F");
+  myTree_->Branch("j2j3DPhiPAR"      ,&j2j3DPhiPAR_       ,"j2j3DPhiPAR/F");
 
   myTree_->Branch("selGEN"           ,&selGEN_            ,"selGEN/I");
   myTree_->Branch("nLeptonsGEN"      ,&nLeptonsGEN_       ,"nLeptonsGEN/I");
@@ -1933,19 +2049,38 @@ void ZJetsExpress::buildTree()
 
   myTree_->Branch("lepMatchedDRGEN"  ,"vector<float>"     ,&lepMatchedDRGEN_); // matching of postFSR leptons (not post ported in jefed, preFSR)
   myTree_->Branch("lepMatchedGEN"    ,"vector<int>"       ,&lepMatchedGEN_);
+
   myTree_->Branch("nJetsGEN"         ,&nJetsGEN_          ,"nJetsGEN/I");
   myTree_->Branch("jetPtGEN"         ,"vector<float>"     ,&jetPtGEN_);
   myTree_->Branch("jetEtaGEN"        ,"vector<float>"     ,&jetEtaGEN_);
   myTree_->Branch("jetPhiGEN"        ,"vector<float>"     ,&jetPhiGEN_);
   myTree_->Branch("jetEGEN"          ,"vector<float>"     ,&jetEGEN_);
+  myTree_->Branch("jetYGEN"          ,"vector<float>"     ,&jetYGEN_);
+  myTree_->Branch("nJetsJEF"         ,&nJetsJEF_          ,"nJetsJEF/I");
+  myTree_->Branch("jetPtJEF"         ,"vector<float>"     ,&jetPtJEF_);
+  myTree_->Branch("jetEtaJEF"        ,"vector<float>"     ,&jetEtaJEF_);
+  myTree_->Branch("jetPhiJEF"        ,"vector<float>"     ,&jetPhiJEF_);
+  myTree_->Branch("jetEJEF"          ,"vector<float>"     ,&jetEJEF_);
+  myTree_->Branch("jetYJEF"          ,"vector<float>"     ,&jetYJEF_);
+  myTree_->Branch("nJetsPAR"         ,&nJetsPAR_          ,"nJetsPAR/I");
+  myTree_->Branch("jetPtPAR"         ,"vector<float>"     ,&jetPtPAR_);
+  myTree_->Branch("jetEtaPAR"        ,"vector<float>"     ,&jetEtaPAR_);
+  myTree_->Branch("jetPhiPAR"        ,"vector<float>"     ,&jetPhiPAR_);
+  myTree_->Branch("jetEPAR"          ,"vector<float>"     ,&jetEPAR_);
+  myTree_->Branch("jetYPAR"          ,"vector<float>"     ,&jetYPAR_);
+
+
   myTree_->Branch("HTJetSumGEN"      ,&HTJetSumGEN_       ,"HTJetSumGEN/F");  
   myTree_->Branch("mcWeight"         ,&mcWeight_          ,"mcWeight/F");
+/*
+CCC.
   myTree_->Branch("nPhotonsGEN"      ,&nPhotonsGEN_       ,"nPhotonsGEN/I");
   myTree_->Branch("photonPtGEN"      ,&photonPtGEN_       ,"photonPtGEN/F");
   myTree_->Branch("photonEGEN"       ,&photonEGEN_        ,"photonEGEN/F");
   myTree_->Branch("photonEtaGEN"     ,&photonEtaGEN_      ,"photonEtaGEN/F");
   myTree_->Branch("photonPhiGEN"     ,&photonPhiGEN_      ,"photonPhiGEN/F");
   myTree_->Branch("photonRECODRGEN"  ,&photonRECODRGEN_   ,"photonRECODRGEN/F");
+*/
   myTree_->Branch("VBPartonDM"       ,&VBPartonDM_        ,"VBPartonDM/I");
   myTree_->Branch("VBPartonM"        ,&VBPartonM_         ,"VBPartonM/F");
   myTree_->Branch("VBPartonE"        ,&VBPartonE_         ,"VBPartonE/F");
@@ -2078,6 +2213,8 @@ void ZJetsExpress::clearTree()
   isRealData_        = -999;
   nLeptonsGEN_       = -999;
   nJetsGEN_          = -999;
+  nJetsJEF_          = -999;
+  nJetsPAR_          = -999;
   isZleadGEN_        = -999;
   mZj1GEN_           = -999; 
   ptZj1GEN_          = -999; 
@@ -2086,6 +2223,14 @@ void ZJetsExpress::clearTree()
   j1j2DPhiGEN_       = -999;
   j1j3DPhiGEN_       = -999; 
   j2j3DPhiGEN_       = -999;
+  j1j2DPhiJEF_       = -999;
+  j1j3DPhiJEF_       = -999; 
+  j2j3DPhiJEF_       = -999;
+  j1j2DPhiPAR_       = -999;
+  j1j3DPhiPAR_       = -999; 
+  j2j3DPhiPAR_       = -999;
+
+
   j1j2DRGEN_         = -999;
   j1j3DRGEN_         = -999; 
   j2j3DRGEN_         = -999;
@@ -2133,6 +2278,18 @@ void ZJetsExpress::clearTree()
   jetPhiGEN_         ->clear();
   jetEGEN_           ->clear();
   jetYGEN_           ->clear();
+  jetPtJEF_          ->clear();
+  jetEtaJEF_         ->clear();
+  jetPhiJEF_         ->clear();
+  jetEJEF_           ->clear();
+  jetYJEF_           ->clear();
+  jetPtPAR_          ->clear();
+  jetEtaPAR_         ->clear();
+  jetPhiPAR_         ->clear();
+  jetEPAR_           ->clear();
+  jetYPAR_           ->clear();
+
+
   photonEGEN_        = -999;
   photonPtGEN_       = -999;
   photonEtaGEN_      = -999;
