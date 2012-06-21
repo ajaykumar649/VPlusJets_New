@@ -31,6 +31,7 @@ const int beamcomenergytev = 8;
 const char *dir =
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
   "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5ResultUnblind";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5tightMuons";
   //"/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
 
 const double global_scale = 1.0;
@@ -85,10 +86,10 @@ const double W2taunuBR = 0.1125;
 
 //--------------------------------------------------
 
-const int NUMMASSPTS=6;
+const int NUMMASSPTS=8;
 const int masspts[NUMMASSPTS] = {
   //170, 180, 190, 200, 250, 300, 350, 400, 450, 500, 550, 600
-  200, 300, 400, 450, 500, 600
+  180, 200, 300, 400, 450, 500, 550, 600
 };
 
 //--------------------------------------------------
@@ -138,11 +139,13 @@ const char *bkgdobjname = "h_total";
 // 2012 ICHEP pre-unblinding, 14June, 3.50/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
-  /*200*/   1.007,   1.009,   1.004,   1.005, 
+  /*180*/   1.006,   1.005,   1.004,   1.004, // added after unblinding
+  /*200*/   1.007,   1.009,   1.004,   1.005,
   /*300*/   1.006,   1.009,   1.010,   1.009, 
   /*400*/   1.009,   1.021,   1.007,   1.018, 
   /*450*/   1.011,   1.022,   1.014,   1.031, 
-  /*500*/   1.011,   1.000,   1.014,   1.000, 
+  /*500*/   1.011,   1.000,   1.014,   1.000,
+  /*550*/   1.010,   1.031,   1.015,   1.000, // added after unblinding
   /*600*/   1.012,   1.040,   1.013,   1.000, 
 };
 
@@ -215,7 +218,7 @@ const double sigselefferrpct8tev = 10.0; // 2012 8TeV
 
 double ggsigaccptsyst[NUMMASSPTS] = {
   //  /*170*/ 1.02,
-  //  /*180*/ 1.02,
+  /*180*/ 1.02,
   //  /*190*/ 1.02,
   /*200*/ 1.02,
   //  /*250*/ 1.015,
@@ -224,13 +227,13 @@ double ggsigaccptsyst[NUMMASSPTS] = {
   /*400*/ 1.024,
   /*450*/ 1.027,
   /*500*/ 1.029,
-  //  /*550*/ 1.032,
+  /*550*/ 1.032,
   /*600*/ 1.036
 };
 
 double qqsigaccptsyst[NUMMASSPTS] = {
   //  /*170*/ 1.02,
-  //  /*180*/ 1.02,
+  /*180*/ 1.02,
   //  /*190*/ 1.02,
   /*200*/ 1.02,
   //  /*250*/ 1.011,
@@ -239,7 +242,7 @@ double qqsigaccptsyst[NUMMASSPTS] = {
   /*400*/ 1.006,
   /*450*/ 1.007,
   /*500*/ 1.009,
-  //  /*550*/ 1.009,
+  /*550*/ 1.009,
   /*600*/ 1.007
 };
 
