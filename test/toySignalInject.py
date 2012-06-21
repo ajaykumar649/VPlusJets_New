@@ -112,7 +112,7 @@ everything else : same as zero
 
     pars4 = config.the4BodyConfig(fitterPars, mHbasis, opts.syst, 
                                   opts.alpha)
-    fitter4 = RooWjjMjjFitter(pars4)
+    # fitter4 = RooWjjMjjFitter(pars4)
 
     (halfGen, otherdata) = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
     SignalHist = HWWSignalShapes.makeHiggsHist(opts.mH, pars4, 'HWW')
