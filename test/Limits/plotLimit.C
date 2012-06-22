@@ -26,6 +26,7 @@ void cmsLumi(bool prelim)
 {
   const float LUMINOSITY = intlumipbinv * global_scale/1000.;
   const float LUMINOSITY = 3.5;
+  //const float LUMINOSITY = 8.5;
   TLatex latex;
   latex.SetNDC();
   latex.SetTextSize(0.04);
@@ -110,7 +111,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
 #ifdef LOGSCALE
   mg->GetYaxis()->SetRangeUser(5e-2,40) ;
 #else
-  mg->GetYaxis()->SetRangeUser(0,8) ;
+  mg->GetYaxis()->SetRangeUser(0,6) ;
 #endif
 
   //mg->Draw("A");
