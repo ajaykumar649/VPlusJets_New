@@ -319,6 +319,7 @@ void hwwshapes(const TString& nametag = "",
 	mass <= himass)
       writeHistosPerMass(mass, nametag, dirpar,lochan,hichan);
   }
+#ifdef DO_INTERP
   for (int imass=0; ; imass++) {
     int mass = interpolatedmasspts[imass];
     if (mass < 0) break;
@@ -326,4 +327,5 @@ void hwwshapes(const TString& nametag = "",
 	mass <= himass)
       writeHistosPerMass(mass, nametag, dirpar,lochan,hichan);
   }
+#endif
 }
