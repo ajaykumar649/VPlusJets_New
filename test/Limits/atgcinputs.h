@@ -26,15 +26,15 @@ const double siglumiunc     = 0.022;
 const double signal_xs_unc  = 0.034;
 
 // for cut-and-count limits:
-const double dijetptmingev  = 300.;
+const double dijetptmingev  = 350.;
 
-const float LAMBDAZ_MIN = -0.18;
-const float LAMBDAZ_MAX =  0.18;
-const float LAMBDAZ_INC = 0.01;
+const float LAMBDAZ_MIN = -0.15;
+const float LAMBDAZ_MAX =  0.15;
+const float LAMBDAZ_INC = 0.005;
 
-const float dKG_MIN = -0.6;
-const float dKG_MAX =  0.6;
-const float dKG_INC = 0.1;
+const float dKG_MIN = -0.30;
+const float dKG_MAX =  0.30;
+const float dKG_INC = 0.01;
 
 // FILE/HISTO STRUCTURE: assumed same name objects contained in different files for the different inputs
 
@@ -44,13 +44,13 @@ const char *dir = ".";
 // ordered the same as the inputs
 //
 const char *inputfiles[NUMCHAN] = {
-  "new_el_btag.root",
-  "new_el_noBtag.root",
-  "new_mu_btag.root",
-  "new_mu_noBtag.root"
+  "el_btag.root",
+  "el_noBtag.root",
+  "mu_btag.root",
+  "mu_noBtag.root"
 };
 
-const char *signalfmtstr = "lambdaZ_%.2f_deltaKappaGamma_%.2f";
+const char *signalfmtstr = "lambdaZ_%.3f_deltaKappaGamma_%.3f";
 
 const char *dataobjname = "data";
 const char *bkgdobjname = "background";

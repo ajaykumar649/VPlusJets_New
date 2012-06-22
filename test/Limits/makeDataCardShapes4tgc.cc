@@ -365,7 +365,7 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
   for (float lambdaz=LAMBDAZ_MIN; lambdaz<=LAMBDAZ_MAX; lambdaz+= LAMBDAZ_INC) {
     for (float deltaKappaGamma=dKG_MIN; deltaKappaGamma<=dKG_MAX; deltaKappaGamma += dKG_INC) {
 
-      TString cfgtag = Form(signalfmtstr,lambdaz+0.001,deltaKappaGamma+0.001);
+      TString cfgtag = Form(signalfmtstr,lambdaz+LAMBDAZ_INC/100.,deltaKappaGamma+dKG_INC/100.);
       TString signame = "signal_"+cfgtag;
 
       CardData_t card = makeNewCard(datahists[0],"data","",0,NUMCHAN,doshape);
@@ -377,7 +377,8 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
 
 	if (!sighist) {
 	  cerr<<"Couldn't get signal histogram "<<signame<<" from file for channel "<<channame<<endl;
-	  exit(-1);
+	  //exit(-1);
+	  goto nextone;
 	}
 
 	if (doshape) {
@@ -398,10 +399,11 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
       }
 
       if (calcEstimatedLimit(card)) {
-	cfgtag = Form("lz%.2f_dkg%.1f",lambdaz+0.001,deltaKappaGamma+0.001);
+	cfgtag = Form("lz%.3f_dkg%.2f",lambdaz+LAMBDAZ_INC/100.,deltaKappaGamma+dKG_INC/100.);
 	fmtDataCardFile(0,card,cfgtag);
       }
-
+    nextone:
+      ;
     } // dKG loop
   } // lambdaz loop
 
