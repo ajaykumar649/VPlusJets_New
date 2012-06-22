@@ -6,8 +6,8 @@
 //#define SEVENTEV
 #undef SEVENTEV
 
-//#define DO_INTERP
-#undef DO_INTERP
+#define DO_INTERP
+//#undef DO_INTERP
 
 //================================================================================
 // High-level variables
@@ -30,8 +30,12 @@ const double intlumipbinv = 3500.0;
 const int beamcomenergytev = 8;
 const char *dir =
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
-  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5ResultUnblind";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5ResultUnblind";
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5tightMuons";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5Injectx1";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5Injectx2";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5Injectx5";
+  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5withInterp";
   //"/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
 
 const double global_scale = 1.0;
@@ -97,12 +101,18 @@ const int masspts[NUMMASSPTS] = {
 const int interpolatedmasspts[] = {
   172,174,176,178,    // 170-180
   182,184,186,188,    // 180-190
+
+  190,                // until we have the simulated point!
+
   192,194,196,198,    // 190-200
   202,204,206,208,210,
   212,214,216,218,220,
   222,224,226,228,230,
   232,234,236,238,240,
   242,244,246,248,    // 200-250
+
+  250,                // until we have the simulated point!
+
   252,254,256,258,260,
   262,264,266,268,270,
   272,274,276,278,280,
@@ -110,6 +120,9 @@ const int interpolatedmasspts[] = {
   295,                // 250-300
   305,310,315,320,325,
   330,335,340,345,    // 300-350
+
+  350,                // until we have the simulated point!
+
   360,370,380,390,
   420,440,            // 400-450
   460,480,            // 450-500
