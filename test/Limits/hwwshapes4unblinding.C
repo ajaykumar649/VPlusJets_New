@@ -68,14 +68,14 @@ void writesig(TFile *allHistFile,
   // normalize signal histograms to their respective sigma x BR x lumi
   //double ovflwcor = hin->Integral(1,hin->GetNbinsX())/hin->Integral(0,hin->GetNbinsX()+1);
   double norm     = 
-    hd.ggHcspb*
+    (hd.ggHcspb + hd.vbfcspb)* // VBF contribution ~accounted for by scaling ggH output
     //ovflwcor*
     global_scale* 
     intlumipbinv*
     scaleBRforTau*
     hd.br2lnujj / 2; // DIV 2 because Jake divides Ngen by two!!
     
-  //printf("norm=%f * %f * %f\n", hd.ggHcspb, intlumipbinv, hd.br2lnujj);
+  printf("norm=%f * %f * %f\n", (hd.ggHcspb+hd.vbfcspb), intlumipbinv, hd.br2lnujj);
   hggHin->Scale(norm);
 
   // make copies of the histograms that are restricted to the bin range lobin-hibin
@@ -267,9 +267,8 @@ void hwwshapes(const TString& nametag = "",
 	       int lochan=0,
 	       int hichan=NUMCHAN-1)
 {
-  //readHxsTable   (Form("ggHtable%dtev.txt",beamcomenergytev));
-  //readHxsTable   (Form("vbfHtable%dtev.txt",beamcomenergytev)); // , scalefrom7to8tev);
-  readHxsTable   ("leonardostable.txt");
+  readHxsTable   (Form("ggHtable%dtev.txt",beamcomenergytev));
+  readHxsTable   (Form("vbfHtable%dtev.txt",beamcomenergytev)); // , scalefrom7to8tev);
   readBRtable    ("twikiBRtable.txt");
 
   // Get all inputs
