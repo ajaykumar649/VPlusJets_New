@@ -214,17 +214,17 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 	 (isEE && sihih<0.03 && Dphi<0.07 && Deta<0.005)); 
     } else {
     //-------- if MVA-based ID -----------------
-      isTight = (pt>30.) && ( 
+      isTight = (pt>30.) && (!isConv) && ( 
         ( abseta <= 0.8 && mvaOut > 0.977&& pfIso03EA < 0.093) ||
         ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.956 && pfIso03EA < 0.095) ||
         ( abseta > 1.479 && mvaOut > 0.966 && pfIso03EA < 0.171) );
 
-      isLoose = (pt>20.) && ( 
+      isLoose = (pt>20.) && (!isConv) && ( 
         ( abseta <= 0.8 && mvaOut > 0.877 && pfIso03EA < 0.177 ) ||
         ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.794 && pfIso03EA <0.180 ) ||
         ( abseta > 1.479 && mvaOut > 0.846 && pfIso03EA < 0.244) );
 
-      isQCD = (pt>20.) && ( 
+      isQCD = (pt>20.) && (!isConv) && ( 
         ( abseta <= 0.8 && mvaOut > -1. && pfIso03EA > 0.177 ) ||
         ( abseta > 0.8 && abseta <= 1.479 && mvaOut > -1. && pfIso03EA >0.180 ) ||
         ( abseta > 1.479 && mvaOut > -1. && pfIso03EA > 0.244) );
