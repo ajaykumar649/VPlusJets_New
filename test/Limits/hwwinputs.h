@@ -6,8 +6,8 @@
 //#define SEVENTEV
 #undef SEVENTEV
 
-#define DO_INTERP
-//#undef DO_INTERP
+//#define DO_INTERP
+#undef DO_INTERP
 
 //================================================================================
 // High-level variables
@@ -26,7 +26,7 @@ const char *dir = "/uscms_data/d2/pdudero/HWW/ICHEP2012/7tevInterp";
 //const bool BLINDING = true;
 const bool BLINDING = false;
 
-const double intlumipbinv = 3500.0;
+const double intlumipbinv = 5100.0;
 const int beamcomenergytev = 8;
 const char *dir =
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW1p6Result";
@@ -35,7 +35,9 @@ const char *dir =
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5Injectx1";
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5Injectx2";
   //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5Injectx5";
-  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5withInterp";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW3p5withInterp";
+  //"/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW25JuneResult";
+  "/uscms_data/d2/andersj/Wjj/2012/CMSSW_4_2_3_patch5/src/ElectroWeakAnalysis/VPlusJets/test/HWW5p1Result26June";
   //"/uscms_data/d2/pdudero/HWW/ICHEP2012/8tevInterp";
 
 const double global_scale = 1.0;
@@ -90,10 +92,10 @@ const double W2taunuBR = 0.1125;
 
 //--------------------------------------------------
 
-const int NUMMASSPTS=8;
+const int NUMMASSPTS=11;
 const int masspts[NUMMASSPTS] = {
   //170, 180, 190, 200, 250, 300, 350, 400, 450, 500, 550, 600
-  180, 200, 300, 400, 450, 500, 550, 600
+  180, 190, 200, 250, 300, 350, 400, 450, 500, 550, 600
 };
 
 //--------------------------------------------------
@@ -102,16 +104,12 @@ const int interpolatedmasspts[] = {
   172,174,176,178,    // 170-180
   182,184,186,188,    // 180-190
 
-  190,                // until we have the simulated point!
-
   192,194,196,198,    // 190-200
   202,204,206,208,210,
   212,214,216,218,220,
   222,224,226,228,230,
   232,234,236,238,240,
   242,244,246,248,    // 200-250
-
-  250,                // until we have the simulated point!
 
   252,254,256,258,260,
   262,264,266,268,270,
@@ -120,8 +118,6 @@ const int interpolatedmasspts[] = {
   295,                // 250-300
   305,310,315,320,325,
   330,335,340,345,    // 300-350
-
-  350,                // until we have the simulated point!
 
   360,370,380,390,
   420,440,            // 400-450
@@ -149,17 +145,21 @@ const char *dataobjname = "theData";
 const char *bkgdobjname = "h_total";
 
 #ifndef SEVENTEV
-// 2012 ICHEP pre-unblinding, 14June, 3.50/pb
+
+// 2012 ICHEP top-up, 25June, 5.1/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
   /*         el2j     el3j     mu2j     mu3j */
-  /*180*/   1.006,   1.005,   1.004,   1.004, // added after unblinding
-  /*200*/   1.007,   1.009,   1.004,   1.005,
-  /*300*/   1.006,   1.009,   1.010,   1.009, 
-  /*400*/   1.009,   1.021,   1.007,   1.018, 
-  /*450*/   1.011,   1.022,   1.014,   1.031, 
-  /*500*/   1.011,   1.000,   1.014,   1.000,
-  /*550*/   1.010,   1.031,   1.015,   1.000, // added after unblinding
-  /*600*/   1.012,   1.040,   1.013,   1.000, 
+  /*180*/   1.005,   1.004,   1.004,   1.003,
+  /*190*/   1.005,   1.004,   1.004,   1.003,
+  /*200*/   1.005,   1.007,   1.003,   1.004,
+  /*250*/   1.008,   1.006,   1.004,   1.007,
+  /*300*/   1.006,   1.007,   1.005,   1.007,
+  /*350*/   1.009,   1.020,   1.006,   1.017,
+  /*400*/   1.008,   1.024,   1.006,   1.014,
+  /*450*/   1.010,   1.028,   1.011,   1.024,
+  /*500*/   1.011,   1.000,   1.012,   1.000,
+  /*550*/   1.011,   1.026,   1.013,   1.000,
+  /*600*/   1.013,   1.028,   1.012,   1.000,
 };
 
 #else
@@ -185,6 +185,18 @@ double backnormerr[NUMMASSPTS*NUMCHAN] = {
 #endif
 
 #if 0
+// 2012 ICHEP pre-unblinding, 14June, 3.50/pb
+double backnormerr[NUMMASSPTS*NUMCHAN] = {
+  /*         el2j     el3j     mu2j     mu3j */
+  /*180*/   1.006,   1.005,   1.004,   1.004, // added after unblinding
+  /*200*/   1.007,   1.009,   1.004,   1.005,
+  /*300*/   1.006,   1.009,   1.010,   1.009, 
+  /*400*/   1.009,   1.021,   1.007,   1.018, 
+  /*450*/   1.011,   1.022,   1.014,   1.031, 
+  /*500*/   1.011,   1.000,   1.014,   1.000,
+  /*550*/   1.010,   1.031,   1.015,   1.000, // added after unblinding
+  /*600*/   1.012,   1.040,   1.013,   1.000, 
+};
 
 // 2012 ICHEP preapproval freeze, 1.60/pb
 double backnormerr[NUMMASSPTS*NUMCHAN] = {
@@ -232,11 +244,11 @@ const double sigselefferrpct8tev = 10.0; // 2012 8TeV
 double ggsigaccptsyst[NUMMASSPTS] = {
   //  /*170*/ 1.02,
   /*180*/ 1.02,
-  //  /*190*/ 1.02,
+  /*190*/ 1.02,
   /*200*/ 1.02,
-  //  /*250*/ 1.015,
+  /*250*/ 1.015,
   /*300*/ 1.020,
-  //  /*350*/ 1.023,
+  /*350*/ 1.023,
   /*400*/ 1.024,
   /*450*/ 1.027,
   /*500*/ 1.029,
@@ -247,11 +259,11 @@ double ggsigaccptsyst[NUMMASSPTS] = {
 double qqsigaccptsyst[NUMMASSPTS] = {
   //  /*170*/ 1.02,
   /*180*/ 1.02,
-  //  /*190*/ 1.02,
+  /*190*/ 1.02,
   /*200*/ 1.02,
-  //  /*250*/ 1.011,
+  /*250*/ 1.011,
   /*300*/ 1.009,
-  //  /*350*/ 1.008,
+  /*350*/ 1.008,
   /*400*/ 1.006,
   /*450*/ 1.007,
   /*500*/ 1.009,

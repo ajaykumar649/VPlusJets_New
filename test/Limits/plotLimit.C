@@ -25,16 +25,16 @@
 void cmsLumi(bool prelim)
 {
   const float LUMINOSITY = intlumipbinv * global_scale/1000.;
-  const float LUMINOSITY = 3.5;
-  //const float LUMINOSITY = 8.5;
+  //const float LUMINOSITY = 5.1;
+  const float LUMINOSITY = 10.1;
   TLatex latex;
   latex.SetNDC();
   latex.SetTextSize(0.04);
   latex.SetTextFont(42);
 
   latex.SetTextAlign(31); // align right
-  latex.DrawLatex(0.90,0.96,Form("#sqrt{s} = %d TeV",beamcomenergytev));
-  //latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7TeV/8TeV");
+  //latex.DrawLatex(0.90,0.96,Form("#sqrt{s} = %d TeV",beamcomenergytev));
+  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7TeV/8TeV");
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(11); // align left
     latex.DrawLatex(0.5,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY));
