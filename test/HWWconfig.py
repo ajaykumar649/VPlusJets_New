@@ -23,17 +23,20 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory
     #fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
-    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_3p5invfb.root'
+    #fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_3p5invfb.root'
+    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_5p1invfb.root'
     fitterPars.includeMuons = True    
     #fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
-    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root'
+    # fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root'
+    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root'
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
     fitterPars.minMass = 40.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 30
-    fitterPars.intLumi = 3500.
+    fitterPars.intLumi = 5100.
+    # fitterPars.intLumi = 3500.
     # fitterPars.intLumi = 539.385+21.297
     # fitterPars.intLumi = 297.848+21.297+48.465
     

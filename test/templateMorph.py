@@ -158,7 +158,7 @@ everything else : same as zero
                                   opts.alpha)
     fitter4 = RooWjjMjjFitter(pars4)
 
-    higgsModes = ['HWW', 'VBFHWW', 'HWWTauNu']
+    higgsModes = HWWSignalShapes.modes
     morphedHists = []
 
     utils = RooWjjFitterUtils(pars4)
