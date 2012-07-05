@@ -5,11 +5,6 @@ for nj in 2 3
 do
     for flavor in Electron Muon
     do
-      python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 172 --basisFile H170_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 180
-      python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 174 --basisFile H170_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 180
-      python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 176 --basisFile H180_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 170
-      python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 178 --basisFile H180_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 170
-
       python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 182 --basisFile H180_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 190
       python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 184 --basisFile H180_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 190
       python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 186 --basisFile H190_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 180
@@ -22,24 +17,24 @@ do
     done
 done
 
-# 202-224 GeV
+# 202-222 GeV
 for nj in 2 3 
 do
     for flavor in Electron Muon
     do
-	for (( mH= 202; mH<=224; mH += 2 ))
+	for (( mH= 202; mH<=222; mH += 2 ))
 	do
 	    python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH $mH --basisFile H200_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 250
 	done
     done
 done
 
-# 226-248 GeV
+# 224-248 GeV
 for nj in 2 3 
 do
     for flavor in Electron Muon
     do
-	for (( mH= 226; mH<=248; mH +=2 ))
+	for (( mH= 224; mH<=248; mH += 2 ))
 	do
 	    python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH $mH --basisFile H250_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 200
 	done
@@ -51,7 +46,7 @@ for nj in 2 3
 do
     for flavor in Electron Muon
     do
-	for (( mH= 252; mH<=274; mH +=2 ))
+	for (( mH= 252; mH<=274; mH += 2 ))
 	do
 	    python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH $mH --basisFile H250_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 300
 	done
@@ -67,10 +62,9 @@ do
 	do
 	    python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH $mH --basisFile H300_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 250
 	done
-	python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 295 --basisFile H300_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 250
+	python templateMorph.py -j $nj -m HWW"$flavor"sConfig --mH 295 --basisFile H300_"$flavor"_"$nj"Jets_Fit_Shapes.root --mHmorph 200
     done
 done
-
 
 # 305-325 GeV
 for nj in 2 3 
@@ -96,7 +90,7 @@ do
     done
 done
 
-# 360-580 GeV
+# 350-580 GeV
 for nj in 2 3 
 do
     for flavor in Electron Muon 
