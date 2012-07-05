@@ -83,8 +83,8 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
     myChain = new TChain("WJet"); 
     
     if ( !isQCD ) {
-      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root"); 
-      Init(myChain);Loop( 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb");
+      myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root"); 
+      Init(myChain);Loop( 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb");
     } else {
       myChain->Add(                    inQCDDir +     "WenuJets_DataAll_GoldenJSON_1p6invfb.root"); 
       Init(myChain);Loop( 20120000,runflag, outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_1p6invfb", isQCD);
@@ -315,6 +315,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW428.root"); 
       Init(myChain);Loop( 20112190,runflag, outDataDir + "RD_el_HWWMH190_CMSSW428");
     }
+    if (myflag == 20122190 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122190,runflag, outDataDir + "RD_el_HWWMH190_CMSSW525_private");
+    }
     if (myflag == 20112200 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH200_CMSSW428.root"); 
@@ -330,6 +335,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH250_CMSSW428.root"); 
       Init(myChain);Loop( 20112250,runflag, outDataDir + "RD_el_HWWMH250_CMSSW428");
     }
+    if (myflag == 20122250 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH250_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122250,runflag, outDataDir + "RD_el_HWWMH250_CMSSW525_private");
+    }
     if (myflag == 20112300 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH300_CMSSW428.root"); 
@@ -344,6 +354,11 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW428.root"); 
       Init(myChain);Loop( 20112350,runflag, outDataDir + "RD_el_HWWMH350_CMSSW428");
+    }
+    if (myflag == 20122350 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122350,runflag, outDataDir + "RD_el_HWWMH350_CMSSW525_private");
     }
     if (myflag == 20112400 || myflag == -300){
       myChain = new TChain("WJet");  
