@@ -55,9 +55,10 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
 //const TString inDataDir  = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
-const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
-const TString inQCDDir   = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
-const TString outDataDir = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/RDtrees/";
+//const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
+const TString inDataDir  = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
+const TString inQCDDir   = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
+const TString outDataDir = "/eos/uscms/store/user/lnujj/postICHEP12/RDtreesPU5p2/";
 //const std::string fDir   = "EffTableDir/";
 const std::string fDir   = "EffTable2012/";
  
@@ -246,6 +247,21 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "mu_HWWMH170_CMSSW428.root"); 
       Init(myChain);Loop( 20112170,runflag, outDataDir + "RD_mu_HWWMH170_CMSSW428");
     }
+    if (myflag == 20122125 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH125_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122125,runflag, outDataDir + "RD_mu_HWWMH125_CMSSW525_private");
+    }
+    if (myflag == 20122160 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH160_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122160,runflag, outDataDir + "RD_mu_HWWMH160_CMSSW525_private");
+    }
+    if (myflag == 20122170 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH170_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122170,runflag, outDataDir + "RD_mu_HWWMH170_CMSSW525_private");
+    }
     if (myflag == 20112180 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "mu_HWWMH180_CMSSW428.root"); 
@@ -358,6 +374,11 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
     }
 
     // VBF Higgs MC Signal
+    if (myflag == 20123125 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_VBFHWWMH125_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20123125,runflag, outDataDir + "RD_mu_VBFHWWMH125_CMSSW525_private");
+    }
     if (myflag == 20113150 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "mu_VBFHWWMH150_CMSSW428.root"); 
@@ -849,7 +870,7 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
 */  
 // S7 MC PU True profile - hardcoded, wow
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupMCReweightingUtilities
- TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-194479_8TeV_PromptReco_Collisions12_true.root" );
+ TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-196531_8TeV_PromptReco_Collisions12_true.root" );
  TH1F* PU_intended = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
  TH1F* PU_generated = new TH1F("PU_generated","Generated pileup distribution (i.e., MC)",60,0.,60);
 Double_t Summer2012[60] = {
