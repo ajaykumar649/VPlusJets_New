@@ -54,11 +54,10 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 
-//const TString inDataDir  = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
-const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
-const TString inQCDDir   = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
-const TString outDataDir = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/RDtrees/";
-//const std::string fDir   = "EffTableDir/";
+//const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
+const TString inDataDir  = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
+const TString inQCDDir   = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
+const TString outDataDir = "/eos/uscms/store/user/lnujj/postICHEP12/RDtreesPU5p2/";
 const std::string fDir   = "EffTable2012/";
 
 void kanaelec::myana(double myflag, bool isQCD, int runflag)
@@ -290,6 +289,21 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH150_CMSSW428.root"); 
       Init(myChain);Loop( 20112150,runflag, outDataDir + "RD_el_HWWMH150_CMSSW428");
     }
+    if (myflag == 20122125 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH125_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122125,runflag, outDataDir + "RD_el_HWWMH125_CMSSW525_private");
+    }
+    if (myflag == 20123125 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_VBFHWWMH125_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20123125,runflag, outDataDir + "RD_el_VBFHWWMH125_CMSSW525_private");
+    }
+    if (myflag == 20122160 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH160_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122160,runflag, outDataDir + "RD_el_HWWMH160_CMSSW525_private");
+    }
     if (myflag == 20112160 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH160_CMSSW428.root"); 
@@ -300,6 +314,13 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH170_CMSSW428.root"); 
       Init(myChain);Loop( 20112170,runflag, outDataDir + "RD_el_HWWMH170_CMSSW428");
     }
+
+    if (myflag == 20122170 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH170_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122170,runflag, outDataDir + "RD_el_HWWMH170_CMSSW525_private");
+    }
+
     if (myflag == 20112180 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH180_CMSSW428.root"); 
@@ -314,11 +335,6 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW428.root"); 
       Init(myChain);Loop( 20112190,runflag, outDataDir + "RD_el_HWWMH190_CMSSW428");
-    }
-    if (myflag == 20122190 || myflag == -300){
-      myChain = new TChain("WJet");  
-      myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW525_private.root"); 
-      Init(myChain);Loop( 20122190,runflag, outDataDir + "RD_el_HWWMH190_CMSSW525_private");
     }
     if (myflag == 20112200 || myflag == -300){
       myChain = new TChain("WJet");  
@@ -335,11 +351,6 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH250_CMSSW428.root"); 
       Init(myChain);Loop( 20112250,runflag, outDataDir + "RD_el_HWWMH250_CMSSW428");
     }
-    if (myflag == 20122250 || myflag == -300){
-      myChain = new TChain("WJet");  
-      myChain->Add(                    inDataDir + "el_HWWMH250_CMSSW525_private.root"); 
-      Init(myChain);Loop( 20122250,runflag, outDataDir + "RD_el_HWWMH250_CMSSW525_private");
-    }
     if (myflag == 20112300 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH300_CMSSW428.root"); 
@@ -355,11 +366,21 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW428.root"); 
       Init(myChain);Loop( 20112350,runflag, outDataDir + "RD_el_HWWMH350_CMSSW428");
     }
-    if (myflag == 20122350 || myflag == -300){
-      myChain = new TChain("WJet");  
-      myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW525_private.root"); 
-      Init(myChain);Loop( 20122350,runflag, outDataDir + "RD_el_HWWMH350_CMSSW525_private");
-    }
+     if (myflag == 20122190 || myflag == -300){
+       myChain = new TChain("WJet");
+       myChain->Add(                    inDataDir + "el_HWWMH190_CMSSW525_private.root");
+       Init(myChain);Loop( 20122190,runflag, outDataDir + "RD_el_HWWMH190_CMSSW525_private");
+     }
+     if (myflag == 20122250 || myflag == -300){
+       myChain = new TChain("WJet");
+       myChain->Add(                    inDataDir + "el_HWWMH250_CMSSW525_private.root");
+       Init(myChain);Loop( 20122250,runflag, outDataDir + "RD_el_HWWMH250_CMSSW525_private");
+     }
+     if (myflag == 20122350 || myflag == -300){
+       myChain = new TChain("WJet");
+       myChain->Add(                    inDataDir + "el_HWWMH350_CMSSW525_private.root");
+       Init(myChain);Loop( 20122350,runflag, outDataDir + "RD_el_HWWMH350_CMSSW525_private");
+     }
     if (myflag == 20112400 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH400_CMSSW428.root"); 
@@ -903,7 +924,7 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
 */
 // S7 MC PU True profile - hardcoded, wow
 // https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupMCReweightingUtilities
- TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-194479_8TeV_PromptReco_Collisions12_true.root" );
+ TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-196531_8TeV_PromptReco_Collisions12_true.root" );
  TH1F* PU_intended = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
  TH1F* PU_generated = new TH1F("PU_generated","Generated pileup distribution (i.e., MC)",60,0.,60);
 Double_t Summer2012[60] = {
@@ -998,6 +1019,17 @@ Double_t Summer2012[60] = {
     // Cut variable definitions
     double jess    = 1.00; // control the jet energy scale
 //    double electroniso = (W_electron_pfiso_chargedHadronIso+W_electron_pfiso_photonIso+W_electron_pfiso_neutralHadronIso-event_RhoForLeptonIsolation*3.141592653589*0.09)/W_electron_pt;
+      double EffectiveArea =0;
+      double SCEta = W_electron_eta;
+          if (fabs(SCEta) >= 0.0 && fabs(SCEta) < 1.0 ) EffectiveArea = 0.100;
+          if (fabs(SCEta) >= 1.0 && fabs(SCEta) < 1.479 ) EffectiveArea = 0.120;
+          if (fabs(SCEta) >= 1.479 && fabs(SCEta) < 2.0 ) EffectiveArea = 0.085;
+          if (fabs(SCEta) >= 2.0 && fabs(SCEta) < 2.2 ) EffectiveArea = 0.110;
+          if (fabs(SCEta) >= 2.2 && fabs(SCEta) < 2.3 ) EffectiveArea = 0.120;
+          if (fabs(SCEta) >= 2.3 && fabs(SCEta) < 2.4 ) EffectiveArea = 0.120;
+          if (fabs(SCEta) >= 2.4) EffectiveArea = 0.130;
+    double electroniso = (W_electron_pfiso_chargedHadronIso+max(0.,W_electron_pfiso_photonIso+W_electron_pfiso_neutralHadronIso-event_RhoForLeptonIsolation*EffectiveArea))/W_electron_pt;
+//    cout<<"El iso  "<<electroniso<<endl;
     double dijetpt = sqrt(JetPFCor_Pt[0]*JetPFCor_Pt[0]+
 			  JetPFCor_Pt[1]*JetPFCor_Pt[1]+
 			  2*JetPFCor_Pt[0]*JetPFCor_Pt[1]*cos(JetPFCor_Phi[0]-JetPFCor_Phi[1]));
@@ -1089,10 +1121,14 @@ Double_t Summer2012[60] = {
 
     // Event Selection Requirement for Standard vs QCD events
     if ( !isQCD ) {
-      //keep electrons with iso<0.05, event_met_pfmet>30.0 and passing WP80.
+      //keep electrons with event_met_pfmet>30.0 and passing MVA WP70 & EffArea PFiso.
       if ( !(event_met_pfmet>30.)  ) isgengdevt=0;
+        if (fabs(W_electron_dist) < 0.02 && fabs(W_electron_dcot) < 0.02) isgengdevt=0;
+        if ( fabs(W_electron_eta) <= 0.8 && electroniso > 0.093   ) isgengdevt=0;
+        if ( fabs(W_electron_eta) > 0.8 &&  fabs(W_electron_eta) < 1.479  &&electroniso > 0.095   ) isgengdevt=0;
+        if ( fabs(W_electron_eta) > 1.479 && electroniso > 0.171   ) isgengdevt=0;
     } else {
-      //keep electrons with 0.1<iso
+      //keep electrons with MVAout>-1.
       if ( !( (-1.<W_electron_mvaTrigV0) )  ) isgengdevt=0;
 //      if ( !( (0.177<W_electron_pfIsoEA) )  ) isgengdevt=0;
     }
