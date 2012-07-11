@@ -252,6 +252,11 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "mu_HWWMH125_CMSSW525_private.root"); 
       Init(myChain);Loop( 20122125,runflag, outDataDir + "RD_mu_HWWMH125_CMSSW525_private");
     }
+    if (myflag == 20122140 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH140_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122140,runflag, outDataDir + "RD_mu_HWWMH140_CMSSW525_private");
+    }
     if (myflag == 20122160 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "mu_HWWMH160_CMSSW525_private.root"); 
@@ -371,6 +376,26 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "mu_HWWMH600_CMSSW525_private.root"); 
       Init(myChain);Loop( 20122600,runflag, outDataDir + "RD_mu_HWWMH600_CMSSW525_private");
+    }
+    if (myflag == 20122700 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH700_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122700,runflag, outDataDir + "RD_mu_HWWMH700_CMSSW525_private");
+    }
+    if (myflag == 20122800 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH800_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122800,runflag, outDataDir + "RD_mu_HWWMH800_CMSSW525_private");
+    }
+    if (myflag == 20122900 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH900_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122900,runflag, outDataDir + "RD_mu_HWWMH900_CMSSW525_private");
+    }
+    if (myflag == 201221000 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH1000_CMSSW525_private.root"); 
+      Init(myChain);Loop( 201221000,runflag, outDataDir + "RD_mu_HWWMH1000_CMSSW525_private");
     }
 
     // VBF Higgs MC Signal

@@ -294,16 +294,17 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH125_CMSSW525_private.root"); 
       Init(myChain);Loop( 20122125,runflag, outDataDir + "RD_el_HWWMH125_CMSSW525_private");
     }
-    if (myflag == 20123125 || myflag == -300){
+    if (myflag == 20122140 || myflag == -300){
       myChain = new TChain("WJet");  
-      myChain->Add(                    inDataDir + "el_VBFHWWMH125_CMSSW525_private.root"); 
-      Init(myChain);Loop( 20123125,runflag, outDataDir + "RD_el_VBFHWWMH125_CMSSW525_private");
+      myChain->Add(                    inDataDir + "el_HWWMH140_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122140,runflag, outDataDir + "RD_el_HWWMH140_CMSSW525_private");
     }
     if (myflag == 20122160 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH160_CMSSW525_private.root"); 
       Init(myChain);Loop( 20122160,runflag, outDataDir + "RD_el_HWWMH160_CMSSW525_private");
     }
+
     if (myflag == 20112160 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_HWWMH160_CMSSW428.root"); 
@@ -431,8 +432,33 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "el_HWWMH600_CMSSW525_private.root"); 
       Init(myChain);Loop( 20122600,runflag, outDataDir + "RD_el_HWWMH600_CMSSW525_private");
     }
+    if (myflag == 20122700 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH700_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122700,runflag, outDataDir + "RD_el_HWWMH700_CMSSW525_private");
+    }
+    if (myflag == 20122800 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH800_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122800,runflag, outDataDir + "RD_el_HWWMH800_CMSSW525_private");
+    }
+    if (myflag == 20122900 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH900_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20122900,runflag, outDataDir + "RD_el_HWWMH900_CMSSW525_private");
+    }
+    if (myflag == 201221000 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_HWWMH1000_CMSSW525_private.root"); 
+      Init(myChain);Loop( 201221000,runflag, outDataDir + "RD_el_HWWMH1000_CMSSW525_private");
+    }
 
     // VBF Higgs MC Signal
+    if (myflag == 20123125 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "el_VBFHWWMH125_CMSSW525_private.root"); 
+      Init(myChain);Loop( 20123125,runflag, outDataDir + "RD_el_VBFHWWMH125_CMSSW525_private");
+    }
     if (myflag == 20113150 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "el_VBFHWWMH150_CMSSW428.root"); 
