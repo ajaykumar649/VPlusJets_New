@@ -6,9 +6,13 @@ class Wjj2DFitterPars:
 
     treeName = 'WJet'
     isElectron = False
+    order = 0
 
-    #backgrounds = ['WpJ', 'ttbar', 'st', 'multijet', 'diboson']
-    #signals = ['HWW']
+    initialParametersFile = ''
+
+    backgrounds = []
+    signals = []
+    yieldConstraints = {}
 
     # cuts
     cuts = '(ggdevt==2)&&(fit_status==0)&&(W_mt>30)&&(abs(W_muon_eta)<2.1)'
@@ -16,10 +20,10 @@ class Wjj2DFitterPars:
 
     # variables
     var1 = 'Mass2j_PFCor'
-    v1nbins = 13
-    v1min = 50.
+    v1nbins = 12
+    v1min = 55.
     v1max = 150.
-    v1binEdges = [50.,55.,60.,65.,70.,75.,80.,85.,95.,105.,115.,125.,135.,150.]
+    v1binEdges = [55.,60.,65.,70.,75.,80.,85.,95.,105.,115.,125.,135.,150.]
 
     var2 = 'fit_mlvjj'
     v2nbins = 20
@@ -30,18 +34,14 @@ class Wjj2DFitterPars:
     # lumi
     integratedLumi = 3500.
 
-    # fit control
-    fitmin = -999
-    fitmax = -999
-
     # efficiency corrections
-    doEffCorrections = False
-    effToDo = ['lepton', 'met', 'mt']
-    leptonEffFiles = {}
-    #jetEffFiles = {}
-    metEffFiles = {}
-    mtEffFiles = {}
-    lumiPerEpoch = []
+    doEffCorrections = True
+    effToDo = ['lepton']
+    leptonEffFiles = {
+        'id': ["EffTable2012/scaleFactor-2012A-PromptReco-v1-PFMM-RecoToIso.txt"],
+        'HLT': ["EffTable2012/efficiency-2012A-PromptReco-v1-PFMM-IsoToIsoMuHLT.txt"]
+        }
+    lumiPerEpoch = [integratedLumi]
 
 import copy
 def copyPars(pars):

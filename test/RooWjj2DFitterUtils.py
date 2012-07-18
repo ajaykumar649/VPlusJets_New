@@ -1,6 +1,6 @@
 from RooWjj2DFitterPars import Wjj2DFitterPars
 from ROOT import TH2D, TFile, gDirectory, TTreeFormula, RooDataHist, \
-    RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet
+    RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet, RooRealVar
 from array import array
 from EffLookupTable import EffLookupTable
 import random
@@ -18,19 +18,19 @@ class Wjj2DFitterUtils:
 
     # read files and store efficiency tables
     def files2EffTables(self):
-        numLumiEpochs = None
+        numLumiEpochs = len(self.pars.lumiPerEpoch)
         for eff in self.pars.effToDo:
-            files = getattr(self.pars, '%sEffFiles' % eff)
             setattr(self, '%sEffTables' % eff, {})
+            effTables = getattr(self, '%sEffTables' % eff)
+            files = getattr(self.pars, '%sEffFiles' % eff)
             for key in files:
-                getattr(self, '%sEffTables' % eff)[key] = []
-                for file in files[key]:
-                    getattr(self, '%sEffTables' % eff)[key].append(EffLookupTable(files[key]))
-                if (numLumiEpochs == None):
-                    numLumiEpochs = len(getattr(self, '%sEffTables' % eff)[key])
-                else:
-                    if (len(getattr(self, '%sEffTables' % eff)[key]) != numLumiEpochs):
-                        assert False, "Number of lumi epocs mismatch"
+                effTables[key] = []
+                for theFile in files[key]:
+                    print eff,key,':',theFile
+                    effTables[key].append(EffLookupTable(theFile))
+                if (len(effTables[key]) != numLumiEpochs):
+                    assert False, "Number of lumi epocs mismatch"
+            # print effTables
 
     # create a new empty 2D histogram with the appropriate binning
     def newEmptyHist(self, histName):
@@ -133,7 +133,7 @@ class Wjj2DFitterUtils:
         theHist = self.newEmptyHist(histName)
 
         print 'filename:',fname
-        doEffWgt = (self.pars.doEffCorrections and (len(cutOverride)<1))
+        doEffWgt = (self.pars.doEffCorrections and not cutOverride)
         
         for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, 
                                                             noCuts, 
@@ -177,8 +177,7 @@ class Wjj2DFitterUtils:
         else:
             ds = RooDataSet(dsName, dsName, cols)
 
-        for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, isElectron,
-                                                            noCuts):
+        for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, noCuts):
             v1.setVal(v1val)
             v2.setVal(v2val)
             ds.add(cols, effWgt)
@@ -204,19 +203,68 @@ class Wjj2DFitterUtils:
         for eff in self.pars.effToDo:
             evtWgt *= self.computeEff(kinematics['%s_pt' % (eff)],
                                       kinematics['%s_eta' % (eff)],
-                                      epoch, **(getattr(self.pars, 
-                                                        '%sEffFiles' % (eff)))
+                                      epoch, **(getattr(self,
+                                                        '%sEffTables' % (eff)))
                                       )
 
+        #print 'evtWgt:',evtWgt
         return evtWgt
 
     # take a dictionary of efficiency tables and compute the efficiency
     def computeEff(self, pt, eta, epoch, **tables):
         eff = 1.0
+        #print 'efficiency tables:',tables
         for key in tables:
             eff *= tables[key][epoch].GetEfficiency(pt, eta)
 
         return eff
+
+    # various analytic models that can be selected easily, the model is 0-9.
+    def analyticPdf(self, ws, var, model, pdfName, idString = None):
+        if ws.pdf(pdfName):
+            return ws.pdf(pdfName)
+
+        #this checks the model is in the right range.  don't go past 9 or
+        #it could break the fitter that this supports.
+        assert model>=0 and model < 10, "invalid model number: %s" % (model)
+
+        if model==0:
+            # exponential model
+            ws.factory('RooExponential::%s(%s,c_%s[-10,10])' % \
+                           (pdfName, var, idString)
+                       )
+        elif model==1:
+            # power-law model
+            ws.factory("EXPR::%s('1./TMath::Power(@0-@2, @1)'" % pdfName + \
+                           ",%s,power_%s[-5,5],offset_%s[0])" % \
+                           (var, idString, idString)
+                       )
+        elif model== 2:
+            # erf turn on model
+            ws.factory("EXPR::%s('(TMath::Erf((@0-@1)/@2)+1)/2.'" % pdfName +\
+                           ",%s,turnOn_%s[10, 200],width_%s[0, 100])" %\
+                           (var, idString, idString)
+                       )
+        elif model==3:
+            # a Gaussian model
+            ws.factory("RooGaussian::%s(%s,mean_%s[0,1000],sigma_%s[0,500])" %\
+                           (pdfName, var, idString, idString)
+                       )
+        elif model==4:
+            # a second order polynomial
+            ws.factory("RooChebychev::%s(%s,{a1_%s[-10,10],a2_%s[-10,10]})" %\
+                           (pdfName, var, idString, idString)
+                       )
+        else:
+            # this is what will be returned if there isn't a model implemented
+            # for a given model code.
+            ws.factory("RooChebychev::%s(%s,{a1_%s[-10,10],a2_%s[-10,10]})" %\
+                           (pdfName, var, idString, idString)
+                       )
+
+        return ws.pdf(pdfName)
+
+
 
 if __name__ == '__main__':
 
@@ -243,7 +291,13 @@ if __name__ == '__main__':
     utils.Hist2Pdf(dataHist, "H250SignalHist", theWS)
     #theWS.Print()
 
-    utils.File2Dataset(params.MCDirectory + \
-                           'RD_mu_HWWMH250_CMSSW525_private.root', 
-                       "H250SignalData", theWS)
+    dataset = utils.File2Dataset(params.MCDirectory + \
+                                     'RD_mu_HWWMH250_CMSSW525_private.root', 
+                                 "H250SignalData", theWS)
+    dataset.Print()
+
+    for model in range(5):
+        utils.analyticPdf(theWS, params.var1, model, 'pdf_%i' % model,
+                          '%i_%s' % (model,params.var1))
+
     theWS.Print()

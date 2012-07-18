@@ -1828,7 +1828,7 @@ RooPlot * RooWjjMjjFitter::stackedPlot(bool logy, fitMode fm, bool leftLeg) {
       linec = kYellow; 
       //fills = 3395;
       removals = components.selectByName("qcdPdf*");
-      tmpCurve->SetTitle("QCD");
+      tmpCurve->SetTitle("multijet");
       break;
     default:
       linec = kCyan;
