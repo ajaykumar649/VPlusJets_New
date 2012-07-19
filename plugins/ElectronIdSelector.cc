@@ -187,10 +187,13 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
     Double_t dist = ele.convDist(); // default value is -9999 if conversion partner not found
     Double_t dcot = ele.convDcot(); // default value is -9999 if conversion partner not found
     Bool_t isConv = fabs(dist) < 0.02 && fabs(dcot) < 0.02;
-    Double_t mvaOut = -2;
+    Double_t mvaTrigV0 = -2;
+    Double_t mvaNonTrigV0 = -2;
      const pat::Electron* patele = dynamic_cast<const pat::Electron *>( &ele );
-     if(patele->isElectronIDAvailable("mvaTrigV0"))
-           mvaOut =  patele->electronID("mvaTrigV0");
+     if(patele->isElectronIDAvailable("mvaTrigV0")) {
+           mvaTrigV0    =  patele->electronID("mvaTrigV0");
+           mvaNonTrigV0 =  patele->electronID("mvaNonTrigV0");
+     }
 
     bool isTight = false;  /////// <--- equivalent to WP70
     bool isLoose = false;  /////// <--- equivalent to WP90
@@ -214,20 +217,21 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 	 (isEE && sihih<0.03 && Dphi<0.07 && Deta<0.005)); 
     } else {
     //-------- if MVA-based ID -----------------
-      isTight = (pt>30.) && (!isConv) && ( 
-        ( abseta <= 0.8 && mvaOut > 0.977&& pfIso03EA < 0.093) ||
-        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.956 && pfIso03EA < 0.095) ||
-        ( abseta > 1.479 && mvaOut > 0.966 && pfIso03EA < 0.171) );
+    // WP 80 pT>20 GeV	0.913 / 0.105 	0.964 / 0.178 	0.899 / 0.150
+      isTight = (pt>30.) && inAcceptance && (!isConv) && ( 
+        ( abseta <= 0.8 && mvaTrigV0 > 0.913&& pfIso03EA < 0.105) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaTrigV0 > 0.964 && pfIso03EA < 0.178) ||
+        ( abseta > 1.479 && mvaTrigV0 > 0.899 && pfIso03EA < 0.150) );
+    // WP 90 	0.877 / 0.426 	0.811 / 0.481 	0.707 / 0.390 
+      isLoose = (pt>20.) && inAcceptance && (!isConv) && ( 
+        ( abseta <= 0.8 && mvaNonTrigV0 > 0.877 && pfIso03EA < 0.426 ) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaNonTrigV0 > 0.811 && pfIso03EA <0.481 ) ||
+        ( abseta > 1.479 && mvaNonTrigV0 > 0.707 && pfIso03EA < 0.390) );
 
-      isLoose = (pt>20.) && (!isConv) && ( 
-        ( abseta <= 0.8 && mvaOut > 0.877 && pfIso03EA < 0.177 ) ||
-        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > 0.794 && pfIso03EA <0.180 ) ||
-        ( abseta > 1.479 && mvaOut > 0.846 && pfIso03EA < 0.244) );
-
-      isQCD = (pt>20.) && (!isConv) && ( 
-        ( abseta <= 0.8 && mvaOut > -1. && pfIso03EA > 0.177 ) ||
-        ( abseta > 0.8 && abseta <= 1.479 && mvaOut > -1. && pfIso03EA >0.180 ) ||
-        ( abseta > 1.479 && mvaOut > -1. && pfIso03EA > 0.244) );
+      isQCD = (pt>20.) && inAcceptance && (!isConv) && ( 
+        ( abseta <= 0.8 && mvaTrigV0 > -1. && pfIso03EA > 0.177 ) ||
+        ( abseta > 0.8 && abseta <= 1.479 && mvaTrigV0 > -1. && pfIso03EA >0.180 ) ||
+        ( abseta > 1.479 && mvaTrigV0 > -1. && pfIso03EA > 0.244) );
      }
     /// ------- Finally apply selection --------
     if(applyTightID_ && isTight) isPassing[iElec]= true;
