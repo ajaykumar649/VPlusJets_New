@@ -126,7 +126,7 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 
   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
   edm::Handle<double> rho;
-  const edm::InputTag eventrho("kt6PFJets", "rho");
+  const edm::InputTag eventrho("kt6PFJetsPFlow", "rho");
   iEvent.getByLabel(eventrho,rho);
   double fastJetRho = *rho;
 
@@ -193,6 +193,7 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
      if(patele->isElectronIDAvailable("mvaTrigV0")) {
            mvaTrigV0    =  patele->electronID("mvaTrigV0");
            mvaNonTrigV0 =  patele->electronID("mvaNonTrigV0");
+           isConv = ! ( patele->passConversionVeto() );
      }
 
     bool isTight = false;  /////// <--- equivalent to WP70
