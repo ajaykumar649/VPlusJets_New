@@ -4,6 +4,7 @@ from ROOT import RooWorkspace, RooAddPdf, RooAbsReal, RooFit, RooCmdArg, \
     kRed, kBlue, kGreen, kYellow, kGray, kAzure, kCyan
 from math import sqrt
 from array import array
+import sys
 
 colorwheel = [ kAzure+8,
                kRed,
@@ -19,19 +20,20 @@ class Wjj2DFitter:
         self.ws = RooWorkspace('wjj2dfitter')
         self.utils = Wjj2DFitterUtils(self.pars)
 
-        self.ws.factory('%s[%f,%f]' % (self.pars.var1, self.pars.v1min, 
-                                       self.pars.v1max))
-        var1 = self.ws.factory(self.pars.var1)
+        var1 = self.ws.factory('%s[%f,%f]' % (self.pars.var1, self.pars.v1min, 
+                                              self.pars.v1max))
+        var1.setUnit('GeV')
         if len(self.pars.v1binEdges) > 1:
             v1binning = RooBinning(len(self.pars.v1binEdges) - 1, 
                                    array('d', self.pars.v1binEdges),
                                    '%sBinning' % self.pars.var1)
             var1.setBinning(v1binning)
+            #var1.Print('v')
         else:
             var1.setBins(self.pars.v1nbins)
-        self.ws.factory('%s[%f,%f]' % (self.pars.var2, self.pars.v2min, 
-                                       self.pars.v2max))
-        var2 = self.ws.factory(self.pars.var2)
+        var2 = self.ws.factory('%s[%f,%f]' % (self.pars.var2, self.pars.v2min, 
+                                              self.pars.v2max))
+        var2.setUnit('GeV')
         if len(self.pars.v2binEdges) > 1:
             v2binning = RooBinning(len(self.pars.v2binEdges) - 1, 
                                    array('d', self.pars.v2binEdges),
@@ -46,10 +48,9 @@ class Wjj2DFitter:
         if self.ws.pdf('totalPdf'):
             return self.ws.pdf('totalPdf')
 
-        components = self.pars.backgrounds + self.pars.signals
         compPdfs = []
         compYields = []
-        for component in components:
+        for component in self.pars.backgrounds:
             compFiles = getattr(self.pars, '%sFiles' % component)
             compModels = getattr(self.pars, '%sModels' % component)
             for compPdf in self.makeComponentPdf(component, compFiles, 
@@ -81,10 +82,12 @@ class Wjj2DFitter:
             if not theYield.isConstant():
                 self.ws.factory('RooGaussian::%s_const(%s, %f, %f)' % \
                                     (constraint, theYield.GetName(),
-                                     theYield.getVal(), theYield.getError())
+                                     theYield.getVal(), 
+                                     theYield.getVal()*self.pars.yieldConstraints[constraint])
                                 )
                 constraints.append('%s_const' % constraint)
 
+        # print constraints, self.pars.yieldConstraints
         print '\nfit constraints'
         for constraint in constraints:
             self.ws.pdf(constraint).Print()
@@ -113,14 +116,14 @@ class Wjj2DFitter:
 
     # determine the fitting model for each component and return them
     def makeComponentPdf(self, component, files, models):
+        if not self.ws.var('n_%s' % component):
+            self.ws.factory('n_%s[-1000, 1e6]' % component)
         if (models[0] == -1):
             thePdf = self.makeComponentHistPdf(component, files)
         elif (models[0] == -2):
             return self.makeComponentMorphingPdf(component, files)
         else:
             thePdf = self.makeComponentAnalyticPdf(component, models)
-        if not self.ws.var('n_%s' % component):
-            self.ws.factory('n_%s[-1000, 1e6]' % component)
         return [(thePdf, self.ws.var('n_%s' % component))]
             
     #create a simple 2D histogram pdf
@@ -143,18 +146,22 @@ class Wjj2DFitter:
             sumExpected += tmpHist.Integral()*fset[2]* \
                 self.pars.integratedLumi/fset[1]
             print filename,'acc x eff: %.3g' % (tmpHist.Integral()/fset[1])
-            tmpHist.Print()
+            print filename,'N_expected: %.1f' % \
+                (tmpHist.Integral()*fset[2]*self.pars.integratedLumi/fset[1])
+            #tmpHist.Print()
 
-        compHist.Print()
-        print 'Number of expected %s events: %.1f' % (component, sumExpected)
+        #compHist.Print()
         print '%s acc x eff: %.3g' % \
             (component, sumExpected/sumxsec/self.pars.integratedLumi)
+        print 'Number of expected %s events: %.1f' % (component, sumExpected)
         setattr(self, '%sExpected' % component, sumExpected)
 
-        return self.utils.Hist2Pdf(compHist, '%sPdf', self.ws, self.pars.order)
+        return self.utils.Hist2Pdf(compHist, '%sPdf' % (component), 
+                                   self.ws, self.pars.order)
 
     # create a pdf using the "template morphing" technique
     def makeComponentMorphingPdf(self, component, files):
+        # TODO: implement template morphing if needed.
         return []
 
     # create a pdf using an analytic function.
@@ -192,11 +199,12 @@ class Wjj2DFitter:
                         
         return self.ws.pdf('%sPdf' % component)
 
-    def loadData(self):
+    def loadData(self, weight = False):
         if self.ws.data('data'):
             return self.ws.data('data')
 
-        data = self.utils.File2Dataset(self.pars.DataFile, 'data', self.ws)
+        data = self.utils.File2Dataset(self.pars.DataFile, 'data', self.ws,
+                                       weighted = weight)
         if hasattr(self, 'relMultijet'):
             self.multijetExpected = data.sumEntries()*self.relMultijet
             self.multijetError = data.sumEntries()*self.relMultijetErr
@@ -227,13 +235,21 @@ class Wjj2DFitter:
         if nexp < 1:
             nexpt = data.sumEntries()
         theComponents = self.pars.signals + self.pars.backgrounds
-        data.plotOn(sframe, RooFit.Invisible())
+        # data.plotOn(sframe, RooFit.Invisible(),
+        #             RooFit.Binning('%sBinning' % (var)))
+        dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % var, xvar,
+                                              RooFit.Binning('%sBinning' % var))
+        #dataHist.Scale(1., 'width')
+        invData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
+        #invData.Print('v')
+        sframe.addPlotable(invData, 'pe', True, True)
         for (idx,component) in enumerate(theComponents):
-            print 'plotting',component,'...'
-            if hasattr(self.pars, '%sPlotting'):
-                plotCharacteristics = getattr(self.pars, '%sPlotting')
+            print '\nplotting',component,'...'
+            if hasattr(self.pars, '%sPlotting' % (component)):
+                plotCharacteristics = getattr(self.pars, '%sPlotting' % \
+                                                  (component))
             else:
-                plotCharacteristics = {'color' : colorwheel[idx],
+                plotCharacteristics = {'color' : colorwheel[idx%6],
                                        'title' : component }
 
             compCmd = RooCmdArg.none()
@@ -243,25 +259,23 @@ class Wjj2DFitter:
                 removals = compList.selectByName('%sPdf*' % component)
                 compList.remove(removals)
 
+            sys.stdout.flush()
             pdf.plotOn(sframe, RooFit.ProjWData(data),
                        RooFit.DrawOption('LF'), RooFit.FillStyle(1001),
                        RooFit.FillColor(plotCharacteristics['color']),
                        RooFit.LineColor(plotCharacteristics['color']),
                        RooFit.VLines(),
-                       # RooFit.Normalization(nexp, RooAbsReal.NumEvent),
+                       #RooFit.Normalization(nexp, RooAbsReal.Raw),
                        compCmd
                        )
             tmpCurve = sframe.getCurve()
             tmpCurve.SetName(component)
             tmpCurve.SetTitle(plotCharacteristics['title'])
 
-        data.plotOn(sframe, RooFit.Name('theData'))
-        # dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % var, xvar)
-        # dataHist.Scale(1., 'width')
-        # theData = RooHist(dataHist, 0., 1, RooAbsData.Auto, 1.0, False)
-        # theData.SetName('theData')
-        # theData.SetTitle('data')
-        # sframe.addPlotable(theData, 'pe')
+        theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
+        theData.SetName('theData')
+        theData.SetTitle('data')
+        sframe.addPlotable(theData, 'pe')
 
         if (logy):
             sframe.SetMinimum(0.01)

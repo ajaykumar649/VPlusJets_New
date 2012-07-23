@@ -1,0 +1,6 @@
+c_diboson_vbf_lvjj_m = -0.00693175 +/- 0.0015184 C L(-10 - 10) 
+f_diboson_vbf_wjj_m_core =  0.11263 +/- 0.044960 C L(0 - 1) 
+mean_diboson_vbf_wjj_m_core =  79.830 +/- 1.5916 C L(0 - 1000) 
+mean_diboson_vbf_wjj_m_tail =  999.35 +/- 370.46 C L(0 - 1000) 
+sigma_diboson_vbf_wjj_m_core =  3.4657 +/- 1.1947 C L(0 - 500) 
+sigma_diboson_vbf_wjj_m_tail =  422.50 +/- 418.11 C L(0 - 500) 

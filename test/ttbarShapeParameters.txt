@@ -1,0 +1,6 @@
+c_top_vbf_lvjj_m = -0.00932855 +/- 0.00061238 C L(-10 - 10) 
+f_top_vbf_wjj_m_core =  0.55397 +/- 0.074216 C L(0 - 1) 
+mean_top_vbf_wjj_m_core =  86.666 +/- 2.4481 C L(0 - 1000) 
+mean_top_vbf_wjj_m_tail =  134.10 +/- 2.2582 C L(0 - 1000) 
+sigma_top_vbf_wjj_m_core =  15.359 +/- 1.6557 C L(0 - 500) 
+sigma_top_vbf_wjj_m_tail =  17.520 +/- 4.4309 C L(0 - 500) 

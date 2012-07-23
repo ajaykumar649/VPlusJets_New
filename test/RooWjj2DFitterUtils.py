@@ -1,6 +1,7 @@
 from RooWjj2DFitterPars import Wjj2DFitterPars
 from ROOT import TH2D, TFile, gDirectory, TTreeFormula, RooDataHist, \
-    RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet, RooRealVar
+    RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet, RooRealVar, \
+    TRandom3
 from array import array
 from EffLookupTable import EffLookupTable
 import random
@@ -162,7 +163,7 @@ class Wjj2DFitterUtils:
         return ws.pdf(pdfName)
 
     # from a file fill and return a RooDataSet
-    def File2Dataset(self, fname, dsName, ws, noCuts = False, 
+    def File2Dataset(self, fnames, dsName, ws, noCuts = False, 
                      weighted = False):
         if ws.data(dsName):
             return ws.data(dsName)
@@ -176,15 +177,27 @@ class Wjj2DFitterUtils:
             ds = RooDataSet(dsName, dsName, cols, 'evtWgt')
         else:
             ds = RooDataSet(dsName, dsName, cols)
-
-        for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, noCuts):
-            v1.setVal(v1val)
-            v2.setVal(v2val)
-            ds.add(cols, effWgt)
+            
+        if not (type(fnames) == type([])):
+            fnames = [fnames]
+        for fname in fnames:
+            for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, noCuts):
+                v1.setVal(v1val)
+                v2.setVal(v2val)
+                ds.add(cols, effWgt)
 
         getattr(ws, 'import')(ds)
 
         return ws.data(dsName)
+
+    def reduceDataset(data, scale = 1.0):
+        print 'reducing',data.GetName(),'by scale %.4g' % scale
+        newData = data.emptyClone(data.GetName() + '_reduced')
+        rnd = TRandom3()
+        for i in range(0,data.numEntries()):
+            if (rnd.Rndm() < scale):
+                newData.add(data.get(i), data.weight())
+        return newData
 
     # calculate the efficiency weight for a give event using the supplied
     # tables.
@@ -220,7 +233,8 @@ class Wjj2DFitterUtils:
         return eff
 
     # various analytic models that can be selected easily, the model is 0-9.
-    def analyticPdf(self, ws, var, model, pdfName, idString = None):
+    def analyticPdf(self, ws, var, model, pdfName, idString = None, 
+                    yieldVar = None):
         if ws.pdf(pdfName):
             return ws.pdf(pdfName)
 
@@ -255,6 +269,32 @@ class Wjj2DFitterUtils:
             ws.factory("RooChebychev::%s(%s,{a1_%s[-10,10],a2_%s[-10,10]})" %\
                            (pdfName, var, idString, idString)
                        )
+        elif model==5:
+            # a double gaussian
+            ws.factory("RooGaussian::%s_core" % pdfName + \
+                           "(%s, mean_%s_core[0,1000],sigma_%s_core[0,500])" %\
+                           (var, idString, idString)
+                       )
+            ws.factory("RooGaussian::%s_tail" % pdfName + \
+                           "(%s, mean_%s_tail[0,1000],sigma_%s_tail[0,500])" %\
+                           (var, idString, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
+                       )
+        elif model==6:
+            # a double gaussian with same means
+            ws.factory("RooGaussian::%s_core" % pdfName + \
+                           "(%s, mean_%s[0,1000],sigma_%s_core[0,500])" %\
+                           (var, idString, idString)
+                       )
+            ws.factory("RooGaussian::%s_tail" % pdfName + \
+                           "(%s, mean_%s,sigma_%s_tail[0,500])" %\
+                           (var, idString, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
+                       )
         else:
             # this is what will be returned if there isn't a model implemented
             # for a given model code.
@@ -263,6 +303,8 @@ class Wjj2DFitterUtils:
                        )
 
         return ws.pdf(pdfName)
+
+    reduceDataset = staticmethod(reduceDataset)
 
 
 
