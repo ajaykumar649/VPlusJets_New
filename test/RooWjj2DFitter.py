@@ -66,6 +66,48 @@ class Wjj2DFitter:
 
         return self.ws.pdf('totalPdf')
 
+    def makeConstraints(self):
+
+        if self.ws.set('constraintSet'):
+            return self.ws.set('constraintSet')
+
+        constraints = []
+        constrainedParameters = []
+        for constraint in self.pars.yieldConstraints:
+            theYield = self.ws.var('n_%s' % constraint)
+            if not theYield.isConstant():
+                self.ws.factory('RooGaussian::%s_const(%s, %f, %f)' % \
+                                    (constraint, theYield.GetName(),
+                                     theYield.getVal(), 
+                                     theYield.getVal()*self.pars.yieldConstraints[constraint])
+                                )
+                constraints.append('%s_const' % constraint)
+                constrainedParameters.append(theYield.GetName())
+
+        if hasattr(self.pars, 'constrainShapes'):
+            for component in self.pars.constrainShapes:
+                pc = self.ws.pdf('%sPdf' % component).getParameters(self.ws.set('obsSet'))
+                parIter = pc.createIterator()
+                par = parIter.Next()
+                while par:
+                    if not par.isConstant():
+                        theConst = self.ws.factory('RooGaussian::%s_const' % \
+                                                       (par.GetName()) + \
+                                                       '(%s, %f, %f)' % \
+                                                       (par.GetName(),
+                                                        par.getVal(),
+                                                        par.getError())
+                                                   )
+                        constraints.append(theConst.GetName())
+                        constrainedParameters.append(par.GetName())
+                    par = parIter.Next()
+
+        self.ws.defineSet('constraintSet', ','.join(constraints))
+        self.ws.defineSet('constrainedSet', ','.join(constrainedParameters))
+
+        return self.ws.set('constraintSet')
+
+
     # fit the data using the pdf
     def fit(self):
         print 'construct fit pdf ...'
@@ -76,32 +118,32 @@ class Wjj2DFitter:
 
         self.resetYields()
 
-        constraints = []
-        for constraint in self.pars.yieldConstraints:
-            theYield = self.ws.var('n_%s' % constraint)
-            if not theYield.isConstant():
-                self.ws.factory('RooGaussian::%s_const(%s, %f, %f)' % \
-                                    (constraint, theYield.GetName(),
-                                     theYield.getVal(), 
-                                     theYield.getVal()*self.pars.yieldConstraints[constraint])
-                                )
-                constraints.append('%s_const' % constraint)
+        constraintSet = self.makeConstraints()
+
+        constraintCmd = RooCmdArg.none()
+        if constraintSet.getSize() > 0:
+            # constraints.append(fitter.GetName())
+            # fitter = self.ws.factory('PROD::totalFit_const(%s)' % \
+            #                              (','.join(constraints))
+            #                          )
+            # constraintCmd = RooFit.Constrained()
+            constraintCmd = RooFit.ExternalConstraints(self.ws.set('constraintSet'))
+
+        self.readParametersFromFile()
+
+        self.ws.Print()
 
         # print constraints, self.pars.yieldConstraints
         print '\nfit constraints'
-        for constraint in constraints:
-            self.ws.pdf(constraint).Print()
-        print
-
-        constraintCmd = RooCmdArg.none()
-        if len(constraints) > 0:
-            constraints.append(fitter.GetName())
-            fitter = self.ws.factory('PROD::totalFit_const(%s)' % \
-                                         (','.join(constraints))
-                                     )
-            constraintCmd = RooFit.Constrained()
-
-        self.readParametersFromFile()
+        constIter = constraintSet.createIterator()
+        constraint = constIter.Next()
+        while constraint:
+            constraint.Print()
+            constraint = constIter.Next()
+            
+        # for constraint in pars.constraints:
+        #     self.ws.pdf(constraint).Print()
+        # print
 
         print 'fitting ...'
         fr = fitter.fitTo(data, RooFit.Save(True),
@@ -186,6 +228,12 @@ class Wjj2DFitter:
                                                           )
                                    )
                 pdfList += subList
+                self.ws.factory('PROD::%sPdf_%s(%s)' % \
+                                    (component, var, 
+                                     ','.join([ pdf.GetName() \
+                                                    for pdf in subList ])
+                                     )
+                                )
             else:
                 pdfList.append(self.utils.analyticPdf(self.ws, var, model, 
                                                       '%sPdf_%s' % \

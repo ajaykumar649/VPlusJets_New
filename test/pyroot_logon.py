@@ -76,11 +76,13 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
     output = pgrep.communicate()[0]
     if (pgrep.returncode == 0):
         roofitinc = output.split("=")[1].rstrip()
-        ## print roofitinc
+        # print roofitinc
         gROOT.GetInterpreter().AddIncludePath(roofitinc)
         roofitinc = '-I"' + roofitinc + '"'
+        # print roofitinc
         gSystem.AddIncludePath(roofitinc)
         print "done"
+        gROOT.ProcessLine('.L RooPowerLaw.cc+')
     else:
         print "failed"
         print 'scram returned:',pscram.returncode,'grep:',pgrep.returncode

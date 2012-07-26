@@ -1,7 +1,8 @@
+import pyroot_logon
 from RooWjj2DFitterPars import Wjj2DFitterPars
 from ROOT import TH2D, TFile, gDirectory, TTreeFormula, RooDataHist, \
     RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet, RooRealVar, \
-    TRandom3
+    TRandom3, RooPowerLaw, RooClassFactory, gROOT, TClass
 from array import array
 from EffLookupTable import EffLookupTable
 import random
@@ -249,9 +250,21 @@ class Wjj2DFitterUtils:
                        )
         elif model==1:
             # power-law model
-            ws.factory("EXPR::%s('1./TMath::Power(@0-@2, @1)'" % pdfName + \
-                           ",%s,power_%s[-5,5],offset_%s[0])" % \
-                           (var, idString, idString)
+            # integral = 'TMath::Power(%s,power + 1)/(power + 1)'
+            # defIntegral = '%s - %s' % (integral % ('x.max(rangeName)'),
+            #                            integral % ('x.min(rangeName)')
+            #                            )
+            # if not TClass.GetClass('RooPowerPdf'):
+            #     RooClassFactory.makePdf('RooPowerPdf', 
+            #                             'x,power','',
+            #                             'TMath::Power(x,power)',
+            #                             True, False, 'x:%s' % defIntegral
+            #                             )
+            #     gROOT.LoadMacro("RooPowerPdf.cxx+")
+            # ws.Print()
+            ws.factory("power_%s[-2., -5., 5.]" % idString)
+            ws.factory("RooPowerLaw::%s(%s, power_%s)" % \
+                           (pdfName, var, idString)
                        )
         elif model== 2:
             # erf turn on model
@@ -295,6 +308,21 @@ class Wjj2DFitterUtils:
             ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
                            (pdfName, idString, pdfName, pdfName)
                        )
+        elif model==7:
+            # a CB + exp
+            ws.factory("RooCBShape::%s_core" % pdfName + \
+                           "(%s, mean_%s_core[0,1000],sigma_%s_core[0,500]," %\
+                           (var, idString, idString) + \
+                           "alpha_%s[2.,-5,5], npow_%s[2.])" % \
+                           (idString, idString)
+                       )
+            ws.factory("RooExponential::%s_tail" % pdfName + \
+                           "(%s, c_%s_tail[-10, 10])" %\
+                           (var, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
+                       )
         else:
             # this is what will be returned if there isn't a model implemented
             # for a given model code.
@@ -310,16 +338,16 @@ class Wjj2DFitterUtils:
 
 if __name__ == '__main__':
 
-    import pyroot_logon
+    #import pyroot_logon
     from ROOT import gPad, RooWorkspace
 
     params = Wjj2DFitterPars()
     utils = Wjj2DFitterUtils(params)
 
-    dataHist = utils.File2Hist(params.MCDirectory + \
-                                   'RD_mu_HWWMH250_CMSSW525_private.root',
-                               'dataHist')
-    dataHist.Print()
+    # dataHist = utils.File2Hist(params.MCDirectory + \
+    #                                'RD_mu_HWWMH250_CMSSW525_private.root',
+    #                            'dataHist')
+    # dataHist.Print()
     # dataHist.Draw('colz')
     # gPad.Update()
     # gPad.WaitPrimitive()
@@ -330,15 +358,17 @@ if __name__ == '__main__':
     theWS.defineSet('obsSet', '%s,%s' % (params.var1, params.var2))
 
     #theWS.Print()
-    utils.Hist2Pdf(dataHist, "H250SignalHist", theWS)
+    # utils.Hist2Pdf(dataHist, "H250SignalHist", theWS)
     #theWS.Print()
 
-    dataset = utils.File2Dataset(params.MCDirectory + \
-                                     'RD_mu_HWWMH250_CMSSW525_private.root', 
-                                 "H250SignalData", theWS)
-    dataset.Print()
+    # dataset = utils.File2Dataset(params.MCDirectory + \
+    #                                  'RD_mu_HWWMH250_CMSSW525_private.root', 
+    #                              "H250SignalData", theWS)
+    # dataset.Print()
 
-    for model in range(5):
+    print 
+
+    for model in range(10):
         utils.analyticPdf(theWS, params.var1, model, 'pdf_%i' % model,
                           '%i_%s' % (model,params.var1))
 

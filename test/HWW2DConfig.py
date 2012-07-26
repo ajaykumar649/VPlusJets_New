@@ -73,8 +73,10 @@ def theConfig(Nj, mH, isElectron = False, initFile = ''):
 
     pars.backgrounds = ['diboson', 'WpJ', 'top']
     #signals = ['HWW']
-    signals = []
-    yieldConstraints = {'diboson' : 0.034, 'top' : 0.07}
+    pars.signals = []
+    pars.yieldConstraints = { 'diboson' : 0.034, 'top' : 0.07 }
+    #pars.yieldConstraints = {}
+    #pars.constrainShapes = ['WpJ']
 
     modePars = mu2Pars
     if isElectron:
@@ -102,7 +104,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = ''):
         (pars.MCDirectory + 'RD_%s_WZ_CMSSW525.root' % (flavorString),
          10000283, 32.3161),
         ]
-    pars.dibosonModels = (5, 0)
+    pars.dibosonModels = (7, 0)
  
     pars.WpJFiles = [
         (pars.MCDirectory + 'RD_%s_WpJ_CMSSW525.root' % (flavorString),
@@ -110,7 +112,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = ''):
         (pars.MCDirectory + 'RD_%s_ZpJ_CMSSW525.root' % (flavorString),
          14427282, 3503.71),
         ]
-    pars.WpJModels = (21, 0)
+    pars.WpJModels = (1, 0)
 
     pars.topFiles = [
         (pars.MCDirectory + 'RD_%s_TTbar_CMSSW525.root' % (flavorString),
@@ -136,11 +138,12 @@ def theConfig(Nj, mH, isElectron = False, initFile = ''):
     pars.HWWPlotting = {'color' : kBlue, 'title' : "H(%i)" % mH}
 
     pars.var1 = 'Mass2j_PFCor'
-    pars.v1nbins = 12
-    pars.v1min = 55.
-    pars.v1max = 150.
-    pars.v1binEdges = [55.,60.,65.,70.,75.,80.,85.,95.,
-                       105.,115.,125.,135.,150.]
+    pars.v1nbins = 16
+    pars.v1min = 50.
+    pars.v1max = 180.
+    #pars.v1binEdges = []
+    pars.v1binEdges = [50, 55.,60.,65.,70.,75.,80.,85.,95.,
+                       105.,115.,125.,135.,150.,165.,180.]
 
     pars.var2 = 'fit_mlvjj'
     pars.v2nbins = modePars[mH][4]
