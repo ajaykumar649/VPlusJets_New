@@ -1,16 +1,16 @@
 NgenHWW = {# 160 : (109992,9.080,0.133),
            # 170 : (109989,7.729,0.141),
-           180 : (149898,9.8560,0.137*1.5),
-           190 : (193737,8.7819,0.115*1.5),
-           200 : (196006,7.9711,0.108*1.5),
-           250 : (49997,5.3822,0.103*1.5),
-           300 : (190924,4.0468,0.101*1.5),
-           350 : (49997,3.7260,0.099*1.5),
-           400 : (166440,3.1783,0.0852*1.5),
-           450 : (197487,2.2032,0.0808*1.5),
-           500 : (131182,1.4391,0.0799*1.5),
-           550 : (193485,0.9364,0.0806*1.5),
-           600 : (42735,0.67988,0.0818*1.5)
+           180 : (149898,9.8560,0.137*1.5*2),
+           190 : (193737,8.7819,0.115*1.5*2),
+           200 : (196006,7.9711,0.108*1.5*2),
+           250 : (49997,5.3822,0.103*1.5*2),
+           300 : (190924,4.0468,0.101*1.5*2),
+           350 : (49997,3.7260,0.099*1.5*2),
+           400 : (166440,3.1783,0.0852*1.5*2),
+           450 : (197487,2.2032,0.0808*1.5*2),
+           500 : (131182,1.4391,0.0799*1.5*2),
+           550 : (193485,0.9364,0.0806*1.5*2),
+           600 : (42735,0.67988,0.0818*1.5*2)
            }
 
 NgenVBFHWW = {160 : (169351),
@@ -50,19 +50,25 @@ Ngens = [NgenHWW]
 
 Ngen = dict(zip(modes,Ngens))
 
-from ROOT import RooWjjFitterUtils
+# from ROOT import RooWjjFitterUtils
 
-fitUtils = None
+# fitUtils = None
+
+def makeSignalFilename(mH, mode, isElectron):
+    
+    filename = 'RD_%s_%sMH%i_CMSSW525_private.root' % \
+        ('el' if isElectron else 'mu', mode, mH)
+
+    return filename
 
 def NgenHiggs(mH, mode):
     if type(Ngen[mode][mH]) == type(2):
         halfVal = Ngen[mode][mH]/2
     else:
         halfVal = Ngen[mode][mH][0]/2
-    return (halfVal, Ngen[mode][mH])
+    return Ngen[mode][mH]
 
-def makeHiggsHist(mH, pars, mode):
-    global fitUtils
+def makeHiggsHist(mH, pars, mode, fitUtils):
 
     if pars.includeMuons and pars.includeElectrons:
         modeString = ''
@@ -73,8 +79,8 @@ def makeHiggsHist(mH, pars, mode):
     else:
         modeString = ''
 
-    if not fitUtils:
-        fitUtils = RooWjjFitterUtils(pars)
+    # if not fitUtils:
+    #     fitUtils = RooWjjFitterUtils(pars)
 
     hist = fitUtils.newEmptyHist('%s%i_%s_shape' % (mode, mH,modeString))
 
@@ -96,11 +102,11 @@ def makeHiggsHist(mH, pars, mode):
 
     return hist
 
-def GenHiggsHists(pars, mH):
+def GenHiggsHists(pars, mH, utils):
     hists = []
 
     for mode in modes:
-        tmpHist = makeHiggsHist(mH, pars, mode)
+        tmpHist = makeHiggsHist(mH, pars, mode, utils)
         if type(Ngen[mode][mH]) == type(2):
             tmpHist.Scale(1/float(Ngen[mode][mH]/2), 'width')
         else:

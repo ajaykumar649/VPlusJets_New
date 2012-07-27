@@ -23,6 +23,11 @@ class Wjj2DFitter:
         var1 = self.ws.factory('%s[%f,%f]' % (self.pars.var1, self.pars.v1min, 
                                               self.pars.v1max))
         var1.setUnit('GeV')
+        try:
+            var1.SetTitle(self.pars.v1title)
+        except AttributeError:
+            var1.SetTitle('m_{jj}')
+        var1.setPlotLabel(var1.GetTitle())
         if len(self.pars.v1binEdges) > 1:
             v1binning = RooBinning(len(self.pars.v1binEdges) - 1, 
                                    array('d', self.pars.v1binEdges),
@@ -34,6 +39,11 @@ class Wjj2DFitter:
         var2 = self.ws.factory('%s[%f,%f]' % (self.pars.var2, self.pars.v2min, 
                                               self.pars.v2max))
         var2.setUnit('GeV')
+        try:
+            var2.SetTitle(self.pars.v1title)
+        except AttributeError:
+            var2.SetTitle('m_{WW}')
+        var2.setPlotLabel(var2.GetTitle())
         if len(self.pars.v2binEdges) > 1:
             v2binning = RooBinning(len(self.pars.v2binEdges) - 1, 
                                    array('d', self.pars.v2binEdges),
@@ -57,6 +67,19 @@ class Wjj2DFitter:
                                                  compModels):
                 compPdfs.append(compPdf[0])
                 compYields.append(compPdf[1])
+
+        for component in self.pars.signals:
+            compFile = getattr(self.pars, '%sFiles' % component)
+            compModels = getattr(self.pars, '%sModels' % component)
+            for compPdf in self.makeComponentPdf(component, compFiles,
+                                                 compModels):
+                compPdfs.append(compPdf[0])
+                self.ws.factory("expr::f_n_%s('@0*@1',n_%s,mu_%s[1.0])" % \
+                                    (component, component, component)
+                                )
+                compPdf[1].setConstant(True)
+                self.ws.var('mu_%s' % component).setConstant(False)
+                compYields.append(self.ws.arg('f_n_%s' % component))
 
         #print compPdfs
         #print compYields
@@ -282,7 +305,7 @@ class Wjj2DFitter:
 
         if nexp < 1:
             nexpt = data.sumEntries()
-        theComponents = self.pars.signals + self.pars.backgrounds
+        theComponents = self.pars.backgrounds + self.pars.signals
         # data.plotOn(sframe, RooFit.Invisible(),
         #             RooFit.Binning('%sBinning' % (var)))
         dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % var, xvar,
@@ -349,18 +372,21 @@ class Wjj2DFitter:
             Ndata = self.ws.data('data').sumEntries()
         else:
             Ndata = 10000.
+        print 'resetting yields...'
         components = self.pars.signals + self.pars.backgrounds
         for component in components:
             theYield = self.ws.var('n_%s' % component)
             if hasattr(self, '%sExpected' % component):
                 theYield.setVal(getattr(self, '%sExpected' % component))
             else:
+                print 'no expected value for',component
                 theYield.setVal(Ndata/len(components))
             if component in self.pars.yieldConstraints:
                 theYield.setError(theYield.getVal() * \
                                       self.pars.yieldConstraints[component])
             else:
                 theYield.setError(sqrt(theYield.getVal()))
+            theYield.Print()
                 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 from RooWjj2DFitterPars import Wjj2DFitterPars
 from ROOT import kRed, kAzure, kGreen, kBlue, kCyan, kViolet
+import HWWSignalShapes
 
 # dictionaries of tuples keyed on the Higgs mass.  The tuple structure is
 # (0: mavVariableName, 1: mvaCut, 2: min4BodyMass, 3: max4BodyMass, 
@@ -63,17 +64,19 @@ el3Pars = {
     }
 
 
-def theConfig(Nj, mH, isElectron = False, initFile = ''):
+def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
     pars = Wjj2DFitterPars()
 
     pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/'
-
+    #pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/postICHEP2012/RDtreesPU5p2/"
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
 
     pars.backgrounds = ['diboson', 'WpJ', 'top']
-    #signals = ['HWW']
-    pars.signals = []
+    if includeSignal:
+        pars.signals = ['HWW']
+    else:
+        pars.signals = []
     pars.yieldConstraints = { 'diboson' : 0.034, 'top' : 0.07 }
     #pars.yieldConstraints = {}
     #pars.constrainShapes = ['WpJ']
@@ -132,10 +135,18 @@ def theConfig(Nj, mH, isElectron = False, initFile = ''):
         ]
     pars.topModels = (5, 0)
 
+    ngen = HWWSignalShapes.NgenHiggs(mH, 'HWW')
+    pars.HWWFiles = [
+        (pars.MCDirectory + HWWSignalShapes.makeSignalFilename(mH, "HWW",
+                                                               isElectron),
+         ngen[0], ngen[1]*ngen[2])
+        ]
+    pars.HWWModels = (6, 6)
+
     pars.dibosonPlotting = {'color' : kAzure+8, 'title' : 'WW/WZ'}
     pars.WpJPlotting = { 'color' : kRed, 'title' : 'V+jets'}
     pars.topPlotting = {'color' : kGreen+2, 'title' : 'top'}
-    pars.HWWPlotting = {'color' : kBlue, 'title' : "H(%i)" % mH}
+    pars.HWWPlotting = {'color' : kBlue, 'title' : "H(%i) #rightarrow WW" % mH}
 
     pars.var1 = 'Mass2j_PFCor'
     pars.v1nbins = 16

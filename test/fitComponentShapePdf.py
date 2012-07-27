@@ -102,6 +102,27 @@ if fitter.ws.var('power_WpJ_%s' % pars.var1):
     fitter.ws.var('power_WpJ_%s' % pars.var1).setVal(1.5)
 if fitter.ws.var('c_WpJ_%s' % pars.var1):
     fitter.ws.var('c_WpJ_%s' % pars.var1).setVal(-0.002)
+if fitter.ws.var('c_HWW_%s_tail' % pars.var1):
+    fitter.ws.var('c_HWW_%s_tail' % pars.var1).setVal(-0.015)
+if fitter.ws.var('f_HWW_%s_core' % pars.var1):
+    fitter.ws.var('f_HWW_%s_core' % pars.var1).setVal(0.9)
+if fitter.ws.var('mean_HWW_%s_core' % pars.var1):
+    fitter.ws.var('mean_HWW_%s_core' % pars.var1).setVal(85)
+if fitter.ws.var('sigma_HWW_%s_core' % pars.var1):
+    fitter.ws.var('sigma_HWW_%s_core' % pars.var1).setVal(10)
+if fitter.ws.var('sigma_HWW_%s_tail' % pars.var1):
+    fitter.ws.var('sigma_HWW_%s_tail' % pars.var1).setVal(50)
+if fitter.ws.var('sigma_HWW_%s_core' % pars.var2):
+    fitter.ws.var('sigma_HWW_%s_core' % pars.var2).setVal(20)
+if fitter.ws.var('sigma_HWW_%s_tail' % pars.var2):
+    fitter.ws.var('sigma_HWW_%s_tail' % pars.var2).setVal(65)
+if fitter.ws.var('f_HWW_%s_core' % pars.var2):
+    fitter.ws.var('f_HWW_%s_core' % pars.var2).setVal(0.7)
+if fitter.ws.var('mean_HWW_%s' % pars.var1):
+    fitter.ws.var('mean_HWW_%s' % pars.var1).setVal(84)
+if fitter.ws.var('mean_HWW_%s' % pars.var2):
+    fitter.ws.var('mean_HWW_%s' % pars.var2).setVal(opts.mH)
+
 
 fr = sigPdf.fitTo(data, RooFit.Save(), 
                    RooFit.SumW2Error(True))

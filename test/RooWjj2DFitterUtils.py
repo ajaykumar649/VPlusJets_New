@@ -296,10 +296,12 @@ class Wjj2DFitterUtils:
                            (pdfName, idString, pdfName, pdfName)
                        )
         elif model==6:
-            # a double gaussian with same means
-            ws.factory("RooGaussian::%s_core" % pdfName + \
-                           "(%s, mean_%s[0,1000],sigma_%s_core[0,500])" %\
-                           (var, idString, idString)
+            # a CP + gaussian with same means
+            ws.factory("RooCBShape::%s_core" % pdfName + \
+                           "(%s, mean_%s[0,1000],sigma_%s_core[0,500]," %\
+                           (var, idString, idString) + \
+                           "alpha_%s[2.,-5,5], npow_%s[2.])" %\
+                           (idString, idString)
                        )
             ws.factory("RooGaussian::%s_tail" % pdfName + \
                            "(%s, mean_%s,sigma_%s_tail[0,500])" %\
