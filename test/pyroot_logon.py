@@ -83,6 +83,8 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
         gSystem.AddIncludePath(roofitinc)
         print "done"
         gROOT.ProcessLine('.L RooPowerLaw.cc+')
+        gROOT.ProcessLine('.L RooPowerExpPdf.cxx+')
+        gROOT.ProcessLine('.L RooErfExpPdf.cxx+')
     else:
         print "failed"
         print 'scram returned:',pscram.returncode,'grep:',pgrep.returncode

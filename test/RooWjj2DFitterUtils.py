@@ -233,15 +233,11 @@ class Wjj2DFitterUtils:
 
         return eff
 
-    # various analytic models that can be selected easily, the model is 0-9.
+    # various analytic models that can be selected easily.
     def analyticPdf(self, ws, var, model, pdfName, idString = None, 
                     yieldVar = None):
         if ws.pdf(pdfName):
             return ws.pdf(pdfName)
-
-        #this checks the model is in the right range.  don't go past 9 or
-        #it could break the fitter that this supports.
-        assert model>=0 and model < 10, "invalid model number: %s" % (model)
 
         if model==0:
             # exponential model
@@ -262,20 +258,23 @@ class Wjj2DFitterUtils:
             #                             )
             #     gROOT.LoadMacro("RooPowerPdf.cxx+")
             # ws.Print()
-            ws.factory("power_%s[-2., -5., 5.]" % idString)
+            ws.factory("power_%s[-2., -10., 10.]" % idString)
             ws.factory("RooPowerLaw::%s(%s, power_%s)" % \
                            (pdfName, var, idString)
                        )
         elif model== 2:
-            # erf turn on model
-            ws.factory("EXPR::%s('(TMath::Erf((@0-@1)/@2)+1)/2.'" % pdfName +\
-                           ",%s,turnOn_%s[10, 200],width_%s[0, 100])" %\
-                           (var, idString, idString)
+            # power law * exponential pdf
+            ws.factory("power_%s[5., -10., 10.]" % idString)
+            ws.factory("c_%s[-0.015, -10, 10]" % idString)
+            ws.factory("RooPowerExpPdf::%s(%s, c_%s, power_%s)" %\
+                           (pdfName, var, idString, idString)
                        )
         elif model==3:
-            # a Gaussian model
-            ws.factory("RooGaussian::%s(%s,mean_%s[0,1000],sigma_%s[0,500])" %\
-                           (pdfName, var, idString, idString)
+            # a CrystalBall model
+            ws.factory("RooCBShape::%s(%s,mean_%s[180,0,1000],sigma_%s[28,0,500]," %\
+                           (pdfName, var, idString, idString) + \
+                           'alpha_%s[-0.5, -10., 10], npow_%s[10, -10, 100])' %\
+                           (idString, idString)
                        )
         elif model==4:
             # a second order polynomial
@@ -296,7 +295,7 @@ class Wjj2DFitterUtils:
                            (pdfName, idString, pdfName, pdfName)
                        )
         elif model==6:
-            # a CP + gaussian with same means
+            # a CB + gaussian with same means
             ws.factory("RooCBShape::%s_core" % pdfName + \
                            "(%s, mean_%s[0,1000],sigma_%s_core[0,500]," %\
                            (var, idString, idString) + \
@@ -324,6 +323,14 @@ class Wjj2DFitterUtils:
                        )
             ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
                            (pdfName, idString, pdfName, pdfName)
+                       )
+        elif model== 8:
+            # erf * exponential pdf
+            ws.factory("c_%s[-0.015, -10, 10]" % idString)
+            ws.factory("offset_%s[70, -100, 1000]" % idString)
+            ws.factory("width_%s[20, 0, 1000]" % idString)
+            ws.factory("RooErfExpPdf::%s(%s, c_%s, offset_%s, width_%s)" %\
+                           (pdfName, var, idString, idString, idString)
                        )
         else:
             # this is what will be returned if there isn't a model implemented

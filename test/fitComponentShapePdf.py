@@ -15,6 +15,8 @@ parser.add_option('--bn', dest='bn', default='ShapeParameters',
                   help='basis name for the output files.')
 parser.add_option('--comp', dest='component', default='diboson',
                   help='name of component to fit')
+parser.add_option('--electrons', dest='isElectron', action='store_true',
+                  default=False, help='do electrons instead of muons')
 
 (opts, args) = parser.parse_args()
 
@@ -30,8 +32,8 @@ import RooWjj2DFitter
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
     RooHist
 
-pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, isElectron = False, 
-                        initFile = '')
+pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+                        isElectron = opts.isElectron, initFile = '')
 
 files = getattr(pars, '%sFiles' % opts.component)
 models = getattr(pars, '%sModels' % opts.component)
@@ -47,9 +49,12 @@ fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 #data.Print()
 data = None
 sumNExp = 0.
+weighted = True
+if opts.component == 'multijet':
+    weighted = False
 for (ifile, (filename, ngen, xsec)) in enumerate(files):
     tmpData = fitter.utils.File2Dataset(filename, 'data%i' % ifile, fitter.ws,
-                                        weighted = True)
+                                        weighted = weighted)
     tmpData.Print()
     expectedYield = xsec*pars.integratedLumi*tmpData.sumEntries()/ngen
     print filename,'A x eff: %.3g' % (tmpData.sumEntries()/ngen)
@@ -99,9 +104,13 @@ if fitter.ws.var('c_top_%s' % pars.var2):
 if fitter.ws.var('c_WpJ_%s' % pars.var2):
     fitter.ws.var('c_WpJ_%s' % pars.var2).setVal(-0.014)
 if fitter.ws.var('power_WpJ_%s' % pars.var1):
-    fitter.ws.var('power_WpJ_%s' % pars.var1).setVal(1.5)
+    fitter.ws.var('power_WpJ_%s' % pars.var1).setVal(5.1)
 if fitter.ws.var('c_WpJ_%s' % pars.var1):
-    fitter.ws.var('c_WpJ_%s' % pars.var1).setVal(-0.002)
+    fitter.ws.var('c_WpJ_%s' % pars.var1).setVal(-0.02)
+if fitter.ws.var('offset_WpJ_%s' % pars.var1):
+    fitter.ws.var('offset_WpJ_%s' % pars.var1).setVal(65)
+if fitter.ws.var('width_WpJ_%s' % pars.var1):
+    fitter.ws.var('width_WpJ_%s' % pars.var1).setVal(25)
 if fitter.ws.var('c_HWW_%s_tail' % pars.var1):
     fitter.ws.var('c_HWW_%s_tail' % pars.var1).setVal(-0.015)
 if fitter.ws.var('f_HWW_%s_core' % pars.var1):
@@ -113,17 +122,21 @@ if fitter.ws.var('sigma_HWW_%s_core' % pars.var1):
 if fitter.ws.var('sigma_HWW_%s_tail' % pars.var1):
     fitter.ws.var('sigma_HWW_%s_tail' % pars.var1).setVal(50)
 if fitter.ws.var('sigma_HWW_%s_core' % pars.var2):
-    fitter.ws.var('sigma_HWW_%s_core' % pars.var2).setVal(20)
+    fitter.ws.var('sigma_HWW_%s_core' % pars.var2).setVal(10)
 if fitter.ws.var('sigma_HWW_%s_tail' % pars.var2):
-    fitter.ws.var('sigma_HWW_%s_tail' % pars.var2).setVal(65)
+    fitter.ws.var('sigma_HWW_%s_tail' % pars.var2).setVal(35)
 if fitter.ws.var('f_HWW_%s_core' % pars.var2):
     fitter.ws.var('f_HWW_%s_core' % pars.var2).setVal(0.7)
 if fitter.ws.var('mean_HWW_%s' % pars.var1):
     fitter.ws.var('mean_HWW_%s' % pars.var1).setVal(84)
 if fitter.ws.var('mean_HWW_%s' % pars.var2):
     fitter.ws.var('mean_HWW_%s' % pars.var2).setVal(opts.mH)
+if fitter.ws.var('mean_HWW_%s_core' % pars.var2):
+    fitter.ws.var('mean_HWW_%s_core' % pars.var2).setVal(opts.mH)
+if fitter.ws.var('mean_HWW_%s_tail' % pars.var2):
+    fitter.ws.var('mean_HWW_%s_tail' % pars.var2).setVal(opts.mH)
 
-
+fr = None
 fr = sigPdf.fitTo(data, RooFit.Save(), 
                    RooFit.SumW2Error(True))
 
@@ -138,6 +151,8 @@ theData.SetTitle('data')
 sigPlot.addPlotable(theData, 'pe', False, True)
 sigPdf.plotOn(sigPlot)
 
+sigPlot.GetYaxis().SetTitle('Events / GeV')
+
 sigPlot.Draw()
 c1.Update()
 
@@ -148,16 +163,16 @@ sigPdf.plotOn(sigPlot2)
 sigPlot2.Draw()
 c2.Update()
 
-fr.Print('v')
-finalPars = RooArgSet(fr.floatParsFinal())
-# #finalPars.Print('v')
+if fr:
+    fr.Print('v')
+    finalPars = RooArgSet(fr.floatParsFinal())
 
-sigFile = TFile('%s.root' % opts.bn, 'recreate')
-fr.Write('fr')
-sigPlot.Write()
-sigPlot2.Write()
+    sigFile = TFile('%s.root' % opts.bn, 'recreate')
+    fr.Write('fr')
+    sigPlot.Write()
+    sigPlot2.Write()
 
-sigFile.Close()
+    sigFile.Close()
 
-finalPars.setAttribAll('Constant', True)
-finalPars.writeToFile("%s.txt" % opts.bn)
+    finalPars.setAttribAll('Constant', True)
+    finalPars.writeToFile("%s.txt" % opts.bn)

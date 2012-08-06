@@ -89,6 +89,7 @@ class Wjj2DFitter:
 
         return self.ws.pdf('totalPdf')
 
+    # define the constraints on the yields, etc that will be part of the fit.
     def makeConstraints(self):
 
         if self.ws.set('constraintSet'):
@@ -130,6 +131,11 @@ class Wjj2DFitter:
 
         return self.ws.set('constraintSet')
 
+    # set the yield of the multijet background
+    def setMultijetYield(self):
+        if self.ws.var('n_multijet'):
+            self.multijetExpected = self.ws.data('data').sumEntries() * \
+                self.pars.multijetFraction
 
     # fit the data using the pdf
     def fit(self):
@@ -138,6 +144,8 @@ class Wjj2DFitter:
 
         print 'load data ...'
         data = self.loadData()
+
+        self.setMultijetYield()
 
         self.resetYields()
 
@@ -237,33 +245,12 @@ class Wjj2DFitter:
         pdfList = []
         for (idx,model) in enumerate(models):
             var = self.pars.var1 if idx==0 else self.pars.var2
-            if abs(model) > 9:
-                subList = []
-                for (subidx,submodel) in enumerate(str(model)):
-                    subList.append(self.utils.analyticPdf(self.ws, var, 
-                                                          int(submodel),
-                                                          '%sPdf_%s_%i' % \
-                                                              (component,var,
-                                                               subidx),
-                                                          '%s_%s_%i' % \
-                                                              (component, var, 
-                                                               subidx)
-                                                          )
-                                   )
-                pdfList += subList
-                self.ws.factory('PROD::%sPdf_%s(%s)' % \
-                                    (component, var, 
-                                     ','.join([ pdf.GetName() \
-                                                    for pdf in subList ])
-                                     )
-                                )
-            else:
-                pdfList.append(self.utils.analyticPdf(self.ws, var, model, 
-                                                      '%sPdf_%s' % \
-                                                          (component,var), 
-                                                      '%s_%s'%(component,var)
-                                                      )
-                               )
+            pdfList.append(self.utils.analyticPdf(self.ws, var, model, 
+                                                  '%sPdf_%s' % \
+                                                      (component,var), 
+                                                  '%s_%s'%(component,var)
+                                                  )
+                           )
         
         pdfList = [ pdf.GetName() for pdf in pdfList ]
         self.ws.factory('PROD::%sPdf(%s)' % (component, ','.join(pdfList)))
@@ -276,9 +263,9 @@ class Wjj2DFitter:
 
         data = self.utils.File2Dataset(self.pars.DataFile, 'data', self.ws,
                                        weighted = weight)
-        if hasattr(self, 'relMultijet'):
-            self.multijetExpected = data.sumEntries()*self.relMultijet
-            self.multijetError = data.sumEntries()*self.relMultijetErr
+        # if hasattr(self, 'relMultijet'):
+        #     self.multijetExpected = data.sumEntries()*self.relMultijet
+        #     self.multijetError = data.sumEntries()*self.relMultijetErr
 
         return data
 

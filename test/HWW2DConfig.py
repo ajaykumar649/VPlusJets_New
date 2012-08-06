@@ -1,5 +1,5 @@
 from RooWjj2DFitterPars import Wjj2DFitterPars
-from ROOT import kRed, kAzure, kGreen, kBlue, kCyan, kViolet
+from ROOT import kRed, kAzure, kGreen, kBlue, kCyan, kViolet, kGray
 import HWWSignalShapes
 
 # dictionaries of tuples keyed on the Higgs mass.  The tuple structure is
@@ -41,7 +41,8 @@ el2Pars = {
     200: ( "mva2j200el", 0.600, 165.0, 250.0, 17 ),
     250: ( "mva2j250el", 0.650, 200.0, 400.0, 20 ),
     300: ( "mva2j300el", 0.600, 240.0, 400.0, 16 ),
-    350: ( "mva2j350el", 0.600, 300.0, 780.0, 24 ),
+    # 350: ( "mva2j350el", 0.600, 300.0, 780.0, 24 ),
+    350: ( "mva2j350el", 0.600, 250., 450., 20 ),
     400: ( "mva2j400el", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450el", 0.500, 340.0, 780.0, 22 ),
     500: ( "mva2j500el", 0.500, 340.0, 780.0, 22 ),
@@ -107,7 +108,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
         (pars.MCDirectory + 'RD_%s_WZ_CMSSW525.root' % (flavorString),
          10000283, 32.3161),
         ]
-    pars.dibosonModels = (7, 0)
+    pars.dibosonModels = (7, 8)
  
     pars.WpJFiles = [
         (pars.MCDirectory + 'RD_%s_WpJ_CMSSW525.root' % (flavorString),
@@ -115,7 +116,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
         (pars.MCDirectory + 'RD_%s_ZpJ_CMSSW525.root' % (flavorString),
          14427282, 3503.71),
         ]
-    pars.WpJModels = (1, 0)
+    pars.WpJModels = (8, 8)
 
     pars.topFiles = [
         (pars.MCDirectory + 'RD_%s_TTbar_CMSSW525.root' % (flavorString),
@@ -133,7 +134,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
         (pars.MCDirectory + 'RD_%s_STopTW_T_CMSSW525.root' % (flavorString),
          497658, 11.1773),
         ]
-    pars.topModels = (5, 0)
+    pars.topModels = (5, 8)
 
     ngen = HWWSignalShapes.NgenHiggs(mH, 'HWW')
     pars.HWWFiles = [
@@ -141,7 +142,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
                                                                isElectron),
          ngen[0], ngen[1]*ngen[2])
         ]
-    pars.HWWModels = (6, 6)
+    pars.HWWModels = (5, 5)
 
     pars.dibosonPlotting = {'color' : kAzure+8, 'title' : 'WW/WZ'}
     pars.WpJPlotting = { 'color' : kRed, 'title' : 'V+jets'}
@@ -169,7 +170,16 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
 
 def customizeElectrons(pars):
     pars.DataFile = pars.MCDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root'
-    #pars.backgrounds.append('multijet')
+    pars.backgrounds.append('multijet')
+
+    pars.multijetFiles = [
+        (pars.MCDirectory + 'RDQCD_WenuJets_Isog0p3NoElMVA_1p6invfb.root',
+         1, 1)
+        ]
+    pars.multijetModels = (1, 0)
+    pars.multijetFraction = 0.0637
+    pars.yieldConstraints['multijet'] = 0.0637*0.5
+    pars.multijetPlotting = {'color' : kGray+1, 'title' : 'multijet'}
 
     pars.doEffCorrections = True
     pars.effToDo = ['lepton']
