@@ -37,6 +37,7 @@
 #include "TTree.h"
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/JetTreeFiller.h"
+#include "ElectroWeakAnalysis/VPlusJets/interface/PhotonTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoMuonTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/MCTreeFiller.h"
@@ -87,6 +88,7 @@ namespace ewk
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFillerVBFTag; //For VBF Tag Jets
     std::auto_ptr<ewk::JetTreeFiller> CorrectedJPTJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> GenJetFiller;
+    std::auto_ptr<ewk::PhotonTreeFiller> PhotonFiller;
     std::auto_ptr<ewk::JetTreeFiller> PFJetFiller; 
     std::auto_ptr<ewk::JetTreeFiller> JPTJetFiller;
     std::auto_ptr<ewk::VtoElectronTreeFiller> recoBosonFillerE;
