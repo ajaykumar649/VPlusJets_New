@@ -38,9 +38,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 ############################################
 if not isMC:
-    process.GlobalTag.globaltag = 'GR_R_52_V7::All'
+    process.GlobalTag.globaltag = 'GR_R_53_V10::All'
 else:
-    process.GlobalTag.globaltag = 'START52_V9::All'
+    process.GlobalTag.globaltag = 'START53_V7E::All'
 
 OutputFileName = "WmunuJetAnalysisntuple.root"
 numEventsToRun = 1000
@@ -70,7 +70,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-    '/store/user/lnujj/PATtuples/sboutle/WW_TuneZ2star_8TeV_pythia6_tauola/SQWaT_PATtup_52X_notrig_v2/368fd2e0a75a42231defe3e16c847509/pat_52x_test_1_1_cmX.root'
+    '/store/user/lnujj/PATtuples/sboutle/SingleMu/SQWaT_PAT_52X_2012A-PromptReco-v1_v1/6fdb4470d5dd47a73d67ddfb6436b825/pat_52x_test_1_1_vnQ.root'
 ) )
 
 
@@ -94,6 +94,11 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     jetType = cms.string("PF"),
   #  srcPFCor = cms.InputTag("selectedPatJetsPFlow"),
     srcPFCor = cms.InputTag("ak5PFJetsLooseId"),
+    srcPhoton = cms.InputTag("photons"),
+    IsoValPhoton = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
+                                 cms.InputTag('phoPFIso:phIsoForGsfEle'),
+                                 cms.InputTag('phoPFIso:nhIsoForGsfEle'),
+                                                           ),
     srcPFCorVBFTag = cms.InputTag("ak5PFJetsLooseIdVBFTag"), 
     srcVectorBoson = cms.InputTag("bestWmunu"),
     VBosonType     = cms.string('W'),
@@ -111,7 +116,7 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcgenMet  = cms.InputTag("genMetTrue"),
     srcGenParticles  = cms.InputTag("genParticles"),
     srcTcMet    = cms.InputTag("patMETsAK5TC"),
-    srcJetsforRho = cms.string("kt6PFJets"),                               
+    srcJetsforRho = cms.string("kt6PFJetsPFlow"),                               
     srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"),       
     srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
     srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
