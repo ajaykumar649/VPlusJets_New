@@ -379,7 +379,7 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
 
  /////// Pileup density "rho" in the event from fastJet pileup calculation /////
   edm::Handle<double> rho;
-  const edm::InputTag eventrho("kt6PFJets", "rho");
+  const edm::InputTag eventrho("kt6PFJetsPFlow", "rho");
   iEvent.getByLabel(eventrho,rho);
   double fastJetRho = *rho;
 

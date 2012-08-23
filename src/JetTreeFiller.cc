@@ -597,7 +597,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
   float fastjet_rho = -999999.9;
   edm::Handle<double> rho;
-  const edm::InputTag eventrho("kt6PFJets", "rho");
+  const edm::InputTag eventrho("kt6PFJetsPFlow", "rho");
   iEvent.getByLabel(eventrho,rho);
   if( *rho == *rho) fastjet_rho = *rho;
 
