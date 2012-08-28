@@ -19,7 +19,9 @@ process.load("Configuration.StandardSequences.Generator_cff")
 
 ##----- Detector geometry : some of these needed for b-tag -------
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+##process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
@@ -43,7 +45,7 @@ else:
     process.GlobalTag.globaltag = 'START53_V7E::All'
 
 OutputFileName = "WenuJetAnalysisntuple.root"
-numEventsToRun = 100
+numEventsToRun = 1000
 ############################################
 ########################################################################################
 ########################################################################################
@@ -70,7 +72,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
     #'file:/uscmst1b_scratch/lpc1/3DayLifetime/jdamgov/pat_53x_test_v03c_taus.root'
-    '/store/user/lnujj/PATtuples/sboutle/SingleElectron/SQWaT_PAT_52X_2012A-PromptReco-v1_v3/6fdb4470d5dd47a73d67ddfb6436b825/pat_52x_test_252_1_tQy.root'
+    'file:pat_53x_test_v03_data.root' 
+    #'/store/user/lnujj/PATtuples/sboutle/SingleElectron/SQWaT_PAT_52X_2012A-PromptReco-v1_v3/6fdb4470d5dd47a73d67ddfb6436b825/pat_52x_test_252_1_tQy.root'
     #'/store/user/lnujj/PATtuples/sboutle/WW_TuneZ2star_8TeV_pythia6_tauola/SQWaT_PATtup_52X_notrig_v2/368fd2e0a75a42231defe3e16c847509/pat_52x_test_1_1_cmX.root'
 ) )
 
@@ -120,9 +123,7 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcJetsforRho = cms.string("kt6PFJetsPFlow"),                               
     srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"),       
     srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
-    srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
-    srcFlavorByValue = cms.InputTag("ak5tagJet"),
-    bTagger=cms.string("simpleSecondaryVertexHighEffBJetTags"),
+    srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow")
 )
 
 

@@ -30,21 +30,18 @@
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-
-/** Monte Carlo Jet flavor classification.
-    if ( Flavour == 1 ) : Down 
-    if ( Flavour == 2 ) : Up 
-    if ( Flavour == 3 ) : Strange 
-    if ( Flavour == 4 ) : Charm 
-    if ( Flavour == 5 ) : Bottom 
-    if ( Flavour == 21 ): Gluon
-*/
+#include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 
 namespace ewk {
-
   class JetTreeFiller {
   public:
     /// specify the name of the TTree, and the configuration for it
@@ -58,7 +55,9 @@ namespace ewk {
 
 
     /// Destructor, does nothing 
-      ~JetTreeFiller() {};
+      ~JetTreeFiller() {delete qglikeli;};
+
+
 
 
     /// To be called once per event to fill the values for jets
@@ -80,6 +79,25 @@ namespace ewk {
     void FillBranches() const;
     void init();
 
+
+    template <typename T1> 
+      void fillBasicJetQuantities(int iJet, const T1& pfjet); 
+    void fillBasicJetQuantities(int iJet); 
+    template<typename T1> 
+      void fillEnergyFractionsPFjets(const T1& pfjet, int iJet);
+    void fillQGLH(int iJet, float fastjet_rho, 
+		  std::vector<reco::PFCandidatePtr> pfCandidates);
+
+    void fillBtagInfoRECO(int iJet, 
+		      edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfos,
+		      const reco::JetTagCollection  &  bTagsSSVHE,
+		      const reco::JetTagCollection  &  bTagsTCHE,
+		      const reco::JetTagCollection  &  bTagsCSV,
+		      const reco::JetTagCollection  &  bTagsJP,
+		      const reco::JetTagCollection  &  bTagsSSVHP,
+		      const reco::JetTagCollection  &  bTagsTCHP);
+
+    void fillBtagInfoPAT(int iJet, const pat::Jet* pjet);
     TTree* tree_;
     std::string jetType_;
     std::string Vtype_;
@@ -92,8 +110,7 @@ namespace ewk {
 	std::string bTagger;
     // 'mutable' because we will fill it from a 'const' method
     mutable std::vector<std::string> bnames;
-
-    bool doJetFlavorIdentification;
+    QGLikelihoodCalculator *qglikeli;
 
 
   private:
@@ -118,22 +135,8 @@ namespace ewk {
     float Px[NUM_JET_MAX];
     float Py[NUM_JET_MAX];
     float Pz[NUM_JET_MAX];
-    int   Flavor[NUM_JET_MAX];
-    float MaxEInEmTowers[NUM_JET_MAX];
-    float MaxEInHadTowers[NUM_JET_MAX];
-    float EnergyFractionHadronic[NUM_JET_MAX];
-    float EmEnergyFraction[NUM_JET_MAX];
-    float HadEnergyInHB[NUM_JET_MAX];
-    float HadEnergyInHO[NUM_JET_MAX];
-    float HadEnergyInHE[NUM_JET_MAX];
-    float HadEnergyInHF[NUM_JET_MAX];
-    float EmEnergyInEB[NUM_JET_MAX];
-    float EmEnergyInEE[NUM_JET_MAX];
-    float EmEnergyInHF[NUM_JET_MAX];
-    float TowersArea[NUM_JET_MAX];
+
     float VjetMass[NUM_JET_MAX];
-    int   N90[NUM_JET_MAX]; 
-    int   N60[NUM_JET_MAX];     
     float Dphi[NUM_JET_MAX];
     float Deta[NUM_JET_MAX];
     float DR[NUM_JET_MAX];
@@ -155,11 +158,6 @@ namespace ewk {
     float Deta2[NUM_JET_MAX];
     float Response2[NUM_JET_MAX];
 
-
-    float GenEmEnergy[NUM_JET_MAX];
-    float GenHadEnergy[NUM_JET_MAX];
-    float GenInvisibleEnergy[NUM_JET_MAX];
-    float GenAuxiliaryEnergy[NUM_JET_MAX];
 
     float PFChargedHadronEnergy[NUM_JET_MAX];
     float PFChargedHadronEnergyFraction[NUM_JET_MAX];
