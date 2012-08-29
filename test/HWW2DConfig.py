@@ -13,7 +13,8 @@ mu2Pars = {
     250: ( "mva2j250mu", 0.650, 200.0, 400.0, 20 ),
     300: ( "mva2j300mu", 0.600, 240.0, 400.0, 16 ),
     # 350: ( "mva2j350mu", 0.600, 300.0, 780.0, 24 ),
-    350: ( "mva2j350mu", 0.600, 250., 450., 20 ),
+    350: ( "mva2j350mu", 0.600, 250., 450., 20,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (2, 0), 'HWW': (6, 9)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22 ),
     500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22 ),
@@ -64,8 +65,13 @@ el3Pars = {
     600: ( "mva3j600el", 0.600, 340.0, 780.0, 22 ),
     }
 
+HiggsWidth = {
+    125: 0.00407,
+    180: 0.631,
+    350: 15.2,
+    }
 
-def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
+def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
     pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/'
@@ -108,7 +114,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
         (pars.MCDirectory + 'RD_%s_WZ_CMSSW525.root' % (flavorString),
          10000283, 32.3161),
         ]
-    pars.dibosonModels = (7, 8)
+    pars.dibosonModels = modePars[mH][5]['diboson']
  
     pars.WpJFiles = [
         (pars.MCDirectory + 'RD_%s_WpJ_CMSSW525.root' % (flavorString),
@@ -116,7 +122,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
         (pars.MCDirectory + 'RD_%s_ZpJ_CMSSW525.root' % (flavorString),
          14427282, 3503.71),
         ]
-    pars.WpJModels = (8, 8)
+    pars.WpJModels = modePars[mH][5]['WpJ']
 
     pars.topFiles = [
         (pars.MCDirectory + 'RD_%s_TTbar_CMSSW525.root' % (flavorString),
@@ -134,7 +140,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
         (pars.MCDirectory + 'RD_%s_STopTW_T_CMSSW525.root' % (flavorString),
          497658, 11.1773),
         ]
-    pars.topModels = (5, 8)
+    pars.topModels = modePars[mH][5]['top']
 
     ngen = HWWSignalShapes.NgenHiggs(mH, 'HWW')
     pars.HWWFiles = [
@@ -142,9 +148,9 @@ def theConfig(Nj, mH, isElectron = False, initFile = '', includeSignal = True):
                                                                isElectron),
          ngen[0], ngen[1]*ngen[2])
         ]
-    pars.HWWModels = (5, 5)
+    pars.HWWModels = modePars[mH][5]['HWW']
 
-    pars.dibosonPlotting = {'color' : kAzure+8, 'title' : 'WW/WZ'}
+    pars.dibosonPlotting = {'color' : kAzure+8, 'title' : 'WW+WZ'}
     pars.WpJPlotting = { 'color' : kRed, 'title' : 'V+jets'}
     pars.topPlotting = {'color' : kGreen+2, 'title' : 'top'}
     pars.HWWPlotting = {'color' : kBlue, 'title' : "H(%i) #rightarrow WW" % mH}

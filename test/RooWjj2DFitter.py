@@ -1,7 +1,7 @@
 from RooWjj2DFitterUtils import Wjj2DFitterUtils
 from ROOT import RooWorkspace, RooAddPdf, RooAbsReal, RooFit, RooCmdArg, \
     RooBinning, RooAbsData, RooHist, RooArgList, RooArgSet, \
-    kRed, kBlue, kGreen, kYellow, kGray, kAzure, kCyan
+    kRed, kBlue, kGreen, kYellow, kGray, kAzure, kCyan, gROOT, TLegend
 from math import sqrt
 from array import array
 import sys
@@ -74,7 +74,7 @@ class Wjj2DFitter:
             for compPdf in self.makeComponentPdf(component, compFiles,
                                                  compModels):
                 compPdfs.append(compPdf[0])
-                self.ws.factory("expr::f_n_%s('@0*@1',n_%s,mu_%s[1.0])" % \
+                self.ws.factory("expr::f_n_%s('@0*@1',n_%s,mu_%s[0.])" % \
                                     (component, component, component)
                                 )
                 compPdf[1].setConstant(True)
@@ -347,12 +347,24 @@ class Wjj2DFitter:
         if (not fname):
             fname = self.pars.initialParametersFile
         
-        if len(fname) > 0:
-            print 'loading parameters from file',fname
-            obs = self.ws.argSet('%s,%s' % (self.pars.var1, self.pars.var2))
-            params = self.ws.pdf('totalPdf').getParameters(obs)
-            params.readFromFile(fname)
-            params.IsA().Destructor(params)
+        if isinstance(fname, str):
+            flist = [ fname ]
+        else:
+            flist = fname
+
+        obs = self.ws.argSet('%s,%s' % (self.pars.var1, self.pars.var2))
+        params = self.ws.pdf('totalPdf').getParameters(obs)
+        for tmpName in flist:
+            if len(tmpName) > 0:
+                print 'loading parameters from file',tmpName
+                params.readFromFile(tmpName)
+        params.IsA().Destructor(params)
+
+    def expectedFromPars(self):
+        components = self.pars.signals + self.pars.backgrounds
+        for component in components:
+            theYield = self.ws.var('n_%s' % component)
+            setattr(self, '%sExpected' % component, theYield.getVal())
 
     def resetYields(self):
         if self.ws.data('data'):
@@ -374,7 +386,41 @@ class Wjj2DFitter:
             else:
                 theYield.setError(sqrt(theYield.getVal()))
             theYield.Print()
-                
+
+    def legend4Plot(plot, left = False):
+        if left:
+            theLeg = TLegend(0.2, 0.62, 0.55, 0.92, "", "NDC")
+        else:
+            theLeg = TLegend(0.55, 0.62, 0.92, 0.92, "", "NDC")
+        theLeg.SetName('theLegend')
+
+        theLeg.SetBorderSize(0)
+        theLeg.SetLineColor(0)
+        theLeg.SetFillColor(0)
+        theLeg.SetFillStyle(0)
+        theLeg.SetLineWidth(0)
+        theLeg.SetLineStyle(0)
+        theLeg.SetTextFont(42)
+        theLeg.SetTextSize(.045)
+
+        entryCnt = 0
+        for obj in range(0, int(plot.numItems())):
+            objName = plot.nameOf(obj)
+            if (not plot.getInvisible(objName)):
+                theObj = plot.getObject(obj)
+                objTitle = theObj.GetTitle()
+                if len(objTitle) < 1:
+                    objTitle = objName
+                dopts = plot.getDrawOptions(objName).Data()
+                # print 'obj:',theObj,'title:',objTitle,'opts:',dopts,'type:',type(dopts)
+                theLeg.AddEntry(theObj, objTitle, dopts)
+                entryCnt += 1
+        theLeg.SetY1NDC(0.9 - 0.05*entryCnt - 0.005)
+        theLeg.SetY1(theLeg.GetY1NDC())
+        return theLeg
+
+    legend4Plot = staticmethod(legend4Plot)
+
 
 if __name__ == '__main__':
     import RooWjj2DFitterPars

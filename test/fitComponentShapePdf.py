@@ -17,6 +17,8 @@ parser.add_option('--comp', dest='component', default='diboson',
                   help='name of component to fit')
 parser.add_option('--electrons', dest='isElectron', action='store_true',
                   default=False, help='do electrons instead of muons')
+parser.add_option('--makeFree', dest='makeConstant', action='store_false',
+                  default=True, help='make parameters free in output')
 
 (opts, args) = parser.parse_args()
 
@@ -30,10 +32,10 @@ import RooWjj2DFitter
 #from RooWjj2DFitterUtils import Wjj2DFitterUtils
 
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
-    RooHist
+    RooHist, TMath
 
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                        isElectron = opts.isElectron, initFile = '')
+                        isElectron = opts.isElectron, initFile = args)
 
 files = getattr(pars, '%sFiles' % opts.component)
 models = getattr(pars, '%sModels' % opts.component)
@@ -72,8 +74,6 @@ for (ifile, (filename, ngen, xsec)) in enumerate(files):
 print opts.component,'total expected yield: %.1f' % sumNExp
 
 sigPdf = fitter.makeComponentPdf(opts.component, files, models)[0][0]
-
-fitter.ws.Print()
 
 if fitter.ws.var('c_diboson_%s' % pars.var2):
     fitter.ws.var('c_diboson_%s' % pars.var2).setVal(-0.012)
@@ -124,7 +124,7 @@ if fitter.ws.var('sigma_HWW_%s_tail' % pars.var1):
 if fitter.ws.var('sigma_HWW_%s_core' % pars.var2):
     fitter.ws.var('sigma_HWW_%s_core' % pars.var2).setVal(10)
 if fitter.ws.var('sigma_HWW_%s_tail' % pars.var2):
-    fitter.ws.var('sigma_HWW_%s_tail' % pars.var2).setVal(35)
+    fitter.ws.var('sigma_HWW_%s_tail' % pars.var2).setVal(100)
 if fitter.ws.var('f_HWW_%s_core' % pars.var2):
     fitter.ws.var('f_HWW_%s_core' % pars.var2).setVal(0.7)
 if fitter.ws.var('mean_HWW_%s' % pars.var1):
@@ -135,10 +135,31 @@ if fitter.ws.var('mean_HWW_%s_core' % pars.var2):
     fitter.ws.var('mean_HWW_%s_core' % pars.var2).setVal(opts.mH)
 if fitter.ws.var('mean_HWW_%s_tail' % pars.var2):
     fitter.ws.var('mean_HWW_%s_tail' % pars.var2).setVal(opts.mH)
+if fitter.ws.var('width_HWW_%s' % pars.var2):
+    fitter.ws.var('width_HWW_%s' % pars.var2).setVal(config.HiggsWidth[opts.mH])
+if fitter.ws.var('resolution_HWW_%s_tail' % pars.var2):
+    fitter.ws.var('resolution_HWW_%s_tail' % pars.var2).setVal(opts.mH*0.11)
+
+params = sigPdf.getParameters(data)
+parCopy = params.snapshot()
+for filename in args:
+    parCopy.readFromFile(filename)
+    params.assignValueOnly(parCopy)
+
+parCopy.IsA().Destructor(parCopy)
+    
+if fitter.ws.var('npow_HWW_Mass2j_PFCor'):
+    fitter.ws.var('npow_HWW_Mass2j_PFCor').setConstant(False)
+    # fitter.ws.var('alpha_HWW_Mass2j_PFCor').setVal(1.0)
+    # fitter.ws.var('alpha_HWW_Mass2j_PFCor').setConstant(True)
+
+fitter.ws.Print()
+
 
 fr = None
 fr = sigPdf.fitTo(data, RooFit.Save(), 
-                   RooFit.SumW2Error(True))
+                  RooFit.SumW2Error(False)
+                  )
 
 c1 = TCanvas('c1', pars.var1)
 sigPlot = fitter.ws.var(pars.var1).frame(RooFit.Name('%s_Plot' % pars.var1))
@@ -149,7 +170,7 @@ theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
 theData.SetName('theData')
 theData.SetTitle('data')
 sigPlot.addPlotable(theData, 'pe', False, True)
-sigPdf.plotOn(sigPlot)
+sigPdf.plotOn(sigPlot, RooFit.Name('fitCurve'))
 
 sigPlot.GetYaxis().SetTitle('Events / GeV')
 
@@ -158,14 +179,19 @@ c1.Update()
 
 c2 = TCanvas('c2', pars.var2)
 sigPlot2 = fitter.ws.var(pars.var2).frame(RooFit.Name('%s_Plot' % pars.var2))
-data.plotOn(sigPlot2, RooFit.Binning('%sBinning' % (pars.var2)))
-sigPdf.plotOn(sigPlot2)
+data.plotOn(sigPlot2, RooFit.Binning('%sBinning' % (pars.var2)),
+            RooFit.Name('theData'))
+sigPdf.plotOn(sigPlot2, RooFit.Name('fitCurve'))
 sigPlot2.Draw()
 c2.Update()
 
+chi2_1 = sigPlot.chiSquare('fitCurve', 'theData')*sigPlot.GetNbinsX()
+chi2_2 = sigPlot2.chiSquare('fitCurve', 'theData')*sigPlot2.GetNbinsX()
+ndf = 0
+
 if fr:
     fr.Print('v')
-    finalPars = RooArgSet(fr.floatParsFinal())
+    finalPars = params.snapshot()
 
     sigFile = TFile('%s.root' % opts.bn, 'recreate')
     fr.Write('fr')
@@ -174,5 +200,24 @@ if fr:
 
     sigFile.Close()
 
-    finalPars.setAttribAll('Constant', True)
+    if opts.makeConstant:
+        finalPars.setAttribAll('Constant', True)
     finalPars.writeToFile("%s.txt" % opts.bn)
+
+    paramsFile = open('%s.txt' % opts.bn, 'a')
+    paramsFile.write('n_%s = %.1f +/- %.1f\n' % (opts.component, sumNExp, 
+                                               TMath.Sqrt(sumNExp))
+                     )
+    paramsFile.close()
+
+    ndf = fr.floatParsFinal().getSize()
+    finalPars.IsA().Destructor(finalPars)
+
+params.IsA().Destructor(params)
+
+print '%i free parameters in the fit' % ndf
+chi2 = chi2_1 + chi2_2
+ndf = sigPlot.GetNbinsX()+sigPlot2.GetNbinsX()-ndf
+
+print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
+print 'chi2 probability: %.4g' % (TMath.Prob(chi2, ndf))

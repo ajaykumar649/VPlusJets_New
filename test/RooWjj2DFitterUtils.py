@@ -332,6 +332,21 @@ class Wjj2DFitterUtils:
             ws.factory("RooErfExpPdf::%s(%s, c_%s, offset_%s, width_%s)" %\
                            (pdfName, var, idString, idString, idString)
                        )
+        elif model == 9:
+            # voitian pdf + gaussian
+            ws.factory("RooVoigtian::%s_core(%s,mean_%s[0,1000], " %\
+                           (pdfName, var, idString) + \
+                           "width_%s[15.], resolution_%s[40,0,500])" %\
+                           (idString, idString)
+                       )
+            ws.factory("RooGaussian::%s_tail" % (pdfName) + \
+                           "(%s, mean_%s, sigma_%s_tail[100,0,500])" % \
+                           (var, idString, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
+                       )
+            ws.var('width_%s' % idString).setConstant(True)
         else:
             # this is what will be returned if there isn't a model implemented
             # for a given model code.
@@ -342,8 +357,6 @@ class Wjj2DFitterUtils:
         return ws.pdf(pdfName)
 
     reduceDataset = staticmethod(reduceDataset)
-
-
 
 if __name__ == '__main__':
 
