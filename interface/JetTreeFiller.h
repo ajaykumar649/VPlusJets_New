@@ -26,10 +26,18 @@
 #include <iostream>
 #include <vector>
 #include "TTree.h" 
+#include "TMath.h" 
+#include <TLorentzVector.h>
 
 #include "FWCore/Framework/interface/Event.h" 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -81,8 +89,10 @@ namespace ewk {
 
 
     template <typename T1> 
-      void fillBasicJetQuantities(int iJet, const T1& pfjet); 
-    void fillBasicJetQuantities(int iJet); 
+      void fillBasicJetQuantities(int iJet, const T1& pfjet, 
+				const reco::Candidate* Vboson, 
+				const reco::Candidate* Vboson2, 
+				const reco::MET met); 
     template<typename T1> 
       void fillEnergyFractionsPFjets(const T1& pfjet, int iJet);
     void fillQGLH(int iJet, float fastjet_rho, 
@@ -98,6 +108,25 @@ namespace ewk {
 		      const reco::JetTagCollection  &  bTagsTCHP);
 
     void fillBtagInfoPAT(int iJet, const pat::Jet* pjet);
+    void fillHelicityIn4bodyFrame(TLorentzVector& p4lepton1, 
+				  TLorentzVector& p4lepton2);
+
+    void fillInvariantMasses(TLorentzVector& p4lepton1, 
+			     TLorentzVector& p4lepton2);
+
+    void computeLeptonAndNu4Vectors(const reco::Candidate *Vboson, 
+				    const reco::MET met, 
+				    TLorentzVector& p4lepton1, 
+				    TLorentzVector& p4lepton2); 
+
+/*     void getConstituents(const reco::Jet* jet,  */
+/* 			 std::vector<reco::PFCandidatePtr> &jetpfc); */
+/*     void getConstituents(const pat::Jet* jet,  */
+/* 			 std::vector<reco::PFCandidatePtr> &jetpfc); */
+
+/*     template <typename T>  */
+/*       std::vector<reco::PFCandidatePtr> getConstituents(const T&  jet, bool isReco); */
+    
     TTree* tree_;
     std::string jetType_;
     std::string Vtype_;
@@ -216,7 +245,22 @@ namespace ewk {
     float cosThetaLnu; 
     float cosThetaJJ;
   
-    float leadingDeltaTheta;
+    float colorCorr01;
+    float colorCorr02;
+    float colorCorr12;
+    float colorCorr03;
+    float colorCorr13;
+    float colorCorr23;
+    float colorCorr04;
+    float colorCorr14;
+    float colorCorr24;
+    float colorCorr34;
+    float colorCorr05;
+    float colorCorr15;
+    float colorCorr25;
+    float colorCorr35;
+    float colorCorr45;
+
     float j1Hel_HiggsCM;
     float j2Hel_HiggsCM;
     float l1Hel_HiggsCM;
