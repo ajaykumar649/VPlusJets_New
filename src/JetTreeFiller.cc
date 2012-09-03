@@ -10,7 +10,7 @@
  *
  * Description:
  *   To fill jet related quantities into a specified TTree
- *   Can work with CaloJet, GenJet, JPT jet, PF jet.
+ *   Can work with GenJet, PF jet.
  *   Can work with jets in RECO/AOD/PAT data formats.
  * History:
  *   
@@ -112,7 +112,7 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( Deta, "Jet" + jetType_ + "_detaBoson");
   SetBranch( DR, "Jet" + jetType_ + "_dRBoson");
   SetBranch( DphiMET, "Jet" + jetType_ + "_dphiMET");
-  SetBranch( Response, "Jet" + jetType_ + "_Response");
+  // SetBranch( Response, "Jet" + jetType_ + "_Response");
   SetBranch( bDiscriminator, "Jet" + jetType_ + "_bDiscriminator");
   SetBranch( bDiscriminatorSSVHE, "Jet" + jetType_ + "_bDiscriminatorSSVHE");
   SetBranch( bDiscriminatorTCHE, "Jet" + jetType_ + "_bDiscriminatorTCHE");
@@ -121,11 +121,11 @@ void ewk::JetTreeFiller::SetBranches()
   SetBranch( bDiscriminatorSSVHP, "Jet" + jetType_ + "_bDiscriminatorSSVHP");
   SetBranch( bDiscriminatorTCHP, "Jet" + jetType_ + "_bDiscriminatorTCHP");
   SetBranch( secVertexMass, "Jet" + jetType_ + "_secVertexMass");
-  SetBranch( Dphi2, "Jet" + jetType_ + "_dphiBoson2");
-  SetBranch( Deta2, "Jet" + jetType_ + "_detaBoson2");
-  SetBranch( DR2, "Jet" + jetType_ + "_dRBoson2");
-  SetBranch( VjetMass2, "Vplus" + jetType_ + "Jet_Mass2");
-  SetBranch( Response2, "Jet" + jetType_ + "_Response2");
+//   SetBranch( Dphi2, "Jet" + jetType_ + "_dphiBoson2");
+//   SetBranch( Deta2, "Jet" + jetType_ + "_detaBoson2");
+//   SetBranch( DR2, "Jet" + jetType_ + "_dRBoson2");
+//   SetBranch( VjetMass2, "Vplus" + jetType_ + "Jet_Mass2");
+//   SetBranch( Response2, "Jet" + jetType_ + "_Response2");
 
   /////////////////////////////////////////////////////////////////////////
 
@@ -478,6 +478,8 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   iEvent.getByLabel(mInputMet, pfmet);
 
 
+
+  // ----- b-tags ------------
   edm::Handle<reco::JetTagCollection> bTagHandle1;
   edm::Handle<reco::JetTagCollection> bTagHandle2;
   edm::Handle<reco::JetTagCollection> bTagHandle3;
@@ -716,10 +718,6 @@ void ewk::JetTreeFiller::fillBasicJetQuantities(int, const pat::Jet&,
 						const reco::Candidate* Vboson, 
 						const reco::Candidate* Vboson2, 
 						const reco::MET met); 
-
-
-
-
 
 
 //////////////////////////////////////////////////////////////////////
