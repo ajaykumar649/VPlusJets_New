@@ -74,6 +74,8 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   else mPrimaryVertex =  edm::InputTag("offlinePrimaryVertices");
   if(  iConfig.existsAs<edm::InputTag>("srcMet") )
     mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+  if(  iConfig.existsAs<edm::InputTag>("srcMetMVA") )
+    mInputMetMVA = iConfig.getParameter<edm::InputTag>("srcMetMVA");
   //*********************  Run Over AOD or PAT  ***********//
   if( iConfig.existsAs<bool>("runningOverAOD"))
 	  runoverAOD = iConfig.getParameter<bool>("runningOverAOD");
@@ -132,6 +134,22 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   }
 
 
+  /////// MVA MET information /////
+  edm::Handle<edm::View<reco::MET> > metMVA;
+  iEvent.getByLabel(mInputMetMVA, metMVA);
+  if (metMVA->size() == 0) {
+    mvaMET   = -1;
+    mvaSumET = -1;
+    mvaMETSign = -1;
+    mvaMETPhi   = -10.0;
+  }
+  else {
+    mvaMET   = (*metMVA)[0].et();
+    mvaSumET = (*metMVA)[0].sumEt();
+    mvaMETSign = (*metMVA)[0].significance();
+    mvaMETPhi   = (*metMVA)[0].phi();
+  }
+
   /////// Pileup density "rho" in the event from fastJet pileup calculation /////
   edm::Handle<double> rho;
   const edm::InputTag eventrho(JetsFor_rho, "rho");
@@ -184,7 +202,6 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   if( mNVB<1 ) return; // Nothing to fill
 
 
-
   if(GenJetFiller.get()) GenJetFiller->fill(iEvent);
   if(PhotonFiller.get()) PhotonFiller->fill(iEvent);
 
@@ -206,6 +223,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
   recoBosonFillerMu->fill(iEvent,0);
   // if(mNVB==2) recoBosonFillerMu->fill(iEvent, 1);
+
 
   /**  Store generated vector boson information */
   if(genBosonFiller.get()) genBosonFiller->fill(iEvent);
@@ -245,6 +263,11 @@ void ewk::VplusJetsAnalysis::declareTreeBranches() {
   myTree->Branch("event_met_pfsumet",           &mpfSumET,    "event_met_pfsumet/F"); 
   myTree->Branch("event_met_pfmetsignificance", &mpfMETSign,  "event_met_pfmetsignificance/F"); 
   myTree->Branch("event_met_pfmetPhi",          &mpfMETPhi,   "event_met_pfmetPhi/F"); 
+  myTree->Branch("event_metMVA_met",             &mvaMET,      "event_metMVA_met/F"); 
+  myTree->Branch("event_metMVA_sumet",           &mvaSumET,    "event_metMVA_sumet/F"); 
+  myTree->Branch("event_metMVA_metsignificance", &mvaMETSign,  "event_metMVA_metsignificance/F"); 
+  myTree->Branch("event_metMVA_metPhi",          &mvaMETPhi,   "event_metMVA_metPhi/F"); 
+
   myTree->Branch("event_fastJetRho",                &fastJetRho,    "event_fastJetRho/F"); 
 
   if ( runningOverMC_ ){

@@ -74,6 +74,7 @@ namespace ewk
     edm::InputTag mPrimaryVertex;
 
     edm::InputTag mInputMet;
+    edm::InputTag mInputMetMVA;
 	std::string JetsFor_rho;
 	edm::InputTag mInputgenMet;
 	bool runoverAOD;
@@ -105,6 +106,14 @@ namespace ewk
     float mpfSumET;
     float mpfMETSign;
     float mpfMETPhi;
+    float spfMET;
+    float spfSumET;
+    float spfMETSign;
+    float spfMETPhi;
+    float mvaMET;
+    float mvaSumET;
+    float mvaMETSign;
+    float mvaMETPhi;
     float fastJetRho;
     float genMET;
     float genSumET;
