@@ -46,6 +46,8 @@ ewk::VtoElectronTreeFiller::VtoElectronTreeFiller(const char *name, TTree* tree,
     " Collection not specified !" << std::endl;
     if(  iConfig.existsAs<edm::InputTag>("srcMet") )
 		mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+    if(  iConfig.existsAs<edm::InputTag>("srcMetMVA") )
+                mInputMetMVA = iConfig.getParameter<edm::InputTag>("srcMetMVA");
     if(  iConfig.existsAs<edm::InputTag>("srcElectrons") )
 		mInputElectrons  = iConfig.getParameter<edm::InputTag>("srcElectrons");
     if(  iConfig.existsAs<edm::InputTag>("srcBeamSpot") )
@@ -72,6 +74,7 @@ void ewk::VtoElectronTreeFiller::SetBranches()
 
   SetBranch( &V_mass,      "mass");
   SetBranch( &V_mt,        "mt");
+  SetBranch( &V_mtMVA,        "mtMVA");
   SetBranch( &V_px,        "px");
   SetBranch( &V_py,        "py");
   SetBranch( &V_pz,        "pz");
@@ -222,6 +225,7 @@ void ewk::VtoElectronTreeFiller::init()
   nTightElectron = 0;
   V_mass                = -1.;
   V_mt                  = -1.;
+  V_mtMVA                  = -1.;
   V_px                  = -99999.;
   V_py                  = -99999.;
   V_pz                  = -99999.;
@@ -401,10 +405,17 @@ void ewk::VtoElectronTreeFiller::fill(const edm::Event& iEvent, int vecBosonInde
   const reco::Candidate *Vboson = &((*boson)[vecBosonIndex]); 
   if( Vboson == 0) return;
 
+  /////// MVA MET information /////
+  edm::Handle<edm::View<reco::MET> > metMVA;
+  iEvent.getByLabel(mInputMetMVA, metMVA);
+
   ////////// Vector boson quantities //////////////
   V_mass = Vboson->mass();
   V_mt = sqrt(2.0*Vboson->daughter(0)->pt()*Vboson->daughter(1)->pt()*
 	      (1.0-cos(Vboson->daughter(0)->phi()-Vboson->daughter(1)->phi())));
+  if (metMVA->size() > 0)
+        V_mtMVA = sqrt(2.0*Vboson->daughter(0)->pt()*(*metMVA)[0].et()*
+              (1.0-cos(Vboson->daughter(0)->phi()-(*metMVA)[0].phi())));
   V_Eta = Vboson->eta();   
   V_Phi = Vboson->phi();
   V_Vx = Vboson->vx();

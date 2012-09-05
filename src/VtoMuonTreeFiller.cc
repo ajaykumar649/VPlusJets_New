@@ -49,6 +49,8 @@ ewk::VtoMuonTreeFiller::VtoMuonTreeFiller(const char *name, TTree* tree,
     " Collection not specified !" << std::endl;
     if(  iConfig.existsAs<edm::InputTag>("srcMet") )
 		mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
+    if(  iConfig.existsAs<edm::InputTag>("srcMetMVA") )
+		mInputMetMVA = iConfig.getParameter<edm::InputTag>("srcMetMVA");
     if(  iConfig.existsAs<edm::InputTag>("srcMuons") )
 		mInputMuons  = iConfig.getParameter<edm::InputTag>("srcMuons");
     if(  iConfig.existsAs<edm::InputTag>("srcBeamSpot") )
@@ -78,6 +80,7 @@ void ewk::VtoMuonTreeFiller::SetBranches()
 
   SetBranch( &V_mass,        "mass");
   SetBranch( &V_mt,        "mt");
+  SetBranch( &V_mtMVA,        "mtMVA");
   SetBranch( &V_px,        "px");
   SetBranch( &V_py,        "py");
   SetBranch( &V_pz,        "pz");
@@ -163,6 +166,7 @@ void ewk::VtoMuonTreeFiller::init()
   // initialize private data members
   V_mass                  = -1.;
   V_mt                  = -1.;
+  V_mtMVA                  = -1.;
   V_px                  = -99999.;
   V_py                  = -99999.;
   V_pz                  = -99999.;
@@ -265,10 +269,18 @@ void ewk::VtoMuonTreeFiller::fill(const edm::Event& iEvent, int vecBosonIndex)
   
    edm::Handle<edm::View<reco::MET> > pfmet;
    iEvent.getByLabel(mInputMet, pfmet);
+
+  /////// MVA MET information /////
+  edm::Handle<edm::View<reco::MET> > metMVA;
+  iEvent.getByLabel(mInputMetMVA, metMVA);
+
   ////////// Vector boson quantities //////////////
   V_mass = Vboson->mass();
   V_mt = sqrt(2.0*Vboson->daughter(0)->pt()*Vboson->daughter(1)->pt()*
 	      (1.0-cos(Vboson->daughter(0)->phi()-Vboson->daughter(1)->phi())));
+  if (metMVA->size() > 0)
+        V_mtMVA = sqrt(2.0*Vboson->daughter(0)->pt()*(*metMVA)[0].et()*
+	      (1.0-cos(Vboson->daughter(0)->phi()-(*metMVA)[0].phi())));
   V_Eta = Vboson->eta();   
   V_Phi = Vboson->phi();
   V_Vx = Vboson->vx();

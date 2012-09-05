@@ -69,6 +69,7 @@ namespace ewk {
     std::string LeptonType_;
     edm::InputTag mInputBoson;
     edm::InputTag mInputMet;
+    edm::InputTag mInputMetMVA;
 	edm::InputTag mInputElectrons;
 	edm::InputTag mInputBeamSpot;
     bool runoverAOD;	
@@ -81,6 +82,7 @@ namespace ewk {
     
     float V_mass;
     float V_mt;
+    float V_mtMVA;
     float V_px;
     float V_py;
     float V_pz;
