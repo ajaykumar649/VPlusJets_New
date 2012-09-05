@@ -23,7 +23,7 @@ tightMuons = cms.EDFilter("PATMuonSelector",
 )
 
 WToMunu = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("tightMuons patMETsPFlow"),
+    decay = cms.string("tightMuons patType1CorrectedPFMet"),
 ## Note: the 'mt()' method doesn't compute the transverse mass correctly, so we have to do it by hand.
     cut = cms.string(' daughter(1).pt >20  && sqrt(2*daughter(0).pt*daughter(1).pt*(1-cos(daughter(0).phi-daughter(1).phi)))>30'), 
     checkCharge = cms.bool(False),
