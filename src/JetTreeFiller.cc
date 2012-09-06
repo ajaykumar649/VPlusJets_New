@@ -51,7 +51,8 @@ ewk::JetTreeFiller::JetTreeFiller(const char *name, TTree* tree,
   
   if(  iConfig.existsAs<edm::InputTag>("srcMet") )
     mInputMet = iConfig.getParameter<edm::InputTag>("srcMet");
-
+  if(  iConfig.existsAs<edm::InputTag>("srcMetMVA") )
+   mInputMetMVA = iConfig.getParameter<edm::InputTag>("srcMetMVA");
 
   // ********** Vector boson ********** //
   if(  iConfig.existsAs<edm::InputTag>("srcVectorBoson") )
@@ -210,6 +211,7 @@ void ewk::JetTreeFiller::SetBranches()
     SetBranch( PFqgLikelihood, "Jet" + jetType_ + "_QGLikelihood");
   }
   
+  SetBranchSingle( &V2jMassMVAMET,  "MassV2j_" + jetType_ + "_MVAMET");
   SetBranchSingle( &V2jMass,  "MassV2j_" + jetType_);
   SetBranchSingle( &V3jMass, "MassV3j_" + jetType_);
   SetBranchSingle( &V4jMass, "MassV4j_" + jetType_);
@@ -401,6 +403,7 @@ void ewk::JetTreeFiller::init()
   }
   // initialization done
 
+  V2jMassMVAMET = -1.0;
   V2jMass = -1.0;
   V3jMass = -1.0;
   V4jMass = -1.0;
@@ -477,7 +480,10 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   edm::Handle<edm::View<reco::MET> > pfmet;
   iEvent.getByLabel(mInputMet, pfmet);
 
-
+  /////// MVA MET information /////
+  edm::Handle<edm::View<reco::MET> > metMVA;
+  iEvent.getByLabel(mInputMetMVA, metMVA);
+  
 
   // ----- b-tags ------------
   edm::Handle<reco::JetTagCollection> bTagHandle1;
@@ -584,6 +590,14 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
   // get 4-vectors for the two daughters of vector boson
   TLorentzVector p4lepton1;
   TLorentzVector p4lepton2;
+
+
+// 4body mass with MVA MET
+  if(metMVA->size() > 0 ) {
+    computeLeptonAndNu4Vectors(Vboson, (*metMVA)[0], p4lepton1, p4lepton2);
+    fillInvariantMasses(p4lepton1, p4lepton2);
+  } // second pass will overwrite everithing, but 4-body mass with MVA MET. 
+
   computeLeptonAndNu4Vectors(Vboson, (*pfmet)[0], p4lepton1, p4lepton2);
 
 
@@ -1040,7 +1054,6 @@ void ewk::JetTreeFiller::fillInvariantMasses(TLorentzVector& p4lepton1,
   TLorentzVector c5j;
   TLorentzVector c6j;
 
-
   // 4-vectors for the first four jets
   TLorentzVector p4j1;
   TLorentzVector p4j2;
@@ -1050,7 +1063,6 @@ void ewk::JetTreeFiller::fillInvariantMasses(TLorentzVector& p4lepton1,
   TLorentzVector p4j6;
   TLorentzVector p4V = p4lepton1 + p4lepton2;
 
-
   if( NumJets>1 ) { 
     p4j1.SetPxPyPzE( Px[0], Py[0], Pz[0], E[0] );
     p4j2.SetPxPyPzE( Px[1], Py[1], Pz[1], E[1] );
@@ -1058,6 +1070,7 @@ void ewk::JetTreeFiller::fillInvariantMasses(TLorentzVector& p4lepton1,
     c2jMass =  c2j.M();
     V2j =  p4V + c2j;
     V2jMass =  V2j.M();
+    if(V2jMassMVAMET<0) V2jMassMVAMET = V2jMass;  // fill only at first pass 
     V2jCosJacksonAngle = JacksonAngle( p4V, V2j);
     c2jCosJacksonAngle = JacksonAngle( p4j1, p4j2);
   }

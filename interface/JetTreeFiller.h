@@ -133,6 +133,7 @@ namespace ewk {
     std::string LeptonType_;
     edm::InputTag mInputJets;
 	edm::InputTag mInputMet;
+	edm::InputTag mInputMetMVA;
     edm::InputTag mInputBoson;
     edm::InputTag sourceByValue;
   	bool runoverAOD;
@@ -223,6 +224,7 @@ namespace ewk {
     float PFptD[NUM_JET_MAX];
     float PFqgLikelihood[NUM_JET_MAX];
 
+    float V2jMassMVAMET;
     float V2jMass;
     float V3jMass;
     float V4jMass;
