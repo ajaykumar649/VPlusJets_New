@@ -2,11 +2,18 @@ import FWCore.ParameterSet.Config as cms
 
 ##########################################################################
 
+# Apply loose PileUp PF jet ID
+ak5PFnoPUJets = cms.EDProducer("PATPuJetIdSelector",
+    src = cms.InputTag( "selectedPatJetsPFlow" ),
+    idLabel = cms.string("loose"),
+    valueMapLabel = cms.string("puJetMvaChs")
+)
+
 # Apply loose PF jet ID
 from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 ak5PFGoodJets = cms.EDFilter("PFJetIDSelectionFunctorFilter",
      filterParams = pfJetIDSelector.clone(),
-     src = cms.InputTag("selectedPatJetsPFlow"),
+     src = cms.InputTag("ak5PFnoPUJets"),
      filter = cms.bool(True)
 )
 
@@ -38,7 +45,7 @@ RequireTwoJets = cms.EDFilter("PATCandViewCountFilter",
 )
 
 ############################################
-PFJetPath = cms.Sequence( ak5PFGoodJets + ak5PFJetsClean + ak5PFJetsLooseId + 
+PFJetPath = cms.Sequence( ak5PFnoPUJets + ak5PFGoodJets + ak5PFJetsClean + ak5PFJetsLooseId + 
 	ak5PFJetsLooseIdVBFTag + RequireTwoJets )
 ##########################################
 ##########################################################################
