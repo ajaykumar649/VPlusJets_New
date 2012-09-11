@@ -43,6 +43,10 @@
 
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
+
+#include <stdlib.h>
+#include <math.h>
+
 //
 // class decleration
 //
@@ -80,6 +84,9 @@ namespace ewk
     void SetBranchSingle( int* x, std::string name);
     double getJEC(double curJetEta, double curJetPt, double curJetE, double curJetArea); 
     TLorentzVector getCorrectedJet(fastjet::PseudoJet& jet);
+    void computeCore( std::vector<fastjet::PseudoJet> constits, double Rval, float &m_core, float &pt_core );
+        float computeJetCharge( std::vector<fastjet::PseudoJet> constits, std::vector<float> pdgIds, float Ejet );        
+        float getPdgIdCharge( float fid );        
 
     TTree* tree_;
     bool runningOverMC_;
@@ -91,6 +98,17 @@ namespace ewk
     std::string JEC_GlobalTag_forGroomedJet;
     edm::InputTag mPrimaryVertex;
     std::string mGroomedJet;
+        
+            // specific parameters
+        double mJetRadius;
+        std::string mJetAlgo;        
+        
+        double mJetChargeKappa;
+        bool mDoQJets; 
+        int mQJetsPreclustering;
+        int mQJetsN;
+        double mNsubjettinessKappa;
+        bool mSaveConstituents;
 
     private:
     
@@ -130,7 +148,17 @@ namespace ewk
     float jeteta_pr[NUM_JET_MAX];
     float jetphi_pr[NUM_JET_MAX];
     float jete_pr[NUM_JET_MAX];
-
+        
+    float prsubjet1_px[NUM_JET_MAX];
+    float prsubjet1_py[NUM_JET_MAX];
+    float prsubjet1_pz[NUM_JET_MAX];
+    float prsubjet1_e[NUM_JET_MAX];        
+    float prsubjet2_px[NUM_JET_MAX];
+    float prsubjet2_py[NUM_JET_MAX];
+    float prsubjet2_pz[NUM_JET_MAX];
+    float prsubjet2_e[NUM_JET_MAX];        
+        
+        
     float jetmass[NUM_JET_MAX];
     float jetmass_tr[NUM_JET_MAX];
     float jetmass_ft[NUM_JET_MAX];
@@ -140,6 +168,29 @@ namespace ewk
     float jetarea_ft[NUM_JET_MAX];
     float jetarea_pr[NUM_JET_MAX];        
     float massdrop_pr[NUM_JET_MAX];
+    float jetconstituents[NUM_JET_MAX];   
+    float jetcharge[NUM_JET_MAX];           
+        
+    float rcores[11][NUM_JET_MAX];
+    float ptcores[11][NUM_JET_MAX];
+    
+    float qjetmass[50];
+    float qjetmassdrop[50];
+
+        float constituents0_eta[100];
+        float constituents0_phi[100];        
+        float constituents0_e[100];        
+        int nconstituents0;    
+        
+        float constituents0pr_eta[100];
+        float constituents0pr_phi[100];        
+        float constituents0pr_e[100];        
+        int nconstituents0pr;   
+        
+        std::vector<int> neutrals;
+        std::vector<int> positives;
+        std::vector<int> negatives;        
+
     
     double rhoVal_;
     double nPV_;
