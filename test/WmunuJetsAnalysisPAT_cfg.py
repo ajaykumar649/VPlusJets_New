@@ -43,7 +43,7 @@ else:
     process.GlobalTag.globaltag = 'START53_V7E::All'
 
 OutputFileName = "WmunuJetAnalysisntuple.root"
-numEventsToRun = 1000
+numEventsToRun = -1
 ############################################
 ########################################################################################
 ########################################################################################
@@ -70,7 +70,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-    '/store/user/lnujj/PATtuples/sboutle/SingleMu/SQWaT_PAT_52X_2012A-PromptReco-v1_v1/6fdb4470d5dd47a73d67ddfb6436b825/pat_52x_test_1_1_vnQ.root'
+       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
 ) )
 
 
@@ -87,6 +88,16 @@ process.HLTMu =cms.EDFilter("HLTHighLevel",
 
 process.primaryVertex.src = cms.InputTag("goodOfflinePrimaryVertices");
 process.primaryVertex.cut = cms.string(" ");
+
+##########################################
+## Filter to require at least two jets in the event
+process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
+    minNumber = cms.untracked.int32(2),
+    maxNumber = cms.untracked.int32(100),
+    srcJets = cms.InputTag("ak5PFJetsLooseId"),
+    srcVectorBoson = cms.InputTag("bestWmunu"),
+    minVpt = cms.untracked.double(100.)
+)
 
 
 ##-------- Save V+jets trees --------
@@ -123,8 +134,14 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
     srcFlavorByValue = cms.InputTag("ak5tagJet"),
     bTagger=cms.string("simpleSecondaryVertexHighEffBJetTags"),
+
+    applyJECToGroomedJets=cms.bool(True),
 )
 
+if isMC:
+    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("START53_V7E")
+else:
+    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("GR_R_53_V10")
 
 
 process.myseq = cms.Sequence(
@@ -134,7 +151,8 @@ process.myseq = cms.Sequence(
     process.GenJetPath *
 ##    process.btagging * 
     process.TagJetPath *
-    process.PFJetPath 
+    process.PFJetPath *
+    process.RequireTwoJetsORboostedV
     )
 
 if isMC:
