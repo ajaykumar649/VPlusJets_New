@@ -82,6 +82,7 @@ namespace ewk
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFillerVBFTag; //For VBF Tag Jets
 
+    std::auto_ptr<ewk::GroomedJetFiller> AK5groomedJetFiller;
     std::auto_ptr<ewk::GroomedJetFiller> AK7groomedJetFiller;
     std::auto_ptr<ewk::GroomedJetFiller> AK8groomedJetFiller;
     std::auto_ptr<ewk::GroomedJetFiller> CA8groomedJetFiller;
