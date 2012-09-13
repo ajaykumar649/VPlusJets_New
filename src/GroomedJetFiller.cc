@@ -199,18 +199,25 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     
     
         // ---- setting up the jec on-the-fly from text files...    
-//    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
-    std::string fDir = JEC_GlobalTag_forGroomedJet;   
+    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
+//    std::string fDir = JEC_GlobalTag_forGroomedJet;   
     std::vector< JetCorrectorParameters > jecPars;
     std::vector< std::string > jecStr;
     
     if(applyJECToGroomedJets_) {
+      if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+        jecStr.push_back( fDir + "_L1FastJet_AK5PFchs.txt" );
+        jecStr.push_back( fDir + "_L2Relative_AK5PFchs.txt" );
+        jecStr.push_back( fDir + "_L3Absolute_AK5PFchs.txt" );
+        if (!runningOverMC_)
+            jecStr.push_back( fDir + "_L2L3Residual_AK5PFchs.txt" );
+      }else{
         jecStr.push_back( fDir + "_L1FastJet_AK7PFchs.txt" );
         jecStr.push_back( fDir + "_L2Relative_AK7PFchs.txt" );
         jecStr.push_back( fDir + "_L3Absolute_AK7PFchs.txt" );
         if (!runningOverMC_)
             jecStr.push_back( fDir + "_L2L3Residual_AK7PFchs.txt" );
-        
+      }        
         
         for (unsigned int i = 0; i < jecStr.size(); ++i){
             JetCorrectorParameters* ijec = new JetCorrectorParameters( jecStr[i] );
@@ -218,7 +225,11 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
         }
         
         jec_ = new FactorizedJetCorrector(jecPars);
-        jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK7PFchs.txt" );
+        if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+          jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK5PFchs.txt" );
+        }else{
+          jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK7PFchs.txt" );
+        }
     }
     
         // specific configurations
@@ -243,7 +254,7 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
 
         // define charges of pdgIds
     neutrals.push_back( 22 ); neutrals.push_back( 130 ); neutrals.push_back( 310 ); neutrals.push_back( 311 ); neutrals.push_back( 111 ); 
-    neutrals.push_back( 1 ); neutrals.push_back( 2 ); neutrals.push_back( 3 ); neutrals.push_back( 4 ); neutrals.push_back( 5 );
+    neutrals.push_back( 1 ); neutrals.push_back( 2 ); neutrals.push_back( 3 ); neutrals.push_back( 4 ); neutrals.push_back( 5 ); 
     neutrals.push_back( -1 ); neutrals.push_back( -2 ); neutrals.push_back( -3 ); neutrals.push_back( -4 ); neutrals.push_back( -5 ); 
     neutrals.push_back( 2112 );
     
@@ -366,13 +377,20 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     edm::Handle< std::vector<float> > PF_pz_handle;
     edm::Handle< std::vector<float> > PF_en_handle;
     edm::Handle< std::vector<float> > PF_id_handle;
-    
-    iEvent.getByLabel( pfinput_, "px" ,    PF_px_handle);
-    iEvent.getByLabel( pfinput_, "py" ,    PF_py_handle);
-    iEvent.getByLabel( pfinput_, "pz" ,    PF_pz_handle);
-    iEvent.getByLabel( pfinput_, "energy", PF_en_handle);
-    iEvent.getByLabel( pfinput_, "pdgId", PF_id_handle);
 
+    std::vector<float>  PF_id_handle_AK5;
+    
+    edm::Handle< reco::PFCandidateCollection > pfCandidates;
+    if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+//       iEvent.getByLabel("selectedPatJetsAK5PF",pfCandidates);
+       iEvent.getByLabel(mGroomedJet,"pfCandidates",pfCandidates);
+    }else{
+       iEvent.getByLabel( pfinput_, "px" ,    PF_px_handle);
+       iEvent.getByLabel( pfinput_, "py" ,    PF_py_handle);
+       iEvent.getByLabel( pfinput_, "pz" ,    PF_pz_handle);
+       iEvent.getByLabel( pfinput_, "energy", PF_en_handle);
+       iEvent.getByLabel( pfinput_, "pdgId", PF_id_handle);
+    }
     
         // ------ get rho --------    
     rhoVal_ = -99.;
@@ -397,12 +415,24 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     
         // ----------------------------
         // ------ start processing ------    
+    PF_id_handle_AK5.clear();
     std::vector<fastjet::PseudoJet> FJparticles;
-    for (unsigned i = 0; i < PF_px_handle->size() ; i++){
-        FJparticles.push_back( fastjet::PseudoJet( PF_px_handle->at(i), 
-                                                  PF_py_handle->at(i), 
-                                                  PF_pz_handle->at(i), 
-                                                  PF_en_handle->at(i) ) );
+    if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+     for( reco::PFCandidateCollection::const_iterator ci  = pfCandidates->begin(); ci!=pfCandidates->end(); ++ci)  {
+//       const reco::PFCandidate& pfc = *ci;
+       FJparticles.push_back( fastjet::PseudoJet( ci->px(), 
+ 						  ci->py(),
+ 						  ci->pz(),
+ 						  ci->energy() ) );
+       PF_id_handle_AK5.push_back(ci->translateTypeToPdgId(ci->particleId()));
+     }
+    }else{
+       for (unsigned i = 0; i < PF_px_handle->size() ; i++){
+           FJparticles.push_back( fastjet::PseudoJet( PF_px_handle->at(i), 
+                                                     PF_py_handle->at(i), 
+                                                     PF_pz_handle->at(i), 
+                                                     PF_en_handle->at(i) ) );
+       }
     }
         // std::cout << "FJparticles.size() = " << FJparticles.size() << std::endl;
     if (FJparticles.size() < 1) return;
@@ -447,7 +477,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         // s t a r t   l o o p   o n   j e t s
         // -----------------------------------------------
         // -----------------------------------------------
-
+cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
     for (unsigned j = 0; j < out_jets.size(); j++) {
         
         if (mSaveConstituents && j==0){
@@ -591,17 +621,21 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
             for(unsigned int ii = 0 ; ii < (unsigned int) mQJetsN ; ii++){
                 fastjet::ClusterSequence qjet_seq(constits, qjet_def);
                 vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(50.0));
-                qjetmass[ii] = inclusive_jets2[0].m();
-                if (inclusive_jets2[0].constituents().size() > 1){
-                    vector<fastjet::PseudoJet> subjets_qjet = qjet_seq.exclusive_subjets(inclusive_jets2[0],2);
-                    if (subjets_qjet.at(0).m() >= subjets_qjet.at(1).m()){
-                        qjetmassdrop[ii] = (subjets_qjet.at(0).m()/inclusive_jets2[0].m());                        
-                    }
-                    else{
-                        qjetmassdrop[ii] = (subjets_qjet.at(1).m()/inclusive_jets2[0].m());                                    
-                    }
-                }
-                else{
+                if (inclusive_jets2.size()>0) {
+                  qjetmass[ii] = inclusive_jets2[0].m();
+                  if (inclusive_jets2[0].constituents().size() > 1){
+                      vector<fastjet::PseudoJet> subjets_qjet = qjet_seq.exclusive_subjets(inclusive_jets2[0],2);
+                      if (subjets_qjet.at(0).m() >= subjets_qjet.at(1).m()){
+                          qjetmassdrop[ii] = (subjets_qjet.at(0).m()/inclusive_jets2[0].m());                        
+                      }
+                      else{
+                          qjetmassdrop[ii] = (subjets_qjet.at(1).m()/inclusive_jets2[0].m());                                    
+                      }
+                  }
+                  else{
+                      qjetmassdrop[ii] = 1.;
+                  }
+                }else{
                     qjetmassdrop[ii] = 1.;
                 }
                 
@@ -613,7 +647,11 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
             for (unsigned jj = 0; jj < FJparticles.size(); jj++){
 //                std::cout << ii << ", " << jj << ": " << FJparticles.at(jj).pt() << ", " << out_jets_basic.at(j).constituents().at(ii).pt() << std::endl;
                 if (FJparticles.at(jj).pt() == out_jets_basic.at(j).constituents().at(ii).pt()){
-                    pdgIds.push_back(PF_id_handle->at(jj));
+                    if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+                          pdgIds.push_back(PF_id_handle_AK5.at(jj));
+                    }else{
+                          pdgIds.push_back(PF_id_handle->at(jj));
+                    }
                     break;
                 }
             }
@@ -698,7 +736,7 @@ float ewk::GroomedJetFiller::getPdgIdCharge( float fid ){
         qq = -1.;
     }
     else{
-         throw cms::Exception("GroomedJetFiller") << " unknown PDG id " << std::endl;
+         throw cms::Exception("GroomedJetFiller") << " unknown PDG id " << id << std::endl;
     }
     return qq;
 }

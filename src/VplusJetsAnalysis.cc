@@ -43,6 +43,7 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   new JetTreeFiller("CorrectedPFJetFiller", myTree, "PFCor", iConfig) : 0),
   CorrectedPFJetFillerVBFTag ( iConfig.existsAs<edm::InputTag>("srcPFCorVBFTag") ? 
   new JetTreeFiller("CorrectedPFJetFillerVBFTag", myTree, "PFCorVBFTag", iConfig) : 0),
+  AK5groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "AK5", "selectedPatJetsPFlow", iConfig)),
   AK7groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "AK7", "pfInputsAK7", iConfig)),
   AK8groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "AK8", "pfInputsAK8", iConfig)),
   CA8groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "CA8", "pfInputsCA8", iConfig)),
@@ -210,6 +211,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   /**  Store groomed jet information */
+  if(AK5groomedJetFiller.get()) AK5groomedJetFiller->fill(iEvent);
   if(AK7groomedJetFiller.get()) AK7groomedJetFiller->fill(iEvent);
   if(AK8groomedJetFiller.get()) AK8groomedJetFiller->fill(iEvent);
   if(CA8groomedJetFiller.get()) CA8groomedJetFiller->fill(iEvent);
