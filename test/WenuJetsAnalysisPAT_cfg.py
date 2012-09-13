@@ -45,7 +45,7 @@ else:
     process.GlobalTag.globaltag = 'START53_V7E::All'
 
 OutputFileName = "WenuJetAnalysisntuple.root"
-numEventsToRun = 1000
+numEventsToRun = -1
 ############################################
 ########################################################################################
 ########################################################################################
@@ -71,10 +71,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-    #'file:/uscmst1b_scratch/lpc1/3DayLifetime/jdamgov/pat_53x_test_v03c_taus.root'
-    'file:pat_53x_test_v03_data.root' 
-    #'/store/user/lnujj/PATtuples/sboutle/SingleElectron/SQWaT_PAT_52X_2012A-PromptReco-v1_v3/6fdb4470d5dd47a73d67ddfb6436b825/pat_52x_test_252_1_tQy.root'
-    #'/store/user/lnujj/PATtuples/sboutle/WW_TuneZ2star_8TeV_pythia6_tauola/SQWaT_PATtup_52X_notrig_v2/368fd2e0a75a42231defe3e16c847509/pat_52x_test_1_1_cmX.root'
+    #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
+    '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
 ) )
 
 
@@ -92,6 +90,15 @@ process.HLTEle =cms.EDFilter("HLTHighLevel",
 process.primaryVertex.src = cms.InputTag("goodOfflinePrimaryVertices");
 process.primaryVertex.cut = cms.string(" ");
 
+##########################################
+## Filter to require at least two jets in the event
+process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
+    minNumber = cms.untracked.int32(2),
+    maxNumber = cms.untracked.int32(100),
+    srcJets = cms.InputTag("ak5PFJetsLooseId"),
+    srcVectorBoson = cms.InputTag("bestWToEnu"),
+    minVpt = cms.untracked.double(100.)
+)
 
 ##-------- Save V+jets trees --------
 process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
@@ -124,8 +131,17 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcJetsforRho = cms.string("kt6PFJetsPFlow"),                               
     srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"),       
     srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
-    srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow")
+    srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
+
+    applyJECToGroomedJets=cms.bool(True)
 )
+
+if isMC:
+    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("START53_V7E")
+else:
+    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("GR_R_53_V10")
+
+
 
 
 
@@ -136,7 +152,8 @@ process.myseq = cms.Sequence(
     process.GenJetPath *
 ##    process.btagging * 
     process.TagJetPath *
-    process.PFJetPath 
+    process.PFJetPath *
+    process.RequireTwoJetsORboostedV
     )
 
 if isMC:
