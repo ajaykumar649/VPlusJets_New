@@ -622,6 +622,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
 
 
   // Color correlation between two leading jets ( jets pull ) 
+ if( jetType_!="Gen") {
   if(NumJets>1) colorCorr01 = TMath::Abs( getDeltaTheta(  &(*jets)[0], &(*jets)[1]) );
   if(NumJets>2) {
     colorCorr02 = TMath::Abs( getDeltaTheta(  &(*jets)[0], &(*jets)[2]) );
@@ -645,7 +646,7 @@ void ewk::JetTreeFiller::fill(const edm::Event& iEvent)
     colorCorr35 = TMath::Abs( getDeltaTheta(  &(*jets)[3], &(*jets)[5]) );
     colorCorr45 = TMath::Abs( getDeltaTheta(  &(*jets)[4], &(*jets)[5]) );
   }
-
+ } // not Gen Jet
 
 
   // Cos(theta*) or Helicity Angles in Higgs rest frame
