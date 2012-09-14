@@ -32,6 +32,9 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 ##----- Global tag: conditions database ------------
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+##----- Counter module ------------
+process.load("ElectroWeakAnalysis.VPlusJets.AllPassFilter_cfi")
+
 ## import skeleton process
 #from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
@@ -70,7 +73,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
+       #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
 #       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
 ) )
 
@@ -98,6 +101,7 @@ process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
     srcVectorBoson = cms.InputTag("bestWmunu"),
     minVpt = cms.untracked.double(100.)
 )
+process.RequireTwoJetsORboostedVStep = process.AllPassFilter.clone()
 
 
 ##-------- Save V+jets trees --------
@@ -114,7 +118,6 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcVectorBoson = cms.InputTag("bestWmunu"),
     VBosonType     = cms.string('W'),
     LeptonType     = cms.string('muon'),                          
-    HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('WJet'),
     srcPrimaryVertex = cms.InputTag("goodOfflinePrimaryVertices"),                               
     runningOverMC = cms.bool(isMC),			
@@ -144,6 +147,14 @@ else:
     process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("GR_R_53_V10")
 
 
+
+process.TFileService = cms.Service(
+    "TFileService", 
+    fileName = cms.string( OutputFileName ),
+    closeFileFast = cms.untracked.bool(False)
+)
+
+
 process.myseq = cms.Sequence(
     process.TrackVtxPath *
     process.HLTMu *
@@ -152,7 +163,8 @@ process.myseq = cms.Sequence(
 ##    process.btagging * 
     process.TagJetPath *
     process.PFJetPath *
-    process.RequireTwoJetsORboostedV
+    process.RequireTwoJetsORboostedV *
+    process.RequireTwoJetsORboostedVStep
     )
 
 if isMC:

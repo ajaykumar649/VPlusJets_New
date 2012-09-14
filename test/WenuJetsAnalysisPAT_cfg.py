@@ -76,7 +76,6 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
     #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
     #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
-    'file:/afs/cern.ch/work/d/dimatteo/public/TestSamples/pat_53x_test_v03.root'
 ) )
 
 

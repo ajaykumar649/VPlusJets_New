@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from ElectroWeakAnalysis.VPlusJets.AllPassFilter_cfi import AllPassFilter
+
 #WP80 electrons, only track iso, remove H/E cut
 
 isQCD = False
@@ -18,6 +20,13 @@ tightElectrons = cms.EDProducer("PATElectronIdSelector",
     useMVAbasedID_   = cms.bool(True)
 )
 
+## tight ele filter
+tightElectronFilter = cms.EDFilter("PATCandViewCountFilter",
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(999999),
+    src = cms.InputTag("tightElectrons")                     
+)
+tightLeptonStep = AllPassFilter.clone()
 
 
 WToEnu = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -34,6 +43,7 @@ bestWToEnu =cms.EDFilter("LargestPtCandViewSelector",
     maxNumber = cms.uint32(10),
     src = cms.InputTag("WToEnu")                 
 )
+bestWToLepnuStep = AllPassFilter.clone()
 
 
 ##  Define loose electron selection for veto ######
@@ -45,7 +55,7 @@ looseElectronFilter = cms.EDFilter("PATCandViewCountFilter",
     maxNumber = cms.uint32(1),
     src = cms.InputTag("looseElectrons")                     
 )
-
+looseElectronStep = AllPassFilter.clone()
 
 ##  Define loose muon selection for veto ######
 looseMuons = cms.EDFilter("PATMuonRefSelector",
@@ -60,16 +70,22 @@ looseMuonFilter = cms.EDFilter("PATCandViewCountFilter",
     maxNumber = cms.uint32(0),
     src = cms.InputTag("looseMuons")                     
 )
+looseMuonStep = AllPassFilter.clone()
 
 
 WSequence = cms.Sequence(tightElectrons *
+                         tightElectronFilter *
+                         tightLeptonStep *
                          WToEnu *
-                         bestWToEnu
+                         bestWToEnu *
+                         bestWToLepnuStep
                          )
 VetoSequence = cms.Sequence( looseElectrons *
                              looseElectronFilter *
+                             looseElectronStep *
                              looseMuons *
-                             looseMuonFilter
+                             looseMuonFilter *
+                             looseMuonStep
                              )
 
 WPath = cms.Sequence(WSequence*VetoSequence)
