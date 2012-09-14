@@ -34,6 +34,9 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 ##----- Global tag: conditions database ------------
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+##----- Counter module ------------
+process.load("ElectroWeakAnalysis.VPlusJets.AllPassFilter_cfi")
+
 ## import skeleton process
 #from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
@@ -72,7 +75,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
     #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
-    '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
+    #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
+    'file:/afs/cern.ch/work/d/dimatteo/public/TestSamples/pat_53x_test_v03.root'
 ) )
 
 
@@ -99,6 +103,8 @@ process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
     srcVectorBoson = cms.InputTag("bestWToEnu"),
     minVpt = cms.untracked.double(100.)
 )
+process.RequireTwoJetsORboostedVStep = process.AllPassFilter.clone()
+
 
 ##-------- Save V+jets trees --------
 process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
@@ -114,7 +120,6 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcVectorBoson = cms.InputTag("bestWToEnu"),
     VBosonType     = cms.string('W'),
     LeptonType     = cms.string('electron'),                          
-    HistOutFile = cms.string( OutputFileName ),
     TreeName    = cms.string('WJet'),
     srcPrimaryVertex = cms.InputTag("goodOfflinePrimaryVertices"),                               
     runningOverMC = cms.bool(isMC),			
@@ -143,6 +148,11 @@ else:
 
 
 
+process.TFileService = cms.Service(
+    "TFileService", 
+    fileName = cms.string( OutputFileName ),
+    closeFileFast = cms.untracked.bool(False)
+)
 
 
 process.myseq = cms.Sequence(
@@ -153,7 +163,8 @@ process.myseq = cms.Sequence(
 ##    process.btagging * 
     process.TagJetPath *
     process.PFJetPath *
-    process.RequireTwoJetsORboostedV
+    process.RequireTwoJetsORboostedV *
+    process.RequireTwoJetsORboostedVStep
     )
 
 if isMC:
@@ -172,7 +183,6 @@ else:
 
 #process.outpath.remove(process.out)
 process.p = cms.Path( process.myseq  * process.VplusJets)
-
 
 
 

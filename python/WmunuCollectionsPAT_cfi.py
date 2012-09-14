@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from ElectroWeakAnalysis.VPlusJets.AllPassFilter_cfi import AllPassFilter
+
 from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseElectrons
 from ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi import looseMuons
 isQCD = False
@@ -22,6 +24,14 @@ tightMuons = cms.EDFilter("PATMuonSelector",
                      )
 )
 
+## tight mu filter
+tightMuonFilter = cms.EDFilter("PATCandViewCountFilter",
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(999999),
+    src = cms.InputTag("tightMuons")                     
+)
+tightLeptonStep = AllPassFilter.clone()
+
 WToMunu = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("tightMuons patType1CorrectedPFMet"),
 ## Note: the 'mt()' method doesn't compute the transverse mass correctly, so we have to do it by hand.
@@ -35,6 +45,7 @@ bestWmunu = cms.EDFilter("LargestPtCandViewSelector",
     maxNumber = cms.uint32(10),
     src = cms.InputTag("WToMunu")
 )
+bestWToLepnuStep = AllPassFilter.clone()
 
 
 electronFilter = cms.EDFilter("PATCandViewCountFilter",
@@ -42,6 +53,7 @@ electronFilter = cms.EDFilter("PATCandViewCountFilter",
     maxNumber = cms.uint32(0),
     src = cms.InputTag("looseElectrons")                     
 )
+looseElectronStep = AllPassFilter.clone()
 
 
 muonFilter = cms.EDFilter("PATCandViewCountFilter",
@@ -49,17 +61,23 @@ muonFilter = cms.EDFilter("PATCandViewCountFilter",
     maxNumber = cms.uint32(1),
     src = cms.InputTag("looseMuons")                     
 )
+looseMuonStep = AllPassFilter.clone()
 
 
 WSequence = cms.Sequence(tightMuons *
+                         tightMuonFilter *
+                         tightLeptonStep *
                          WToMunu *
-                         bestWmunu
+                         bestWmunu *
+                         bestWToLepnuStep
                          )
 
 VetoSequence = cms.Sequence( looseElectrons *
                              electronFilter *
+                             looseElectronStep *
                              looseMuons *
-                             muonFilter
+                             muonFilter *
+                             looseMuonStep
                              )
 
 WPath = cms.Sequence(WSequence*VetoSequence)

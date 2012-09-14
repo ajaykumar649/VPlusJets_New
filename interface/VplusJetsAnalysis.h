@@ -42,6 +42,8 @@
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoElectronTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/VtoMuonTreeFiller.h"
 #include "ElectroWeakAnalysis/VPlusJets/interface/MCTreeFiller.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //
 // class decleration
@@ -64,9 +66,8 @@ namespace ewk
     // names of modules, producing object collections
      
     /// output ROOT file for the tree and histograms
-    std::string fOutputFileName ;
-    TFile*  hOutputFile ;
     TTree*  myTree;
+    edm::Service<TFileService> fs;
     bool runningOverMC_;
     std::string VBosonType_;
     std::string LeptonType_;

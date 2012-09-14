@@ -34,11 +34,12 @@
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 
 ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
-  fOutputFileName ( iConfig.getParameter<std::string>("HistOutFile") ),
-  hOutputFile ( new TFile( fOutputFileName.c_str(), "RECREATE" ) ), 
-  myTree ( new TTree(iConfig.getParameter<std::string>("TreeName").c_str(),"V+jets Tree") ),
+  myTree ( fs -> make<TTree>(iConfig.getParameter<std::string>("TreeName").c_str(),"V+jets Tree") ), 
   CorrectedPFJetFiller ( iConfig.existsAs<edm::InputTag>("srcPFCor") ? 
   new JetTreeFiller("CorrectedPFJetFiller", myTree, "PFCor", iConfig) : 0),
   CorrectedPFJetFillerVBFTag ( iConfig.existsAs<edm::InputTag>("srcPFCorVBFTag") ? 
@@ -241,13 +242,6 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 void ewk::VplusJetsAnalysis::endJob()
 {
-  hOutputFile->SetCompressionLevel(2);
-  hOutputFile->cd();
-  myTree->Write();
-
-  delete myTree;
-  hOutputFile->Close();
-  delete hOutputFile;
 }
 
 
