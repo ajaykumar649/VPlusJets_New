@@ -46,7 +46,8 @@
 
 #include <stdlib.h>
 #include <math.h>
-
+#include "TMatrixD.h"
+#include "TMatrixDSym.h"
 //
 // class decleration
 //
@@ -85,6 +86,7 @@ namespace ewk
     double getJEC(double curJetEta, double curJetPt, double curJetE, double curJetArea); 
     TLorentzVector getCorrectedJet(fastjet::PseudoJet& jet);
     void computeCore( std::vector<fastjet::PseudoJet> constits, double Rval, float &m_core, float &pt_core );
+    void computePlanarflow(std::vector<fastjet::PseudoJet> constits,double Rval,fastjet::PseudoJet jet,std::string mJetAlgo,float &planarflow);
         float computeJetCharge( std::vector<fastjet::PseudoJet> constits, std::vector<float> pdgIds, float Ejet );        
         float getPdgIdCharge( float fid );        
 
@@ -173,7 +175,9 @@ namespace ewk
         
     float rcores[11][NUM_JET_MAX];
     float ptcores[11][NUM_JET_MAX];
-    
+     
+    float planarflow[11][NUM_JET_MAX];
+
     float qjetmass[50];
     float qjetmassdrop[50];
 
