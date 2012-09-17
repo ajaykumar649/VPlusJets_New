@@ -206,8 +206,8 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     
     
         // ---- setting up the jec on-the-fly from text files...    
-    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
-//    std::string fDir = JEC_GlobalTag_forGroomedJet;   
+//    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
+    std::string fDir = JEC_GlobalTag_forGroomedJet;   
     std::vector< JetCorrectorParameters > jecPars;
     std::vector< std::string > jecStr;
     
