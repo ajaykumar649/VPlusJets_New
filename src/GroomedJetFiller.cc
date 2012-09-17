@@ -49,6 +49,8 @@
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/Nsubjettiness.h"
 #include "ElectroWeakAnalysis/VPlusJets/src/QjetsPlugin.h"
+#include "TVector3.h"
+#include "TMath.h"
 
 ewk::GroomedJetFiller::GroomedJetFiller(const char *name, 
                                         TTree* tree, 
@@ -138,6 +140,11 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     bnames.push_back( ("GroomedJet_" + jetLabel_ + "_rcores").c_str() );
     tree_->Branch( ("GroomedJet_" + jetLabel_ + "_ptcores").c_str(), ptcores, ("GroomedJet_" + jetLabel_ + "_ptcores"+"[11][6]/F").c_str() );
     bnames.push_back( ("GroomedJet_" + jetLabel_ + "_ptcores").c_str() );
+    
+    //planarflow
+    tree_->Branch(("GroomedJet_" + jetLabel_ + "_planarflow").c_str(),planarflow, ("GroomedJet_" + jetLabel_ + "_planarflow"+"[11][6]/F").c_str());
+    bnames.push_back( ("GroomedJet_" + jetLabel_ + "_planarflow").c_str() );
+
         // qjets
     tree_->Branch( ("GroomedJet_" + jetLabel_ + "_qjetmass").c_str(), qjetmass, ("GroomedJet_" + jetLabel_ + "_qjetmass"+"[50]/F").c_str() );
     bnames.push_back( ("GroomedJet_" + jetLabel_ + "_qjetmass").c_str() );
@@ -363,7 +370,9 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         
         for (int k = 0; k < 11; ++k){
             rcores[k][j] = -1.; ptcores[k][j] = -1.;
+            planarflow[k][j] = -1.;
         }
+        
         for (int k = 0; k < mQJetsN; ++k){
             qjetmass[k] = 0; qjetmassdrop[k] = 0;
         }
@@ -456,7 +465,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     
     fastjet::ClusterSequence thisClustering_basic(FJparticles, jetDef);
     std::vector<fastjet::PseudoJet> out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(50.0));
-
+    
         // define groomers
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, 0.2), fastjet::SelectorPtFractionMin(0.03)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, 0.3), fastjet::SelectorNHardest(3)));
@@ -590,15 +599,17 @@ cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
             transctr++;
         }        
         
-        
+       //std::cout<< "Beging the n-subjettiness computation" << endl; 
             // n-subjettiness  -------------
         tau1[j] = routine.getTau(1, out_jets.at(j).constituents()); 
         tau2[j] = routine.getTau(2, out_jets.at(j).constituents());
         tau3[j] = routine.getTau(3, out_jets.at(j).constituents());
         tau4[j] = routine.getTau(4, out_jets.at(j).constituents());
-        tau2tau1[j] = tau2[j]/tau1[j];   
-        
+        tau2tau1[j] = tau2[j]/tau1[j];
+       
+       //std::cout<< "End the n-subjettiness computation" << endl;
             // cores computation  -------------
+        //std::cout<< "Beging the core computation" << endl;
         std::vector<fastjet::PseudoJet> constits = thisClustering.constituents(out_jets.at(j));
         for (int kk = 0; kk < 11; ++kk){
             double coreCtr = (double) kk;    
@@ -609,6 +620,22 @@ cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
                 if (tmppt > 0) ptcores[kk][j] = tmppt/out_jets.at(j).pt();
             }
         }
+        //std::cout<< "Ending the core computation" << endl;
+
+        //std::cout<< "Beging the planarflow computation" << endl;
+
+        //planarflow computation
+        for (int kk = 0; kk < 11; ++kk){
+           double coreCtr = (double) (kk + 1);
+           if (coreCtr < mJetRadius*10.){
+               float tmppflow = 0;
+               computePlanarflow(constits,coreCtr/10.,out_jets.at(j),mJetAlgo,tmppflow);
+               planarflow[kk][j] = tmppflow;
+           }
+        }
+        
+        //std::cout<< "Ending the planarflow computation" << endl;
+
             // qjets computation  -------------
         if ((mDoQJets)&&(j == 0)){ // do qjets only for the hardest jet in the event!
             double zcut(0.1), dcut_fctr(0.5), exp_min(0.), exp_max(0.), rigidity(0.1);                
@@ -710,35 +737,90 @@ void ewk::GroomedJetFiller::computeCore( std::vector<fastjet::PseudoJet> constit
     
 }
 
+void ewk::GroomedJetFiller::computePlanarflow(std::vector<fastjet::PseudoJet> constits, double Rval, fastjet::PseudoJet jet,std::string mJetAlgo, float &planarflow){
+
+   fastjet::JetDefinition jetDef_rplanarflow(fastjet::cambridge_algorithm,Rval);
+   if (mJetAlgo == "AK") jetDef_rplanarflow.set_jet_algorithm( fastjet::antikt_algorithm );
+   else if (mJetAlgo == "CA") jetDef_rplanarflow.set_jet_algorithm( fastjet::cambridge_algorithm );
+   else throw cms::Exception("GroomedJetFiller") << " unknown jet algorithm " << std::endl;
+   fastjet::ClusterSequence thisClustering(constits, jetDef_rplanarflow);
+
+   //reclustering jets
+   std::vector<fastjet::PseudoJet> out_jets = sorted_by_pt(thisClustering.inclusive_jets(0.0));
+
+   //leading sub jet constits mass not equal Zero
+   float mJ = jet.m();
+   if(mJ != 0)
+   {
+      std::vector<fastjet::PseudoJet> subconstits = thisClustering.constituents(out_jets.at(0)); 
+
+      TLorentzVector jetp4;
+      //jetp4.SetPxPyPzE(out_jets.at(0).px(),out_jets.at(0).py(),out_jets.at(0).pz(),out_jets.at(0).e());
+      jetp4.SetPxPyPzE(jet.px(),jet.py(),jet.pz(),jet.e());
+   
+      TVector3 zaxis = jetp4.Vect().Unit();
+      TVector3 zbeam(0, 0, 1);
+      
+      //Transverse component (X, Y) relative to the jet(Z) axis
+      TVector3 xaxis = (zaxis.Cross(zbeam)).Unit();
+      TVector3 yaxis = (xaxis.Cross(zaxis)).Unit();
+
+      double I[3][3];
+      for (int i = 0; i < 3; i ++) for (int j = 0; j < 3; j ++) I[i][j] = 0;
+      
+      int matrixsize = subconstits.size();
+
+      for(int k = 0; k < matrixsize; k++)
+      {   
+         TLorentzVector tmpjetk;
+         tmpjetk.SetPxPyPzE(subconstits.at(k).px(),subconstits.at(k).py(),subconstits.at(k).pz(),subconstits.at(k).e());
+         float tmp_px = tmpjetk.Vect().Dot(xaxis);
+         float tmp_py = tmpjetk.Vect().Dot(yaxis);
+         //Avoid Too Samll Energy
+         if(subconstits.at(k).e() >= 0.001){
+            
+           I[1][1] += tmp_px * tmp_px / (mJ * subconstits.at(k).e());
+           I[1][2] += tmp_px * tmp_py / (mJ * subconstits.at(k).e());
+           I[2][1] += tmp_py * tmp_px / (mJ * subconstits.at(k).e());
+           I[2][2] += tmp_py * tmp_py / (mJ * subconstits.at(k).e());
+
+         }
+      }
+
+      //From arXiv 1012.2077
+      planarflow = 4*(I[1][1]*I[2][2] - I[1][2]*I[2][1])/((I[1][1]+I[2][2])*(I[1][1]+I[2][2])); 
+   }
+}
+
 float ewk::GroomedJetFiller::computeJetCharge( std::vector<fastjet::PseudoJet> constits, std::vector<float> pdgIds, float Ejet ){
-    
-    float val = 0.;
-    for (unsigned int i = 0; i < pdgIds.size(); i++){
-        float qq = getPdgIdCharge( pdgIds.at(i) );
-        val += qq*pow(constits.at(i).e(),mJetChargeKappa);
-    }
-    val /= Ejet;
-    return val;
-    
+
+   float val = 0.;
+   for (unsigned int i = 0; i < pdgIds.size(); i++){
+      float qq = getPdgIdCharge( pdgIds.at(i) );
+      val += qq*pow(constits.at(i).e(),mJetChargeKappa);
+   }
+   val /= Ejet;
+   return val;
+
 }
 
 float ewk::GroomedJetFiller::getPdgIdCharge( float fid ){
 
-    float qq = -99.;
-    int id = (int) fid;
-    if (std::find(neutrals.begin(), neutrals.end(), id) != neutrals.end()){
-        qq = 0.;
-    }
-    else if (std::find(positives.begin(), positives.end(), id) != positives.end()){
-        qq = 1.;
-    }
-    else if (std::find(negatives.begin(), negatives.end(), id) != negatives.end()){
-        qq = -1.;
-    }
-    else{
-         throw cms::Exception("GroomedJetFiller") << " unknown PDG id " << id << std::endl;
-    }
-    return qq;
+   float qq = -99.;
+   int id = (int) fid;
+   if (std::find(neutrals.begin(), neutrals.end(), id) != neutrals.end()){
+      qq = 0.;
+   }
+   else if (std::find(positives.begin(), positives.end(), id) != positives.end()){
+      qq = 1.;
+   }
+   else if (std::find(negatives.begin(), negatives.end(), id) != negatives.end()){
+      qq = -1.;
+   }
+   else{
+      throw cms::Exception("GroomedJetFiller") << " unknown PDG id " << id << std::endl;
+   }
+   return qq;
 }
 
 
