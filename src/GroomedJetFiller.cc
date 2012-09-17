@@ -652,7 +652,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
                 fastjet::ClusterSequence qjet_seq(constits, qjet_def);
                 vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(50.0));
                       if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
- 					   inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(50.0));
+ 					   inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(20.0));
 
                 if (inclusive_jets2.size()>0) {
                   qjetmass[ii] = inclusive_jets2[0].m();
