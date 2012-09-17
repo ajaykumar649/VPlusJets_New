@@ -39,7 +39,7 @@
 
 
 ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
-  myTree ( fs -> make<TTree>(iConfig.getParameter<std::string>("TreeName").c_str(),"V+jets Tree") ), 
+  myTree ( fs -> mkdir("../").make<TTree>(iConfig.getParameter<std::string>("TreeName").c_str(),"V+jets Tree") ), 
   CorrectedPFJetFiller ( iConfig.existsAs<edm::InputTag>("srcPFCor") ? 
   new JetTreeFiller("CorrectedPFJetFiller", myTree, "PFCor", iConfig) : 0),
   CorrectedPFJetFillerVBFTag ( iConfig.existsAs<edm::InputTag>("srcPFCorVBFTag") ? 
