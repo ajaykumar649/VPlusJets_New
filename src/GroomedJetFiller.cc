@@ -462,10 +462,13 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     fastjet::ClusterSequenceArea thisClustering(FJparticles, jetDef, fjAreaDefinition);
     
     std::vector<fastjet::PseudoJet> out_jets = sorted_by_pt(thisClustering.inclusive_jets(50.0));
-    
+         if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
+				out_jets = sorted_by_pt(thisClustering.inclusive_jets(20.0));
     fastjet::ClusterSequence thisClustering_basic(FJparticles, jetDef);
     std::vector<fastjet::PseudoJet> out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(50.0));
-    
+         if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
+				out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(20.0));    
+
         // define groomers
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, 0.2), fastjet::SelectorPtFractionMin(0.03)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, 0.3), fastjet::SelectorNHardest(3)));
@@ -486,8 +489,8 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         // s t a r t   l o o p   o n   j e t s
         // -----------------------------------------------
         // -----------------------------------------------
-cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
-    for (unsigned j = 0; j < out_jets.size(); j++) {
+//      cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
+    for (unsigned j = 0; j < out_jets.size()&&int(j)<NUM_JET_MAX; j++) {
         
         if (mSaveConstituents && j==0){
             if (out_jets_basic.at(j).constituents().size() >= 100) nconstituents0 = 100;
@@ -648,6 +651,9 @@ cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
             for(unsigned int ii = 0 ; ii < (unsigned int) mQJetsN ; ii++){
                 fastjet::ClusterSequence qjet_seq(constits, qjet_def);
                 vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(50.0));
+                      if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
+ 					   inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(50.0));
+
                 if (inclusive_jets2.size()>0) {
                   qjetmass[ii] = inclusive_jets2[0].m();
                   if (inclusive_jets2[0].constituents().size() > 1){
