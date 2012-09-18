@@ -723,7 +723,7 @@ TLorentzVector ewk::GroomedJetFiller::getCorrectedJet(fastjet::PseudoJet& jet) {
     double jecVal = 1.0;
     
     if(applyJECToGroomedJets_) 
-        getJEC( jet.eta(), jet.pt(), jet.e(), jet.area() );   
+        jecVal = getJEC( jet.eta(), jet.pt(), jet.e(), jet.area() );   
     
     TLorentzVector jet_corr(jet.px() * jecVal, 
                             jet.py() * jecVal, 
