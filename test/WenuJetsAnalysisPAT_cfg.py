@@ -137,7 +137,12 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
     srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
 
-    applyJECToGroomedJets=cms.bool(True)
+    applyJECToGroomedJets=cms.bool(True),
+    doGroomedAK5 = cms.bool(True),
+    doGroomedAK7 = cms.bool(False),
+    doGroomedAK8 = cms.bool(False),
+    doGroomedCA8 = cms.bool(True),
+    doGroomedCA12 = cms.bool(False)
 )
 
 if isMC:

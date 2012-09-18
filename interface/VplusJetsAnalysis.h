@@ -79,6 +79,13 @@ namespace ewk
 	std::string JetsFor_rho;
 	edm::InputTag mInputgenMet;
 	bool runoverAOD;
+
+    bool doGroomedAK5_;
+    bool doGroomedAK7_;
+    bool doGroomedAK8_;
+    bool doGroomedCA8_;
+    bool doGroomedCA12_;
+
     /// The objects that actually computes variables and fill the tree 
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFillerVBFTag; //For VBF Tag Jets

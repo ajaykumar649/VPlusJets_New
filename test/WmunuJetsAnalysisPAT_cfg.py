@@ -73,7 +73,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
+       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
 #       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
 ) )
 
@@ -139,6 +139,11 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     bTagger=cms.string("simpleSecondaryVertexHighEffBJetTags"),
 
     applyJECToGroomedJets=cms.bool(True),
+    doGroomedAK5 = cms.bool(True),
+    doGroomedAK7 = cms.bool(False),
+    doGroomedAK8 = cms.bool(False),
+    doGroomedCA8 = cms.bool(True),
+    doGroomedCA12 = cms.bool(False)
 )
 
 if isMC:

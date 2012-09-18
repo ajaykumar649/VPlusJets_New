@@ -71,7 +71,7 @@ namespace ewk
       ~GroomedJetFiller(){ };
          
     /// To be called once per event to fill the values for groomed jets
-    void fill(const edm::Event& iEvent);        
+    void fill(const edm::Event& iEvent, bool doGrooming);        
 
     static const int NUM_JET_MAX = 6;
 

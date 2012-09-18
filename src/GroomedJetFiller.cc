@@ -312,7 +312,7 @@ void ewk::GroomedJetFiller::SetBranch( int* x, std::string name)
 
 
     // ------------ method called to produce the data  ------------
-void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
+void ewk::GroomedJetFiller::fill(const edm::Event& iEvent, bool doGrooming) {
             
         ////----------
         // init
@@ -378,7 +378,8 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         }
     }
     
-    
+    if(!doGrooming) return;
+
         // ----- get handles... --------    
     std::string pfinput_ = mGroomedJet;    
     edm::Handle< std::vector<float> > PF_px_handle;

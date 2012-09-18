@@ -85,6 +85,17 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   JetsFor_rho =  iConfig.getParameter<std::string>("srcJetsforRho") ; 
   if(  iConfig.existsAs<edm::InputTag>("srcgenMet") )
 	  mInputgenMet =  iConfig.getParameter<edm::InputTag>("srcgenMet") ; 
+
+   if( iConfig.existsAs<bool>("doGroomedAK5") ) 
+      doGroomedAK5_=iConfig.getParameter< bool >("doGroomedAK5");
+   if( iConfig.existsAs<bool>("doGroomedAK7") ) 
+      doGroomedAK7_=iConfig.getParameter< bool >("doGroomedAK7");
+   if( iConfig.existsAs<bool>("doGroomedAK8") ) 
+      doGroomedAK8_=iConfig.getParameter< bool >("doGroomedAK8");
+   if( iConfig.existsAs<bool>("doGroomedCA8") ) 
+      doGroomedCA8_=iConfig.getParameter< bool >("doGroomedCA8");
+   if( iConfig.existsAs<bool>("doGroomedCA12") ) 
+      doGroomedCA12_=iConfig.getParameter< bool >("doGroomedCA12");
 }
 
  
@@ -212,11 +223,11 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   /**  Store groomed jet information */
-  if(AK5groomedJetFiller.get()) AK5groomedJetFiller->fill(iEvent);
-  if(AK7groomedJetFiller.get()) AK7groomedJetFiller->fill(iEvent);
-  if(AK8groomedJetFiller.get()) AK8groomedJetFiller->fill(iEvent);
-  if(CA8groomedJetFiller.get()) CA8groomedJetFiller->fill(iEvent);
-  if(CA12groomedJetFiller.get()) CA12groomedJetFiller->fill(iEvent);
+  if(AK5groomedJetFiller.get()) AK5groomedJetFiller->fill(iEvent,doGroomedAK5_);
+  if(AK7groomedJetFiller.get()) AK7groomedJetFiller->fill(iEvent,doGroomedAK7_);
+  if(AK8groomedJetFiller.get()) AK8groomedJetFiller->fill(iEvent,doGroomedAK8_);
+  if(CA8groomedJetFiller.get()) CA8groomedJetFiller->fill(iEvent,doGroomedCA8_);
+  if(CA12groomedJetFiller.get()) CA12groomedJetFiller->fill(iEvent,doGroomedCA12_);
 
 
 
