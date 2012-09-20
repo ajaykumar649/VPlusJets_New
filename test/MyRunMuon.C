@@ -37,6 +37,18 @@ void MyRunMuon(double myflag=20112250, bool isQCD=false, int runflag=0)
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_withqg_nJ3_mu_BDT.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_noqg_nJ2_mu_BDT.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_noqg_nJ3_mu_BDT.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_170_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_180_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_190_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_200_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_250_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_300_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_350_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_550_VBF_mu_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_600_VBF_mu_Likelihood.class.C+");
   gROOT->ProcessLine(".L kanamuon.C+");
   gROOT->ProcessLine("kanamuon runover");
   //Set true/false for isQCD
