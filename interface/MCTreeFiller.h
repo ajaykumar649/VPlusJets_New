@@ -59,6 +59,7 @@ namespace ewk {
     void SetBranch( float* x, std::string name );
     void SetBranch( int* x, std::string name );
     void SetBranch( bool* x, std::string name );
+    void SetBranch( float x, std::string name );
 
     TTree* tree_;
     const char *  name_;
@@ -71,20 +72,20 @@ namespace ewk {
   private:
     // private data members
     
-    float V_mass;
-    float V_px;
-    float V_py;
-    float V_pz;
-    float V_E;
-    float V_Pt;
-    float V_Et;
-    float V_Eta;
-    float V_Phi;
-    float V_Vx;
-    float V_Vy;
-    float V_Vz;
-    float V_Y;
-
+    float H_mass;
+    float H_px;
+    float H_py;
+    float H_pz;
+    float H_E;
+    float H_Pt;
+    float H_Et;
+    float H_Eta;
+    float H_Phi;
+    float H_Vx;
+    float H_Vy;
+    float H_Vz;
+    float H_Y;
+/*
     int l1Charge;
     int l2Charge;
 
@@ -116,6 +117,57 @@ namespace ewk {
     float l2Vy;
     float l2Vz;
     float l2Y;	  
+*/
+    ///////////////////
+   
+    int Parton_Charge[2];
+    float Parton_px[2];
+    float Parton_py[2];
+    float Parton_pz[2];
+    float Parton_E[2];
+    float Parton_Pt[2];
+    float Parton_Et[2];
+    float Parton_Eta[2];
+    float Parton_Theta[2];
+    float Parton_Phi[2];
+    float Parton_Vx[2];
+    float Parton_Vy[2];
+    float Parton_Vz[2];
+    float Parton_Y[2];
+
+    ///////////////////
+    float Lepton_px;
+    float Lepton_py;
+    float Lepton_pz;
+    float Lepton_E;
+    float Lepton_Pt;
+    float Lepton_Et;
+    float Lepton_Eta;
+    int   Lepton_Charge;
+    float Lepton_Theta;
+    float Lepton_Phi;
+    float Lepton_Vx;
+    float Lepton_Vy;
+    float Lepton_Vz;
+    float Lepton_Y;
+
+    ///////////////////
+    float Met_px;
+    float Met_py;
+    float Met_pz;
+    float Met_E;
+    float Met_Pt;
+    float Met_Et;
+    float Met_Eta;
+    int   Met_Charge;
+    float Met_Theta;
+    float Met_Phi;
+    float Met_Vx;
+    float Met_Vy;
+    float Met_Vz;
+    float Met_Y;
+
+
 
   };
 

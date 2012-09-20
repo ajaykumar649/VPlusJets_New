@@ -72,19 +72,20 @@ void ewk::MCTreeFiller::SetBranches()
     }
   }
 
-  SetBranch( &V_mass,      "mass_gen");
-  SetBranch( &V_px,        "px_gen");
-  SetBranch( &V_py,        "py_gen");
-  SetBranch( &V_pz,        "pz_gen");
-  SetBranch( &V_E,         "e_gen");
-  SetBranch( &V_Pt,        "pt_gen");
-  SetBranch( &V_Et,        "et_gen");
-  SetBranch( &V_Eta,       "eta_gen");    
-  SetBranch( &V_Phi,       "phi_gen");
-  SetBranch( &V_Vx,        "vx_gen");
-  SetBranch( &V_Vy,        "vy_gen");
-  SetBranch( &V_Vz,        "vz_gen");
-  SetBranch( &V_Y,         "y_gen");
+  SetBranch( &H_mass,      "H_mass_gen");
+  SetBranch( &H_px,        "H_px_gen");
+  SetBranch( &H_py,        "H_py_gen");
+  SetBranch( &H_pz,        "H_pz_gen");
+  SetBranch( &H_E,         "H_e_gen");
+  SetBranch( &H_Pt,        "H_pt_gen");
+  SetBranch( &H_Et,        "H_et_gen");
+  SetBranch( &H_Eta,       "H_eta_gen");    
+  SetBranch( &H_Phi,       "H_phi_gen");
+  SetBranch( &H_Vx,        "H_vx_gen");
+  SetBranch( &H_Vy,        "H_vy_gen");
+  SetBranch( &H_Vz,        "H_vz_gen");
+  SetBranch( &H_Y,         "H_y_gen");
+/*
   ///////////////////////////////////////////////
   SetBranch( &l1px,             lept1+"_px_gen" );
   SetBranch( &l1py,             lept1+"_py_gen" );
@@ -116,6 +117,57 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &l2Vy,             lept2+"_vy_gen" );
   SetBranch( &l2Vz,             lept2+"_vz_gen" );
   SetBranch( &l2Y,              lept2+"_y_gen" );
+*/
+
+ ////////////////////////////////////////////////////////
+  SetBranch( Parton_px,             "Parton_px[2]" );
+  SetBranch( Parton_py,             "Parton_py[2]" );
+  SetBranch( Parton_pz,             "Parton_pz[2]" );
+  SetBranch( Parton_E,              "Parton_E[2]" );
+  SetBranch( Parton_Pt,             "Parton_pt[2]" );
+  SetBranch( Parton_Et,             "Parton_et[2]" );
+  SetBranch( Parton_Eta,            "Parton_eta[2]" ); 
+  SetBranch( Parton_Theta,          "Parton_theta[2]" );    
+  SetBranch( Parton_Phi,            "Parton_phi[2]" );
+  SetBranch( Parton_Charge,         "Parton_charge[2]" );
+  SetBranch( Parton_Vx,             "Parton_vx[2]" );
+  SetBranch( Parton_Vy,             "Parton_vy[2]" );
+  SetBranch( Parton_Vz,             "Parton_vz[2]" );
+  SetBranch( Parton_Y,              "Parton_y[2]" );
+
+ ////////////////////////////////////////////////////////
+  SetBranch( &Lepton_px,             "Lepton_px" );
+  SetBranch( &Lepton_py,             "Lepton_py" );
+  SetBranch( &Lepton_pz,             "Lepton_pz" );
+  SetBranch( &Lepton_E,              "Lepton_E" );
+  SetBranch( &Lepton_Pt,             "Lepton_pt" );
+  SetBranch( &Lepton_Et,             "Lepton_et" );
+  SetBranch( &Lepton_Eta,            "Lepton_eta" );    
+  SetBranch( &Lepton_Theta,          "Lepton_theta" );    
+  SetBranch( &Lepton_Phi,            "Lepton_phi" );
+  SetBranch( &Lepton_Charge,         "Lepton_charge" );
+  SetBranch( &Lepton_Vx,             "Lepton_vx" );
+  SetBranch( &Lepton_Vy,             "Lepton_vy" );
+  SetBranch( &Lepton_Vz,             "Lepton_vz" );
+  SetBranch( &Lepton_Y,              "Lepton_y" );
+
+ ////////////////////////////////////////////////////////
+  SetBranch( &Met_px,             "Met_px" );
+  SetBranch( &Met_py,             "Met_py" );
+  SetBranch( &Met_pz,             "Met_pz" );
+  SetBranch( &Met_E,              "Met_E" );
+  SetBranch( &Met_Pt,             "Met_pt" );
+  SetBranch( &Met_Et,             "Met_et" );
+  SetBranch( &Met_Eta,            "Met_eta" );    
+  SetBranch( &Met_Theta,          "Met_theta" );    
+  SetBranch( &Met_Phi,            "Met_phi" );
+  SetBranch( &Met_Charge,         "Met_charge" );
+  SetBranch( &Met_Vx,             "Met_vx" );
+  SetBranch( &Met_Vy,             "Met_vy" );
+  SetBranch( &Met_Vz,             "Met_vz" );
+  SetBranch( &Met_Y,              "Met_y" );
+
+
     
 }
 /////////////////////////////////////////////////////////////////////////
@@ -128,20 +180,20 @@ void ewk::MCTreeFiller::SetBranches()
 void ewk::MCTreeFiller::init()   
 {
   // initialize private data members
-  V_mass                  = -1.;
-  V_px                  = -99999.;
-  V_py                  = -99999.;
-  V_pz                  = -99999.;
-  V_E                   = -1.;
-  V_Pt                  = -1.;
-  V_Et                  = -1.;
-  V_Eta                 = -10.;
-  V_Phi                 = -10.;
-  V_Vx                  = -10.;
-  V_Vy                  = -10.;
-  V_Vz                  = -10.;
-  V_Y                   = -10.;
-
+  H_mass                  = -1.;
+  H_px                  = -99999.;
+  H_py                  = -99999.;
+  H_pz                  = -99999.;
+  H_E                   = -1.;
+  H_Pt                  = -1.;
+  H_Et                  = -1.;
+  H_Eta                 = -10.;
+  H_Phi                 = -10.;
+  H_Vx                  = -10.;
+  H_Vy                  = -10.;
+  H_Vz                  = -10.;
+  H_Y                   = -10.;
+/*
   l1Charge           = -10;
   l2Charge          = -10;
 
@@ -172,6 +224,55 @@ void ewk::MCTreeFiller::init()
   l2Vy              = -10.;
   l2Vz              = -10.;
   l2Y               = -10.;
+*/
+for ( int i =0; i<2; i++){
+  Parton_px[i]              = -99999.;
+  Parton_py[i]              = -99999.;
+  Parton_pz[i]              = -99999.;
+  Parton_E[i]               = -1.;
+  Parton_Pt[i]              = -1.;
+  Parton_Et[i]              = -1.;
+  Parton_Eta[i]             = -10.;
+  Parton_Theta[i]           = -99999.;
+  Parton_Phi[i]             = -10.;
+  Parton_Vx[i]              = -10.;
+  Parton_Vy[i]              = -10.;
+  Parton_Vz[i]              = -10.;
+  Parton_Y[i]              =  -10.;
+}
+
+  Lepton_px              = -99999.;
+  Lepton_py              = -99999.;
+  Lepton_pz              = -99999.;
+  Lepton_E               = -1.;
+  Lepton_Pt              = -1.;
+  Lepton_Et              = -1.;
+  Lepton_Eta             = -10.;
+  Lepton_Charge          = -10;
+  Lepton_Theta           = -99999.;
+  Lepton_Phi             = -10.;
+  Lepton_Vx              = -10.;
+  Lepton_Vy              = -10.;
+  Lepton_Vz              = -10.;
+  Lepton_Y               = -10.;
+
+  Met_px              = -99999.;
+  Met_py              = -99999.;
+  Met_pz              = -99999.;
+  Met_E               = -1.;
+  Met_Pt              = -1.;
+  Met_Et              = -1.;
+  Met_Eta             = -10.;
+  Met_Charge          = -10;
+  Met_Theta           = -99999.;
+  Met_Phi             = -10.;
+  Met_Vx              = -10.;
+  Met_Vy              = -10.;
+  Met_Vz              = -10.;
+  Met_Y               = -10.;
+
+
+
   // initialization done
 }
 
@@ -195,25 +296,27 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
 
 
   // now iterate over the daughters  
-  const reco::Candidate *V=NULL;
-  const reco::Candidate* lepton1=NULL;
-  const reco::Candidate* lepton2=NULL;
+//  const reco::Candidate *V=NULL;
+//  const reco::Candidate* lepton1=NULL;
+//  const reco::Candidate* lepton2=NULL;
+  const reco::Candidate *H=NULL;
+  const reco::Candidate *Lepton=NULL;
+  const reco::Candidate *Parton1=NULL;
+  const reco::Candidate *Parton2=NULL;
+  const reco::Candidate *Met=NULL;
 
   for(size_t i = 0; i < nGen; ++ i) {
-
-    V = &((*genParticles)[i]);
-
+/*
+     V = &((*genParticles)[i]);
     // The vector boson must have stutus==3  
     if( !(abs(V->status())==3) ) continue;
-
     size_t ndau = 0;
     if(!(V==NULL)) ndau = V->numberOfDaughters();
-
     // The vector boson must decay to leptons
     if(ndau<1) continue;
-    if( (Vtype_=="Z") && !( V->pdgId()==22 || V->pdgId()==23) ) continue;
-    if( (Vtype_=="W") && !(abs(V->pdgId())==24) ) continue;
-
+    if( (Vtype_=="Z") && !( V->pdgId()==22 || V->pdgId()==23) ) {
+    if( (Vtype_=="W") && !(abs(V->pdgId())==24) ) {
+	//std::cout<<V->pdgId()<<std::endl;
     // Loop over daugthers
     for(size_t j = 0; j < ndau; ++ j) {
       const reco::Candidate *d = V->daughter( j );
@@ -227,25 +330,60 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
         if ( abs(d->pdgId())==(pdgIdDau_+1) )  lepton2  = d;
       } 
     } // end ndaughter loop
+}}
+*/
+//;;;;;;;;;;;;;;;;;;;;;;;;;;;my stuff;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    H = &((*genParticles)[i]);
+    if( !((abs(H->status())==3) && (abs(H->pdgId())==25) ))continue;
+  //Higgs must decay to W
+	std::cout<<"hhhhhhhhhhhh    "<<H->pdgId()<<std::endl;
+    size_t Hndau =0;
+    size_t Wndau =0;
+    if(!(H==NULL)) Hndau = H->numberOfDaughters();
+//        std::cout<<"WWWW    "<<Hndau<<std::endl;
+    if(Hndau<1) continue;
+    for(size_t k =0; k< Hndau-1; k++){
+//loop over higgs daughter
+      const reco::Candidate *e = H->daughter( k );
+        //std::cout<<"WWWW    "<<e->pdgId()<<std::endl;
 
-  } // end nGen loop
+      if( !(e==NULL) && (abs(e->pdgId())==24) ) {
+//if higgs dau is W
+        std::cout<<"WWWW    "<<e->pdgId()<<std::endl;
 
-  if( V==NULL ) return;
-  ////////// Vector boson quantities //////////////
-  V_mass = V->mass();
-  V_Eta = V->eta();   
-  V_Phi = V->phi();
-  V_Vx = V->vx();
-  V_Vy = V->vy();
-  V_Vz = V->vz();
-  V_Y  = V->rapidity();
-  V_px = V->px();
-  V_py = V->py();
-  V_pz = V->pz();
-  V_E  = V->energy();
-  V_Pt = V->pt();
-  V_Et = V->et();
+           Wndau = e->numberOfDaughters();
+           if(Wndau<1) continue;
+           for (size_t l =0; l<Wndau-1; l++){
+//loop over W daughter
 
+           const reco::Candidate *f = e->daughter( l );
+        std::cout<<" dau    "<<f->pdgId()<<std::endl;
+           if( !(f==NULL)&& (abs(f->pdgId())<=4)){ 
+           Parton1 =e->daughter(0);
+           Parton2 =e->daughter(1);}
+           else if (!(f==NULL) && ((abs(f->pdgId())==12) ||(abs(f->pdgId())==14))) Met =f;
+           else if (!(f==NULL) && ((abs(f->pdgId())==13) ||(abs(f->pdgId())==11))) Lepton =f;
+	}
+	}	
+	} 
+
+  ////////// Higgs boson quantities //////////////
+  H_mass = H->mass();
+  H_Eta = H->eta();   
+  H_Phi = H->phi();
+  H_Vx = H->vx();
+  H_Vy = H->vy();
+  H_Vz = H->vz();
+  H_Y  = H->rapidity();
+  H_px = H->px();
+  H_py = H->py();
+  H_pz = H->pz();
+  H_E  = H->energy();
+  H_Pt = H->pt();
+  H_Et = H->et();
+
+} //nGen loop end
+/*
   ////////// lepton #1 quantities //////////////
   if( !(lepton1 == NULL) ) {
     l1Charge           = lepton1-> charge();
@@ -281,10 +419,91 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     l2Pt              = lepton2->pt();
     l2Et              = lepton2->et();	 
   } 
+*/
+//Parton filling
+  if( !(Parton1 == NULL) ) {
+  
+    Parton_Charge[0]          = Parton1->charge();
+    Parton_Vx[0]              = Parton1->vx();
+    Parton_Vy[0]              = Parton1->vy();
+    Parton_Vz[0]              = Parton1->vz();
+    Parton_Y[0]               = Parton1->rapidity();
+    Parton_Theta[0]           = Parton1->theta();
+    Parton_Eta[0]             = Parton1->eta();
+    Parton_Phi[0]             = Parton1->phi();
+    Parton_E[0]               = Parton1->energy();
+    Parton_px[0]              = Parton1->px();
+    Parton_py[0]              = Parton1->py();
+    Parton_pz[0]              = Parton1->pz();
+    Parton_Pt[0]              = Parton1->pt();
+    Parton_Et[0]              = Parton1->et(); 
 
 }
 
+//Parton filling
+  if( !(Parton2 == NULL) ) {
 
+    Parton_Charge[1]          = Parton2->charge();
+    Parton_Vx[1]              = Parton2->vx();
+    Parton_Vy[1]              = Parton2->vy();
+    Parton_Vz[1]              = Parton2->vz();
+    Parton_Y[1]               = Parton2->rapidity();
+    Parton_Theta[1]           = Parton2->theta();
+    Parton_Eta[1]             = Parton2->eta();
+    Parton_Phi[1]             = Parton2->phi();
+    Parton_E[1]               = Parton2->energy();
+    Parton_px[1]              = Parton2->px();
+    Parton_py[1]              = Parton2->py();
+    Parton_pz[1]              = Parton2->pz();
+    Parton_Pt[1]              = Parton2->pt();
+    Parton_Et[1]              = Parton2->et();
+
+}
+
+//Lepton filling
+
+  if( !(Lepton == NULL) ) {
+    Lepton_Charge          = Lepton->charge();
+    Lepton_Vx              = Lepton->vx();
+    Lepton_Vy              = Lepton->vy();
+    Lepton_Vz              = Lepton->vz();
+    Lepton_Y               = Lepton->rapidity();
+    Lepton_Theta           = Lepton->theta();
+    Lepton_Eta             = Lepton->eta();
+    Lepton_Phi             = Lepton->phi();
+    Lepton_E               = Lepton->energy();
+    Lepton_px              = Lepton->px();
+    Lepton_py              = Lepton->py();
+    Lepton_pz              = Lepton->pz();
+    Lepton_Pt              = Lepton->pt();
+    Lepton_Et              = Lepton->et();
+  }
+
+
+//Met filling
+
+  if( !(Met == NULL) ) {
+    Met_Charge          = Met->charge();
+    Met_Vx              = Met->vx();
+    Met_Vy              = Met->vy();
+    Met_Vz              = Met->vz();
+    Met_Y               = Met->rapidity();
+    Met_Theta           = Met->theta();
+    Met_Eta             = Met->eta();
+    Met_Phi             = Met->phi();
+    Met_E               = Met->energy();
+    Met_px              = Met->px();
+    Met_py              = Met->py();
+    Met_pz              = Met->pz();
+    Met_Pt              = Met->pt();
+    Met_Et              = Met->et();
+  }
+
+
+
+
+
+}
 
 
 
