@@ -1157,7 +1157,7 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
   // Parameter Setup
   const unsigned int jetsize         = 6;
   const double Jpt                   = 30;    // Jet pt threshold
-  const double boostedWJpt           = 150;   //boosted Jet cut
+  const double boostedWJpt           = 80;   // Conservative boosted Jet cut
   const double boostedWtranpt        = 150;
   const double btssv                 = 1.74;  // BTagging
   const double VBF_MaxEta            = 4.5;   // VBF jet max eta
