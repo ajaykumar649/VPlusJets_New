@@ -1446,6 +1446,7 @@ public :
 
    virtual void     myana(double myflag = -999, bool isQCD = false, int runflag=0);
    virtual void     Loop(int wda, int runflag, const char * outfilename, bool isQCD = false);
+   virtual double   getDeltaPhi(double phi1, double phi2);
    virtual bool     doKinematicFit(Int_t                 fflage,
 				   const TLorentzVector     mup, 
 				   const TLorentzVector     nvp,
