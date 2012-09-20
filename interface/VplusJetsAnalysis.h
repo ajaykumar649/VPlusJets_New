@@ -80,12 +80,6 @@ namespace ewk
 	edm::InputTag mInputgenMet;
 	bool runoverAOD;
 
-    bool doGroomedAK5_;
-    bool doGroomedAK7_;
-    bool doGroomedAK8_;
-    bool doGroomedCA8_;
-    bool doGroomedCA12_;
-
     /// The objects that actually computes variables and fill the tree 
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFiller;
     std::auto_ptr<ewk::JetTreeFiller> CorrectedPFJetFillerVBFTag; //For VBF Tag Jets
@@ -95,6 +89,12 @@ namespace ewk
     std::auto_ptr<ewk::GroomedJetFiller> AK8groomedJetFiller;
     std::auto_ptr<ewk::GroomedJetFiller> CA8groomedJetFiller;
     std::auto_ptr<ewk::GroomedJetFiller> CA12groomedJetFiller;
+
+    std::auto_ptr<ewk::GroomedJetFiller> genAK5groomedJetFiller;
+    std::auto_ptr<ewk::GroomedJetFiller> genAK7groomedJetFiller;
+    std::auto_ptr<ewk::GroomedJetFiller> genAK8groomedJetFiller;
+    std::auto_ptr<ewk::GroomedJetFiller> genCA8groomedJetFiller;
+    std::auto_ptr<ewk::GroomedJetFiller> genCA12groomedJetFiller;
 
 
     std::auto_ptr<ewk::JetTreeFiller> GenJetFiller;

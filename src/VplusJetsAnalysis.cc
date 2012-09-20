@@ -44,11 +44,31 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   new JetTreeFiller("CorrectedPFJetFiller", myTree, "PFCor", iConfig) : 0),
   CorrectedPFJetFillerVBFTag ( iConfig.existsAs<edm::InputTag>("srcPFCorVBFTag") ? 
   new JetTreeFiller("CorrectedPFJetFillerVBFTag", myTree, "PFCorVBFTag", iConfig) : 0),
-  AK5groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "AK5", "selectedPatJetsPFlow", iConfig)),
-  AK7groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "AK7", "pfInputsAK7", iConfig)),
-  AK8groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "AK8", "pfInputsAK8", iConfig)),
-  CA8groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "CA8", "pfInputsCA8", iConfig)),
-  CA12groomedJetFiller (new GroomedJetFiller("GroomedJetFiller", myTree, "CA12", "pfInputsCA12", iConfig)),
+  AK5groomedJetFiller ((iConfig.existsAs<bool>("doGroomedAK5")&& iConfig.getParameter< bool >("doGroomedAK5")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "AK5", "selectedPatJetsPFlow", iConfig) : 0),
+  AK7groomedJetFiller ((iConfig.existsAs<bool>("doGroomedAK7")&& iConfig.getParameter< bool >("doGroomedAK7")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "AK7", "pfInputsAK7", iConfig):0),
+  AK8groomedJetFiller ((iConfig.existsAs<bool>("doGroomedAK8")&& iConfig.getParameter< bool >("doGroomedAK8")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "AK8", "pfInputsAK8", iConfig):0),
+  CA8groomedJetFiller ((iConfig.existsAs<bool>("doGroomedCA8")&& iConfig.getParameter< bool >("doGroomedCA8")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "CA8", "pfInputsCA8", iConfig):0),
+  CA12groomedJetFiller ((iConfig.existsAs<bool>("doGroomedCA12")&& iConfig.getParameter< bool >("doGroomedCA12")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "CA12", "pfInputsCA12", iConfig):0),
+  genAK5groomedJetFiller ((iConfig.existsAs<bool>("doGroomedAK5")&& iConfig.getParameter< bool >("doGroomedAK5")&& 
+			iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "AK5", "genParticlesForJets", iConfig,1):0),
+  genAK7groomedJetFiller ((iConfig.existsAs<bool>("doGroomedAK7")&& iConfig.getParameter< bool >("doGroomedAK7")&& 
+			iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "AK7", "genParticlesForJets", iConfig,1):0),
+  genAK8groomedJetFiller ((iConfig.existsAs<bool>("doGroomedAK8")&& iConfig.getParameter< bool >("doGroomedAK8")&& 
+			iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "AK8", "genParticlesForJets", iConfig,1):0),
+  genCA8groomedJetFiller ((iConfig.existsAs<bool>("doGroomedCA8")&& iConfig.getParameter< bool >("doGroomedCA8")&& 
+			iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "CA8", "genParticlesForJets", iConfig,1):0),
+  genCA12groomedJetFiller ((iConfig.existsAs<bool>("doGroomedCA12")&& iConfig.getParameter< bool >("doGroomedCA12")&& 
+			iConfig.existsAs<bool>("runningOverMC") && iConfig.getParameter<bool>("runningOverMC")) ?
+			new GroomedJetFiller("GroomedJetFiller", myTree, "CA12", "genParticlesForJets", iConfig,1):0),
   GenJetFiller ( (iConfig.existsAs<bool>("runningOverMC") && 
   iConfig.getParameter<bool>("runningOverMC") && 
   iConfig.existsAs<edm::InputTag>("srcGen")) ?  
@@ -86,16 +106,6 @@ ewk::VplusJetsAnalysis::VplusJetsAnalysis(const edm::ParameterSet& iConfig) :
   if(  iConfig.existsAs<edm::InputTag>("srcgenMet") )
 	  mInputgenMet =  iConfig.getParameter<edm::InputTag>("srcgenMet") ; 
 
-   if( iConfig.existsAs<bool>("doGroomedAK5") ) 
-      doGroomedAK5_=iConfig.getParameter< bool >("doGroomedAK5");
-   if( iConfig.existsAs<bool>("doGroomedAK7") ) 
-      doGroomedAK7_=iConfig.getParameter< bool >("doGroomedAK7");
-   if( iConfig.existsAs<bool>("doGroomedAK8") ) 
-      doGroomedAK8_=iConfig.getParameter< bool >("doGroomedAK8");
-   if( iConfig.existsAs<bool>("doGroomedCA8") ) 
-      doGroomedCA8_=iConfig.getParameter< bool >("doGroomedCA8");
-   if( iConfig.existsAs<bool>("doGroomedCA12") ) 
-      doGroomedCA12_=iConfig.getParameter< bool >("doGroomedCA12");
 }
 
  
@@ -223,11 +233,16 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
 
 
   /**  Store groomed jet information */
-  if(AK5groomedJetFiller.get()) AK5groomedJetFiller->fill(iEvent,doGroomedAK5_);
-  if(AK7groomedJetFiller.get()) AK7groomedJetFiller->fill(iEvent,doGroomedAK7_);
-  if(AK8groomedJetFiller.get()) AK8groomedJetFiller->fill(iEvent,doGroomedAK8_);
-  if(CA8groomedJetFiller.get()) CA8groomedJetFiller->fill(iEvent,doGroomedCA8_);
-  if(CA12groomedJetFiller.get()) CA12groomedJetFiller->fill(iEvent,doGroomedCA12_);
+  if(AK5groomedJetFiller.get()) AK5groomedJetFiller->fill(iEvent);
+  if(AK7groomedJetFiller.get()) AK7groomedJetFiller->fill(iEvent);
+  if(AK8groomedJetFiller.get()) AK8groomedJetFiller->fill(iEvent);
+  if(CA8groomedJetFiller.get()) CA8groomedJetFiller->fill(iEvent);
+  if(CA12groomedJetFiller.get()) CA12groomedJetFiller->fill(iEvent);
+  if(genAK5groomedJetFiller.get()) genAK5groomedJetFiller->fill(iEvent);
+  if(genAK7groomedJetFiller.get()) genAK7groomedJetFiller->fill(iEvent);
+  if(genAK8groomedJetFiller.get()) genAK8groomedJetFiller->fill(iEvent);
+  if(genCA8groomedJetFiller.get()) genCA8groomedJetFiller->fill(iEvent);
+  if(genCA12groomedJetFiller.get()) genCA12groomedJetFiller->fill(iEvent);
 
 
 

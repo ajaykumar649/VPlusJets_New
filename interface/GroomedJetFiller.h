@@ -60,7 +60,7 @@ namespace ewk
 		       TTree* tree, 
 		       const std::string jetLabel,
 		       const std::string srcGroomedJet,
-		       const edm::ParameterSet& iConfig);
+		       const edm::ParameterSet& iConfig, bool isGen = 0);
 
       /// default constructor
       GroomedJetFiller() {};
@@ -71,7 +71,7 @@ namespace ewk
       ~GroomedJetFiller(){ };
          
     /// To be called once per event to fill the values for groomed jets
-    void fill(const edm::Event& iEvent, bool doGrooming);        
+    void fill(const edm::Event& iEvent);        
 
     static const int NUM_JET_MAX = 6;
 
@@ -104,6 +104,7 @@ namespace ewk
             // specific parameters
         double mJetRadius;
         std::string mJetAlgo;        
+        std::string lableGen;        
         
         double mJetChargeKappa;
         bool mDoQJets; 
@@ -194,10 +195,12 @@ namespace ewk
         std::vector<int> neutrals;
         std::vector<int> positives;
         std::vector<int> negatives;        
+        std::vector<float>  charge_handle_Gen;
 
     
     double rhoVal_;
     double nPV_;
+    bool isGenJ;
     };
 }
 #endif
