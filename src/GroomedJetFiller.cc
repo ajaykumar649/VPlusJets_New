@@ -155,6 +155,10 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmassdrop").c_str(), qjetmassdrop, (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmassdrop"+"[50]/F").c_str() );
     bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmassdrop").c_str() );
 
+    if( iConfig.existsAs<bool>("GroomedJet_saveConstituents") ) 
+        mSaveConstituents=iConfig.getParameter< bool >("GroomedJet_saveConstituents");
+    else mSaveConstituents = true;
+
     if (mSaveConstituents){
         tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_constituents0_eta").c_str(), constituents0_eta, (lableGen + "GroomedJet_" + jetLabel_ + "_constituents0_eta"+"[100]/F").c_str() );
         bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_constituents0_eta").c_str() );   
@@ -259,9 +263,6 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     if( iConfig.existsAs<bool>("GroomedJet_doQJets") ) 
         mDoQJets=iConfig.getParameter< bool >("GroomedJet_doQJets");
     else mDoQJets = true;
-    if( iConfig.existsAs<bool>("GroomedJet_saveConstituents") ) 
-        mSaveConstituents=iConfig.getParameter< bool >("GroomedJet_saveConstituents");
-    else mSaveConstituents = true;
 
         // define charges of pdgIds
     neutrals.push_back( 22 ); neutrals.push_back( 130 ); neutrals.push_back( 310 ); neutrals.push_back( 311 ); neutrals.push_back( 111 ); 
@@ -518,6 +519,8 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         // -----------------------------------------------
         // -----------------------------------------------
 //      cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
+
+
     for (unsigned j = 0; j < out_jets.size()&&int(j)<NUM_JET_MAX; j++) {
         
         if (mSaveConstituents && j==0){
@@ -668,7 +671,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         //std::cout<< "Ending the planarflow computation" << endl;
 
             // qjets computation  -------------
-        if ((mDoQJets)&&(j == 0)){ // do qjets only for the hardest jet in the event!
+        if ((mDoQJets)&&!(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)&&(j == 0)){ // do qjets only for the hardest jet in the event!
             double zcut(0.1), dcut_fctr(0.5), exp_min(0.), exp_max(0.), rigidity(0.1);                
             QjetsPlugin qjet_plugin(zcut, dcut_fctr, exp_min, exp_max, rigidity);
             fastjet::JetDefinition qjet_def(&qjet_plugin);
