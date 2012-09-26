@@ -30,7 +30,7 @@ import pyroot_logon
 config = __import__(opts.modeConfig)
 import RooWjj2DFitter
 
-from ROOT import TCanvas, RooFit, RooLinkedListIter, TMath, RooRandom
+from ROOT import TCanvas, RooFit, RooLinkedListIter, TMath, RooRandom, TFile
 
 if hasattr(opts, "seed") and (opts.seed >= 0):
     print "random seed:", opts.seed
@@ -141,3 +141,21 @@ if opts.toyOut:
                       )
     outFile.write('\n')
     outFile.close()
+elif not opts.toy:
+    mode = 'muon'
+    if opts.isElectron:
+        mode = 'electron'
+    # freeze all parameters as a starting point for the combine debugging.
+    for par in floatVars:
+        fitter.ws.var(par).setConstant(True)
+
+    output = TFile("HWWlnujjH%i_%s_%ijets_output.root" % (opts.mH, mode, 
+                                                          opts.Nj),
+                   "recreate")
+
+    plot1.Write()
+    plot2.Write()
+    fitter.ws.SetName("w")
+    fitter.ws.Write()
+    output.Close()
+    

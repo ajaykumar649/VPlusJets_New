@@ -134,7 +134,7 @@ class Wjj2DFitter:
     # set the yield of the multijet background
     def setMultijetYield(self):
         if self.ws.var('n_multijet'):
-            self.multijetExpected = self.ws.data('data').sumEntries() * \
+            self.multijetExpected = self.ws.data('data_obs').sumEntries() * \
                 self.pars.multijetFraction
 
     # fit the data using the pdf
@@ -151,27 +151,29 @@ class Wjj2DFitter:
 
         constraintSet = self.makeConstraints()
 
-        constraintCmd = RooCmdArg.none()
-        if constraintSet.getSize() > 0:
-            # constraints.append(fitter.GetName())
-            # fitter = self.ws.factory('PROD::totalFit_const(%s)' % \
-            #                              (','.join(constraints))
-            #                          )
-            # constraintCmd = RooFit.Constrained()
-            constraintCmd = RooFit.ExternalConstraints(self.ws.set('constraintSet'))
-
         self.readParametersFromFile()
-
-        self.ws.Print()
 
         # print constraints, self.pars.yieldConstraints
         print '\nfit constraints'
         constIter = constraintSet.createIterator()
         constraint = constIter.Next()
+        constraints = []
         while constraint:
             constraint.Print()
+            constraints.append(constraint.GetName())
             constraint = constIter.Next()
             
+        constraintCmd = RooCmdArg.none()
+        if constraintSet.getSize() > 0:
+            constraints.append(fitter.GetName())
+            fitter = self.ws.factory('PROD::totalFit_const(%s)' % \
+                                         (','.join(constraints))
+                                     )
+            constraintCmd = RooFit.Constrained()
+            # constraintCmd = RooFit.ExternalConstraints(self.ws.set('constraintSet'))
+
+        self.ws.Print()
+
         # for constraint in pars.constraints:
         #     self.ws.pdf(constraint).Print()
         # print
@@ -258,10 +260,10 @@ class Wjj2DFitter:
         return self.ws.pdf('%sPdf' % component)
 
     def loadData(self, weight = False):
-        if self.ws.data('data'):
-            return self.ws.data('data')
+        if self.ws.data('data_obs'):
+            return self.ws.data('data_obs')
 
-        data = self.utils.File2Dataset(self.pars.DataFile, 'data', self.ws,
+        data = self.utils.File2Dataset(self.pars.DataFile, 'data_obs', self.ws,
                                        weighted = weight)
         # if hasattr(self, 'relMultijet'):
         #     self.multijetExpected = data.sumEntries()*self.relMultijet
@@ -284,7 +286,7 @@ class Wjj2DFitter:
         else:
             compList = None
 
-        data = self.ws.data('data')
+        data = self.ws.data('data_obs')
         nexp = pdf.expectedEvents(self.ws.set('obsSet'))
 
         print pdf.GetName(),'expected: %.0f' % (nexp)
@@ -367,8 +369,8 @@ class Wjj2DFitter:
             setattr(self, '%sExpected' % component, theYield.getVal())
 
     def resetYields(self):
-        if self.ws.data('data'):
-            Ndata = self.ws.data('data').sumEntries()
+        if self.ws.data('data_obs'):
+            Ndata = self.ws.data('data_obs').sumEntries()
         else:
             Ndata = 10000.
         print 'resetting yields...'

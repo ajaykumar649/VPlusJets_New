@@ -44,6 +44,10 @@
 #include "RooGenericPdf.h"
 #include "RooCBShape.h"
 #include "RooExponential.h"
+#include "RooErfExpPdf.h"
+#include "RooPowerExpPdf.h"
+#include "RooPowerLaw.h"
+#include "RooErfPdf.h"
 
 
 // #include "ComputeChi2.C"
@@ -111,7 +115,7 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
 
   for (int nn = 0; nn < 6; ++nn) {
     RooRealVar * yield = ws_.var(yieldNames[nn]);
-    if ( (!yield->isConstant()) && 
+    if ( (yield) && (!yield->isConstant()) && 
 	 (yield->getVal() + yield->getError() > 0.5) ) {
       constPars.addClone(RooConst(yield->getVal()));
       constPars.addClone(RooConst(yield->getError()));
@@ -129,12 +133,13 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
       } else {
 	yieldconst.addClone(yc);
       }
-    } else {
+    } else if (yield) {
       yield->setConstant();
     }
 
-    if (nn < 5)
+    if ((yield) && (nn < 5))
       sumNonWpJ += yield->getVal();    
+
   }
   
   Constraints.add(yieldconst);
@@ -259,7 +264,11 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
 	    << " fit range: " << rangeString_
 	    << '\n';
 
+  RooDataHist binData("dataHist", "dataHist", *(data->get()), *data);
+  //binData.Print("v");
+
   fitResult = fitPdf->fitTo(*data, Save(true), 
+  // fitResult = fitPdf->fitTo(binData, Save(true), 
 			    ( (params_.externalConstraints) ?
 			      ExternalConstraints(Constraints) :
 			      Constrained() ),
@@ -288,13 +297,6 @@ double RooWjjMjjFitter::computeChi2(int& ndf, bool correct) {
   TH1 * dataHist = data->createHistogram("theData", *mass, 
 					 RooFit::Cut(utils_.fitCuts()),
 					 RooFit::Binning("plotBinning"));
-  // TH1 * dataHist = utils_.newEmptyHist("theData");
-  // RooTreeDataStore * dataStore = 
-  //   dynamic_cast<RooTreeDataStore *>(data->store());
-  // dataStore->tree().Draw(TString::Format("%s>>%s", mass->GetName(),
-  // 					 "theData"),
-  // 			 utils_.fitCuts(), "goff");
-  //dataHist->Scale(1., "width");
   RooHist h_data(*dataHist, 0., 1, errorType_, 1.0,
 		 false);
   RooAbsPdf * totalPdf = ws_.pdf("totalPdf");
@@ -903,18 +905,18 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   nWjets.setError(TMath::Sqrt(initWjets_));
 
   RooRealVar * mass = ws_.var(params_.var);
-  RooRealVar turnOn("turnOn","turnOn", 40., 10., 200., "GeV");
+  RooRealVar turnOn("turnOn","turnOn", 42.1, 10., 200., "GeV");
   turnOn.setConstant(false);
   turnOn.setMin(0.);
-  RooRealVar width("width","width", 15., 0., 100., "GeV");
+  RooRealVar width("width","width", 14.75, 0., 100., "GeV");
   width.setError(5.);
   width.setMin(0.);
   width.setConstant(false);
-  RooRealVar seff("seff", "seff", 7000., 0., 10000.);
+  RooRealVar seff("seff", "seff", 8000., 0., 10000.);
   seff.setConstant(true);
-  RooRealVar power("power", "power", 2, 0., 5.);
+  RooRealVar power("power", "power", 1.9, 0., 5.);
   power.setError(0.2);
-  RooRealVar power2("power2", "power2", 0., -5., 5.);
+  RooRealVar power2("power2", "power2", 0.058, -5., 5.);
   power2.setError(0.2);
   RooRealVar mean("mean", "peak", 67);
   mean.setConstant(false);
@@ -923,9 +925,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   RooGenericPdf WpJPdfPower("WpJPdfPower", "WpJPdfPower",
 			    "1./TMath::Power(@0,@1+@2*log(@0/@3))",
 			    RooArgList(*mass,power,power2,seff));
-  RooGenericPdf bkgErf("WpJPdfErf","WpJPdfErf",
-		       "(TMath::Erf((@0-@1)/@2)+1)/2.",
-		       RooArgList(*mass, turnOn, width));
+  RooErfPdf bkgErf("WpJPdfErf","WpJPdfErf", *mass, turnOn, width);
   RooGenericPdf bkgFermi("WpJPdfFermi","WpJPdfFermi",
 		       "1./(1+exp(-(@0-@1)/@2))",
 		       RooArgList(*mass, turnOn, width));
@@ -969,15 +969,17 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     case 5:
       power.setVal(-4.);
       tau.setVal(-0.033);
-      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
-			    RooArgList(WpJPdfExp,WpJPdfPower), 1e-5));
+      ws_.import(RooPowerExpPdf("WpJPdf", "WpJPdf", *mass, tau, power));
+      // ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
+      // 			    RooArgList(WpJPdfExp,WpJPdfPower), 1e-5));
       break;
     case 8:
-      turnOn.setVal(31.);
-      width.setVal(9.9);
-      tau.setVal(-0.01);
-      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", RooArgList(bkgErf,WpJPdfExp),
-			    1e-6));
+      turnOn.setVal(36.7);
+      width.setVal(10.8);
+      tau.setVal(-0.017);
+      ws_.import(RooErfExpPdf("WpJPdf", "WpJPdf", *mass, tau, turnOn, width));
+      // ws_.import(RooProdPdf("WpJPdf", "WpJPdf", RooArgList(bkgErf,WpJPdfExp),
+      // 			    1e-6));
       break;
     case 9:
       ws_.import(RooAddPdf("WpJPdf", "WpJPdf", bkgGaus, WpJPdfExp, f_g));
@@ -990,8 +992,11 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
       power2.setConstant(true);
     case 0:
     default:
-      ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
-			    RooArgList(WpJPdfPower, bkgErf), 1e-5));
+      ws_.import(RooGenericPdf("WpJPdf", "WpJPdf", 
+			       "(TMath::Erf((@0-@1)/@2)+1)/2./"
+			       "TMath::Power(@0,@3+@4*log(@0/@5))",
+			       RooArgSet(*mass, turnOn, width,
+					 power,power2,seff)));
 //     WpJPdfPower.SetName("WpJPdf");
 //     ws_.import(WpJPdfPower);
 //     WpJPdfCB.SetName("WpJPdf");
@@ -1415,7 +1420,6 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   alphaDownHist->Print();
   alphaUpHist->Print();
 //   th1wjets->Scale(1./th1wjets->Integral());
-// //   th1wjets->Scale(1., "width");
 //   th1wjets->Print();
 
   RooRealVar * mass = ws_.var(params_.var);

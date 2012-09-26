@@ -23,6 +23,8 @@
 #include "RooPlot.h"
 #include "RooBinning.h"
 
+#include "RooTH1DPdf.h"
+
 static const unsigned int maxJets = 6;
 
 RooWjjFitterUtils::RooWjjFitterUtils()
@@ -38,8 +40,8 @@ RooWjjFitterUtils::RooWjjFitterUtils(RooWjjFitterParams & pars) :
 
 RooWjjFitterUtils::~RooWjjFitterUtils()  { 
   delete mjj_; 
-  delete massVar_;
-  delete binArray;
+  // delete massVar_;
+  delete[] binArray;
 
   unsigned int i;
   for (i=0; i<effMuId.size(); ++i) {
@@ -66,7 +68,8 @@ void RooWjjFitterUtils::initialize() {
 			params_.maxMass, "GeV");
   mjj_->setPlotLabel(mjj_->GetTitle());
   mjj_->setBins(params_.nbins);
-  massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));  
+  // massVar_ = new RooFormulaVar("mass", "@0", RooArgList( *mjj_));  
+  massVar_ = mjj_;
 
   unsigned int i;
   if (params_.binEdges.size() > 1) {
@@ -236,12 +239,15 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
   if (ws.pdf(pdfName))
     return ws.pdf(pdfName);
 
-  RooDataHist newHist(pdfName + "_hist", pdfName + "_hist",
-		      RooArgList(*mjj_), hist);
-  ws.import(newHist);
+  hist->Print();
+  // RooDataHist newHist(pdfName + "_hist", pdfName + "_hist",
+  // 		      RooArgList(*mjj_), hist);
+  // ws.import(newHist);
 
-  RooHistPdf thePdf = RooHistPdf(pdfName, pdfName, RooArgSet(*massVar_),
-				 RooArgSet(*mjj_), newHist, order);
+  RooTH1DPdf thePdf(pdfName, pdfName, *mjj_, *(dynamic_cast<TH1D*>(hist)),
+		    order);
+  // RooHistPdf thePdf(pdfName, pdfName, RooArgSet(*massVar_),
+  // 		    RooArgSet(*mjj_), newHist, order);
   //thePdf.Print();
   ws.import(thePdf, RooFit::RecycleConflictNodes(), RooFit::Silence());
 

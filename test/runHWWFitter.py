@@ -77,7 +77,8 @@ fitterPars.WpJfunction = opts.ParamWpJ
 #fitterPars.truncRange = True
 if opts.ParamWpJ<0:
     fitterPars.smoothingOrder = 0
-    
+
+#fitterPars.smoothingOrder = 0    
 
 if fitterPars.includeMuons and fitterPars.includeElectrons:
     modeString = ''
@@ -102,18 +103,29 @@ theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 #     theFitter.getWorkSpace().var('fMU').setConstant(True)
 #     theFitter.getWorkSpace().var('fSU').setConstant(True)
 
+#theFitter.getWorkSpace().var('nDiboson').setConstant()
+#theFitter.getWorkSpace().var('nTTbar').setConstant()
+#theFitter.getWorkSpace().var('nSingleTop').setConstant()
+theFitter.getWorkSpace().var('nQCD').setConstant()
+#theFitter.getWorkSpace().var('nZjets').setConstant()
+#theFitter.getWorkSpace().var('nWjets').setConstant()
+
+
+theFitter.loadData()
+theFitter.resetYields()
+
 fr = theFitter.fit()
 
 tries = 1
 ndf = Long(fr.floatParsFinal().getSize()-5)
-while (fr.covQual() < 2) and (tries < 2):
+while (fr.covQual() < 2) and (tries < 3):
     print "Fit didn't converge well.  Will try again."
-    theFitter.getWorkSpace().var('nDiboson').setConstant()
-    theFitter.getWorkSpace().var('nTTbar').setConstant()
-    theFitter.getWorkSpace().var('nSingleTop').setConstant()
-    theFitter.getWorkSpace().var('nQCD').setConstant()
-    theFitter.getWorkSpace().var('nZjets').setConstant()
-    theFitter.getWorkSpace().var('nWjets').setConstant()
+    # theFitter.getWorkSpace().var('nDiboson').setConstant()
+    # theFitter.getWorkSpace().var('nTTbar').setConstant()
+    # theFitter.getWorkSpace().var('nSingleTop').setConstant()
+    # theFitter.getWorkSpace().var('nQCD').setConstant()
+    # theFitter.getWorkSpace().var('nZjets').setConstant()
+    #theFitter.getWorkSpace().var('nWjets').setConstant()
     fr = theFitter.fit()
     ndf = Long(fr.floatParsFinal().getSize())
     tries += 1
@@ -196,7 +208,7 @@ if (TMath.Prob(chi2Raw,  ndf2) < 0.05):
     if opts.debug:
         assert(False)
 
-# assert(False)
+#assert(False)
 
 mass.setRange('signal', fitterPars.minTrunc, fitterPars.maxTrunc)
 #yields = theFitter.makeFitter().coefList()
@@ -236,9 +248,11 @@ sig2 = 0.
 ##     if finalPars[v1].GetName()[0] == 'n':
 ##         print '%10s' % (finalPars[v1].GetName()),
 ## print
+covVars = []
 for v1 in range(0, covMatrix.GetNrows()):
 ##     if finalPars[v1].GetName()[0] == 'n':
 ##         print '%-10s' % (finalPars[v1].GetName()),
+    covVars.append(finalPars[v1].GetName())
     for v2 in range(0, covMatrix.GetNcols()):
         if ((finalPars[v1].GetName())[0] == 'n') and \
                ((finalPars[v2].GetName())[0] == 'n'):
@@ -322,11 +336,16 @@ print 'fractional error on background yield not from using W+jets only = %0.3f' 
 
 print '\nCorrelation matrix\n%-10s' % (' '),
 for v1 in sigErrs:
-    print '%10s' % v1,
+    if v1 in covVars:
+        print '%10s' % v1,
 print
 for v1 in sigErrs:
+    if not v1 in covVars:
+        continue
     print '%-10s' % (v1),
     for v2 in sigErrs:
+        if not v2 in covVars:
+            continue
         print '% 10.2g' % (fr.correlation(v1,v2)),
     print
 
@@ -335,7 +354,7 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-#assert(False)
+assert(False)
 
 cWpJ = TCanvas('cWpJ', 'W+jets shape')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst, opts.alpha)

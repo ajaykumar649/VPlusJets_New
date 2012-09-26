@@ -114,3 +114,30 @@ def GenHiggsHists(pars, mH, utils):
         hists.append(tmpHist)
         
     return dict(zip(modes, hists))
+
+from ROOT import gSystem, gROOT
+
+gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
+gROOT.ProcessLine(".L CPWeighter.cc+")
+
+from ROOT import getCPweight
+
+HiggsWidth = {
+    125: 0.00407,
+    180: 0.631,
+    350: 15.2,
+    }
+
+def HiggsCPWeight(m_h, m, BWflag = 0):
+    return getCPweight(m_h, HiggsWidth[int(m_h)], m, BWflag)
+
+def runningWidthWeight(m_h, m):
+   s = m*m
+   s_h = m_h*m_h
+   decay_width = HiggsWidth[int(m_h)]
+   weight_BW = s/s_h * ((s-s_h)**2 + (m_h*decay_width)**2) \
+       / ((s-s_h)**2 + (m_h*decay_width*s/s_h)**2);
+   if (weight_BW < 0):
+       print "weightVBF<0 = %f" % (weight_BW)
+       weight_BW=1.0
+   return weight_BW;
