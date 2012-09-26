@@ -72,12 +72,15 @@
 //const TString inDataDir  = "/eos/uscms/store/user/jdamgov/lnujj/ICHEP12v3/Ntuples/";
 //const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
 //const TString inDataDir  = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
-const TString inDataDir  = "/eos/uscms/store/user/smpjs/ntran/WWlnujj_53x/";
+//const TString inDataDir  = "/eos/uscms/store/user/smpjs/ntran/WWlnujj_53x/";
+const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012/MergedNtuples/";
 //const TString inQCDDir   = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
-const TString inQCDDir   = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
+//const TString inQCDDir   = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
+const TString inQCDDir   = "/eos/uscms/store/user/lnujj/HCP2012/MergedNtuples/";
 //const TString outDataDir = "/eos/uscms/store/user/lnujj/postICHEP12/RDtreesPU5p2/";
 //const TString outDataDir = "/eos/uscms/store/user/smpjs/weizou/HCP2012/RDtreesPUCMSSW532/";
 const TString outDataDir   = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
+//const TString outDataDir   = "/eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/";
 //const std::string fDir   = "EffTableDir/";
 const std::string fDir   = "EffTable2012/";
  
@@ -406,9 +409,15 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       myChain->Add(                    inDataDir + "mu_HWWMH600_CMSSW525_private.root"); 
       Init(myChain);Loop( 20122600,runflag, outDataDir + "RD_mu_HWWMH600_CMSSW525_private");
     }*/
-    if (myflag == 20122600 || myflag == -300){
+    /*if (myflag == 20122600 || myflag == -300){
       myChain = new TChain("WJet");  
       myChain->Add(                    inDataDir + "crabmerge_MC_Wmunu_ggH600.root"); 
+      Init(myChain);Loop( 20122600,runflag, outDataDir + "RD_mu_HWWMH600_CMSSW532_private");
+    }
+    */
+    if (myflag == 20122600 || myflag == -300){
+      myChain = new TChain("WJet");  
+      myChain->Add(                    inDataDir + "mu_HWWMH600_CMSSW532_private.root"); 
       Init(myChain);Loop( 20122600,runflag, outDataDir + "RD_mu_HWWMH600_CMSSW532_private");
     }
     if (myflag == 20122700 || myflag == -300){
@@ -832,6 +841,9 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
   Int_t   GroomedJet_numberbjets = 0;
   TBranch *branch_GroomedJet_numberbjets = newtree->Branch("GroomedJet_numberbjets", &GroomedJet_numberbjets,"GroomedJet_numberbjets/I");
    
+  Int_t   GroomedJet_numberjets = 0;
+  TBranch *branch_GroomedJet_numberjets = newtree->Branch("GroomedJet_numberjets", &GroomedJet_numberjets,"GroomedJet_numberjets/I");
+
    //lepton, MET angular information
   Float_t GroomedJet_CA8_deltaR_lca8jet = -999, GroomedJet_CA8_deltaphi_METca8jet = -999, GroomedJet_CA8_deltaphi_Vca8jet = -999;
   TBranch *branch_GroomedJet_CA8_deltaR_lca8jet = newtree->Branch("GroomedJet_CA8_deltaR_lca8jet", &GroomedJet_CA8_deltaR_lca8jet, "GroomedJet_CA8_deltaR_lca8jet/F");
@@ -1073,70 +1085,134 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
    */  
   // S7 MC PU True profile - hardcoded, wow
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupMCReweightingUtilities
-  TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-196531_8TeV_PromptReco_Collisions12_true.root" );
+  //TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-196531_8TeV_PromptReco_Collisions12_true.root" );
+  TFile *dataFile_      = new TFile( "Data190389-200041_PileupHistogram.root" );
   TH1F* PU_intended = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
   TH1F* PU_generated = new TH1F("PU_generated","Generated pileup distribution (i.e., MC)",60,0.,60);
   Double_t Summer2012[60] = {
-     2.344E-05,
-     2.344E-05,
-     2.344E-05,
-     2.344E-05,
-     4.687E-04,
-     4.687E-04,
-     7.032E-04,
-     9.414E-04,
-     1.234E-03,
-     1.603E-03,
-     2.464E-03,
-     3.250E-03,
-     5.021E-03,
-     6.644E-03,
-     8.502E-03,
-     1.121E-02,
-     1.518E-02,
-     2.033E-02,
-     2.608E-02,
-     3.171E-02,
-     3.667E-02,
-     4.060E-02,
-     4.338E-02,
-     4.520E-02,
-     4.641E-02,
-     4.735E-02,
-     4.816E-02,
-     4.881E-02,
-     4.917E-02,
-     4.909E-02,
-     4.842E-02,
-     4.707E-02,
-     4.501E-02,
-     4.228E-02,
-     3.896E-02,
-     3.521E-02,
-     3.118E-02,
-     2.702E-02,
-     2.287E-02,
-     1.885E-02,
-     1.508E-02,
-     1.166E-02,
-     8.673E-03,
-     6.190E-03,
-     4.222E-03,
-     2.746E-03,
-     1.698E-03,
-     9.971E-04,
-     5.549E-04,
-     2.924E-04,
-     1.457E-04,
-     6.864E-05,
-     3.054E-05,
-     1.282E-05,
-     5.081E-06,
-     1.898E-06,
-     6.688E-07,
-     2.221E-07,
-     6.947E-08,
-     2.047E-08
+     //Pile Up For S10
+     2.560E-06,
+     5.239E-06,
+     1.420E-05,
+     5.005E-05,
+     1.001E-04,
+     2.705E-04,
+     1.999E-03,
+     6.097E-03,
+     1.046E-02,
+     1.383E-02,
+     1.685E-02,
+     2.055E-02,
+     2.572E-02,
+     3.262E-02,
+     4.121E-02,
+     4.977E-02,
+     5.539E-02,
+     5.725E-02,
+     5.607E-02,
+     5.312E-02,
+     5.008E-02,
+     4.763E-02,
+     4.558E-02,
+     4.363E-02,
+     4.159E-02,
+     3.933E-02,
+     3.681E-02,
+     3.406E-02,
+     3.116E-02,
+     2.818E-02,
+     2.519E-02,
+     2.226E-02,
+     1.946E-02,
+     1.682E-02,
+     1.437E-02,
+     1.215E-02,
+     1.016E-02,
+     8.400E-03,
+     6.873E-03,
+     5.564E-03,
+     4.457E-03,
+     3.533E-03,
+     2.772E-03,
+     2.154E-03,
+     1.656E-03,
+     1.261E-03,
+     9.513E-04,
+     7.107E-04,
+     5.259E-04,
+     3.856E-04,
+     2.801E-04,
+     2.017E-04,
+     1.439E-04,
+     1.017E-04,
+     7.126E-05,
+     4.948E-05,
+     3.405E-05,
+     2.322E-05,
+     1.570E-05,
+     5.005E-06
+     //Pile Up for S7
+        /*2.344E-05,
+          2.344E-05,
+          2.344E-05,
+          2.344E-05,
+          4.687E-04,
+          4.687E-04,
+          7.032E-04,
+          9.414E-04,
+          1.234E-03,
+          1.603E-03,
+          2.464E-03,
+          3.250E-03,
+          5.021E-03,
+          6.644E-03,
+          8.502E-03,
+          1.121E-02,
+          1.518E-02,
+          2.033E-02,
+          2.608E-02,
+          3.171E-02,
+          3.667E-02,
+          4.060E-02,
+          4.338E-02,
+          4.520E-02,
+          4.641E-02,
+          4.735E-02,
+          4.816E-02,
+          4.881E-02,
+          4.917E-02,
+          4.909E-02,
+          4.842E-02,
+          4.707E-02,
+          4.501E-02,
+          4.228E-02,
+          3.896E-02,
+          3.521E-02,
+          3.118E-02,
+          2.702E-02,
+          2.287E-02,
+          1.885E-02,
+          1.508E-02,
+          1.166E-02,
+          8.673E-03,
+          6.190E-03,
+          4.222E-03,
+          2.746E-03,
+          1.698E-03,
+          9.971E-04,
+          5.549E-04,
+          2.924E-04,
+          1.457E-04,
+          6.864E-05,
+          3.054E-05,
+          1.282E-05,
+          5.081E-06,
+          1.898E-06,
+          6.688E-07,
+          2.221E-07,
+          6.947E-08,
+          2.047E-08
+         */
   };   
   for (int i=1;i<=60;i++)  {
      PU_generated->SetBinContent(i,Summer2012[i-1]);
@@ -1203,8 +1279,8 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
      qgld_Summer11[0]= -1;       qgld_Summer11[1]= -1;       qgld_Summer11[2]= -1;       qgld_Summer11[3]= -1;       qgld_Summer11[4]= -1;       qgld_Summer11[5]= -1;
      qgld_Summer11CHS[0]= -1;    qgld_Summer11CHS[1]= -1;    qgld_Summer11CHS[2]= -1;    qgld_Summer11CHS[3]= -1;    qgld_Summer11CHS[4]= -1;    qgld_Summer11CHS[5]= -1;
 
-     isgengdboostedWevt = 0; ggdboostedWevt = 0; GroomedJet_numberbjets = 0;
-     
+     isgengdboostedWevt = 0; ggdboostedWevt = 0; GroomedJet_numberbjets = 0; GroomedJet_numberjets = 0;
+
      GroomedJet_CA8_deltaR_lca8jet = -999; GroomedJet_CA8_deltaphi_METca8jet = -999; GroomedJet_CA8_deltaphi_Vca8jet = -999;
 
      GroomedJet_CA8_rcores01 = -1; GroomedJet_CA8_rcores02 = -1; GroomedJet_CA8_rcores03 = -1; GroomedJet_CA8_rcores04 = -1;
@@ -1540,6 +1616,11 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
 
               double tmpdelatR = ca8jetp4.DeltaR(ajp);
 
+              if(tmpdelatR > 0.8)//Veto the AK5 jet in the CA8 jet cone
+              {
+                 GroomedJet_numberjets = GroomedJet_numberjets + 1;
+              }
+              
               if(JetPFCor_bDiscriminator[i] > btssv && tmpdelatR > 0.8)//Veto the AK5 jet in the CA8 jet cone
               {
                  GroomedJet_numberbjets = GroomedJet_numberbjets + 1;
@@ -1615,19 +1696,19 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
         averagem = averagem / qjetsize;
 
         GroomedJet_CA8_qjetmassvolatility = TMath::Sqrt(averagemsquare - TMath::Power(averagem,2))/averagem;
-       
-        
+
+
         TLorentzVector ca8subjet1p4;
         TLorentzVector ca8subjet2p4;
         TLorentzVector ca8prjetp4;
-        
+
         ca8subjet1p4.SetPxPyPzE(GroomedJet_CA8_prsubjet1_px[0],GroomedJet_CA8_prsubjet1_py[0],GroomedJet_CA8_prsubjet1_pz[0],GroomedJet_CA8_prsubjet1_e[0]);
         ca8subjet2p4.SetPxPyPzE(GroomedJet_CA8_prsubjet2_px[0],GroomedJet_CA8_prsubjet2_py[0],GroomedJet_CA8_prsubjet2_pz[0],GroomedJet_CA8_prsubjet2_e[0]);
         ca8prjetp4.SetPtEtaPhiE(GroomedJet_CA8_pt_pr[0],GroomedJet_CA8_eta_pr[0],GroomedJet_CA8_phi_pr[0],GroomedJet_CA8_e_pr[0]);
 
         GroomedJet_CA8_prsubjet1ptoverjetpt = ca8subjet1p4.Pt()/ca8prjetp4.Pt();
         GroomedJet_CA8_prsubjet2ptoverjetpt = ca8subjet2p4.Pt()/ca8prjetp4.Pt();
-        
+
         if((ca8subjet1p4.Pt() > 0.001) && (ca8subjet2p4.Pt() > 0.001)) //Avoid Too Samll Pt
         {GroomedJet_CA8_prsubjet1subjet2_deltaR = ca8subjet1p4.DeltaR(ca8subjet2p4);}
 
@@ -2007,6 +2088,7 @@ void kanamuon::Loop(int wda, int runflag, const char *outfilename, bool isQCD )
      branch_GroomedJet_CA8_deltaphi_METca8jet->Fill();
      branch_GroomedJet_CA8_deltaphi_Vca8jet->Fill();
      branch_GroomedJet_numberbjets->Fill();
+     branch_GroomedJet_numberjets->Fill();
      branch_GroomedJet_CA8_rcores01->Fill();
      branch_GroomedJet_CA8_rcores02->Fill();
      branch_GroomedJet_CA8_rcores03->Fill();
