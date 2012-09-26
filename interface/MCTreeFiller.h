@@ -85,6 +85,8 @@ namespace ewk {
     float H_Vy;
     float H_Vz;
     float H_Y;
+    int H_Id;
+
 /*
     int l1Charge;
     int l2Charge;
@@ -134,6 +136,7 @@ namespace ewk {
     float Parton_Vy[2];
     float Parton_Vz[2];
     float Parton_Y[2];
+    int Parton_Id[2];
 
     ///////////////////
     float Lepton_px;
@@ -150,6 +153,7 @@ namespace ewk {
     float Lepton_Vy;
     float Lepton_Vz;
     float Lepton_Y;
+    int Lepton_Id;
 
     ///////////////////
     float Met_px;
@@ -166,6 +170,7 @@ namespace ewk {
     float Met_Vy;
     float Met_Vz;
     float Met_Y;
+    int Met_Id;
 
 
 

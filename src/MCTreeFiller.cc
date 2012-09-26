@@ -85,6 +85,8 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &H_Vy,        "H_vy_gen");
   SetBranch( &H_Vz,        "H_vz_gen");
   SetBranch( &H_Y,         "H_y_gen");
+  SetBranch( &H_Id,         "H_Id_gen");
+
 /*
   ///////////////////////////////////////////////
   SetBranch( &l1px,             lept1+"_px_gen" );
@@ -134,6 +136,8 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( Parton_Vy,             "Parton_vy[2]" );
   SetBranch( Parton_Vz,             "Parton_vz[2]" );
   SetBranch( Parton_Y,              "Parton_y[2]" );
+  SetBranch( Parton_Id,              "Parton_Id[2]" );
+
 
  ////////////////////////////////////////////////////////
   SetBranch( &Lepton_px,             "Lepton_px" );
@@ -150,6 +154,7 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &Lepton_Vy,             "Lepton_vy" );
   SetBranch( &Lepton_Vz,             "Lepton_vz" );
   SetBranch( &Lepton_Y,              "Lepton_y" );
+  SetBranch( &Lepton_Id,              "Lepton_Id" );
 
  ////////////////////////////////////////////////////////
   SetBranch( &Met_px,             "Met_px" );
@@ -166,6 +171,7 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &Met_Vy,             "Met_vy" );
   SetBranch( &Met_Vz,             "Met_vz" );
   SetBranch( &Met_Y,              "Met_y" );
+  SetBranch( &Met_Id,              "Met_Id" );
 
 
     
@@ -193,6 +199,7 @@ void ewk::MCTreeFiller::init()
   H_Vy                  = -10.;
   H_Vz                  = -10.;
   H_Y                   = -10.;
+  H_Id                   = 0;
 /*
   l1Charge           = -10;
   l2Charge          = -10;
@@ -239,6 +246,7 @@ for ( int i =0; i<2; i++){
   Parton_Vy[i]              = -10.;
   Parton_Vz[i]              = -10.;
   Parton_Y[i]              =  -10.;
+  Parton_Id[i]              = 0;
 }
 
   Lepton_px              = -99999.;
@@ -255,6 +263,7 @@ for ( int i =0; i<2; i++){
   Lepton_Vy              = -10.;
   Lepton_Vz              = -10.;
   Lepton_Y               = -10.;
+  Lepton_Id              = 0;
 
   Met_px              = -99999.;
   Met_py              = -99999.;
@@ -270,7 +279,7 @@ for ( int i =0; i<2; i++){
   Met_Vy              = -10.;
   Met_Vz              = -10.;
   Met_Y               = -10.;
-
+  Met_Id              = 0;
 
 
   // initialization done
@@ -345,29 +354,27 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     for(size_t k =0; k< Hndau-1; k++){
 //loop over higgs daughter
       const reco::Candidate *e = H->daughter( k );
-        //std::cout<<"WWWW    "<<e->pdgId()<<std::endl;
-
       if( !(e==NULL) && (abs(e->pdgId())==24) ) {
 //if higgs dau is W
         std::cout<<"WWWW    "<<e->pdgId()<<std::endl;
-
            Wndau = e->numberOfDaughters();
            if(Wndau<1) continue;
            for (size_t l =0; l<Wndau-1; l++){
 //loop over W daughter
-
            const reco::Candidate *f = e->daughter( l );
+        //std::cout<<" dau    "<<e->numberOfDaughters()<<std::endl;
         std::cout<<" dau    "<<f->pdgId()<<std::endl;
            if( !(f==NULL)&& (abs(f->pdgId())<=4)){ 
            Parton1 =e->daughter(0);
            Parton2 =e->daughter(1);}
            else if (!(f==NULL) && ((abs(f->pdgId())==12) ||(abs(f->pdgId())==14))) Met =f;
-           else if (!(f==NULL) && ((abs(f->pdgId())==13) ||(abs(f->pdgId())==11))) Lepton =f;
+           else if (!(f==NULL) && ((abs(f->pdgId())==11) ||(abs(f->pdgId())==13))) Lepton =f;
 	}
 	}	
 	} 
 
   ////////// Higgs boson quantities //////////////
+if(H==NULL) return;
   H_mass = H->mass();
   H_Eta = H->eta();   
   H_Phi = H->phi();
@@ -381,6 +388,7 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
   H_E  = H->energy();
   H_Pt = H->pt();
   H_Et = H->et();
+  H_Id = H->pdgId();
 
 } //nGen loop end
 /*
@@ -437,7 +445,7 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     Parton_pz[0]              = Parton1->pz();
     Parton_Pt[0]              = Parton1->pt();
     Parton_Et[0]              = Parton1->et(); 
-
+    Parton_Id[0]              = Parton1->pdgId();
 }
 
 //Parton filling
@@ -457,7 +465,7 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     Parton_pz[1]              = Parton2->pz();
     Parton_Pt[1]              = Parton2->pt();
     Parton_Et[1]              = Parton2->et();
-
+    Parton_Id[1]              = Parton2->pdgId();
 }
 
 //Lepton filling
@@ -477,6 +485,7 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     Lepton_pz              = Lepton->pz();
     Lepton_Pt              = Lepton->pt();
     Lepton_Et              = Lepton->et();
+    Lepton_Id              = Lepton->pdgId();
   }
 
 
@@ -497,6 +506,7 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     Met_pz              = Met->pz();
     Met_Pt              = Met->pt();
     Met_Et              = Met->et();
+    Met_Id              = Met->pdgId();
   }
 
 
