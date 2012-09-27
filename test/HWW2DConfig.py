@@ -14,7 +14,7 @@ mu2Pars = {
     300: ( "mva2j300mu", 0.600, 240.0, 400.0, 16 ),
     # 350: ( "mva2j350mu", 0.600, 300.0, 780.0, 24 ),
     350: ( "mva2j350mu", 0.600, 250., 450., 20,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (2, 0), 'HWW': (6, 9)} ),
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22 ),
     500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22 ),
@@ -65,17 +65,11 @@ el3Pars = {
     600: ( "mva3j600el", 0.600, 340.0, 780.0, 22 ),
     }
 
-HiggsWidth = {
-    125: 0.00407,
-    180: 0.631,
-    350: 15.2,
-    }
-
 def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
-    pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/'
-    #pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/postICHEP2012/RDtreesPU5p2/"
+    #pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/'
+    pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/"
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
 
@@ -87,6 +81,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.yieldConstraints = { 'diboson' : 0.034, 'top' : 0.07 }
     #pars.yieldConstraints = {}
     #pars.constrainShapes = ['WpJ']
+
+    pars.mHiggs = mH
 
     modePars = mu2Pars
     if isElectron:
@@ -109,36 +105,36 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     # compoents in backgrounds and signals
     # the files should a list with entries like (filename, Ngen, xsec)
     pars.dibosonFiles = [
-        (pars.MCDirectory + 'RD_%s_WW_CMSSW525.root' % (flavorString),
-         10000431, 57.1097),
-        (pars.MCDirectory + 'RD_%s_WZ_CMSSW525.root' % (flavorString),
-         10000283, 32.3161),
+        (pars.MCDirectory + 'RD_%s_WW_CMSSW532.root' % (flavorString),
+         9450414, 57.1097),
+        (pars.MCDirectory + 'RD_%s_WZ_CMSSW532.root' % (flavorString),
+         10000267, 32.3161),
         ]
     pars.dibosonModels = modePars[mH][5]['diboson']
  
     pars.WpJFiles = [
-        (pars.MCDirectory + 'RD_%s_WpJ_CMSSW525.root' % (flavorString),
-         18393090, 36257.2),
-        (pars.MCDirectory + 'RD_%s_ZpJ_CMSSW525.root' % (flavorString),
-         14427282, 3503.71),
+        (pars.MCDirectory + 'RD_%s_WpJ_CMSSW532.root' % (flavorString),
+         18353019, 36257.2),
+        (pars.MCDirectory + 'RD_%s_ZpJ_CMSSW532.root' % (flavorString),
+         30209426, 3503.71),
         ]
     pars.WpJModels = modePars[mH][5]['WpJ']
 
     pars.topFiles = [
-        (pars.MCDirectory + 'RD_%s_TTbar_CMSSW525.root' % (flavorString),
-         6736135, 225.197),
-        (pars.MCDirectory + 'RD_%s_STopS_Tbar_CMSSW525.root' % (flavorString),
+        (pars.MCDirectory + 'RD_%s_TTbar_CMSSW532.root' % (flavorString),
+         6893735, 225.197),
+        (pars.MCDirectory + 'RD_%s_STopS_Tbar_CMSSW532.root' % (flavorString),
          139974, 1.75776),
-        (pars.MCDirectory + 'RD_%s_STopS_T_CMSSW525.root' % (flavorString),
-         259971, 3.89394),
-        (pars.MCDirectory + 'RD_%s_STopT_Tbar_CMSSW525.root' % (flavorString),
-         1935072, 30.0042),
-        (pars.MCDirectory + 'RD_%s_STopT_T_CMSSW525.root' % (flavorString),
-         23777, 55.531),
-        (pars.MCDirectory + 'RD_%s_STopTW_Tbar_CMSSW525.root' % (flavorString),
-         493460, 11.1773),
-        (pars.MCDirectory + 'RD_%s_STopTW_T_CMSSW525.root' % (flavorString),
-         497658, 11.1773),
+        (pars.MCDirectory + 'RD_%s_STopS_T_CMSSW532.root' % (flavorString),
+         259960, 3.89394),
+        (pars.MCDirectory + 'RD_%s_STopT_Tbar_CMSSW532.root' % (flavorString),
+         1935066, 30.0042),
+        (pars.MCDirectory + 'RD_%s_STopT_T_CMSSW532.root' % (flavorString),
+         3758221, 55.531),
+        (pars.MCDirectory + 'RD_%s_STopTW_Tbar_CMSSW532.root' % (flavorString),
+         493458, 11.1773),
+        (pars.MCDirectory + 'RD_%s_STopTW_T_CMSSW532.root' % (flavorString),
+         497657, 11.1773),
         ]
     pars.topModels = modePars[mH][5]['top']
 
@@ -169,7 +165,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.v2max = modePars[mH][3]
     pars.v2binEdges = []
     
-    pars.integratedLumi = 5100.
+    pars.integratedLumi = 9900.
 
     return customizeElectrons(pars) if isElectron else \
         customizeMuons(pars)
@@ -200,7 +196,7 @@ def customizeElectrons(pars):
     return pars
 
 def customizeMuons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_5p1invfb.root'
+    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_9p9invfb.root'
 
     pars.doEffCorrections = True
     pars.effToDo = ['lepton']

@@ -65,6 +65,7 @@ public:
   std::vector<double> falphas;
   int smoothWpJ;
   int model;
+  double mHiggs, wHiggs;
 
   //efficiency corrections
   bool doEffCorrections;
@@ -123,6 +124,7 @@ RooWjjFitterParams::RooWjjFitterParams() :
   do4body(false),
   minSBHi(95.), maxSBHi(105.), SBHicut(""), 
   minSBLo(55.), maxSBLo(65.), SBLocut(""), smoothWpJ(1), model(1),
+  mHiggs(-1.), wHiggs(-1.),
   doEffCorrections(false), 
   minFit(minMass), maxFit(maxMass),
   fitToyDataset(false), ToyDatasetDirectory(""), toydataFile(""),

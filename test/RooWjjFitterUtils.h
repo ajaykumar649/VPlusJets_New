@@ -35,7 +35,8 @@ public:
   TH1 * newEmptyHist(TString histName, int binMult = 1) const;
   TH1 * File2Hist(TString fname, TString histName, bool isElectron, 
 		  int jes_scl = -1, bool noCuts = false, 
-		  int binMult = 1, TString cutOverride = "") const;
+		  int binMult = 1, TString cutOverride = "",
+		  bool CPweights = false) const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
 		       RooWorkspace& ws, int order = 0) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
@@ -62,6 +63,7 @@ public:
 
   static double dijetEff(unsigned int Njets, std::vector<double> const& eff30,
 			 std::vector<double> const& eff25n30);
+  static double getCPweight(double mH, double wH, double m, int BWflag = 1);
 protected:
 
   void initialize();

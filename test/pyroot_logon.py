@@ -74,6 +74,7 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
                              stdout=subprocess.PIPE)
     pscram.stdout.close()
     output = pgrep.communicate()[0]
+    gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
     if (pgrep.returncode == 0):
         roofitinc = output.split("=")[1].rstrip()
         # print roofitinc

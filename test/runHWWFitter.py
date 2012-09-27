@@ -78,7 +78,7 @@ fitterPars.WpJfunction = opts.ParamWpJ
 if opts.ParamWpJ<0:
     fitterPars.smoothingOrder = 0
 
-#fitterPars.smoothingOrder = 0    
+fitterPars.smoothingOrder = 0    
 
 if fitterPars.includeMuons and fitterPars.includeElectrons:
     modeString = ''
@@ -115,6 +115,8 @@ theFitter.loadData()
 theFitter.resetYields()
 
 fr = theFitter.fit()
+
+assert(False)
 
 tries = 1
 ndf = Long(fr.floatParsFinal().getSize()-5)
@@ -356,8 +358,12 @@ print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
 assert(False)
 
+import HWWSignalShapes
+
 cWpJ = TCanvas('cWpJ', 'W+jets shape')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst, opts.alpha)
+pars4.mHiggs = opts.mH
+pars4.wHiggs = HWWSignalShapes.HiggsWidth[opts.mH]
 pars4.initParamsFile = 'lastSigYield.txt'
 fitter4 = RooWjjMjjFitter(pars4)
 
@@ -377,7 +383,6 @@ pf4.SetName("Mlvjj_Pull")
 lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 lf4.SetName("Mlvjj_log")
 
-import HWWSignalShapes
 # fitUtils = RooWjjFitterUtils(pars4)
 # HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
 # VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
@@ -416,7 +421,7 @@ import HWWSignalShapes
 sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH)
 
 extraFactor = 10.
-(Ngen,otherdata) = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
+otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
 SigVisual = TH1D(sigHists['HWW'])
 SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)

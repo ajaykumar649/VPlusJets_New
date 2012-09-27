@@ -25,6 +25,8 @@
 
 #include "RooTH1DPdf.h"
 
+#include "../../../MMozer/powhegweight/interface/pwhg_wrapper.h"
+
 static const unsigned int maxJets = 6;
 
 RooWjjFitterUtils::RooWjjFitterUtils()
@@ -140,7 +142,8 @@ TH1 * RooWjjFitterUtils::newEmptyHist(TString histName, int binMult) const {
 TH1 * RooWjjFitterUtils::File2Hist(TString fname, 
 				   TString histName, bool isElectron,
 				   int jes_scl, bool noCuts, 
-				   int binMult, TString cutOverride) const {
+				   int binMult, TString cutOverride,
+				   bool CPweights) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);
@@ -180,6 +183,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         lepton_pt;
   Float_t         lepton_eta;
   Float_t         W_mt;
+  Float_t         W_H_mass_gen;
 
   TTreeFormula poi("poi", params_.var, theTree);
 
@@ -206,6 +210,9 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     theTree->SetBranchAddress("W_mt", &W_mt);
   }
 
+  if (CPweights)
+    theTree->SetBranchAddress("W_H_mass_gen", &W_H_mass_gen);
+
 //   static TRandom3 rnd(987654321);
 //   double epochSelector = rnd.Rndm(), sumLumi = 0.;
 //   int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
@@ -220,6 +227,9 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
       evtWgt = effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
 			 JetPFCor_Eta, params_.njets, event_met_pfmet,
 			 isElectron);
+    }
+    if ((CPweights) && (params_.mHiggs > 0)) {
+      evtWgt *= getCPweight(params_.mHiggs, params_.wHiggs, W_H_mass_gen);
     }
     theHist->Fill(poi.EvalInstance()*(1.+tmpScale), evtWgt);
   }
@@ -540,9 +550,9 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   t.SetBranchStatus("event_met_pfmet",    1);
   t.SetBranchStatus("event_met_pfmetPhi",    1);
   t.SetBranchStatus("event_met_pfmetsignificance",    1);
-  t.SetBranchStatus("event_BeamSpot_x",    1);
-  t.SetBranchStatus("event_BeamSpot_y",    1);
-  t.SetBranchStatus("event_RhoForLeptonIsolation",    1);
+  // t.SetBranchStatus("event_BeamSpot_x",    1);
+  // t.SetBranchStatus("event_BeamSpot_y",    1);
+  // t.SetBranchStatus("event_RhoForLeptonIsolation",    1);
   t.SetBranchStatus("event_nPV",    1);
 
   if (isElectron) {
@@ -578,6 +588,9 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
 
   t.SetBranchStatus("Mass2j_PFCor",    1);
   t.SetBranchStatus("MassV2j_PFCor",    1);
+
+  if (t.FindBranch("W_H_mass_gen"))
+    t.SetBranchStatus("W_H_mass_gen", 1);
 }
 
 double RooWjjFitterUtils::dijetEff(unsigned int Njets, 
@@ -638,6 +651,12 @@ double RooWjjFitterUtils::dijetEff(unsigned int Njets,
     assert(true);
   }
   return theEff;
+}
+
+double RooWjjFitterUtils::getCPweight(double mH, double wH, double m, 
+				      int BWflag) {
+  static pwhegwrapper phw;
+  return phw.getweight(mH, wH, 172.5, m, BWflag);
 }
 
 double RooWjjFitterUtils::sig2(RooAddPdf& pdf, RooRealVar& obs, double Nbin) {

@@ -7,6 +7,7 @@ from array import array
 from EffLookupTable import EffLookupTable
 import random
 
+from HWWSignalShapes import HiggsCPWeight
 import warnings
 warnings.filterwarnings( action='ignore', category=RuntimeWarning, message='creating converter for unknown type "const char\*\*".*' )
 
@@ -74,7 +75,7 @@ class Wjj2DFitterUtils:
             
     # generator function for looping over an event tree and applying the cuts
     def TreeLoopFromFile(self, fname, noCuts = False,
-                         cutOverride = None):
+                         cutOverride = None, CPweight = False):
 
         # open file and get tree
         treeFile = TFile.Open(fname)
@@ -124,25 +125,32 @@ class Wjj2DFitterUtils:
                                     mt_pt = theTree.W_mt, mt_eta = lep_eta,
                                     met_pt = theTree.event_met_pfmet, 
                                     met_eta = 0.)
-            yield (v1val.EvalInstance(), v2val.EvalInstance(), effWgt)
+            if CPweight:
+                cpw = HiggsCPWeight(self.pars.mHiggs, theTree.W_H_mass_gen)
+            else:
+                cpw = 1.
+            yield (v1val.EvalInstance(), v2val.EvalInstance(), effWgt, cpw)
 
         return
         
 
     # from a file fill a 2D histogram
     def File2Hist(self, fname, histName, noCuts = False, 
-                  cutOverride = None):
+                  cutOverride = None, CPweight = False):
         theHist = self.newEmptyHist(histName)
 
         print 'filename:',fname
         doEffWgt = (self.pars.doEffCorrections and not cutOverride)
         
-        for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, 
-                                                            noCuts, 
-                                                            cutOverride):
+        for (v1val, v2val, effWgt, cpw) in self.TreeLoopFromFile(fname, 
+                                                                 noCuts, 
+                                                                 cutOverride,
+                                                                 CPweight):
             #print 'entry:',v1val,v2val,effWgt
             if not doEffWgt:
                 effWgt = 1.0
+            if CPweight:
+                effWgt *= cpw
             theHist.Fill(v1val, v2val, effWgt)
 
         return theHist
@@ -165,7 +173,7 @@ class Wjj2DFitterUtils:
 
     # from a file fill and return a RooDataSet
     def File2Dataset(self, fnames, dsName, ws, noCuts = False, 
-                     weighted = False):
+                     weighted = False, CPweight = False):
         if ws.data(dsName):
             return ws.data(dsName)
 
@@ -182,9 +190,13 @@ class Wjj2DFitterUtils:
         if not (type(fnames) == type([])):
             fnames = [fnames]
         for fname in fnames:
-            for (v1val, v2val, effWgt) in self.TreeLoopFromFile(fname, noCuts):
+            for (v1val, v2val, effWgt, cpw) in \
+                    self.TreeLoopFromFile(fname, noCuts,
+                                          CPweight = CPweight):
                 v1.setVal(v1val)
                 v2.setVal(v2val)
+                if CPweight:
+                    effWgt *= cpw
                 ds.add(cols, effWgt)
 
         getattr(ws, 'import')(ds)
@@ -246,18 +258,6 @@ class Wjj2DFitterUtils:
                        )
         elif model==1:
             # power-law model
-            # integral = 'TMath::Power(%s,power + 1)/(power + 1)'
-            # defIntegral = '%s - %s' % (integral % ('x.max(rangeName)'),
-            #                            integral % ('x.min(rangeName)')
-            #                            )
-            # if not TClass.GetClass('RooPowerPdf'):
-            #     RooClassFactory.makePdf('RooPowerPdf', 
-            #                             'x,power','',
-            #                             'TMath::Power(x,power)',
-            #                             True, False, 'x:%s' % defIntegral
-            #                             )
-            #     gROOT.LoadMacro("RooPowerPdf.cxx+")
-            # ws.Print()
             ws.factory("power_%s[-2., -10., 10.]" % idString)
             ws.factory("RooPowerLaw::%s(%s, power_%s)" % \
                            (pdfName, var, idString)
@@ -347,6 +347,16 @@ class Wjj2DFitterUtils:
                            (pdfName, idString, pdfName, pdfName)
                        )
             ws.var('width_%s' % idString).setConstant(True)
+        elif model == 10:
+            #erf * power law
+            ws.factory("offset_%s[40, 0, 1000]" % idString)
+            ws.factory("width_%s[10, 0, 1000]" % idString)
+            ws.factory("power_%s[2, -10, 10]" % idString)
+            ws.factory("power2_%s[0, -10, 10]" % idString)
+            ws.factory("EXPR::%s('(TMath::Erf((@0-@1)/@2)+1)/2./TMath::Power(@0,@3+@4*log(@0/@5))', %s, offset_%s, width_%s, power_%s, power2_%s, 8000)" % \
+                           (pdfName, var, idString, idString, idString, 
+                            idString)
+                       )
         else:
             # this is what will be returned if there isn't a model implemented
             # for a given model code.

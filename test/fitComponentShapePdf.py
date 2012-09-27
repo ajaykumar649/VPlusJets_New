@@ -29,6 +29,7 @@ import pyroot_logon
 config = __import__(opts.modeConfig)
 #import VBF2DConfig
 import RooWjj2DFitter
+import HWWSignalShapes
 #from RooWjj2DFitterUtils import Wjj2DFitterUtils
 
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
@@ -54,9 +55,12 @@ sumNExp = 0.
 weighted = True
 if opts.component == 'multijet':
     weighted = False
+cpw = False
+if opts.component == "HWW":
+    cpw = True
 for (ifile, (filename, ngen, xsec)) in enumerate(files):
     tmpData = fitter.utils.File2Dataset(filename, 'data%i' % ifile, fitter.ws,
-                                        weighted = weighted)
+                                        weighted = weighted, CPweight = cpw)
     tmpData.Print()
     expectedYield = xsec*pars.integratedLumi*tmpData.sumEntries()/ngen
     print filename,'A x eff: %.3g' % (tmpData.sumEntries()/ngen)
@@ -136,7 +140,7 @@ if fitter.ws.var('mean_HWW_%s_core' % pars.var2):
 if fitter.ws.var('mean_HWW_%s_tail' % pars.var2):
     fitter.ws.var('mean_HWW_%s_tail' % pars.var2).setVal(opts.mH)
 if fitter.ws.var('width_HWW_%s' % pars.var2):
-    fitter.ws.var('width_HWW_%s' % pars.var2).setVal(config.HiggsWidth[opts.mH])
+    fitter.ws.var('width_HWW_%s' % pars.var2).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
 if fitter.ws.var('resolution_HWW_%s_tail' % pars.var2):
     fitter.ws.var('resolution_HWW_%s_tail' % pars.var2).setVal(opts.mH*0.11)
 

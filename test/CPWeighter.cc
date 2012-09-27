@@ -17,7 +17,7 @@
 
 #include "../../../MMozer/powhegweight/interface/pwhg_wrapper.h"
 
-double getCPweight(double mH, double wH, double m, int BWflag = 0) {
+double getCPweight(double mH, double wH, double m, int BWflag = 1) {
   static pwhegwrapper phw;
   return phw.getweight(mH, wH, 172.5, m, BWflag);
 }
