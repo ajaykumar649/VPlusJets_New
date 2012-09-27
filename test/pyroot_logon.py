@@ -76,12 +76,12 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
     output = pgrep.communicate()[0]
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
     if (pgrep.returncode == 0):
-        # roofitinc = output.split("=")[1].rstrip()
-        # # print roofitinc
-        # gROOT.GetInterpreter().AddIncludePath(roofitinc)
-        # roofitinc = '-I"' + roofitinc + '"'
-        # # print roofitinc
-        # gSystem.AddIncludePath(roofitinc)
+        roofitinc = output.split("=")[1].rstrip()
+        # print roofitinc
+        gROOT.GetInterpreter().AddIncludePath(roofitinc)
+        roofitinc = '-I"' + roofitinc + '"'
+        # print roofitinc
+        gSystem.AddIncludePath(roofitinc)
         print "done"
         gROOT.ProcessLine('.L RooPowerLaw.cc+')
         gROOT.ProcessLine('.L RooPowerExpPdf.cxx+')
