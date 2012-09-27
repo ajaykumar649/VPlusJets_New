@@ -116,7 +116,7 @@ theFitter.resetYields()
 
 fr = theFitter.fit()
 
-assert(False)
+#assert(False)
 
 tries = 1
 ndf = Long(fr.floatParsFinal().getSize()-5)

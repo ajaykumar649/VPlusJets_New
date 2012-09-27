@@ -255,7 +255,7 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
   // ws.import(newHist);
 
   RooTH1DPdf thePdf(pdfName, pdfName, *mjj_, *(dynamic_cast<TH1D*>(hist)),
-		    order);
+  		    order);
   // RooHistPdf thePdf(pdfName, pdfName, RooArgSet(*massVar_),
   // 		    RooArgSet(*mjj_), newHist, order);
   //thePdf.Print();

@@ -9,7 +9,8 @@ maxMlvjj = 780.
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
-    fitterPars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/RD_"
+    # fitterPars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/RD_"
+    fitterPars.MCDirectory = "root://cmssrv32.fnal.gov//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/RD_"
     # fitterPars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/RD_'
     # fitterPars.MCDirectory = '/uscms_data/d2/pdudero/HWW/ICHEP2012/Trees/RD_'
 ##     fitterPars.WpJDirectory = str(fitterPars.MCDirectory).replace("PAT", "AOD")
@@ -42,7 +43,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     
     fitterPars.binEdges.push_back(fitterPars.minMass)
     #fitterPars.binEdges.push_back(40.)
-    fitterPars.binEdges.push_back(45.)
+    #fitterPars.binEdges.push_back(45.)
     fitterPars.binEdges.push_back(50.)
     fitterPars.binEdges.push_back(55.)
     fitterPars.binEdges.push_back(60.)

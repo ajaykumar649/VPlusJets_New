@@ -922,13 +922,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
   mean.setConstant(false);
   RooRealVar alpha("alpha", "alpha", -1.0);
   alpha.setConstant(false);
-  RooGenericPdf WpJPdfPower("WpJPdfPower", "WpJPdfPower",
-			    "1./TMath::Power(@0,@1+@2*log(@0/@3))",
-			    RooArgList(*mass,power,power2,seff));
+  RooPowerLaw WpJPdfPower("WpJPdfPower", "WpJPdfPower",
+			  *mass, power);
   RooErfPdf bkgErf("WpJPdfErf","WpJPdfErf", *mass, turnOn, width);
-  RooGenericPdf bkgFermi("WpJPdfFermi","WpJPdfFermi",
-		       "1./(1+exp(-(@0-@1)/@2))",
-		       RooArgList(*mass, turnOn, width));
+  // RooGenericPdf bkgFermi("WpJPdfFermi","WpJPdfFermi",
+  // 		       "1./(1+exp(-(@0-@1)/@2))",
+  // 		       RooArgList(*mass, turnOn, width));
   RooRealVar tau("tau", "tau", -0.02);
   tau.setConstant(false);
   RooExponential WpJPdfExp("WpJPdfExp", "WpJPdfExp", *mass, tau);
@@ -956,12 +955,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
     case 2:
       width.setVal(10);
       ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
-			    RooArgList(WpJPdfPower, bkgFermi), 1e-5));
+			    RooArgList(WpJPdfPower, bkgErf), 1e-5));
       break;
     case 3:
       width.setVal(10);
       ws_.import(RooProdPdf("WpJPdf", "WpJPdf", 
-			    RooArgList(WpJPdfExp, bkgFermi), 1e-5));
+			    RooArgList(WpJPdfExp, bkgErf), 1e-5));
       break;
     case 4:
       power2.setVal(0.);
