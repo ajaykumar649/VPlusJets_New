@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TH1F.h>
 
 #include "TLorentzVector.h"
 
@@ -1371,7 +1372,12 @@ public :
    virtual void     Show(Long64_t entry = -1);
 
    virtual void     myana(double myflag = -999, bool isQCD = false, int runflag=0);
-   virtual void     Loop(int wda, int runflag, const char * outfilename, bool isQCD = false);
+   virtual void     Loop(TH1F* h_events, 
+                         TH1F* h_events_weighted,
+                         int wda, 
+                         int runflag, 
+                         const char * outfilename, 
+                         bool isQCD = false);
    virtual double   getDeltaPhi(double phi1, double phi2);
    virtual bool     doKinematicFit(Int_t                 fflage,
 				   const TLorentzVector     mup, 
@@ -1386,6 +1392,7 @@ public :
 				   Int_t              & fit_NDF, 
 				   Int_t              & fit_status);
    virtual void     calculateAngles( TLorentzVector& thep4M11, TLorentzVector& thep4M12, TLorentzVector& thep4M21, TLorentzVector& thep4M22, double& costheta1, double& costheta2, double& phi, double& costhetastar, double& phistar1, double& phistar2);
+   virtual void     InitCounters(const char* input_file_name, TH1F* h_events, TH1F* h_events_weighted);
 
 };
 
