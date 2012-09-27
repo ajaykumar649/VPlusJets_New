@@ -1640,7 +1640,6 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       //###########End Boosted W analysis Flag ###################################
 
       // 2 and 3 jet event for Mjj
-      // 2 and 3 jet event for Mjj
       if (isgengdevt
           && fabs(JetPFCor_Eta[0]-JetPFCor_Eta[1])<1.5 ) {
         h_events          -> Fill ( istep ); 
