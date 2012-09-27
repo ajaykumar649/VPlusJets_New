@@ -1423,10 +1423,12 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
       if ( !isQCD ) {
          //keep electrons with event_met_pfmet>30.0 and passing MVA WP70 & EffArea PFiso.
          if ( !(event_met_pfmet>30.)  ) isgengdevt=0;
-         if (fabs(W_electron_dist) < 0.02 && fabs(W_electron_dcot) < 0.02) isgengdevt=0;
-         if ( fabs(W_electron_eta) <= 0.8 && electroniso > 0.093   ) isgengdevt=0;
-         if ( fabs(W_electron_eta) > 0.8 &&  fabs(W_electron_eta) < 1.479  &&electroniso > 0.095   ) isgengdevt=0;
-         if ( fabs(W_electron_eta) > 1.479 && electroniso > 0.171   ) isgengdevt=0;
+         // The following requirement is already asked in the Ntuples, Passing MVA WP80 for HCP2012
+         /*if (fabs(W_electron_dist) < 0.02 && fabs(W_electron_dcot) < 0.02) isgengdevt=0;
+           if ( fabs(W_electron_eta) <= 0.8 && electroniso > 0.093   ) isgengdevt=0;
+           if ( fabs(W_electron_eta) > 0.8 &&  fabs(W_electron_eta) < 1.479  &&electroniso > 0.095   ) isgengdevt=0;
+           if ( fabs(W_electron_eta) > 1.479 && electroniso > 0.171   ) isgengdevt=0;
+          */
       } else {
          //keep electrons with MVAout>-1.
          if ( !( (-1.<W_electron_mvaTrigV0) )  ) isgengdevt=0;
@@ -1471,10 +1473,12 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
       if ( !isQCD ) {
          //keep electrons with event_met_pfmet>30.0 and passing MVA WP70 & EffArea PFiso.
          if ( !(event_met_pfmet>30.)  ) isgengdevt=0;
-         if (fabs(W_electron_dist) < 0.02 && fabs(W_electron_dcot) < 0.02) isgengdboostedWevt=0;
-         if ( fabs(W_electron_eta) <= 0.8 && electroniso > 0.093   ) isgengdboostedWevt=0;
-         if ( fabs(W_electron_eta) > 0.8 &&  fabs(W_electron_eta) < 1.479  &&electroniso > 0.095   ) isgengdboostedWevt=0;
-         if ( fabs(W_electron_eta) > 1.479 && electroniso > 0.171   ) isgengdboostedWevt=0;
+         // The following requirement is already asked in the Ntuples, Passing MVA WP80 for HCP2012 
+         /*if (fabs(W_electron_dist) < 0.02 && fabs(W_electron_dcot) < 0.02) isgengdboostedWevt=0;
+           if ( fabs(W_electron_eta) <= 0.8 && electroniso > 0.093   ) isgengdboostedWevt=0;
+           if ( fabs(W_electron_eta) > 0.8 &&  fabs(W_electron_eta) < 1.479  &&electroniso > 0.095   ) isgengdboostedWevt=0;
+           if ( fabs(W_electron_eta) > 1.479 && electroniso > 0.171   ) isgengdboostedWevt=0;
+          */
       } else {
          //keep electrons with MVAout>-1.
          if ( !( (-1.<W_electron_mvaTrigV0) )  ) isgengdboostedWevt=0;
@@ -1513,7 +1517,7 @@ void kanaelec::Loop(int wda, int runflag, const char *outfilename, bool isQCD)
          // Calculate angular distribution
          masslvjj = (mup+b_nvp+ajp+bjp).M();
          ptlvjj   = (mup+b_nvp+ajp+bjp).Pt();
-         ylvjj    = (mup+b_nvp+ajp+bjp).Rapidity();
+         //ylvjj    = (mup+b_nvp+ajp+bjp).Rapidity();
          philvjj  = (mup+b_nvp+ajp+bjp).Phi();
          double a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2;
          if (W_electron_charge < 0){
