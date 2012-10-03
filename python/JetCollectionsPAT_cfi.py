@@ -44,9 +44,13 @@ RequireTwoJets = cms.EDFilter("PATCandViewCountFilter",
     src = cms.InputTag("ak5PFJetsLooseId"),
 )
 
+
+from RecoMET.Configuration.GenMETParticles_cff import *
+from RecoMET.METProducers.genMetTrue_cfi import *
+ 
 ############################################
 PFJetPath = cms.Sequence( ak5PFnoPUJets + ak5PFGoodJets + ak5PFJetsClean + ak5PFJetsLooseId + 
-	ak5PFJetsLooseIdVBFTag )
+	ak5PFJetsLooseIdVBFTag + genParticlesForMETAllVisible + genMetTrue)
 #	ak5PFJetsLooseIdVBFTag + RequireTwoJets )
 ##########################################
 ##########################################################################

@@ -189,7 +189,7 @@ void ewk::VplusJetsAnalysis::analyze(const edm::Event& iEvent,
   mcPUnvtx[0] = -999; mcPUnvtx[1] = -999; mcPUnvtx[2] = -999;
   if ( runningOverMC_ ){
     edm::Handle<reco::GenMETCollection> genMETs;
-	if(runoverAOD){
+	if(!runoverAOD){
 		iEvent.getByLabel(mInputgenMet,genMETs);
 		if ( genMETs->size() == 0) {
 			genMET   = -1.0;
