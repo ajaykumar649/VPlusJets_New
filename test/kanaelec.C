@@ -6,6 +6,8 @@
 #include <TMath.h>
 #include <algorithm>
 #include <string>
+#include <TString.h>
+#include <sstream>
 #include "LOTable.h"
 
 #include "Resolution.h"
@@ -70,6 +72,7 @@
 //#include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 
 #include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
+#include "MMozer/powhegweight/interface/pwhg_wrapper.h"
 
 //const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
 const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012/MergedNtuples/";
@@ -1032,6 +1035,15 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch *branch_interferencewt_downggH900 = newtree->Branch("interferencewt_downggH900",&interferencewt_downggH900,"interferencewt_downggH900/F");
    TBranch *branch_interferencewt_downggH1000 = newtree->Branch("interferencewt_downggH1000",&interferencewt_downggH1000,"interferencewt_downggH1000/F");
 
+   //Complex Pole Weight
+   Float_t complexpolewtggH350 = 1.0, complexpolewtggH600 = 1.0, complexpolewtggH700 = 1.0, complexpolewtggH800 = 1.0, complexpolewtggH900 = 1.0, complexpolewtggH1000 = 1.0;
+   TBranch *branch_complexpolewtggH350 = newtree->Branch("complexpolewtggH350",&complexpolewtggH350,"complexpolewtggH350/F");
+   TBranch *branch_complexpolewtggH600 = newtree->Branch("complexpolewtggH600",&complexpolewtggH600,"complexpolewtggH600/F");
+   TBranch *branch_complexpolewtggH700 = newtree->Branch("complexpolewtggH700",&complexpolewtggH700,"complexpolewtggH700/F");
+   TBranch *branch_complexpolewtggH800 = newtree->Branch("complexpolewtggH800",&complexpolewtggH800,"complexpolewtggH800/F");
+   TBranch *branch_complexpolewtggH900 = newtree->Branch("complexpolewtggH900",&complexpolewtggH900,"complexpolewtggH900/F");
+   TBranch *branch_complexpolewtggH1000 = newtree->Branch("complexpolewtggH1000",&complexpolewtggH1000,"complexpolewtggH1000/F");
+
    Float_t qgld_Spring11[6]={-1,-1,-1,-1,-1,-1}; 
    Float_t qgld_Summer11[6]={-1,-1,-1,-1,-1,-1};
    Float_t qgld_Summer11CHS[6]={-1,-1,-1,-1,-1,-1};
@@ -1311,6 +1323,14 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    interferencetableggH900.LoadTable(fInterferenceDir + "ratio900.txt");
    interferencetableggH1000.LoadTable(fInterferenceDir + "ratio1000.txt");
 
+   //Complex Pole Weight
+   pwhegwrapper powhegggH350;
+   pwhegwrapper powhegggH600;
+   pwhegwrapper powhegggH700;
+   pwhegwrapper powhegggH800;
+   pwhegwrapper powhegggH900;
+   pwhegwrapper powhegggH1000;
+
    // Pile up Re-weighting
    /*
       edm::Lumi3DReWeighting LumiWeights_ = edm::Lumi3DReWeighting("PUMC_dist.root", "PUData_dist.root", "pileup", "pileup", "Weight_3D.root");
@@ -1532,6 +1552,9 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       interferencewt_upggH600 = 1.0; interferencewt_upggH700 = 1.0; interferencewt_upggH800 = 1.0; interferencewt_upggH900 = 1.0; interferencewt_upggH1000 = 1.0;
       interferencewt_downggH600 = 1.0; interferencewt_downggH700 = 1.0; interferencewt_downggH800 = 1.0; interferencewt_downggH900 = 1.0; interferencewt_downggH1000 = 1.0;
 
+      //Complex Pole Weight
+      complexpolewtggH350 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+
       isgengdboostedWevt = 0; ggdboostedWevt = 0; GroomedJet_numberbjets = 0; GroomedJet_numberjets = 0;
 
       GroomedJet_CA8_deltaR_lca8jet = -999; GroomedJet_CA8_deltaphi_METca8jet = -999; GroomedJet_CA8_deltaphi_Vca8jet = -999;
@@ -1636,16 +1659,43 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             interferencewtggH1000 = (1 + interferencetableggH1000.GetValue(W_H_mass_gen)[1]);
             interferencewt_upggH1000 = ( 1 + interferencetableggH1000.GetValue(W_H_mass_gen)[0]);
             interferencewt_downggH1000 = ( 1 + interferencetableggH1000.GetValue(W_H_mass_gen)[2]);
+
+            //Complex Pole Weight
+            //getweight(double mh,double gh,double mt,double m,int BWflag)
+            /*
+               c     INPUT
+               c     mh : Higgs boson mass (used in the POWHEG BOX generation)
+               c     gh : Higgs boson width (used in the POWHEG BOX generation)
+               c     mt : top quark mass
+               c     BWflag : 0    if the sample to reweight was produced with fixed Higgs width
+               c              1    if the sample to reweight was produced with running Higgs 
+               c                   width (this is the default in the POWHEG BOX)
+               c     m : virtuality of the produced Higgs boson resonance
+               c     OUTPUT
+               c     w : the reweighting factor 
+             */
+            TString tmps;
+            stringstream out;
+            out << wda;
+            tmps = out.str();
+            if (tmps.Contains("350")) {complexpolewtggH350 = powhegggH350.getweight(350.0,15.2,172.5,W_H_mass_gen,1);}
+            if (tmps.Contains("600")) {complexpolewtggH600 = powhegggH600.getweight(600.0,123.0,172.5,W_H_mass_gen,1);}
+            if (tmps.Contains("700")) {complexpolewtggH700 = powhegggH700.getweight(700.0,199.0,172.5,W_H_mass_gen,1);}
+            if (tmps.Contains("800")) {complexpolewtggH800 = powhegggH800.getweight(800.0,304.0,172.5,W_H_mass_gen,1);}
+            if (tmps.Contains("900")) {complexpolewtggH900 = powhegggH900.getweight(900.0,449.0,172.5,W_H_mass_gen,1);}
+            if (tmps.Contains("1000")) {complexpolewtggH1000 = powhegggH1000.getweight(1000.0,647.0,172.5,W_H_mass_gen,1);}
          }
          else{
             interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
             interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
             interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
+            complexpolewtggH350 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
          }
       }else{
          interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
          interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
          interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
+         complexpolewtggH350 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
       }
 
 
@@ -2384,6 +2434,13 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_interferencewt_downggH800->Fill();
       branch_interferencewt_downggH900->Fill();
       branch_interferencewt_downggH1000->Fill();
+
+      branch_complexpolewtggH350->Fill();
+      branch_complexpolewtggH600->Fill();
+      branch_complexpolewtggH700->Fill();
+      branch_complexpolewtggH800->Fill();
+      branch_complexpolewtggH900->Fill();
+      branch_complexpolewtggH1000->Fill();
 
       branch_qgld_Spring11->Fill();
       branch_qgld_Summer11->Fill();

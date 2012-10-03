@@ -3,6 +3,7 @@ void MyRunElec(double myflag=20112250, bool isQCD=false, int runflag)
   gSystem->Load("libFWCoreFWLite.so");
   gSystem->Load("libPhysicsToolsUtilities.so");
   gSystem->Load("libPhysicsToolsKinFitter.so");
+  gSystem->Load("../../../../lib/slc5_amd64_gcc462/libMMozerpowhegweight.so");
   gROOT->ProcessLine(".include ../../../");
   gROOT->ProcessLine(".L Resolution.cc+");
   gROOT->ProcessLine(".L ../src/METzCalculator.cc+");
