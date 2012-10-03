@@ -87,7 +87,7 @@ namespace ewk {
     float H_Y;
     int H_Id;
 
-/*
+
     int l1Charge;
     int l2Charge;
 
@@ -119,7 +119,7 @@ namespace ewk {
     float l2Vy;
     float l2Vz;
     float l2Y;	  
-*/
+
     ///////////////////
    
     int Parton_Charge[2];

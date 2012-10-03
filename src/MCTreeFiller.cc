@@ -65,7 +65,7 @@ void ewk::MCTreeFiller::SetBranches()
   } else {
     if(ptype_=="muon") {
       lept1 = "muon";
-      lept2 = "neutino";
+      lept2 = "neutrino";
     } else {
       lept1 = "electron";
       lept2 = "neutrino";
@@ -87,7 +87,7 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &H_Y,         "H_y_gen");
   SetBranch( &H_Id,         "H_Id_gen");
 
-/*
+
   ///////////////////////////////////////////////
   SetBranch( &l1px,             lept1+"_px_gen" );
   SetBranch( &l1py,             lept1+"_py_gen" );
@@ -119,7 +119,7 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &l2Vy,             lept2+"_vy_gen" );
   SetBranch( &l2Vz,             lept2+"_vz_gen" );
   SetBranch( &l2Y,              lept2+"_y_gen" );
-*/
+
 
  ////////////////////////////////////////////////////////
   SetBranch( Parton_px,             "Parton_px[2]" );
@@ -200,7 +200,7 @@ void ewk::MCTreeFiller::init()
   H_Vz                  = -10.;
   H_Y                   = -10.;
   H_Id                   = 0;
-/*
+
   l1Charge           = -10;
   l2Charge          = -10;
 
@@ -231,7 +231,7 @@ void ewk::MCTreeFiller::init()
   l2Vy              = -10.;
   l2Vz              = -10.;
   l2Y               = -10.;
-*/
+
 for ( int i =0; i<2; i++){
   Parton_px[i]              = -99999.;
   Parton_py[i]              = -99999.;
@@ -305,17 +305,18 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
 
 
   // now iterate over the daughters  
-//  const reco::Candidate *V=NULL;
-//  const reco::Candidate* lepton1=NULL;
-//  const reco::Candidate* lepton2=NULL;
+  const reco::Candidate *V=NULL;
+  const reco::Candidate* lepton1=NULL;
+  const reco::Candidate* lepton2=NULL;
+
   const reco::Candidate *H=NULL;
   const reco::Candidate *Lepton=NULL;
   const reco::Candidate *Parton1=NULL;
   const reco::Candidate *Parton2=NULL;
   const reco::Candidate *Met=NULL;
 
+
   for(size_t i = 0; i < nGen; ++ i) {
-/*
      V = &((*genParticles)[i]);
     // The vector boson must have stutus==3  
     if( !(abs(V->status())==3) ) continue;
@@ -323,9 +324,9 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     if(!(V==NULL)) ndau = V->numberOfDaughters();
     // The vector boson must decay to leptons
     if(ndau<1) continue;
-    if( (Vtype_=="Z") && !( V->pdgId()==22 || V->pdgId()==23) ) {
-    if( (Vtype_=="W") && !(abs(V->pdgId())==24) ) {
-	//std::cout<<V->pdgId()<<std::endl;
+    if( (Vtype_=="Z") && !( V->pdgId()==22 || V->pdgId()==23) ) continue;
+    if( (Vtype_=="W") && !(abs(V->pdgId())==24) ) continue;
+
     // Loop over daugthers
     for(size_t j = 0; j < ndau; ++ j) {
       const reco::Candidate *d = V->daughter( j );
@@ -339,9 +340,10 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
         if ( abs(d->pdgId())==(pdgIdDau_+1) )  lepton2  = d;
       } 
     } // end ndaughter loop
-}}
-*/
+  }// end genParticles loop
+
 //;;;;;;;;;;;;;;;;;;;;;;;;;;;my stuff;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  for(size_t i = 0; i < nGen; ++ i) {
     H = &((*genParticles)[i]);
     if( !((abs(H->status())==3) && (abs(H->pdgId())==25) ))continue;
   //Higgs must decay to W
@@ -391,7 +393,7 @@ if(H==NULL) return;
   H_Id = H->pdgId();
 
 } //nGen loop end
-/*
+
   ////////// lepton #1 quantities //////////////
   if( !(lepton1 == NULL) ) {
     l1Charge           = lepton1-> charge();
@@ -427,7 +429,7 @@ if(H==NULL) return;
     l2Pt              = lepton2->pt();
     l2Et              = lepton2->et();	 
   } 
-*/
+
 //Parton filling
   if( !(Parton1 == NULL) ) {
   
