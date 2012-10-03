@@ -75,7 +75,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
     #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
-    #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
+    '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
 ) )
 
 
@@ -158,8 +158,45 @@ process.TFileService = cms.Service(
     closeFileFast = cms.untracked.bool(False)
 )
 
+##
+## MET shift correction on the fly
+##
+#from PhysicsTools.PatAlgos.tools.metTools import addPfMET
+
+process.load("JetMETCorrections/Type1MET/pfMETsysShiftCorrections_cfi")
+process.pfMEtSysShiftCorr.src = cms.InputTag('patMETsPFlow')
+process.pfMEtSysShiftCorr.srcMEt = cms.InputTag('patMETsPFlow')
+process.pfMEtSysShiftCorr.srcJets = cms.InputTag('selectedPatJetsPFlow')
+
+if isMC:
+# pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_mc
+  process.pfMEtSysShiftCorr.parameter = cms.PSet(
+    numJetsMin = cms.int32(-1),
+    numJetsMax = cms.int32(-1),
+    px = cms.string("+2.22335e-02 - 6.59183e-02*Nvtx"),
+    py = cms.string("+1.52720e-01 - 1.28052e-01*Nvtx")
+  )
+else:
+# pfMEtSysShiftCorrParameters_2012runAplusBvsNvtx_data
+  process.pfMEtSysShiftCorr.parameter = cms.PSet(
+    numJetsMin = cms.int32(-1),
+    numJetsMax = cms.int32(-1),
+    px = cms.string("+1.68804e-01 + 3.37139e-01*Nvtx"),
+    py = cms.string("-1.72555e-01 - 1.79594e-01*Nvtx")
+  )
+
+process.patMetShiftCorrected = cms.EDProducer("CorrectedPATMETProducer",
+    src = cms.InputTag('patMETsPFlow'),
+    applyType1Corrections = cms.bool(True),
+    srcType1Corrections = cms.VInputTag(
+        cms.InputTag('pfMEtSysShiftCorr')
+    ),
+    applyType2Corrections = cms.bool(False)
+)
 
 process.myseq = cms.Sequence(
+    process.pfMEtSysShiftCorrSequence *
+    process.patMetShiftCorrected *
     process.TrackVtxPath *
     process.HLTEle *
     process.WPath *
