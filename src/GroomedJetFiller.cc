@@ -671,7 +671,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         //std::cout<< "Ending the planarflow computation" << endl;
 
             // qjets computation  -------------
-        if ((mDoQJets)&&!(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)&&(j == 0)){ // do qjets only for the hardest jet in the event!
+        if ((mDoQJets)&&(j == 0)){ // do qjets only for the hardest jet in the event!
             double zcut(0.1), dcut_fctr(0.5), exp_min(0.), exp_max(0.), rigidity(0.1);                
             QjetsPlugin qjet_plugin(zcut, dcut_fctr, exp_min, exp_max, rigidity);
             fastjet::JetDefinition qjet_def(&qjet_plugin);
