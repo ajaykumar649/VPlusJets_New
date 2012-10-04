@@ -45,12 +45,9 @@ RequireTwoJets = cms.EDFilter("PATCandViewCountFilter",
 )
 
 
-from RecoMET.Configuration.GenMETParticles_cff import *
-from RecoMET.METProducers.genMetTrue_cfi import *
- 
 ############################################
 PFJetPath = cms.Sequence( ak5PFnoPUJets + ak5PFGoodJets + ak5PFJetsClean + ak5PFJetsLooseId + 
-	ak5PFJetsLooseIdVBFTag + genParticlesForMETAllVisible + genMetTrue)
+	ak5PFJetsLooseIdVBFTag )
 #	ak5PFJetsLooseIdVBFTag + RequireTwoJets )
 ##########################################
 ##########################################################################
@@ -59,7 +56,10 @@ PFJetPath = cms.Sequence( ak5PFnoPUJets + ak5PFGoodJets + ak5PFJetsClean + ak5PF
 # ak5GenJets are NOT there: First load the needed modules
 from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.JetProducers.ak5GenJets_cfi import *
-GenJetPath = cms.Sequence( genParticlesForJets + ak5GenJets )
+from RecoMET.Configuration.GenMETParticles_cff import *
+from RecoMET.METProducers.genMetTrue_cfi import *
+ 
+GenJetPath = cms.Sequence( genParticlesForJets + ak5GenJets + genParticlesForMETAllVisible + genMetTrue)
 
 ##################### Tag jets: Needed for MC flavor matching
 myPartons = cms.EDProducer("PartonSelector",
