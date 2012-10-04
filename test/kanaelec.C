@@ -1049,13 +1049,40 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch *branch_interferencewt_downggH1000 = newtree->Branch("interferencewt_downggH1000",&interferencewt_downggH1000,"interferencewt_downggH1000/F");
 
    //Complex Pole Weight
-   Float_t complexpolewtggH350 = 1.0, complexpolewtggH600 = 1.0, complexpolewtggH700 = 1.0, complexpolewtggH800 = 1.0, complexpolewtggH900 = 1.0, complexpolewtggH1000 = 1.0;
+   Float_t complexpolewtggH180 = 1.0, complexpolewtggH190 = 1.0, complexpolewtggH200 = 1.0, complexpolewtggH250 = 1.0, complexpolewtggH300 = 1.0, complexpolewtggH350 = 1.0, complexpolewtggH400 = 1.0, complexpolewtggH450 = 1.0, complexpolewtggH500 = 1.0, complexpolewtggH550 = 1.0, complexpolewtggH600 = 1.0, complexpolewtggH700 = 1.0, complexpolewtggH800 = 1.0, complexpolewtggH900 = 1.0, complexpolewtggH1000 = 1.0;
+   TBranch *branch_complexpolewtggH180 = newtree->Branch("complexpolewtggH180",&complexpolewtggH180,"complexpolewtggH180/F");
+   TBranch *branch_complexpolewtggH190 = newtree->Branch("complexpolewtggH190",&complexpolewtggH190,"complexpolewtggH190/F");
+   TBranch *branch_complexpolewtggH200 = newtree->Branch("complexpolewtggH200",&complexpolewtggH200,"complexpolewtggH200/F");
+   TBranch *branch_complexpolewtggH250 = newtree->Branch("complexpolewtggH250",&complexpolewtggH250,"complexpolewtggH250/F");
+   TBranch *branch_complexpolewtggH300 = newtree->Branch("complexpolewtggH300",&complexpolewtggH300,"complexpolewtggH300/F");
    TBranch *branch_complexpolewtggH350 = newtree->Branch("complexpolewtggH350",&complexpolewtggH350,"complexpolewtggH350/F");
+   TBranch *branch_complexpolewtggH400 = newtree->Branch("complexpolewtggH400",&complexpolewtggH400,"complexpolewtggH400/F");
+   TBranch *branch_complexpolewtggH450 = newtree->Branch("complexpolewtggH450",&complexpolewtggH450,"complexpolewtggH450/F");
+   TBranch *branch_complexpolewtggH500 = newtree->Branch("complexpolewtggH500",&complexpolewtggH500,"complexpolewtggH500/F");
+   TBranch *branch_complexpolewtggH550 = newtree->Branch("complexpolewtggH550",&complexpolewtggH550,"complexpolewtggH550/F");
    TBranch *branch_complexpolewtggH600 = newtree->Branch("complexpolewtggH600",&complexpolewtggH600,"complexpolewtggH600/F");
    TBranch *branch_complexpolewtggH700 = newtree->Branch("complexpolewtggH700",&complexpolewtggH700,"complexpolewtggH700/F");
    TBranch *branch_complexpolewtggH800 = newtree->Branch("complexpolewtggH800",&complexpolewtggH800,"complexpolewtggH800/F");
    TBranch *branch_complexpolewtggH900 = newtree->Branch("complexpolewtggH900",&complexpolewtggH900,"complexpolewtggH900/F");
    TBranch *branch_complexpolewtggH1000 = newtree->Branch("complexpolewtggH1000",&complexpolewtggH1000,"complexpolewtggH1000/F");
+
+   //Average Complex Pole Weight
+   Float_t avecomplexpolewtggH180 = 1.0, avecomplexpolewtggH190 = 1.0, avecomplexpolewtggH200 = 1.0, avecomplexpolewtggH250 = 1.0, avecomplexpolewtggH300 = 1.0, avecomplexpolewtggH350 = 1.0, avecomplexpolewtggH400 = 1.0, avecomplexpolewtggH450 = 1.0, avecomplexpolewtggH500 = 1.0, avecomplexpolewtggH550 = 1.0, avecomplexpolewtggH600 = 1.0, avecomplexpolewtggH700 = 1.0, avecomplexpolewtggH800 = 1.0, avecomplexpolewtggH900 = 1.0, avecomplexpolewtggH1000 = 1.0;
+   TBranch *branch_avecomplexpolewtggH180 = newtree->Branch("avecomplexpolewtggH180",&avecomplexpolewtggH180,"avecomplexpolewtggH180/F");
+   TBranch *branch_avecomplexpolewtggH190 = newtree->Branch("avecomplexpolewtggH190",&avecomplexpolewtggH190,"avecomplexpolewtggH190/F");
+   TBranch *branch_avecomplexpolewtggH200 = newtree->Branch("avecomplexpolewtggH200",&avecomplexpolewtggH200,"avecomplexpolewtggH200/F");
+   TBranch *branch_avecomplexpolewtggH250 = newtree->Branch("avecomplexpolewtggH250",&avecomplexpolewtggH250,"avecomplexpolewtggH250/F");
+   TBranch *branch_avecomplexpolewtggH300 = newtree->Branch("avecomplexpolewtggH300",&avecomplexpolewtggH300,"avecomplexpolewtggH300/F");
+   TBranch *branch_avecomplexpolewtggH350 = newtree->Branch("avecomplexpolewtggH350",&avecomplexpolewtggH350,"avecomplexpolewtggH350/F");
+   TBranch *branch_avecomplexpolewtggH400 = newtree->Branch("avecomplexpolewtggH400",&avecomplexpolewtggH400,"avecomplexpolewtggH400/F");
+   TBranch *branch_avecomplexpolewtggH450 = newtree->Branch("avecomplexpolewtggH450",&avecomplexpolewtggH450,"avecomplexpolewtggH450/F");
+   TBranch *branch_avecomplexpolewtggH500 = newtree->Branch("avecomplexpolewtggH500",&avecomplexpolewtggH500,"avecomplexpolewtggH500/F");
+   TBranch *branch_avecomplexpolewtggH550 = newtree->Branch("avecomplexpolewtggH550",&avecomplexpolewtggH550,"avecomplexpolewtggH550/F");
+   TBranch *branch_avecomplexpolewtggH600 = newtree->Branch("avecomplexpolewtggH600",&avecomplexpolewtggH600,"avecomplexpolewtggH600/F");
+   TBranch *branch_avecomplexpolewtggH700 = newtree->Branch("avecomplexpolewtggH700",&avecomplexpolewtggH700,"avecomplexpolewtggH700/F");
+   TBranch *branch_avecomplexpolewtggH800 = newtree->Branch("avecomplexpolewtggH800",&avecomplexpolewtggH800,"avecomplexpolewtggH800/F");
+   TBranch *branch_avecomplexpolewtggH900 = newtree->Branch("avecomplexpolewtggH900",&avecomplexpolewtggH900,"avecomplexpolewtggH900/F");
+   TBranch *branch_avecomplexpolewtggH1000 = newtree->Branch("avecomplexpolewtggH1000",&avecomplexpolewtggH1000,"avecomplexpolewtggH1000/F");
 
    Float_t qgld_Spring11[6]={-1,-1,-1,-1,-1,-1}; 
    Float_t qgld_Summer11[6]={-1,-1,-1,-1,-1,-1};
@@ -1337,7 +1364,16 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    interferencetableggH1000.LoadTable(fInterferenceDir + "ratio1000.txt");
 
    //Complex Pole Weight
+   pwhegwrapper powhegggH180;
+   pwhegwrapper powhegggH190;
+   pwhegwrapper powhegggH200;
+   pwhegwrapper powhegggH250;
+   pwhegwrapper powhegggH300;
    pwhegwrapper powhegggH350;
+   pwhegwrapper powhegggH400;
+   pwhegwrapper powhegggH450;
+   pwhegwrapper powhegggH500;
+   pwhegwrapper powhegggH550;
    pwhegwrapper powhegggH600;
    pwhegwrapper powhegggH700;
    pwhegwrapper powhegggH800;
@@ -1566,7 +1602,10 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       interferencewt_downggH600 = 1.0; interferencewt_downggH700 = 1.0; interferencewt_downggH800 = 1.0; interferencewt_downggH900 = 1.0; interferencewt_downggH1000 = 1.0;
 
       //Complex Pole Weight
-      complexpolewtggH350 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+      complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+
+      //Average Complex Pole Weight for normalization
+      avecomplexpolewtggH180 = 1.0; avecomplexpolewtggH190 = 1.0; avecomplexpolewtggH200 = 1.0; avecomplexpolewtggH250 = 1.0; avecomplexpolewtggH300 = 1.0; avecomplexpolewtggH350 = 1.0; avecomplexpolewtggH400 = 1.0; avecomplexpolewtggH450 = 1.0; avecomplexpolewtggH500 = 1.0; avecomplexpolewtggH550 = 1.0; avecomplexpolewtggH600 = 1.0; avecomplexpolewtggH700 = 1.0; avecomplexpolewtggH800 = 1.0; avecomplexpolewtggH900 = 1.0; avecomplexpolewtggH1000 = 1.0;
 
       isgengdboostedWevt = 0; ggdboostedWevt = 0; GroomedJet_numberbjets = 0; GroomedJet_numberjets = 0;
 
@@ -1691,24 +1730,35 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             stringstream out;
             out << wda;
             tmps = out.str();
-            if (tmps.Contains("350")) {complexpolewtggH350 = powhegggH350.getweight(350.0,15.2,172.5,W_H_mass_gen,1);}
-            if (tmps.Contains("600")) {complexpolewtggH600 = powhegggH600.getweight(600.0,123.0,172.5,W_H_mass_gen,1);}
-            if (tmps.Contains("700")) {complexpolewtggH700 = powhegggH700.getweight(700.0,199.0,172.5,W_H_mass_gen,1);}
-            if (tmps.Contains("800")) {complexpolewtggH800 = powhegggH800.getweight(800.0,304.0,172.5,W_H_mass_gen,1);}
-            if (tmps.Contains("900")) {complexpolewtggH900 = powhegggH900.getweight(900.0,449.0,172.5,W_H_mass_gen,1);}
-            if (tmps.Contains("1000")) {complexpolewtggH1000 = powhegggH1000.getweight(1000.0,647.0,172.5,W_H_mass_gen,1);}
+            if (tmps.Contains("180")) {complexpolewtggH180 = powhegggH180.getweight(180.0,0.631,172.5,W_H_mass_gen,1);avecomplexpolewtggH180 = 1.00690568528;}
+            if (tmps.Contains("190")) {complexpolewtggH190 = powhegggH190.getweight(190.0,1.04,172.5,W_H_mass_gen,1);avecomplexpolewtggH190 = 1.00436986424;}
+            if (tmps.Contains("200")) {complexpolewtggH200 = powhegggH200.getweight(200.0,1.43,172.5,W_H_mass_gen,1);avecomplexpolewtggH200 = 1.0064984894;}
+            if (tmps.Contains("250")) {complexpolewtggH250 = powhegggH250.getweight(250.0,4.04,172.5,W_H_mass_gen,1);avecomplexpolewtggH250 = 1.04781870103;}
+            if (tmps.Contains("300")) {complexpolewtggH300 = powhegggH300.getweight(300.0,8.43,172.5,W_H_mass_gen,1);avecomplexpolewtggH300 = 1.03953336721;}
+            if (tmps.Contains("350")) {complexpolewtggH350 = powhegggH350.getweight(350.0,15.2,172.5,W_H_mass_gen,1);avecomplexpolewtggH350 = 1.05195969977;}
+            if (tmps.Contains("400")) {complexpolewtggH400 = powhegggH400.getweight(400.0,29.2,172.5,W_H_mass_gen,1);avecomplexpolewtggH400 = 1.09643113407;}
+            if (tmps.Contains("450")) {complexpolewtggH450 = powhegggH450.getweight(450.0,46.8,172.5,W_H_mass_gen,1);avecomplexpolewtggH450 = 1.120898086;}
+            if (tmps.Contains("500")) {complexpolewtggH500 = powhegggH500.getweight(500.0,68.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH500 = 1.13138773778;}
+            if (tmps.Contains("550")) {complexpolewtggH550 = powhegggH550.getweight(550.0,93.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH550 = 1.13255668803;}
+            if (tmps.Contains("600")) {complexpolewtggH600 = powhegggH600.getweight(600.0,123.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH600 = 1.128128288;}
+            if (tmps.Contains("700")) {complexpolewtggH700 = powhegggH700.getweight(700.0,199.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH700 = 1.12667978349;}
+            if (tmps.Contains("800")) {complexpolewtggH800 = powhegggH800.getweight(800.0,304.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH800 = 1.1206847853;}
+            if (tmps.Contains("900")) {complexpolewtggH900 = powhegggH900.getweight(900.0,449.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH900 = 1.70985534003;}
+            if (tmps.Contains("1000")) {complexpolewtggH1000 = powhegggH1000.getweight(1000.0,647.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH1000 = 1.09438091014;}
          }
          else{
             interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
             interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
             interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
-            complexpolewtggH350 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+            complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+            avecomplexpolewtggH180 = 1.0; avecomplexpolewtggH190 = 1.0; avecomplexpolewtggH200 = 1.0; avecomplexpolewtggH250 = 1.0; avecomplexpolewtggH300 = 1.0; avecomplexpolewtggH350 = 1.0; avecomplexpolewtggH400 = 1.0; avecomplexpolewtggH450 = 1.0; avecomplexpolewtggH500 = 1.0; avecomplexpolewtggH550 = 1.0; avecomplexpolewtggH600 = 1.0; avecomplexpolewtggH700 = 1.0; avecomplexpolewtggH800 = 1.0; avecomplexpolewtggH900 = 1.0; avecomplexpolewtggH1000 = 1.0;
          }
       }else{
          interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
          interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
          interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
-         complexpolewtggH350 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+         complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
+         avecomplexpolewtggH180 = 1.0; avecomplexpolewtggH190 = 1.0; avecomplexpolewtggH200 = 1.0; avecomplexpolewtggH250 = 1.0; avecomplexpolewtggH300 = 1.0; avecomplexpolewtggH350 = 1.0; avecomplexpolewtggH400 = 1.0; avecomplexpolewtggH450 = 1.0; avecomplexpolewtggH500 = 1.0; avecomplexpolewtggH550 = 1.0; avecomplexpolewtggH600 = 1.0; avecomplexpolewtggH700 = 1.0; avecomplexpolewtggH800 = 1.0; avecomplexpolewtggH900 = 1.0; avecomplexpolewtggH1000 = 1.0;
       }
 
 
@@ -2448,12 +2498,37 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_interferencewt_downggH900->Fill();
       branch_interferencewt_downggH1000->Fill();
 
+      branch_complexpolewtggH180->Fill();
+      branch_complexpolewtggH190->Fill();
+      branch_complexpolewtggH200->Fill();
+      branch_complexpolewtggH250->Fill();
+      branch_complexpolewtggH300->Fill();
       branch_complexpolewtggH350->Fill();
+      branch_complexpolewtggH400->Fill();
+      branch_complexpolewtggH450->Fill();
+      branch_complexpolewtggH500->Fill();
+      branch_complexpolewtggH550->Fill();
       branch_complexpolewtggH600->Fill();
       branch_complexpolewtggH700->Fill();
       branch_complexpolewtggH800->Fill();
       branch_complexpolewtggH900->Fill();
       branch_complexpolewtggH1000->Fill();
+
+      branch_avecomplexpolewtggH180->Fill(); 
+      branch_avecomplexpolewtggH190->Fill();
+      branch_avecomplexpolewtggH200->Fill();
+      branch_avecomplexpolewtggH250->Fill();
+      branch_avecomplexpolewtggH300->Fill();
+      branch_avecomplexpolewtggH350->Fill();
+      branch_avecomplexpolewtggH400->Fill();
+      branch_avecomplexpolewtggH450->Fill();
+      branch_avecomplexpolewtggH500->Fill();
+      branch_avecomplexpolewtggH550->Fill();
+      branch_avecomplexpolewtggH600->Fill();
+      branch_avecomplexpolewtggH700->Fill();
+      branch_avecomplexpolewtggH800->Fill();
+      branch_avecomplexpolewtggH900->Fill();
+      branch_avecomplexpolewtggH1000->Fill();
 
       branch_qgld_Spring11->Fill();
       branch_qgld_Summer11->Fill();
