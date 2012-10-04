@@ -128,7 +128,7 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
       if ( !isQCD ) {
          InitCounters( inDataDir + "WmunuJets_DataAllSingleMuonTrigger_GoldenJSON_9p9invfb.root", h_events, h_events_weighted);
          myChain->Add(                    inDataDir + "WmunuJets_DataAllSingleMuonTrigger_GoldenJSON_9p9invfb.root");
-         Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RD_WmunuJets_DataAll_GoldenJSON_9p9invfb.root");
+         Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RD_WmunuJets_DataAll_GoldenJSON_9p9invfb");
       } else {
          InitCounters( inDataDir + "QCDmu.root", h_events, h_events_weighted);
          myChain->Add(                    inQCDDir +     "QCDmu.root");
@@ -324,6 +324,12 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "mu_ZZ_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20111020,runflag, outDataDir + "RD_mu_ZZ_CMSSW428");
       }
+      if (myflag == 20121020 || myflag == -200){
+        myChain = new TChain("WJet");
+        myChain->Add(                    inDataDir + "mu_ZZ_CMSSW532.root");
+        Init(myChain);Loop( 20121020,runflag, outDataDir + "RD_mu_ZZ_CMSSW532");
+      }
+
       if (myflag == 20121021 || myflag == -200){
          InitCounters( inDataDir + "mu_WpJ_PT100_CMSSW532.root", h_events, h_events_weighted);             
          myChain = new TChain("WJet");  
