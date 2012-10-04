@@ -371,10 +371,18 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_ZZ_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20111023,runflag, outDataDir + "RD_el_ZZ_CMSSW428");
       }
+
       if (myflag == 20121023 || myflag == -200){
-        myChain = new TChain("WJet");
-        myChain->Add(                    inDataDir + "el_ZZ_CMSSW532.root");
-        Init(myChain);Loop( 20111023,runflag, outDataDir + "RD_el_ZZ_CMSSW532");
+         InitCounters( inDataDir + "el_ZZ_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_ZZ_CMSSW532.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20121023,runflag, outDataDir + "RD_el_ZZ_CMSSW532");
+      }
+      if (myflag == 20121024 || myflag == -200){
+         InitCounters( inDataDir + "el_WpJ_PT100_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_WpJ_PT100_CMSSW532.root");
+         Init(myChain);Loop( 20121024,runflag, outDataDir + "RD_el_WpJPt100_CMSSW532");
       }
 
       // Higgs Signal Samples
