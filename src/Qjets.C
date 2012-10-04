@@ -52,7 +52,17 @@ double Qjets::ComputeNormalization(double dmin){
     for(list<jet_distance>::iterator it = _distances.begin(); it != _distances.end(); )
         if(JetsUnmerged(*it)){
             double inc = exp(-_rigidity*((*it).dij-dmin)/dmin);      
-            assert(inc <= 1. && !std::isnan(inc));      
+//            assert(inc <= 1. && !std::isnan(inc));  
+//            assert(inc <= 1);
+            if (!( inc <= 1.)){
+                std::cout << "_rigidity: " << _rigidity << std::endl;
+                std::cout << "(*it).dij: " << (*it).dij << std::endl;
+                std::cout << "dmin: " << dmin << std::endl;
+                std::cout << "-_rigidity*((*it).dij-dmin)/dmin: " << -_rigidity*((*it).dij-dmin)/dmin << std::endl;
+                std::cout << "exp(-_rigidity*((*it).dij-dmin)/dmin): " << exp(-_rigidity*((*it).dij-dmin)/dmin) << std::endl;
+                assert(inc <= 1.);
+            }
+            assert(!std::isnan(inc));            
             norm += inc;          
             it++;
         } else 
@@ -146,7 +156,15 @@ void Qjets::ComputeAllDistances(const vector<fastjet::PseudoJet>& inp){
 double Qjets::d_ij(const fastjet::PseudoJet& v1,const  fastjet::PseudoJet& v2){
     double p1 = v1.perp();
     double p2 = v2.perp();
-    double ret = pow(min(p1,p2),_exp_min) * pow(max(p1,p2),_exp_max) * v1.squared_distance(v2);
+    
+        // small fix here -- nhan
+//    double ret = pow(min(p1,p2),_exp_min) * pow(max(p1,p2),_exp_max) * v1.squared_distance(v2);
+    double ret = pow(10.,-5.);
+    if(v1.squared_distance(v2) != 0.){
+        ret = pow(min(p1,p2),_exp_min) * pow(max(p1,p2),_exp_max) *
+        v1.squared_distance(v2);
+    }
+    
     assert(!std::isnan(ret));
     return ret;
 }
