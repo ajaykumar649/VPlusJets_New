@@ -325,16 +325,17 @@ void kanamuon::myana(double myflag, bool isQCD, int runflag)
          Init(myChain);Loop( h_events, h_events_weighted, 20111020,runflag, outDataDir + "RD_mu_ZZ_CMSSW428");
       }
       if (myflag == 20121020 || myflag == -200){
-        myChain = new TChain("WJet");
-        myChain->Add(                    inDataDir + "mu_ZZ_CMSSW532.root");
-        Init(myChain);Loop( 20121020,runflag, outDataDir + "RD_mu_ZZ_CMSSW532");
+         InitCounters( inDataDir + "mu_ZZ_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "mu_ZZ_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121020,runflag, outDataDir + "RD_mu_ZZ_CMSSW532");
       }
 
       if (myflag == 20121021 || myflag == -200){
          InitCounters( inDataDir + "mu_WpJ_PT100_CMSSW532.root", h_events, h_events_weighted);             
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "mu_WpJ_PT100_CMSSW532.root"); 
-         Init(myChain);Loop( h_events, h_events_weighted, 20121109,runflag, outDataDir + "RD_mu_WpJPt100_CMSSW532");
+         Init(myChain);Loop( h_events, h_events_weighted, 20121021,runflag, outDataDir + "RD_mu_WpJPt100_CMSSW532");
       }
 
       // Higgs Signal Samples
