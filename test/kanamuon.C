@@ -1867,7 +1867,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          // Calculate angular distribution
          masslvjj = (mup+b_nvp+ajp+bjp).M();
          ptlvjj   = (mup+b_nvp+ajp+bjp).Pt();
-         //ylvjj    = (mup+b_nvp+ajp+bjp).Rapidity();
+         ylvjj    = (mup+b_nvp+ajp+bjp).Rapidity();
          philvjj  = (mup+b_nvp+ajp+bjp).Phi();
          double a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2;
          if (W_muon_charge < 0){
