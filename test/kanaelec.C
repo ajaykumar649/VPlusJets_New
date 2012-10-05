@@ -136,9 +136,9 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb");
       } else {
-         InitCounters( inDataDir + "WenuJets_DataAll_GoldenJSON_1p6invfb.root", h_events, h_events_weighted);         
-         myChain->Add(                    inQCDDir +     "WenuJets_DataAll_GoldenJSON_1p6invfb.root"); 
-         Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_1p6invfb", isQCD);
+         InitCounters( inDataDir + "QCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root", h_events, h_events_weighted);
+         myChain->Add(                    inQCDDir +     "QCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root");
+         Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RDQCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root", isQCD);
       }
    }
 
