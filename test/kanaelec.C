@@ -75,8 +75,8 @@
 #include "MMozer/powhegweight/interface/pwhg_wrapper.h"
 
 //const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
-const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012/MergedNtuples/";
-const TString inQCDDir   = "/eos/uscms/store/user/lnujj/HCP2012/MergedNtuples/";
+const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
+const TString inQCDDir   = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
 const TString outDataDir = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
 const std::string fDir   = "EffTable2012/";
 const std::string fInterferenceDir   = "InterferenceTable2012/";
@@ -382,7 +382,19 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          InitCounters( inDataDir + "el_WpJ_PT100_CMSSW532.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");
          myChain->Add(                    inDataDir + "el_WpJ_PT100_CMSSW532.root");
-         Init(myChain);Loop( h_events, h_events_weighted,20121024,runflag, outDataDir + "RD_el_WpJPt100_CMSSW532");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121024,runflag, outDataDir + "RD_el_WpJPt100_CMSSW532");
+      }
+      if (myflag == 20121025 || myflag == -200){
+         InitCounters( inDataDir + "el_W3Jets_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_W3Jets_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121025,runflag, outDataDir + "RD_el_W3Jets_CMSSW532");
+      }
+      if (myflag == 20121026 || myflag == -200){
+         InitCounters( inDataDir + "el_W4Jets_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_W4Jets_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121026,runflag, outDataDir + "RD_el_W4Jets_CMSSW532");
       }
 
       // Higgs Signal Samples
@@ -583,9 +595,9 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
         }
        */
       if (myflag == 20122700 || myflag == -300){
-         InitCounters( inDataDir + "e_HWWMH700_CMSSW532_private.root", h_events, h_events_weighted);
+         InitCounters( inDataDir + "el_HWWMH700_CMSSW532_private.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
-         myChain->Add(                    inDataDir + "e_HWWMH700_CMSSW532_private.root"); 
+         myChain->Add(                    inDataDir + "el_HWWMH700_CMSSW532_private.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20122700,runflag, outDataDir + "RD_el_HWWMH700_CMSSW532_private");
       }
       if (myflag == 20122800 || myflag == -300){
@@ -662,11 +674,23 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_VBFHWWMH300_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113300,runflag, outDataDir + "RD_el_VBFHWWMH300_CMSSW428");
       }
+      if (myflag == 20123300 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH300_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH300_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123300,runflag, outDataDir + "RD_el_VBFHWWMH300_CMSSW532_private");
+      }
       if (myflag == 20113350 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH350_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH350_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113350,runflag, outDataDir + "RD_el_VBFHWWMH350_CMSSW428");
+      }
+      if (myflag == 20123350 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH350_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH350_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123350,runflag, outDataDir + "RD_el_VBFHWWMH350_CMSSW532_private");
       }
       if (myflag == 20113400 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH400_CMSSW428.root", h_events, h_events_weighted);
@@ -674,11 +698,23 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_VBFHWWMH400_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113400,runflag, outDataDir + "RD_el_VBFHWWMH400_CMSSW428");
       }
+      if (myflag == 20123400 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH400_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH400_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123400,runflag, outDataDir + "RD_el_VBFHWWMH400_CMSSW532_private");
+      }
       if (myflag == 20113450 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH450_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH450_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113450,runflag, outDataDir + "RD_el_VBFHWWMH450_CMSSW428");
+      }
+      if (myflag == 20123450 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH450_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH450_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123450,runflag, outDataDir + "RD_el_VBFHWWMH450_CMSSW532_private");
       }
       if (myflag == 20113500 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH500_CMSSW428.root", h_events, h_events_weighted);
@@ -686,17 +722,59 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_VBFHWWMH500_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113500,runflag, outDataDir + "RD_el_VBFHWWMH500_CMSSW428");
       }
+      if (myflag == 20123500 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH500_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH500_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123500,runflag, outDataDir + "RD_el_VBFHWWMH500_CMSSW532_private");
+      }
       if (myflag == 20113550 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH550_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH550_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113550,runflag, outDataDir + "RD_el_VBFHWWMH550_CMSSW428");
       }
+      if (myflag == 20123550 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH550_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH550_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123550,runflag, outDataDir + "RD_el_VBFHWWMH550_CMSSW532_private");
+      }
       if (myflag == 20113600 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH600_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH600_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113600,runflag, outDataDir + "RD_el_VBFHWWMH600_CMSSW428");
+      }
+      if (myflag == 20123600 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH600_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH600_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123600,runflag, outDataDir + "RD_el_VBFHWWMH600_CMSSW532_private");
+      }
+      if (myflag == 20123700 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH700_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH700_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123700,runflag, outDataDir + "RD_el_VBFHWWMH700_CMSSW532_private");
+      }
+      if (myflag == 20123800 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH800_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH800_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123800,runflag, outDataDir + "RD_el_VBFHWWMH800_CMSSW532_private");
+      }
+      if (myflag == 20123900 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH900_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH900_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123900,runflag, outDataDir + "RD_el_VBFHWWMH900_CMSSW532_private");
+      }
+      if (myflag == 201231000 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH1000_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH1000_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 201231000,runflag, outDataDir + "RD_el_VBFHWWMH1000_CMSSW532_private");
       }
 
       // HTauTau MC Signal
@@ -1026,22 +1104,28 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_puwt_up        =  newtree->Branch("puwt_up",     &puwt_up,      "puwt_up/F");
    TBranch * branch_puwt_down      =  newtree->Branch("puwt_down",   &puwt_down,    "puwt_down/F");
 
-   Float_t interferencewtggH600 = 1.0, interferencewtggH700 = 1.0, interferencewtggH800 = 1.0, interferencewtggH900 = 1.0, interferencewtggH1000 = 1.0;
-   Float_t interferencewt_upggH600 = 1.0, interferencewt_upggH700 = 1.0, interferencewt_upggH800 = 1.0, interferencewt_upggH900 = 1.0, interferencewt_upggH1000 = 1.0;
-   Float_t interferencewt_downggH600 = 1.0, interferencewt_downggH700 = 1.0, interferencewt_downggH800 = 1.0, interferencewt_downggH900 = 1.0, interferencewt_downggH1000 = 1.0;
+   Float_t interferencewtggH500 = 1.0, interferencewtggH550 = 1.0, interferencewtggH600 = 1.0, interferencewtggH700 = 1.0, interferencewtggH800 = 1.0, interferencewtggH900 = 1.0, interferencewtggH1000 = 1.0;
+   Float_t interferencewt_upggH500 = 1.0, interferencewt_upggH550 = 1.0, interferencewt_upggH600 = 1.0, interferencewt_upggH700 = 1.0, interferencewt_upggH800 = 1.0, interferencewt_upggH900 = 1.0, interferencewt_upggH1000 = 1.0;
+   Float_t interferencewt_downggH500 = 1.0, interferencewt_downggH550 = 1.0, interferencewt_downggH600 = 1.0, interferencewt_downggH700 = 1.0, interferencewt_downggH800 = 1.0, interferencewt_downggH900 = 1.0, interferencewt_downggH1000 = 1.0;
 
+   TBranch *branch_interferencewtggH500 = newtree->Branch("interferencewtggH500",&interferencewtggH500,"interferencewtggH500/F");
+   TBranch *branch_interferencewtggH550 = newtree->Branch("interferencewtggH550",&interferencewtggH550,"interferencewtggH550/F");
    TBranch *branch_interferencewtggH600 = newtree->Branch("interferencewtggH600",&interferencewtggH600,"interferencewtggH600/F");
    TBranch *branch_interferencewtggH700 = newtree->Branch("interferencewtggH700",&interferencewtggH700,"interferencewtggH700/F");
    TBranch *branch_interferencewtggH800 = newtree->Branch("interferencewtggH800",&interferencewtggH800,"interferencewtggH800/F");
    TBranch *branch_interferencewtggH900 = newtree->Branch("interferencewtggH900",&interferencewtggH900,"interferencewtggH900/F");
    TBranch *branch_interferencewtggH1000 = newtree->Branch("interferencewtggH1000",&interferencewtggH1000,"interferencewtggH1000/F");
 
+   TBranch *branch_interferencewt_upggH500 = newtree->Branch("interferencewt_upggH500",&interferencewt_upggH500,"interferencewt_upggH500/F");
+   TBranch *branch_interferencewt_upggH550 = newtree->Branch("interferencewt_upggH550",&interferencewt_upggH550,"interferencewt_upggH550/F");
    TBranch *branch_interferencewt_upggH600 = newtree->Branch("interferencewt_upggH600",&interferencewt_upggH600,"interferencewt_upggH600/F");
    TBranch *branch_interferencewt_upggH700 = newtree->Branch("interferencewt_upggH700",&interferencewt_upggH700,"interferencewt_upggH700/F");
    TBranch *branch_interferencewt_upggH800 = newtree->Branch("interferencewt_upggH800",&interferencewt_upggH800,"interferencewt_upggH800/F");
    TBranch *branch_interferencewt_upggH900 = newtree->Branch("interferencewt_upggH900",&interferencewt_upggH900,"interferencewt_upggH900/F");
    TBranch *branch_interferencewt_upggH1000 = newtree->Branch("interferencewt_upggH1000",&interferencewt_upggH1000,"interferencewt_upggH1000/F");
 
+   TBranch *branch_interferencewt_downggH500 = newtree->Branch("interferencewt_downggH500",&interferencewt_downggH500,"interferencewt_downggH500/F");
+   TBranch *branch_interferencewt_downggH550 = newtree->Branch("interferencewt_downggH550",&interferencewt_downggH550,"interferencewt_downggH550/F");
    TBranch *branch_interferencewt_downggH600 = newtree->Branch("interferencewt_downggH600",&interferencewt_downggH600,"interferencewt_downggH600/F");
    TBranch *branch_interferencewt_downggH700 = newtree->Branch("interferencewt_downggH700",&interferencewt_downggH700,"interferencewt_downggH700/F");
    TBranch *branch_interferencewt_downggH800 = newtree->Branch("interferencewt_downggH800",&interferencewt_downggH800,"interferencewt_downggH800/F");
@@ -1341,9 +1425,13 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVAVBF600el mvaReadervbf600el( vbf_inputVarsMVA );
 
    // For Efficiency Correction
-   EffTableLoader eleIdEff(         fDir + "scaleFactor-2012A-PromptReco-v1-GsfElectronToId.txt");
-   EffTableLoader eleRecoEff(       fDir + "scaleFactor-2012A-PromptReco-v1-SCToElectron.txt");
-   EffTableLoader eleHLTEff(        fDir + "efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt");
+   //EffTableLoader eleIdEff(         fDir + "scaleFactor-2012A-PromptReco-v1-GsfElectronToId.txt");
+   //EffTableLoader eleRecoEff(       fDir + "scaleFactor-2012A-PromptReco-v1-SCToElectron.txt");
+   //EffTableLoader eleHLTEff(        fDir + "efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt");
+
+   EffTableLoader eleIdEff(         fDir + "scaleFactor-Run2012ABC-GsfElectronToId.txt");
+   EffTableLoader eleRecoEff(       fDir + "scaleFactor-Run2012ABC-SCToElectron.txt");
+   EffTableLoader eleHLTEff(        fDir + "efficiency-Run2012ABC-WP80ToHLTEle.txt");
    EffTableLoader eleJ30Eff(        fDir + "FullyEfficient.txt");
    EffTableLoader eleJ25NoJ30Eff(   fDir + "FullyEfficient_Jet2NoJet1.txt");
    EffTableLoader eleMHTEff(        fDir + "FullyEfficient_MHT.txt");
@@ -1351,12 +1439,16 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    EffTableLoader eleWMtEff(        fDir + "FullyEfficient.txt");
 
    //For Interference Correction
+   LOTable interferencetableggH500;
+   LOTable interferencetableggH550;
    LOTable interferencetableggH600;
    LOTable interferencetableggH700;
    LOTable interferencetableggH800;
    LOTable interferencetableggH900;
    LOTable interferencetableggH1000;
 
+   interferencetableggH500.LoadTable(fInterferenceDir + "ratio500.txt");
+   interferencetableggH550.LoadTable(fInterferenceDir + "ratio550.txt");
    interferencetableggH600.LoadTable(fInterferenceDir + "ratio600.txt");
    interferencetableggH700.LoadTable(fInterferenceDir + "ratio700.txt");
    interferencetableggH800.LoadTable(fInterferenceDir + "ratio800.txt");
@@ -1597,9 +1689,9 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       qgld_Summer11[0]= -1;       qgld_Summer11[1]= -1;       qgld_Summer11[2]= -1;       qgld_Summer11[3]= -1;       qgld_Summer11[4]= -1;       qgld_Summer11[5]= -1;
       qgld_Summer11CHS[0]= -1;    qgld_Summer11CHS[1]= -1;    qgld_Summer11CHS[2]= -1;    qgld_Summer11CHS[3]= -1;    qgld_Summer11CHS[4]= -1;    qgld_Summer11CHS[5]= -1;
 
-      interferencewtggH600 = 1.0; interferencewtggH700 = 1.0; interferencewtggH800 = 1.0; interferencewtggH900 = 1.0; interferencewtggH1000 = 1.0;
-      interferencewt_upggH600 = 1.0; interferencewt_upggH700 = 1.0; interferencewt_upggH800 = 1.0; interferencewt_upggH900 = 1.0; interferencewt_upggH1000 = 1.0;
-      interferencewt_downggH600 = 1.0; interferencewt_downggH700 = 1.0; interferencewt_downggH800 = 1.0; interferencewt_downggH900 = 1.0; interferencewt_downggH1000 = 1.0;
+      interferencewtggH500 = 1.0; interferencewtggH550 = 1.0; interferencewtggH600 = 1.0; interferencewtggH700 = 1.0; interferencewtggH800 = 1.0; interferencewtggH900 = 1.0; interferencewtggH1000 = 1.0;
+      interferencewt_upggH500 = 1.0; interferencewt_upggH550 = 1.0; interferencewt_upggH600 = 1.0; interferencewt_upggH700 = 1.0; interferencewt_upggH800 = 1.0; interferencewt_upggH900 = 1.0; interferencewt_upggH1000 = 1.0;
+      interferencewt_downggH500 = 1.0; interferencewt_downggH550 = 1.0; interferencewt_downggH600 = 1.0; interferencewt_downggH700 = 1.0; interferencewt_downggH800 = 1.0; interferencewt_downggH900 = 1.0; interferencewt_downggH1000 = 1.0;
 
       //Complex Pole Weight
       complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
@@ -1692,6 +1784,14 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          {
             //Table: 1 R2 Nominal Value; 0 R2 Up Value; 2 R2 Down Value
             //Real Interference factor = 1 + R2
+            interferencewtggH500 = (1 + interferencetableggH500.GetValue(W_H_mass_gen)[1]);
+            interferencewt_upggH500 = ( 1 + interferencetableggH500.GetValue(W_H_mass_gen)[0]);
+            interferencewt_downggH500 = ( 1 + interferencetableggH500.GetValue(W_H_mass_gen)[2]);
+
+            interferencewtggH550 = (1 + interferencetableggH550.GetValue(W_H_mass_gen)[1]);
+            interferencewt_upggH550 = ( 1 + interferencetableggH550.GetValue(W_H_mass_gen)[0]);
+            interferencewt_downggH550 = ( 1 + interferencetableggH550.GetValue(W_H_mass_gen)[2]);
+
             interferencewtggH600 = (1 + interferencetableggH600.GetValue(W_H_mass_gen)[1]);
             interferencewt_upggH600 = ( 1 + interferencetableggH600.GetValue(W_H_mass_gen)[0]);
             interferencewt_downggH600 = ( 1 + interferencetableggH600.GetValue(W_H_mass_gen)[2]);
@@ -1730,33 +1830,33 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             stringstream out;
             out << wda;
             tmps = out.str();
-            if (tmps.Contains("180")) {complexpolewtggH180 = powhegggH180.getweight(180.0,0.631,172.5,W_H_mass_gen,1);avecomplexpolewtggH180 = 1.00690568528;}
-            if (tmps.Contains("190")) {complexpolewtggH190 = powhegggH190.getweight(190.0,1.04,172.5,W_H_mass_gen,1);avecomplexpolewtggH190 = 1.00436986424;}
-            if (tmps.Contains("200")) {complexpolewtggH200 = powhegggH200.getweight(200.0,1.43,172.5,W_H_mass_gen,1);avecomplexpolewtggH200 = 1.0064984894;}
-            if (tmps.Contains("250")) {complexpolewtggH250 = powhegggH250.getweight(250.0,4.04,172.5,W_H_mass_gen,1);avecomplexpolewtggH250 = 1.04781870103;}
-            if (tmps.Contains("300")) {complexpolewtggH300 = powhegggH300.getweight(300.0,8.43,172.5,W_H_mass_gen,1);avecomplexpolewtggH300 = 1.03953336721;}
-            if (tmps.Contains("350")) {complexpolewtggH350 = powhegggH350.getweight(350.0,15.2,172.5,W_H_mass_gen,1);avecomplexpolewtggH350 = 1.05195969977;}
-            if (tmps.Contains("400")) {complexpolewtggH400 = powhegggH400.getweight(400.0,29.2,172.5,W_H_mass_gen,1);avecomplexpolewtggH400 = 1.09643113407;}
-            if (tmps.Contains("450")) {complexpolewtggH450 = powhegggH450.getweight(450.0,46.8,172.5,W_H_mass_gen,1);avecomplexpolewtggH450 = 1.120898086;}
-            if (tmps.Contains("500")) {complexpolewtggH500 = powhegggH500.getweight(500.0,68.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH500 = 1.13138773778;}
-            if (tmps.Contains("550")) {complexpolewtggH550 = powhegggH550.getweight(550.0,93.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH550 = 1.13255668803;}
-            if (tmps.Contains("600")) {complexpolewtggH600 = powhegggH600.getweight(600.0,123.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH600 = 1.128128288;}
-            if (tmps.Contains("700")) {complexpolewtggH700 = powhegggH700.getweight(700.0,199.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH700 = 1.12667978349;}
-            if (tmps.Contains("800")) {complexpolewtggH800 = powhegggH800.getweight(800.0,304.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH800 = 1.1206847853;}
-            if (tmps.Contains("900")) {complexpolewtggH900 = powhegggH900.getweight(900.0,449.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH900 = 1.70985534003;}
-            if (tmps.Contains("1000")) {complexpolewtggH1000 = powhegggH1000.getweight(1000.0,647.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH1000 = 1.09438091014;}
+            if (tmps.EndsWith("180")) {complexpolewtggH180 = powhegggH180.getweight(180.0,0.631,172.5,W_H_mass_gen,1);avecomplexpolewtggH180 = 1.00690568528;}
+            if (tmps.EndsWith("190")) {complexpolewtggH190 = powhegggH190.getweight(190.0,1.04,172.5,W_H_mass_gen,1);avecomplexpolewtggH190 = 1.00436986424;}
+            if (tmps.EndsWith("200")) {complexpolewtggH200 = powhegggH200.getweight(200.0,1.43,172.5,W_H_mass_gen,1);avecomplexpolewtggH200 = 1.0064984894;}
+            if (tmps.EndsWith("250")) {complexpolewtggH250 = powhegggH250.getweight(250.0,4.04,172.5,W_H_mass_gen,1);avecomplexpolewtggH250 = 1.04781870103;}
+            if (tmps.EndsWith("300")) {complexpolewtggH300 = powhegggH300.getweight(300.0,8.43,172.5,W_H_mass_gen,1);avecomplexpolewtggH300 = 1.03953336721;}
+            if (tmps.EndsWith("350")) {complexpolewtggH350 = powhegggH350.getweight(350.0,15.2,172.5,W_H_mass_gen,1);avecomplexpolewtggH350 = 1.05195969977;}
+            if (tmps.EndsWith("400")) {complexpolewtggH400 = powhegggH400.getweight(400.0,29.2,172.5,W_H_mass_gen,1);avecomplexpolewtggH400 = 1.09643113407;}
+            if (tmps.EndsWith("450")) {complexpolewtggH450 = powhegggH450.getweight(450.0,46.8,172.5,W_H_mass_gen,1);avecomplexpolewtggH450 = 1.120898086;}
+            if (tmps.EndsWith("500")) {complexpolewtggH500 = powhegggH500.getweight(500.0,68.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH500 = 1.13138773778;}
+            if (tmps.EndsWith("550")) {complexpolewtggH550 = powhegggH550.getweight(550.0,93.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH550 = 1.13255668803;}
+            if (tmps.EndsWith("600")) {complexpolewtggH600 = powhegggH600.getweight(600.0,123.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH600 = 1.128128288;}
+            if (tmps.EndsWith("700")) {complexpolewtggH700 = powhegggH700.getweight(700.0,199.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH700 = 1.12667978349;}
+            if (tmps.EndsWith("800")) {complexpolewtggH800 = powhegggH800.getweight(800.0,304.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH800 = 1.1206847853;}
+            if (tmps.EndsWith("900")) {complexpolewtggH900 = powhegggH900.getweight(900.0,449.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH900 = 1.70985534003;}
+            if (tmps.EndsWith("1000")) {complexpolewtggH1000 = powhegggH1000.getweight(1000.0,647.0,172.5,W_H_mass_gen,1);avecomplexpolewtggH1000 = 1.09438091014;}
          }
          else{
-            interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
-            interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
-            interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
+            interferencewtggH500=1.0; interferencewtggH550=1.0; interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
+            interferencewt_upggH500=1.0; interferencewt_upggH550=1.0;interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
+            interferencewt_downggH500=1.0; interferencewt_downggH550=1.0; interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
             complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
             avecomplexpolewtggH180 = 1.0; avecomplexpolewtggH190 = 1.0; avecomplexpolewtggH200 = 1.0; avecomplexpolewtggH250 = 1.0; avecomplexpolewtggH300 = 1.0; avecomplexpolewtggH350 = 1.0; avecomplexpolewtggH400 = 1.0; avecomplexpolewtggH450 = 1.0; avecomplexpolewtggH500 = 1.0; avecomplexpolewtggH550 = 1.0; avecomplexpolewtggH600 = 1.0; avecomplexpolewtggH700 = 1.0; avecomplexpolewtggH800 = 1.0; avecomplexpolewtggH900 = 1.0; avecomplexpolewtggH1000 = 1.0;
          }
       }else{
-         interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
-         interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
-         interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
+         interferencewtggH500=1.0; interferencewtggH550=1.0; interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
+         interferencewt_upggH500=1.0; interferencewt_upggH550=1.0; interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
+         interferencewt_downggH500=1.0; interferencewt_downggH550=1.0; interferencewt_downggH600=1.0;interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
          complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
          avecomplexpolewtggH180 = 1.0; avecomplexpolewtggH190 = 1.0; avecomplexpolewtggH200 = 1.0; avecomplexpolewtggH250 = 1.0; avecomplexpolewtggH300 = 1.0; avecomplexpolewtggH350 = 1.0; avecomplexpolewtggH400 = 1.0; avecomplexpolewtggH450 = 1.0; avecomplexpolewtggH500 = 1.0; avecomplexpolewtggH550 = 1.0; avecomplexpolewtggH600 = 1.0; avecomplexpolewtggH700 = 1.0; avecomplexpolewtggH800 = 1.0; avecomplexpolewtggH900 = 1.0; avecomplexpolewtggH1000 = 1.0;
       }
@@ -2480,18 +2580,24 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_puwt_up->Fill();
       branch_puwt_down->Fill();
 
+      branch_interferencewtggH500->Fill();
+      branch_interferencewtggH550->Fill();
       branch_interferencewtggH600->Fill();
       branch_interferencewtggH700->Fill();
       branch_interferencewtggH800->Fill();
       branch_interferencewtggH900->Fill();
       branch_interferencewtggH1000->Fill();
 
+      branch_interferencewt_upggH500->Fill();
+      branch_interferencewt_upggH550->Fill();
       branch_interferencewt_upggH600->Fill();
       branch_interferencewt_upggH700->Fill();
       branch_interferencewt_upggH800->Fill();
       branch_interferencewt_upggH900->Fill();
       branch_interferencewt_upggH1000->Fill();
 
+      branch_interferencewt_downggH500->Fill();
+      branch_interferencewt_downggH550->Fill();
       branch_interferencewt_downggH600->Fill();
       branch_interferencewt_downggH700->Fill();
       branch_interferencewt_downggH800->Fill();
