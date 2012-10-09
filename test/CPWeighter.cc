@@ -15,7 +15,7 @@
 // BWflag : generator parameter 0 for fixed width, 1 for running width
 // 172.5 : top mass
 
-#include "../../../MMozer/powhegweight/interface/pwhg_wrapper.h"
+#include "MMozer/powhegweight/interface/pwhg_wrapper.h"
 
 double getCPweight(double mH, double wH, double m, int BWflag = 1) {
   static pwhegwrapper phw;

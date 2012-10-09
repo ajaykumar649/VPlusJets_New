@@ -44,6 +44,7 @@
 #include "RooGenericPdf.h"
 #include "RooCBShape.h"
 #include "RooExponential.h"
+#include "RooLandau.h"
 #include "RooErfExpPdf.h"
 #include "RooPowerExpPdf.h"
 #include "RooPowerLaw.h"
@@ -509,7 +510,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   //  double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
   //  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.004214, ermu3jet = 0.0040797;
 
-  double rel2jet = 0.0637, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
+  double rel2jet = 0.15, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
   double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.005, ermu3jet = 0.005;
 
 
@@ -1031,13 +1032,13 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJPdf(bool allOne) {
 						   *WpJPdfNom),
 		     RooArgList(NMU, NMD, NSU, NSD, NNom));
     ws_.import(WpJPdf);
-    delete th1WpJSU;
-    delete th1WpJSD;
-    delete th1WpJMU;
-    delete th1WpJMD;
-    delete th1WpJ;
   }
 
+  delete th1WpJSU;
+  delete th1WpJSD;
+  delete th1WpJMU;
+  delete th1WpJMD;
+  delete th1WpJ;
 
   return ws_.pdf("WpJPdf");
   //return WjetsShape;
@@ -1134,12 +1135,12 @@ RooAbsPdf * RooWjjMjjFitter::makeSingleTopPdf() {
   double TWTopBarWeight =  7.87 /  787629;
 #else
   // xsecs from https://twiki.cern.ch/twiki/bin/viewauth/CMS/StandardModelCrossSectionsat8TeV
-  double STopWeight     = 3.89394 / 259960;
-  double STopBarWeight  = 1.75776 / 139974;
-  double TTopWeight     = 55.531  /3758221;
-  double TTopBarWeight  = 30.0042 /1935066;
-  double TWTopWeight    = 11.1773 / 497657;
-  double TWTopBarWeight = 11.1773 / 493458;
+  double STopWeight     = 3.79 / 259960;
+  double STopBarWeight  = 1.76 / 139974;
+  double TTopWeight     = 56.4 /3758221;
+  double TTopBarWeight  = 30.7 /1935066;
+  double TWTopWeight    = 11.1 / 497657;
+  double TWTopBarWeight = 11.1 / 493458;
 #endif
   std::cout << "s channel tbar: " << STopBarWeight
 	    << " t: " << STopWeight << "\n"
@@ -1253,16 +1254,17 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
-    tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
-			       "hist_qcd_mu", false, 1, false, 1, 
-			       params_.QCDcuts);
-    th1qcd->Add(tmpHist);
-    delete tmpHist;
+    // tmpHist = utils_.File2Hist(params_.QCDDirectory + 
+    // 			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
+    // 			       "hist_qcd_mu", false, 1, false, 1, 
+    // 			       params_.QCDcuts);
+    // th1qcd->Add(tmpHist);
+    // delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "RDQCD_WenuJets_Isog0p3NoElMVA_1p6invfb.root", // "RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
+			       "RDQCD_WenuJets_Isog0p3NoElMVA_9p3invfb.root", 
+			       // "RDQCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root",
 			       "hist_qcd_el", true, 1, false, 1,
 			       params_.QCDcuts);
     th1qcd->Add(tmpHist);
@@ -1512,15 +1514,17 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   c.setConstant(false);
   c.Print();
   RooExponential expPdf("WpJ4BodyExp", "exp", *mass, c);
-  RooGenericPdf powerPdf("powerPdf", "TMath::Power(@0, @1)", 
-			 RooArgList(*mass, c));
+  RooPowerLaw powerPdf("powerPdf", "powerPdf", *mass, c);
   RooRealVar turnOn("turnOn4", "turnOn4", 161.);
-  // turnOn.setConstant(false);
-  RooRealVar width("width4", "width4", 5.5);
-  width.setConstant(false);
-  RooGenericPdf erf("WpJ4BodyErf","erf",
-		    "(TMath::Erf((@0-@1)/@2)+1)/2.",
-		    RooArgList(*mass, turnOn, width));
+  turnOn.setConstant(false);
+  RooRealVar width("width4", "width4", 20.);
+  // width.setConstant(false);
+  RooErfExpPdf erfExp("WpJ4BodyPdf", "WpJ4BodyPdf", *mass, c, turnOn, width);
+  RooGenericPdf erfPower("WpJ4BodyPdf", "WpJ4BodyPdf", 
+			 "(TMath::Erf((@0-@1)/@2)+1)/2.*"
+			 "TMath::Power(@0,@3)",
+			 RooArgSet(*mass, turnOn, width, c));
+  RooLandau landau("WpJ4BodyPdf", "WpJ4BodyPdf", *mass, turnOn, c);
   RooFitResult * fr = 0;
   double diff = 0, newErr = 0;
   switch (params_.model) {
@@ -1528,13 +1532,16 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   case 5:
   case 1:     
     if (params_.model == 5) {
-      ws_.import(RooProdPdf("WpJ4BodyPdf", "WpJ4BodyPdf", 
-			    RooArgList(erf, expPdf)));
-      
+      ws_.import(erfExp);
+      // c.setVal(18.6);
+      // turnOn.setVal(180.);
+      // ws_.import(landau);
     } else {
       expPdf.SetName("WpJ4BodyPdf");
-      //expPdf.Print("v");
       ws_.import(expPdf);
+      // powerPdf.SetName("WpJ4BodyPdf");
+      // ws_.import(powerPdf);
+      // c.setVal(-2.);
     }
     ws_.import(*(ws_.pdf("WpJ4BodyPdf")), 
 	       RooFit::RenameVariable("c","c_down"),

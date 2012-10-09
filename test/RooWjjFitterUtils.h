@@ -36,7 +36,7 @@ public:
   TH1 * File2Hist(TString fname, TString histName, bool isElectron, 
 		  int jes_scl = -1, bool noCuts = false, 
 		  int binMult = 1, TString cutOverride = "",
-		  bool CPweights = false) const;
+		  bool CPweights = false, int interfereWgt = 0) const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
 		       RooWorkspace& ws, int order = 0) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,

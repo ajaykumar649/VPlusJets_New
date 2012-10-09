@@ -9,17 +9,15 @@ maxMlvjj = 780.
 def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
-    # fitterPars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/RD_"
-    fitterPars.MCDirectory = "root://cmssrv32.fnal.gov//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/RD_"
-    # fitterPars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/RD_'
-    # fitterPars.MCDirectory = '/uscms_data/d2/pdudero/HWW/ICHEP2012/Trees/RD_'
-##     fitterPars.WpJDirectory = str(fitterPars.MCDirectory).replace("PAT", "AOD")
+    # fitterPars.MCDirectory = "root://cmseos.fnal.gov:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/RD_"
+    fitterPars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/RD_"
+
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
         fitterPars.toyWpJ = False
-    # fitterPars.QCDDirectory = fitterPars.MCDirectory[:-3]
-    fitterPars.QCDDirectory = 'root://cmseos:1094//eos/uscms/store/user/lnujj/2012_RDTrees_PAT/'
+    fitterPars.QCDDirectory = fitterPars.MCDirectory[:-3]
+    #fitterPars.QCDDirectory = 'root://cmseos:1094//eos/uscms/store/user/lnujj/2012_RDTrees_PAT/'
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory
@@ -29,13 +27,14 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.includeMuons = True    
     #fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
     # fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root'
-    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_8p0invfb.root'
+    fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb.root'
     fitterPars.includeElectrons = True
    
     fitterPars.NewPhysicsDirectory = fitterPars.MCDirectory
     fitterPars.minMass = 45.
+    #fitterPars.minMass = 50.
     fitterPars.maxMass = 200.
-    fitterPars.nbins = 18
+    fitterPars.nbins = 17
     fitterPars.intLumi = 9900.
     # fitterPars.intLumi = 3500.
     # fitterPars.intLumi = 539.385+21.297
@@ -117,14 +116,14 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.externalConstraints = False
     
     fitterPars.doEffCorrections = True
-    fitterPars.muIdEffFiles.push_back("EffTable2012/scaleFactor-2012A-PromptReco-v1-PFMM-RecoToIso.txt")
-    fitterPars.muHLTEffFiles.push_back("EffTable2012/efficiency-2012A-PromptReco-v1-PFMM-IsoToIsoMuHLT.txt")
+    fitterPars.muIdEffFiles.push_back("EffTable2012/scaleFactor-Run2012ABC-RecoToIso.txt")
+    fitterPars.muHLTEffFiles.push_back("EffTable2012/efficiency-Run2012ABC-IsoToIsoMuHLT.txt")
     fitterPars.lumiPerEpochMuon.push_back(fitterPars.intLumi)
 
     
-    fitterPars.eleIdEffFiles.push_back("EffTable2012/scaleFactor-2012A-PromptReco-v1-GsfElectronToId.txt")
-    fitterPars.eleRecoEffFiles.push_back("EffTable2012/scaleFactor-2012A-PromptReco-v1-SCToElectron.txt")
-    fitterPars.eleHLTEffFiles.push_back("EffTable2012/efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt")
+    fitterPars.eleIdEffFiles.push_back("EffTable2012/scaleFactor-Run2012ABC-GsfElectronToId.txt")
+    fitterPars.eleRecoEffFiles.push_back("EffTable2012/scaleFactor-Run2012ABC-SCToElectron.txt")
+    fitterPars.eleHLTEffFiles.push_back("EffTable2012/efficiency-Run2012ABC-WP80ToHLTEle.txt")
     fitterPars.eleJ30EffFiles.push_back("EffTableDir/FullyEfficient.txt")
     fitterPars.eleJ25NoJ30EffFiles.push_back("EffTableDir/FullyEfficient_Jet2NoJet1.txt")
     fitterPars.eleMHTEffFiles.push_back("EffTableDir/FullyEfficient_MHT.txt")

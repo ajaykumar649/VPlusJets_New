@@ -1,47 +1,36 @@
 NgenHWW = {# 160 : (109992,9.080,0.133),
-           # 170 : (109989,7.729,0.141),
-           180 : (149898,9.8560,0.137*1.5*2),
-           190 : (193737,8.7819,0.115*1.5*2),
-           200 : (196006,7.9711,0.108*1.5*2),
-           250 : (49997,5.3822,0.103*1.5*2),
-           300 : (190924,4.0468,0.101*1.5*2),
-           350 : (199800,3.7260,0.099*1.5*2),
-           400 : (166440,3.1783,0.0852*1.5*2),
-           450 : (197487,2.2032,0.0808*1.5*2),
-           500 : (131182,1.4391,0.0799*1.5*2),
-           550 : (193485,0.9364,0.0806*1.5*2),
-           600 : (42735,0.67988,0.0818*1.5*2)
+           170 : (199986,11.218,0.141*1.5*2, 1.0),
+           180 : (197496,9.8560,0.137*1.5*2, 1.00690568528),
+           190 : (194504,8.7819,0.115*1.5*2, 1.00436986424),
+           200 : (199982,7.9711,0.108*1.5*2, 1.0064984894),
+           250 : (194513,5.3822,0.103*1.5*2, 1.04781870103),
+           300 : (197284,4.0468,0.101*1.5*2, 1.03953336721),
+           350 : (199800,3.7260,0.099*1.5*2, 1.05195969977),
+           400 : (199485,3.1783,0.0852*1.5*2, 1.09643113407),
+           450 : (198969,2.2032,0.0808*1.5*2, 1.120898086),
+           500 : (198470,1.4391,0.0799*1.5*2, 1.13138773778),
+           550 : (199471,0.9364,0.0806*1.5*2, 1.13255668803),
+           600 : (197170,0.67988,0.0818*1.5*2, 1.128128288),
+           700 : (197291,0.29210,0.0846*1.5*2, 1.12667978),
+           800 : (198750,0.15315,0.0872*1.5*2,1.12068474),
+           900 : (198932,0.08848,0.0894*1.5*2,1.709855318),
+           1000 : (198396,0.05562,0.0912*1.5*2,1.09438085556),
            }
 
-NgenVBFHWW = {160 : (169351),
-              170 : (161768),
-              180 : (219267),
-              190 : (213014),
-              200 : (217423),
-              250 : (218679),
-              300 : (217427),
-              350 : (213673),
-              400 : (204894),
-              450 : (164553),
-              500 : (218520),
-              550 : (215938),
-              600 : (214510)
-              }
-
-NgenHWWTauNu = {160 : (109993),
-                170 : (102459),
-                180 : (105475),
-                190 : (109985),
-                200 : (93789),
-                250 : (105936),
-                300 : (102570),
-                350 : (105270),
-                400 : (106818),
-                450 : (104259),
-                500 : (104268),
-                550 : (106658),
-                600 : (109970)
-                }
+NgenVBF = {160 : (169351),
+           170 : (161768),
+           180 : (219267),
+           190 : (213014),
+           200 : (217423),
+           250 : (218679),
+           300 : (217427),
+           350 : (213673),
+           400 : (204894),
+           450 : (164553),
+           500 : (218520),
+           550 : (215938),
+           600 : (214510)
+           }
 
 HiggsWidth = {
     125: 0.00407,
@@ -71,7 +60,7 @@ Ngens = [NgenHWW]
 
 Ngen = dict(zip(modes,Ngens))
 
-# from ROOT import RooWjjFitterUtils
+#from ROOT import RooWjjFitterUtils
 
 # fitUtils = None
 
@@ -89,7 +78,7 @@ def NgenHiggs(mH, mode):
         halfVal = Ngen[mode][mH][0]/2
     return Ngen[mode][mH]
 
-def makeHiggsHist(mH, pars, mode, fitUtils):
+def makeHiggsHist(mH, pars, mode, fitUtils = None, cpw = True, iwt = 0):
 
     if pars.includeMuons and pars.includeElectrons:
         modeString = ''
@@ -105,7 +94,7 @@ def makeHiggsHist(mH, pars, mode, fitUtils):
 
     hist = fitUtils.newEmptyHist('%s%i_%s_shape' % (mode, mH,modeString))
 
-    # higgsDir = '/uscms_data/d2/kalanand/WjjTrees/Full2011DataFall11MC/ReducedTree_PAT/RD_'
+    # higgsDir = '/uscmst1b_scratch/lpc1/3DayLifetime/pdudero/RD_'
     higgsDir = pars.MCDirectory
 
     if pars.includeMuons:
@@ -113,27 +102,31 @@ def makeHiggsHist(mH, pars, mode, fitUtils):
                                          'mu_%sMH%i_CMSSW532_private.root' % \
                                          (mode, mH),
                                      '%s%i_mu' % (mode, mH), False, 1, False,
-                                     1, "", True)
+                                     1, "", cpw, iwt)
         hist.Add(thehist)
     if pars.includeElectrons:
         thehist = fitUtils.File2Hist(higgsDir + \
                                          'el_%sMH%i_CMSSW532_private.root' % \
                                          (mode, mH),
                                      '%s%i_mu' % (mode, mH), True, 1, False,
-                                     1, "", True)
+                                     1, "", cpw, iwt)
         hist.Add(thehist)
 
     return hist
 
-def GenHiggsHists(pars, mH, utils):
+def GenHiggsHists(pars, mH, utils = None, cpw = True):
     hists = []
 
+    # if not utils:
+    #     utils = RooWjjFitterUtils(pars)
+
     for mode in modes:
-        tmpHist = makeHiggsHist(mH, pars, mode, utils)
+        tmpHist = makeHiggsHist(mH, pars, mode, utils, cpw)
         if type(Ngen[mode][mH]) == type(2):
             tmpHist.Scale(1/float(Ngen[mode][mH]/2), 'width')
         else:
-            tmpHist.Scale(1/float(Ngen[mode][mH][0]/2), 'width')            
+            tmpHist.Scale(1/float(Ngen[mode][mH][0]*(Ngen[mode][mH][3] if cpw else 1.0)/2.), 
+                          'width')            
         hists.append(tmpHist)
         
     return dict(zip(modes, hists))

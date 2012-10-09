@@ -21,11 +21,12 @@ def cmsLabel(canvas, lumi, prelim = False, lumiLabel = 'fb', s = 8.):
 def cmsPrelim(canvas, lumi):
     cmsLabel(canvas, lumi, True)
 
-## import os
+import os
+cmssw_base = os.environ['CMSSW_BASE']
 ## macroPath = gROOT.GetMacroPath()
 ## macroPath += os.environ['CMSSW_BASE'] + '/src/ElectroWeakAnalysis/VPlusJets/test:'
 ## gROOT.SetMacroPath(macroPath)
-## del os
+del os
 
 gROOT.SetStyle('Plain')
 gStyle.SetPadTickX(1)
@@ -76,13 +77,15 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
     output = pgrep.communicate()[0]
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
     if (pgrep.returncode == 0):
-        roofitinc = output.split("=")[1].rstrip()
-        # print roofitinc
-        gROOT.GetInterpreter().AddIncludePath(roofitinc)
-        roofitinc = '-I"' + roofitinc + '"'
-        # print roofitinc
-        gSystem.AddIncludePath(roofitinc)
+        # roofitinc = output.split("=")[1].rstrip()
+        # # print roofitinc
+        # gROOT.GetInterpreter().AddIncludePath(roofitinc)
+        # roofitinc = '-I"' + roofitinc + '"'
+        # # print roofitinc
+        # gSystem.AddIncludePath(roofitinc)
         print "done"
+        gROOT.GetInterpreter().AddIncludePath(cmssw_base + '/src')
+        gSystem.AddIncludePath('-I"' + cmssw_base + '/src"')
         gROOT.ProcessLine('.L RooPowerLaw.cc+')
         gROOT.ProcessLine('.L RooPowerExpPdf.cxx+')
         gROOT.ProcessLine('.L RooErfExpPdf.cxx+')

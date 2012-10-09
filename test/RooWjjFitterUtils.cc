@@ -25,7 +25,7 @@
 
 #include "RooTH1DPdf.h"
 
-#include "../../../MMozer/powhegweight/interface/pwhg_wrapper.h"
+#include "MMozer/powhegweight/interface/pwhg_wrapper.h"
 
 static const unsigned int maxJets = 6;
 
@@ -143,7 +143,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 				   TString histName, bool isElectron,
 				   int jes_scl, bool noCuts, 
 				   int binMult, TString cutOverride,
-				   bool CPweights) const {
+				   bool CPweights, int interfereWgt) const {
   TFile * treeFile = TFile::Open(fname);
   TTree * theTree;
   treeFile->GetObject(params_.treeName, theTree);
@@ -184,6 +184,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         lepton_eta;
   Float_t         W_mt;
   Float_t         W_H_mass_gen;
+  Float_t         interferencewt(1.0);
 
   TTreeFormula poi("poi", params_.var, theTree);
 
@@ -212,7 +213,13 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 
   if (CPweights)
     theTree->SetBranchAddress("W_H_mass_gen", &W_H_mass_gen);
-
+  switch (interfereWgt) {
+  case 1:
+    theTree->SetBranchAddress(TString::Format("interferencewtggH%i", 
+					      int(params_.mHiggs)),
+			      &interferencewt);
+    break;
+  }
 //   static TRandom3 rnd(987654321);
 //   double epochSelector = rnd.Rndm(), sumLumi = 0.;
 //   int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
@@ -230,6 +237,9 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     }
     if ((CPweights) && (params_.mHiggs > 0)) {
       evtWgt *= getCPweight(params_.mHiggs, params_.wHiggs, W_H_mass_gen);
+    }
+    if (interfereWgt) {
+      evtWgt *= interferencewt;
     }
     theHist->Fill(poi.EvalInstance()*(1.+tmpScale), evtWgt);
   }
@@ -249,7 +259,7 @@ RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
   if (ws.pdf(pdfName))
     return ws.pdf(pdfName);
 
-  hist->Print();
+  // hist->Print();
   // RooDataHist newHist(pdfName + "_hist", pdfName + "_hist",
   // 		      RooArgList(*mjj_), hist);
   // ws.import(newHist);
@@ -591,6 +601,8 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
 
   if (t.FindBranch("W_H_mass_gen"))
     t.SetBranchStatus("W_H_mass_gen", 1);
+  if (t.FindBranch("interferencewtggH600"))
+    t.SetBranchStatus("interferencewt*", 1);
 }
 
 double RooWjjFitterUtils::dijetEff(unsigned int Njets, 

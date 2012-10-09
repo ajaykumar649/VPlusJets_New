@@ -40,12 +40,16 @@ parser.add_option('-W', '--WpJ', dest='ParamWpJ', type='int',
                   default=-1, help=wpjhelp)
 parser.add_option('--debug', action='store_true', dest='debug', default=False,
                   help='stop when things aren\'t good')
+parser.add_option('--compile', action='store_true', dest='compile', 
+                  default=False, help='stop when done compiling')
 parser.add_option('--mvaCut', dest='mvaCut', type='float',
                   help='override the mva cut with this value')
 parser.add_option('--alpha', dest='alpha', type='float',
                   help='override the alpha with this value')
 parser.add_option('--qgCut', dest='qgCut', type='float',
                   help='cut value on the product of QGLikelihood')
+parser.add_option('--lumi', dest='lumi', type='float',
+                  help='integrated lumi in pb^-1')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -67,6 +71,7 @@ from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad, \
      kBlue, TH1D, TMath, gDirectory
 from math import sqrt
+import HWWSignalShapes
 
 if not opts.debug:
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
@@ -78,8 +83,27 @@ fitterPars.WpJfunction = opts.ParamWpJ
 if opts.ParamWpJ<0:
     fitterPars.smoothingOrder = 0
 
-fitterPars.smoothingOrder = 0    
+#fitterPars.smoothingOrder = 0    
 
+if opts.mH < 250:
+    fitterPars.binEdges.erase(fitterPars.binEdges.begin())
+    fitterPars.minMass = fitterPars.binEdges[0]
+    fitterPars.minFit = fitterPars.minMass
+if (opts.mH == 250) or (opts.mH == 300):
+    # fitterPars.binEdges.insert(fitterPars.binEdges.begin(), 40.)
+    # fitterPars.minMass = fitterPars.binEdges[0]
+    # fitterPars.minFit = fitterPars.minMass
+    # fitterPars.smoothingOrder = 1
+    # fitterPars.truncRange = False
+    pass
+if (opts.mH == 400):
+    fitterPars.binEdges.insert(fitterPars.binEdges.begin(), 40.)
+    fitterPars.minMass = fitterPars.binEdges[0]
+    fitterPars.minFit = fitterPars.minMass
+
+if opts.lumi:
+    fitterPars.intLumi = opts.lumi
+    
 if fitterPars.includeMuons and fitterPars.includeElectrons:
     modeString = ''
 elif fitterPars.includeMuons:
@@ -89,8 +113,11 @@ elif fitterPars.includeElectrons:
 else:
     modeString = ''
 
-
 theFitter = RooWjjMjjFitter(fitterPars)
+
+if opts.compile:
+    print 'compile complete'
+    assert(False)
 
 #theFitter.getWorkSpace().Print()
 theFitter.makeFitter((opts.ParamWpJ>=0))
@@ -106,17 +133,17 @@ theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 #theFitter.getWorkSpace().var('nDiboson').setConstant()
 #theFitter.getWorkSpace().var('nTTbar').setConstant()
 #theFitter.getWorkSpace().var('nSingleTop').setConstant()
-theFitter.getWorkSpace().var('nQCD').setConstant()
 #theFitter.getWorkSpace().var('nZjets').setConstant()
 #theFitter.getWorkSpace().var('nWjets').setConstant()
+theFitter.getWorkSpace().var('nQCD').setConstant()
 
 
 theFitter.loadData()
 theFitter.resetYields()
+if fitterPars.includeMuons:
+    theFitter.getWorkSpace().var('nQCD').setVal(0.)
 
 fr = theFitter.fit()
-
-#assert(False)
 
 tries = 1
 ndf = Long(fr.floatParsFinal().getSize()-5)
@@ -143,22 +170,6 @@ chi2 = theFitter.computeChi2(ndf)
 print 'Raw chi2'
 #chi2Raw = ndf2*1.0
 chi2Raw = theFitter.computeChi2(ndf2, False)
-#dataHist.Print()
-#dataHist.Scale(1., 'width')
-#dataHist.Print()
-#pdfHist = theFitter.makeFitter().createHistogram('TotalPdf', mass,
-#                                                 RooFit.Scaling(False))
-#pdfHist.Print()
-#pdfHist.Scale(nexp/pdfHist.Integral(), 'width')
-
-#pdfHist.Print()
-
-#print 'nexp:', nexp
-#dataHist.Draw()
-#pdfHist.Draw('same')
-#gPad.Update()
-
-#assert(False)
 
 mf = theFitter.stackedPlot()
 mf.SetName("Mjj_Stacked")
@@ -174,30 +185,16 @@ l.SetTextFont(42)
 
 cs = TCanvas("cs", "stacked")
 mf.Draw()
-l.DrawLatex(0.66, 0.55,
-            '#chi^{{2}}/dof = {0:0.3f}/{1}'.format(chi2, ndf)
-            )
+# l.DrawLatex(0.66, 0.55,
+#             '#chi^{{2}}/dof = {0:0.3f}/{1}'.format(chi2, ndf)
+#             )
 pyroot_logon.cmsPrelim(cs, fitterPars.intLumi/1000)
 cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
 cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
 
 if (fr.covQual() != 3):
     print "Fit did not converge with a good error matrix. Bailing out."
-##     assert(False)
-
-## c2 = TCanvas("c2", "stacked_log")
-## c2.SetLogy()
-## lf.Draw()
-## pyroot_logon.cmsPrelim(c2, fitterPars.intLumi/1000)
-## c2.Print('H{2}_Mjj_{0}_{1}jets_Stacked_log.pdf'.format(modeString, opts.Nj, opts.mH))
-## c2.Print('H{2}_Mjj_{0}_{1}jets_Stacked_log.png'.format(modeString, opts.Nj, opts.mH))
-
-
-## c3 = TCanvas("c3", "subtracted")
-## sf.Draw()
-## pyroot_logon.cmsPrelim(c3, fitterPars.intLumi/1000)
-## c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.pdf'.format(modeString, opts.Nj, opts.mH))
-## c3.Print('H{2}_Mjj_{0}_{1}jets_Subtracted.png'.format(modeString, opts.Nj, opts.mH))
+    assert(False)
 
 c4 = TCanvas("c4", "pull")
 pf.Draw()
@@ -356,9 +353,7 @@ nll=fr.minNll()
 print '***** nll = ',nll,' ***** \n'
 print 'total yield: {0:0.0f} +/- {1:0.0f}'.format(totalYield, sqrt(sig2))
 
-assert(False)
-
-import HWWSignalShapes
+# assert(False)
 
 cWpJ = TCanvas('cWpJ', 'W+jets shape')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst, opts.alpha)
@@ -373,7 +368,6 @@ fitter4.make4BodyPdf(theFitter)
 fitter4.loadParameters('lastSigYield.txt')
 
 ## assert(False)
-## fitter4.getWorkSpace().Print()
 
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 mf4.SetName("Mlvjj_Stacked")
@@ -383,46 +377,13 @@ pf4.SetName("Mlvjj_Pull")
 lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 lf4.SetName("Mlvjj_log")
 
-# fitUtils = RooWjjFitterUtils(pars4)
-# HiggsHist = fitUtils.newEmptyHist('HWW%i_%s_shape' % (opts.mH,modeString))
-# VBFHiggsHist = fitUtils.newEmptyHist('VBFHWW%i_%s_shape' % (opts.mH,
-#                                                             modeString))
-# TauNuHiggsHist = fitUtils.newEmptyHist('HWWTauNu%i_%s_shape' % (opts.mH,
-#                                                                 modeString))
+fitUtils = RooWjjFitterUtils(pars4)
+sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils)
 
-# if pars4.includeMuons:
-#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-#                                  'mu_HWWMH%i_CMSSW428.root' % (opts.mH),
-#                                  'HWW%i_mu' % (opts.mH), False, 1, False)
-#     HiggsHist.Add(thehist)
-#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-#                                  'mu_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
-#                                  'VBFHWW%i_mu' % (opts.mH), False, 1, False)
-#     VBFHiggsHist.Add(thehist)
-#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-#                                  'mu_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
-#                                  'HWWTauNu%i_mu' % (opts.mH), False, 1, False)
-#     TauNuHiggsHist.Add(thehist)
-
-# if pars4.includeElectrons:
-#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-#                                  'el_HWWMH%i_CMSSW428.root' % (opts.mH),
-#                                  'HWW%i_el' % (opts.mH), True, 1, False)
-#     HiggsHist.Add(thehist)
-#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-#                                  'el_VBFHWWMH%i_CMSSW428.root' % (opts.mH),
-#                                  'VBFHWW%i_el' % (opts.mH), True, 1, False)
-#     VBFHiggsHist.Add(thehist)
-#     thehist = fitUtils.File2Hist(fitterPars.MCDirectory + \
-#                                  'el_HWWTauNuMH%i_CMSSW428.root' % (opts.mH),
-#                                  'HWWTauNu%i_el' % (opts.mH), True, 1, False)
-#     TauNuHiggsHist.Add(thehist)
-
-sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH)
-
-extraFactor = 10.
+extraFactor = 2.
 otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
 SigVisual = TH1D(sigHists['HWW'])
+SigVisual.Print()
 SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)
 SigVisual.SetLineWidth(3)
@@ -515,6 +476,7 @@ cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.png' % (opts.mH, modeString,
 # cWpJ.Print('H%i_Mlvjj_%s_%ijets_WpJShape_log.root' % (opts.mH, modeString,
 #                                                       opts.Nj))
 
+fitter4.getWorkSpace().Print()
 
 print 'shape file created'
 ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
@@ -530,12 +492,13 @@ h_total_down.SetName('h_total_down')
 
 theData = mf4.getHist('theData')
 
+fitter4.getWorkSpace().Write()
 
 h_total.Write()
 theData.Write()
 
-h_total_up.Write();
-h_total_down.Write();
+h_total_up.Write()
+h_total_down.Write()
 
 for mode in sigHists:
     sigHists[mode].Write()
