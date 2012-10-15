@@ -72,10 +72,6 @@ def makeSignalFilename(mH, mode, isElectron):
     return filename
 
 def NgenHiggs(mH, mode):
-    if type(Ngen[mode][mH]) == type(2):
-        halfVal = Ngen[mode][mH]/2
-    else:
-        halfVal = Ngen[mode][mH][0]/2
     return Ngen[mode][mH]
 
 def makeHiggsHist(mH, pars, mode, fitUtils = None, cpw = True, iwt = 0):
@@ -114,19 +110,19 @@ def makeHiggsHist(mH, pars, mode, fitUtils = None, cpw = True, iwt = 0):
 
     return hist
 
-def GenHiggsHists(pars, mH, utils = None, cpw = True):
+def GenHiggsHists(pars, mH, utils = None, cpw = True, iwt = 0):
     hists = []
 
     # if not utils:
     #     utils = RooWjjFitterUtils(pars)
 
     for mode in modes:
-        tmpHist = makeHiggsHist(mH, pars, mode, utils, cpw)
+        tmpHist = makeHiggsHist(mH, pars, mode, utils, cpw, iwt)
         if type(Ngen[mode][mH]) == type(2):
             tmpHist.Scale(1/float(Ngen[mode][mH]/2), 'width')
         else:
             tmpHist.Scale(1/float(Ngen[mode][mH][0]*(Ngen[mode][mH][3] if cpw else 1.0)/2.), 
-                          'width')            
+                          'width')
         hists.append(tmpHist)
         
     return dict(zip(modes, hists))

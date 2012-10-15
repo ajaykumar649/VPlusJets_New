@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 // Adapted From Following Description:
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: EffTableReader.cc,v 1.1 2009/01/07 19:02:23 kalanand Exp $
+// $Id: EffTableReader.cc,v 1.1 2011/11/28 06:30:44 kalanand Exp $
 // Generic parameters for Jet corrections
 //----------------------------------------------------------------------------
 #include "EffTableReader.h"
@@ -108,16 +108,23 @@ EffTableReader::EffTableReader (const std::string& fFile) {
 
 int EffTableReader::bandIndex (float fEt, float fEta) const{
   int bandInd =0;
-       for (unsigned i = 0; i < mRecords.size(); ++i) {
-         if(fEt>=mRecords[i].EtMin() && fEt<mRecords[i].EtMax()){
-	   if(fEta>=mRecords[i].etaMin() && fEta<mRecords[i].etaMax()){
-	     bandInd=i;
-              break;                        
-                   }
-	 }
-
-       }
-       return bandInd;
+  // std::cout << '\n';
+  // std::cout << "finding band for: " << fEt << ", " << fEta << '\n';
+  // std::cout << &mRecords << ":" << mRecords.size();
+  for (unsigned i = 0; i < mRecords.size(); ++i) {
+    // std::cout << "record " << i ;
+    // std::cout << " Et: " << mRecords[i].EtMin() << '-' << mRecords[i].EtMax()
+    // 	      << " eta: " << mRecords[i].etaMin() << '-' << mRecords[i].etaMax()
+    // 	      << '\n';
+    if(fEt>=mRecords[i].EtMin() && fEt<mRecords[i].EtMax()){
+      if(fEta>=mRecords[i].etaMin() && fEta<mRecords[i].etaMax()){
+	bandInd=i;
+	break;                        
+      }
+    }
+    
+  }
+  return bandInd;
 }
 
 

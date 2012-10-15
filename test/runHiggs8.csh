@@ -14,7 +14,7 @@ foreach flavor ( "Muons" )
     	python runHWWFitter.py -b -m HWW"$flavor"Config -j 2 -H $mH -W 0 -s $syst >&! H"$mH"_"$flavor"_2jets_FitterOutput.out
     end
 
-    foreach mH ( 180 190 200 250 300 )
+    foreach mH ( 170 180 190 200 250 300 )
 	echo "Higgs mass: $mH $flavor 2 jets"
 	python runHWWFitter.py -b -m HWW"$flavor"Config -j 2 -H $mH -W 0 -i WpJHWW"$mH"Parameters.txt -s $syst >&! H"$mH"_"$flavor"_2jets_FitterOutput.out
     end

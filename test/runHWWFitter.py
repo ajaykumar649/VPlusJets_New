@@ -69,7 +69,7 @@ gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad, \
-     kBlue, TH1D, TMath, gDirectory
+     kBlue, TH1D, TMath, gDirectory, RooWjjFitterParams
 from math import sqrt
 import HWWSignalShapes
 
@@ -130,10 +130,10 @@ theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 #     theFitter.getWorkSpace().var('fMU').setConstant(True)
 #     theFitter.getWorkSpace().var('fSU').setConstant(True)
 
-#theFitter.getWorkSpace().var('nDiboson').setConstant()
-#theFitter.getWorkSpace().var('nTTbar').setConstant()
-#theFitter.getWorkSpace().var('nSingleTop').setConstant()
-#theFitter.getWorkSpace().var('nZjets').setConstant()
+# theFitter.getWorkSpace().var('nDiboson').setConstant()
+# theFitter.getWorkSpace().var('nTTbar').setConstant()
+# theFitter.getWorkSpace().var('nSingleTop').setConstant()
+# theFitter.getWorkSpace().var('nZjets').setConstant()
 #theFitter.getWorkSpace().var('nWjets').setConstant()
 theFitter.getWorkSpace().var('nQCD').setConstant()
 
@@ -141,7 +141,7 @@ theFitter.getWorkSpace().var('nQCD').setConstant()
 theFitter.loadData()
 theFitter.resetYields()
 if fitterPars.includeMuons:
-    theFitter.getWorkSpace().var('nQCD').setVal(0.)
+    theFitter.getWorkSpace().var('nQCD').setConstant()
 
 fr = theFitter.fit()
 
@@ -192,9 +192,9 @@ pyroot_logon.cmsPrelim(cs, fitterPars.intLumi/1000)
 cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
 cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
 
-if (fr.covQual() != 3):
-    print "Fit did not converge with a good error matrix. Bailing out."
-    assert(False)
+# if (fr.covQual() != 3):
+#     print "Fit did not converge with a good error matrix. Bailing out."
+#     assert(False)
 
 c4 = TCanvas("c4", "pull")
 pf.Draw()
@@ -378,7 +378,10 @@ lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 lf4.SetName("Mlvjj_log")
 
 fitUtils = RooWjjFitterUtils(pars4)
-sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils)
+iwt = 0
+if opts.mH > 450:
+    iwt = 1
+sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils, iwt = iwt)
 
 extraFactor = 2.
 otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
@@ -387,7 +390,7 @@ SigVisual.Print()
 SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)
 SigVisual.SetLineWidth(3)
-SigVisual.Scale(pars4.intLumi*extraFactor*otherdata[1]*otherdata[2])
+SigVisual.Scale(pars4.intLumi*extraFactor*otherdata[1]*otherdata[2]/2.)
 SigVisual.Print()
 SigVisualLog = TH1D(SigVisual)
 SigVisualLog.SetName("SigVisualLog")
@@ -502,10 +505,37 @@ h_total_down.Write()
 
 for mode in sigHists:
     sigHists[mode].Write()
+
+sigHists['HWW'].Print()
+nomIntegral = sigHists['HWW'].Integral()
+if iwt == 1:
+    pars4up = RooWjjFitterParams(pars4)
+    pars4up.cuts = pars4.cuts.replace('interferencenominal', 'interferenceup')
+    fitUtilsUp = RooWjjFitterUtils(pars4up)
+    sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, fitUtilsUp, 
+                                               iwt = 2)
+    sigHistsUp['HWW'].SetName(sigHistsUp['HWW'].GetName() + '_up')
+    ShapeFile.cd()
+    sigHistsUp['HWW'].Write()
+    sigHistsUp['HWW'].Print()
+    upIntegral = sigHistsUp['HWW'].Integral()
+    pars4down = RooWjjFitterParams(pars4)
+    pars4down.cuts = pars4.cuts.replace('interferencenominal', 
+                                        'interferencedown')
+    fitUtilsDown = RooWjjFitterUtils(pars4down)
+    sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
+                                                 fitUtilsDown, iwt = 3)
+    sigHistsDown['HWW'].SetName(sigHistsDown['HWW'].GetName() + '_down')
+    ShapeFile.cd()
+    sigHistsDown['HWW'].Write()
+    sigHistsDown['HWW'].Print()
+    downIntegral = sigHistsDown['HWW'].Integral()
+
 # HiggsHist.Write()
 # VBFHiggsHist.Write()
 # TauNuHiggsHist.Write()
 
+ShapeFile.cd()
 mf.Write()
 pf.Write()
 mf4.Write()
@@ -516,3 +546,6 @@ SigVisual.Write()
 SigVisualLog.Write()
 
 ShapeFile.Close()
+
+print "down norm change:", (downIntegral/nomIntegral)
+print "up norm change:", (upIntegral/nomIntegral)

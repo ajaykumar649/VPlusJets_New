@@ -510,7 +510,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   //  double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
   //  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.004214, ermu3jet = 0.0040797;
 
-  double rel2jet = 0.15, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
+  double rel2jet = 0.02, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
   double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.005, ermu3jet = 0.005;
 
 
@@ -1254,12 +1254,12 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
 
   TH1 * tmpHist;
   if (params_.includeMuons) {
-    // tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-    // 			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
-    // 			       "hist_qcd_mu", false, 1, false, 1, 
-    // 			       params_.QCDcuts);
-    // th1qcd->Add(tmpHist);
-    // delete tmpHist;
+    tmpHist = utils_.File2Hist(params_.QCDDirectory + 
+    			       "RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
+    			       "hist_qcd_mu", false, 1, false, 1, 
+    			       params_.QCDcuts);
+    th1qcd->Add(tmpHist);
+    delete tmpHist;
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 

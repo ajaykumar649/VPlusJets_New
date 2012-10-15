@@ -163,6 +163,8 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   TString theCuts(cutOverride);
   if (theCuts.Length() < 1)
     theCuts = fullCuts();
+  else
+    std::cout << histName << " cuts: " << theCuts << '\n';
   theTree->Draw(">>" + histName + "_evtList", 
 		((noCuts) ? TString("") : theCuts),
 		"goff");
@@ -171,6 +173,8 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   bool localDoWeights = params_.doEffCorrections && (!noCuts) && 
     (cutOverride.Length() < 1);
 
+  if (!localDoWeights)
+    std::cout << "no weighting of histogram " << histName << '\n';
   //static unsigned int const maxJets = 6;
   activateBranches(*theTree, isElectron);
   Float_t         JetPFCor_Pt[maxJets];
@@ -185,6 +189,8 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         W_mt;
   Float_t         W_H_mass_gen;
   Float_t         interferencewt(1.0);
+  Float_t effwt;
+  Float_t puwt;
 
   TTreeFormula poi("poi", params_.var, theTree);
 
@@ -209,17 +215,31 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
       theTree->SetBranchAddress("W_muon_eta", &lepton_eta);
     }
     theTree->SetBranchAddress("W_mt", &W_mt);
+    theTree->SetBranchAddress("effwt", &effwt);
+    theTree->SetBranchAddress("puwt", &puwt);
   }
 
   if (CPweights)
     theTree->SetBranchAddress("W_H_mass_gen", &W_H_mass_gen);
+
   switch (interfereWgt) {
   case 1:
     theTree->SetBranchAddress(TString::Format("interferencewtggH%i", 
 					      int(params_.mHiggs)),
 			      &interferencewt);
     break;
+  case 2:
+    theTree->SetBranchAddress(TString::Format("interferencewt_upggH%i", 
+					      int(params_.mHiggs)),
+			      &interferencewt);
+    break;
+  case 3:
+    theTree->SetBranchAddress(TString::Format("interferencewt_downggH%i", 
+					      int(params_.mHiggs)),
+			      &interferencewt);
+    break;
   }
+
 //   static TRandom3 rnd(987654321);
 //   double epochSelector = rnd.Rndm(), sumLumi = 0.;
 //   int lumiSize = (isElectron) ? params_.lumiPerEpochElectron.size() :
@@ -231,9 +251,10 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     theTree->GetEntry(list->GetEntry(event));
     evtWgt = 1.0;
     if (localDoWeights) {
-      evtWgt = effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
-			 JetPFCor_Eta, params_.njets, event_met_pfmet,
-			 isElectron);
+      // evtWgt = effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
+      // 			 JetPFCor_Eta, params_.njets, event_met_pfmet,
+      // 			 isElectron);
+      evtWgt = effwt*puwt;
     }
     if ((CPweights) && (params_.mHiggs > 0)) {
       evtWgt *= getCPweight(params_.mHiggs, params_.wHiggs, W_H_mass_gen);
@@ -302,6 +323,8 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
   Float_t         lepton_pt;
   Float_t         lepton_eta;
   Float_t         W_mt;
+  Float_t effwt;
+  Float_t puwt;
 
   TTreeFormula poi("poi", params_.var, theTree);
 
@@ -318,6 +341,8 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
     theTree->SetBranchAddress("W_muon_eta", &lepton_eta);
   }
   theTree->SetBranchAddress("W_mt", &W_mt);
+  theTree->SetBranchAddress("effwt", &effwt);
+  theTree->SetBranchAddress("puwt", &puwt);
 
   RooArgSet cols(*mjj_);
   RooRealVar evtWgt("evtWgt", "evtWgt", 1.0);
@@ -332,10 +357,7 @@ RooDataSet * RooWjjFitterUtils::File2Dataset(TString fname,
   for (int event = 0; event < list->GetN(); ++event) {
     theTree->GetEntry(list->GetEntry(event));
     mjj_->setVal(poi.EvalInstance());
-    ds->add(*mjj_, effWeight(lepton_pt, lepton_eta, W_mt, JetPFCor_Pt,
-			     JetPFCor_Eta, params_.njets, event_met_pfmet,
-			     isElectron)
-	    );
+    ds->add(*mjj_, effwt*puwt);
   }
 //   TTree * reducedTree = theTree;
 
@@ -422,18 +444,30 @@ double RooWjjFitterUtils::effWeight(float lepton_pt, float lepton_eta,
       sumLumi += params_.lumiPerEpochMuon[epoch];
   }
   if (isElectron) {
-    for (unsigned int i = 0; i < maxJets; ++i) {
+    std::cout << "start jets ... ";
+    unsigned int nj(Njets);
+    for (unsigned int i = 0; i < nj; ++i) {
+      std::cout << "\njet " << i << " pt " << JetPFCor_Pt[i]
+		<< " eta " << JetPFCor_Eta[i];
       eff30[i] = effJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
 					      JetPFCor_Eta[i]);
+      std::cout << "\nnoj30 ";
       eff25n30[i] = effJ25NoJ30[epoch]->GetEfficiency(JetPFCor_Pt[i], 
 						      JetPFCor_Eta[i]);
     }
+    // std::cout << "done\nStart dijet ... ";
     evtWgt *= dijetEff(Njets, eff30, eff25n30);
+    // std::cout << "done\nStart MHT ... ";
     evtWgt *= effMHT[epoch]->GetEfficiency(event_met, 0.);
+    // std::cout << "done\nStart el reco ... ";
     evtWgt *= effEleReco[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    // std::cout << "done\nStart el id ... ";
     evtWgt *= effEleId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    // std::cout << "done\nStart el ... ";
     evtWgt *= effEle[epoch]->GetEfficiency(lepton_pt, lepton_eta);
+    // std::cout << "done\nStart el Mt ... ";
     evtWgt *= effEleWMt[epoch]->GetEfficiency(W_mt, lepton_eta);
+    std::cout << "done" << std::endl;
   } else {
     evtWgt *= effMuId[epoch]->GetEfficiency(lepton_pt, lepton_eta);
     evtWgt *= effMu[epoch]->GetEfficiency(lepton_pt, lepton_eta);
@@ -564,6 +598,9 @@ void RooWjjFitterUtils::activateBranches(TTree& t, bool isElectron) {
   // t.SetBranchStatus("event_BeamSpot_y",    1);
   // t.SetBranchStatus("event_RhoForLeptonIsolation",    1);
   t.SetBranchStatus("event_nPV",    1);
+  t.SetBranchStatus("effwt", 1);
+  t.SetBranchStatus("puwt", 1);
+
 
   if (isElectron) {
     t.SetBranchStatus("W_electron_*", 1);
