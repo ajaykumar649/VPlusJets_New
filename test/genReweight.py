@@ -6,6 +6,8 @@ import math
 #import pyroot_fwlite.py
 from optparse import OptionParser
 parser = OptionParser()
+parser.add_option('-H', '--mH', dest='mH', type='float',
+                  help='Higgs Mass Point')
 (opts, args) = parser.parse_args()
 
 import pyroot_logon
@@ -88,7 +90,8 @@ for (eventN,event) in enumerate(events):
             decayCnts[dauMode] += 1
 	    # printParticleDecayTree(particle, statusCutoff = 3)
             Higgs_mass[0] = particle.mass()
-            Event_wgt[0] = HWWSignalShapes.HiggsCPWeight(350, particle.mass())
+            Event_wgt[0] = HWWSignalShapes.HiggsCPWeight(opts.mH,
+                                                         particle.mass())
             sumWgts += Event_wgt[0]
 
             # Running_wgt[0] = HWWSignalShapes.runningWidthWeight(350, 
@@ -97,8 +100,8 @@ for (eventN,event) in enumerate(events):
             break
 
     outTree.Fill()
-    # if eventN >= 10000:
-    #     break
+    if eventN >= 10000:
+        break
 
 print decayCnts
 #print "n events:",eventN
