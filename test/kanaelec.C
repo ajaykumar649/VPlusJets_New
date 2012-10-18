@@ -34,6 +34,27 @@
 #include "ClassifierOut/TMVAClassification_500_nJ2_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_550_nJ2_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_700_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_700_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_700_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_800_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_800_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_800_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_900_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_900_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_900_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_1000_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_1000_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_1000_nJ2_el_interferenceup_Likelihood.class.C"
 
 #include "ClassifierOut/TMVAClassification_170_nJ3_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_180_nJ3_el_Likelihood.class.C"
@@ -75,11 +96,20 @@
 #include "MMozer/powhegweight/interface/pwhg_wrapper.h"
 
 //const TString inDataDir  = "/eos/uscms/store/user/pdudero/lnujj/ICHEP12/MergedNtuples/";
-const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
+//const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
+//const TString inDataDir  = "/uscmst1b_scratch/lpc1/3DayLifetime/jdamgov/HCPlnjj/MergedNtuples/";
+const TString inDataDir  = "/uscmst1b_scratch/lpc1/3DayLifetime/weizountuple/";
 const TString inQCDDir   = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
-const TString outDataDir = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
+//const TString outDataDir = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
+//const TString outDataDir = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample/";
+const TString outDataDir = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample_New/";
 const std::string fDir   = "EffTable2012/";
 const std::string fInterferenceDir   = "InterferenceTable2012/";
+
+bool large(const double &a, const double &b)
+{
+   return a > b;
+}
 
 void kanaelec::myana(double myflag, bool isQCD, int runflag)
 {
@@ -104,7 +134,7 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       "#Delta#eta(W^{had}) < 1.5",
       "#Delta#phi(WJ1,MET) > 0.4",
       "P_{T}(W^{had}) > 40"
-    };
+   };
 
    for ( int istep = 0; istep < n_step; istep++ ) {
       h_events -> GetXaxis() -> SetBinLabel( istep + 1, step_names[istep].c_str() );
@@ -132,9 +162,12 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
       myChain = new TChain("WJet"); 
 
       if ( !isQCD ) {
-         InitCounters( inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb.root", h_events, h_events_weighted);
-         myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb.root"); 
-         Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb");
+         //InitCounters( inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb.root", h_events, h_events_weighted);
+         //myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb.root"); 
+         //Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_9p3invfb");
+         InitCounters( inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_11p9invfb.root", h_events, h_events_weighted);
+         myChain->Add(                    inDataDir + "WenuJets_DataAllSingleElectronTrigger_GoldenJSON_11p9invfb.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20120000,runflag, outDataDir + "RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_11p9invfb");
       } else {
          InitCounters( inDataDir + "QCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root", h_events, h_events_weighted);
          myChain->Add(                    inQCDDir +     "QCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root");
@@ -189,9 +222,9 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          Init(myChain);Loop( h_events, h_events_weighted, 20111003,runflag, outDataDir + "RD_el_STopS_T_CMSSW428");
       }
       if (myflag == 20121003 || myflag == -200){
-         InitCounters( inDataDir + "el_STopS_T_CMSSW532_1of26filesmissing.root", h_events, h_events_weighted);
+         InitCounters( inDataDir + "el_STopS_T_CMSSW532.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
-         myChain->Add(                    inDataDir + "el_STopS_T_CMSSW532_1of26filesmissing.root"); 
+         myChain->Add(                    inDataDir + "el_STopS_T_CMSSW532.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20121003,runflag, outDataDir + "RD_el_STopS_T_CMSSW532");
       }
       if (myflag == 20111004 || myflag == -200){
@@ -396,6 +429,30 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_W4Jets_CMSSW532.root");
          Init(myChain);Loop(  h_events, h_events_weighted,20121026,runflag, outDataDir + "RD_el_W4Jets_CMSSW532");
       }
+      if (myflag == 20121027 || myflag == -200){
+         InitCounters( inDataDir + "el_ttZ_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_ttZ_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121027,runflag, outDataDir + "RD_el_ttZ_CMSSW532");
+      }
+      if (myflag == 20121028 || myflag == -200){
+         InitCounters( inDataDir + "el_ttHbbMH125_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_ttHbbMH125_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121028,runflag, outDataDir + "RD_el_ttHbbMH125_CMSSW532");
+      }
+      if (myflag == 20121029 || myflag == -200){
+         InitCounters( inDataDir + "el_ttHinclusivedecayMH125_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_ttHinclusivedecayMH125_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121029,runflag, outDataDir + "RD_el_ttHinclusivedecayMH125_CMSSW532");
+      }
+      if (myflag == 20121030 || myflag == -200){
+         InitCounters( inDataDir + "el_ttW_CMSSW532.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");
+         myChain->Add(                    inDataDir + "el_ttW_CMSSW532.root");
+         Init(myChain);Loop(  h_events, h_events_weighted,20121030,runflag, outDataDir + "RD_el_ttW_CMSSW532");
+      }
 
       // Higgs Signal Samples
       if (myflag == 20112150 || myflag == -300){
@@ -564,9 +621,9 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
         }
        */
       if (myflag == 20122550 || myflag == -300){
-         InitCounters( inDataDir + "e_HWWMH550_CMSSW532_private.root", h_events, h_events_weighted);
+         InitCounters( inDataDir + "el_HWWMH550_CMSSW532_private.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
-         myChain->Add(                    inDataDir + "e_HWWMH550_CMSSW532_private.root"); 
+         myChain->Add(                    inDataDir + "el_HWWMH550_CMSSW532_private.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20122550,runflag, outDataDir + "RD_el_HWWMH550_CMSSW532_private");
       }
       if (myflag == 20112600 || myflag == -300){
@@ -644,11 +701,23 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_VBFHWWMH170_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113170,runflag, outDataDir + "RD_el_VBFHWWMH170_CMSSW428");
       }
+      if (myflag == 20123170 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH170_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH170_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123170,runflag, outDataDir + "RD_el_VBFHWWMH170_CMSSW532_private");
+      }
       if (myflag == 20113180 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH180_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH180_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113180,runflag, outDataDir + "RD_el_VBFHWWMH180_CMSSW428");
+      }
+      if (myflag == 20123180 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH180_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH180_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123180,runflag, outDataDir + "RD_el_VBFHWWMH180_CMSSW532_private");
       }
       if (myflag == 20113190 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH190_CMSSW428.root", h_events, h_events_weighted);
@@ -656,17 +725,35 @@ void kanaelec::myana(double myflag, bool isQCD, int runflag)
          myChain->Add(                    inDataDir + "el_VBFHWWMH190_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113190,runflag, outDataDir + "RD_el_VBFHWWMH190_CMSSW428");
       }
+      if (myflag == 20123190 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH190_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH190_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123190,runflag, outDataDir + "RD_el_VBFHWWMH190_CMSSW532_private");
+      }
       if (myflag == 20113200 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH200_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH200_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113200,runflag, outDataDir + "RD_el_VBFHWWMH200_CMSSW428");
       }
+      if (myflag == 20123200 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH200_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH200_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123200,runflag, outDataDir + "RD_el_VBFHWWMH200_CMSSW532_private");
+      }
       if (myflag == 20113250 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH250_CMSSW428.root", h_events, h_events_weighted);
          myChain = new TChain("WJet");  
          myChain->Add(                    inDataDir + "el_VBFHWWMH250_CMSSW428.root"); 
          Init(myChain);Loop( h_events, h_events_weighted, 20113250,runflag, outDataDir + "RD_el_VBFHWWMH250_CMSSW428");
+      }
+      if (myflag == 20123250 || myflag == -300){
+         InitCounters( inDataDir + "el_VBFHWWMH250_CMSSW532_private.root", h_events, h_events_weighted);
+         myChain = new TChain("WJet");  
+         myChain->Add(                    inDataDir + "el_VBFHWWMH250_CMSSW532_private.root"); 
+         Init(myChain);Loop( h_events, h_events_weighted, 20123250,runflag, outDataDir + "RD_el_VBFHWWMH250_CMSSW532_private");
       }
       if (myflag == 20113300 || myflag == -300){
          InitCounters( inDataDir + "el_VBFHWWMH300_CMSSW428.root", h_events, h_events_weighted);
@@ -1047,6 +1134,9 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_orgph=  newtree->Branch("philvjj",  &philvjj,   "philvjj/F");
 
    Float_t mva2j160el = 999, mva2j170el = 999, mva2j180el = 999, mva2j190el = 999, mva2j200el = 999, mva2j250el = 999, mva2j300el = 999, mva2j350el = 999, mva2j400el = 999, mva2j450el = 999, mva2j500el = 999, mva2j550el = 999, mva2j600el = 999;
+   Float_t mva2j500interferencenominalel = 999, mva2j550interferencenominalel = 999, mva2j600interferencenominalel = 999, mva2j700interferencenominalel = 999, mva2j800interferencenominalel = 999, mva2j900interferencenominalel = 999, mva2j1000interferencenominalel = 999; 
+   Float_t mva2j500interferencedownel = 999, mva2j550interferencedownel = 999, mva2j600interferencedownel = 999, mva2j700interferencedownel = 999, mva2j800interferencedownel = 999, mva2j900interferencedownel = 999, mva2j1000interferencedownel = 999; 
+   Float_t mva2j500interferenceupel = 999, mva2j550interferenceupel = 999, mva2j600interferenceupel = 999, mva2j700interferenceupel = 999, mva2j800interferenceupel = 999, mva2j900interferenceupel = 999, mva2j1000interferenceupel = 999;
    Float_t mva3j160el = 999, mva3j170el = 999, mva3j180el = 999, mva3j190el = 999, mva3j200el = 999, mva3j250el = 999, mva3j300el = 999, mva3j350el = 999, mva3j400el = 999, mva3j450el = 999, mva3j500el = 999, mva3j550el = 999, mva3j600el = 999;
    Float_t mva2jdibosonel = 999,mva3jdibosonel = 999, mva2jdibnoqgel = 999,mva3jdibnoqgel = 999;
    Float_t mvavbf160el = 999, mvavbf170el = 999, mvavbf180el = 999, mvavbf190el = 999, mvavbf200el = 999, mvavbf250el = 999, mvavbf300el = 999, mvavbf350el = 999, mvavbf400el = 999, mvavbf450el = 999, mvavbf500el = 999, mvavbf550el = 999, mvavbf600el = 999;
@@ -1064,6 +1154,28 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j500el   =  newtree->Branch("mva2j500el",   &mva2j500el,    "mva2j500el/F");
    TBranch * branch_2j550el   =  newtree->Branch("mva2j550el",   &mva2j550el,    "mva2j550el/F");
    TBranch * branch_2j600el   =  newtree->Branch("mva2j600el",   &mva2j600el,    "mva2j600el/F");
+   TBranch * branch_2j500interferencenominalel   =  newtree->Branch("mva2j500interferencenominalel",   &mva2j500interferencenominalel,    "mva2j500interferencenominalel/F");
+   TBranch * branch_2j550interferencenominalel   =  newtree->Branch("mva2j550interferencenominalel",   &mva2j550interferencenominalel,    "mva2j550interferencenominalel/F");
+   TBranch * branch_2j600interferencenominalel   =  newtree->Branch("mva2j600interferencenominalel",   &mva2j600interferencenominalel,    "mva2j600interferencenominalel/F");
+   TBranch * branch_2j700interferencenominalel   =  newtree->Branch("mva2j700interferencenominalel",   &mva2j700interferencenominalel,    "mva2j700interferencenominalel/F");
+   TBranch * branch_2j800interferencenominalel   =  newtree->Branch("mva2j800interferencenominalel",   &mva2j800interferencenominalel,    "mva2j800interferencenominalel/F");
+   TBranch * branch_2j900interferencenominalel   =  newtree->Branch("mva2j900interferencenominalel",   &mva2j900interferencenominalel,    "mva2j900interferencenominalel/F");
+   TBranch * branch_2j1000interferencenominalel   =  newtree->Branch("mva2j1000interferencenominalel",   &mva2j1000interferencenominalel,    "mva2j1000interferencenominalel/F");
+   TBranch * branch_2j500interferenceupel   =  newtree->Branch("mva2j500interferenceupel",   &mva2j500interferenceupel,    "mva2j500interferenceupel/F");
+   TBranch * branch_2j550interferenceupel   =  newtree->Branch("mva2j550interferenceupel",   &mva2j550interferenceupel,    "mva2j550interferenceupel/F");
+   TBranch * branch_2j600interferenceupel   =  newtree->Branch("mva2j600interferenceupel",   &mva2j600interferenceupel,    "mva2j600interferenceupel/F");
+   TBranch * branch_2j700interferenceupel   =  newtree->Branch("mva2j700interferenceupel",   &mva2j700interferenceupel,    "mva2j700interferenceupel/F");
+   TBranch * branch_2j800interferenceupel   =  newtree->Branch("mva2j800interferenceupel",   &mva2j800interferenceupel,    "mva2j800interferenceupel/F");
+   TBranch * branch_2j900interferenceupel   =  newtree->Branch("mva2j900interferenceupel",   &mva2j900interferenceupel,    "mva2j900interferenceupel/F");
+   TBranch * branch_2j1000interferenceupel   =  newtree->Branch("mva2j1000interferenceupel",   &mva2j1000interferenceupel,    "mva2j1000interferenceupel/F");
+   TBranch * branch_2j500interferencedownel   =  newtree->Branch("mva2j500interferencedownel",   &mva2j500interferencedownel,    "mva2j500interferencedownel/F");
+   TBranch * branch_2j550interferencedownel   =  newtree->Branch("mva2j550interferencedownel",   &mva2j550interferencedownel,    "mva2j550interferencedownel/F");
+   TBranch * branch_2j600interferencedownel   =  newtree->Branch("mva2j600interferencedownel",   &mva2j600interferencedownel,    "mva2j600interferencedownel/F");
+   TBranch * branch_2j700interferencedownel   =  newtree->Branch("mva2j700interferencedownel",   &mva2j700interferencedownel,    "mva2j700interferencedownel/F");
+   TBranch * branch_2j800interferencedownel   =  newtree->Branch("mva2j800interferencedownel",   &mva2j800interferencedownel,    "mva2j800interferencedownel/F");
+   TBranch * branch_2j900interferencedownel   =  newtree->Branch("mva2j900interferencedownel",   &mva2j900interferencedownel,    "mva2j900interferencedownel/F");
+   TBranch * branch_2j1000interferencedownel   =  newtree->Branch("mva2j1000interferencedownel",   &mva2j1000interferencedownel,    "mva2j1000interferencedownel/F");
+
 
    TBranch * branch_3j160el   =  newtree->Branch("mva3j160el",   &mva3j160el,    "mva3j160el/F");
    TBranch * branch_3j170el   =  newtree->Branch("mva3j170el",   &mva3j170el,    "mva3j170el/F");
@@ -1104,10 +1216,12 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_puwt_up        =  newtree->Branch("puwt_up",     &puwt_up,      "puwt_up/F");
    TBranch * branch_puwt_down      =  newtree->Branch("puwt_down",   &puwt_down,    "puwt_down/F");
 
-   Float_t interferencewtggH500 = 1.0, interferencewtggH550 = 1.0, interferencewtggH600 = 1.0, interferencewtggH700 = 1.0, interferencewtggH800 = 1.0, interferencewtggH900 = 1.0, interferencewtggH1000 = 1.0;
-   Float_t interferencewt_upggH500 = 1.0, interferencewt_upggH550 = 1.0, interferencewt_upggH600 = 1.0, interferencewt_upggH700 = 1.0, interferencewt_upggH800 = 1.0, interferencewt_upggH900 = 1.0, interferencewt_upggH1000 = 1.0;
-   Float_t interferencewt_downggH500 = 1.0, interferencewt_downggH550 = 1.0, interferencewt_downggH600 = 1.0, interferencewt_downggH700 = 1.0, interferencewt_downggH800 = 1.0, interferencewt_downggH900 = 1.0, interferencewt_downggH1000 = 1.0;
+   Float_t interferencewtggH400 = 1.0, interferencewtggH450 = 1.0, interferencewtggH500 = 1.0, interferencewtggH550 = 1.0, interferencewtggH600 = 1.0, interferencewtggH700 = 1.0, interferencewtggH800 = 1.0, interferencewtggH900 = 1.0, interferencewtggH1000 = 1.0;
+   Float_t interferencewt_upggH400 = 1.0, interferencewt_upggH450 = 1.0, interferencewt_upggH500 = 1.0, interferencewt_upggH550 = 1.0, interferencewt_upggH600 = 1.0, interferencewt_upggH700 = 1.0, interferencewt_upggH800 = 1.0, interferencewt_upggH900 = 1.0, interferencewt_upggH1000 = 1.0;
+   Float_t interferencewt_downggH400 = 1.0, interferencewt_downggH450 = 1.0, interferencewt_downggH500 = 1.0, interferencewt_downggH550 = 1.0, interferencewt_downggH600 = 1.0, interferencewt_downggH700 = 1.0, interferencewt_downggH800 = 1.0, interferencewt_downggH900 = 1.0, interferencewt_downggH1000 = 1.0;
 
+   TBranch *branch_interferencewtggH400 = newtree->Branch("interferencewtggH400",&interferencewtggH400,"interferencewtggH400/F");
+   TBranch *branch_interferencewtggH450 = newtree->Branch("interferencewtggH450",&interferencewtggH450,"interferencewtggH450/F");
    TBranch *branch_interferencewtggH500 = newtree->Branch("interferencewtggH500",&interferencewtggH500,"interferencewtggH500/F");
    TBranch *branch_interferencewtggH550 = newtree->Branch("interferencewtggH550",&interferencewtggH550,"interferencewtggH550/F");
    TBranch *branch_interferencewtggH600 = newtree->Branch("interferencewtggH600",&interferencewtggH600,"interferencewtggH600/F");
@@ -1116,6 +1230,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch *branch_interferencewtggH900 = newtree->Branch("interferencewtggH900",&interferencewtggH900,"interferencewtggH900/F");
    TBranch *branch_interferencewtggH1000 = newtree->Branch("interferencewtggH1000",&interferencewtggH1000,"interferencewtggH1000/F");
 
+   TBranch *branch_interferencewt_upggH400 = newtree->Branch("interferencewt_upggH400",&interferencewt_upggH400,"interferencewt_upggH400/F");
+   TBranch *branch_interferencewt_upggH450 = newtree->Branch("interferencewt_upggH450",&interferencewt_upggH450,"interferencewt_upggH450/F");
    TBranch *branch_interferencewt_upggH500 = newtree->Branch("interferencewt_upggH500",&interferencewt_upggH500,"interferencewt_upggH500/F");
    TBranch *branch_interferencewt_upggH550 = newtree->Branch("interferencewt_upggH550",&interferencewt_upggH550,"interferencewt_upggH550/F");
    TBranch *branch_interferencewt_upggH600 = newtree->Branch("interferencewt_upggH600",&interferencewt_upggH600,"interferencewt_upggH600/F");
@@ -1123,8 +1239,9 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch *branch_interferencewt_upggH800 = newtree->Branch("interferencewt_upggH800",&interferencewt_upggH800,"interferencewt_upggH800/F");
    TBranch *branch_interferencewt_upggH900 = newtree->Branch("interferencewt_upggH900",&interferencewt_upggH900,"interferencewt_upggH900/F");
    TBranch *branch_interferencewt_upggH1000 = newtree->Branch("interferencewt_upggH1000",&interferencewt_upggH1000,"interferencewt_upggH1000/F");
-
-   TBranch *branch_interferencewt_downggH500 = newtree->Branch("interferencewt_downggH500",&interferencewt_downggH500,"interferencewt_downggH500/F");
+   
+   TBranch *branch_interferencewt_downggH400 = newtree->Branch("interferencewt_downggH400",&interferencewt_downggH400,"interferencewt_downggH400/F");
+   TBranch *branch_interferencewt_downggH450 = newtree->Branch("interferencewt_downggH450",&interferencewt_downggH450,"interferencewt_downggH450/F");
    TBranch *branch_interferencewt_downggH550 = newtree->Branch("interferencewt_downggH550",&interferencewt_downggH550,"interferencewt_downggH550/F");
    TBranch *branch_interferencewt_downggH600 = newtree->Branch("interferencewt_downggH600",&interferencewt_downggH600,"interferencewt_downggH600/F");
    TBranch *branch_interferencewt_downggH700 = newtree->Branch("interferencewt_downggH700",&interferencewt_downggH700,"interferencewt_downggH700/F");
@@ -1364,10 +1481,129 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_vbf_wjj_ang_phia = newtree->Branch("vbf_wjj_ang_phia", &vbf_wjj_ang_phia,  "vbf_wjj_ang_phia/F");
    TBranch * branch_vbf_wjj_ang_phib = newtree->Branch("vbf_wjj_ang_phib", &vbf_wjj_ang_phib,  "vbf_wjj_ang_phib/F");
 
+   //New Category for ttH analysis
+   Int_t ttH_event = 0, ttH_waj_id = -1, ttH_wbj_id = -1, ttH_toplvj_aj_id = -1, ttH_topjjj_aj_id = -1, ttH_dijetaj_id = -1, ttH_dijetbj_id = -1;
+   TBranch *branch_ttH_event = newtree->Branch("ttH_event", &ttH_event, "ttH_event/I");
+   TBranch *branch_ttH_waj_id = newtree->Branch("ttH_waj_id", &ttH_waj_id, "ttH_waj_id/I");
+   TBranch *branch_ttH_wbj_id = newtree->Branch("ttH_wbj_id", &ttH_wbj_id, "ttH_wbj_id/I");
+   TBranch *branch_ttH_toplvj_aj_id = newtree->Branch("ttH_toplvj_aj_id", &ttH_toplvj_aj_id, "ttH_toplvj_aj_id/I");
+   TBranch *branch_ttH_topjjj_aj_id = newtree->Branch("ttH_topjjj_aj_id", &ttH_topjjj_aj_id, "ttH_topjjj_aj_id/I");
+   TBranch *branch_ttH_dijetaj_id = newtree->Branch("ttH_dijetaj_id", &ttH_dijetaj_id, "ttH_dijetaj_id/I");
+   TBranch *branch_ttH_dijetbj_id = newtree->Branch("ttH_dijetbj_id", &ttH_dijetbj_id, "ttH_dijetbj_id/I");
+
+   Float_t ttH_wlv_e = -999, ttH_wlv_pt = -999, ttH_wlv_eta = -999, ttH_wlv_phi = -999, ttH_wlv_m = -999;
+   Float_t ttH_waj_e = -999, ttH_waj_pt = -999, ttH_waj_eta = -999, ttH_waj_phi = -999, ttH_waj_m = -999;
+   Float_t ttH_wbj_e = -999, ttH_wbj_pt = -999, ttH_wbj_eta = -999, ttH_wbj_phi = -999, ttH_wbj_m = -999;
+   Float_t ttH_wjj_e = -999, ttH_wjj_pt = -999, ttH_wjj_eta = -999, ttH_wjj_phi = -999, ttH_wjj_m = -999;
+   Float_t ttH_topjjj_aj_e = -999, ttH_topjjj_aj_pt = -999, ttH_topjjj_aj_eta = -999, ttH_topjjj_aj_phi = -999, ttH_topjjj_aj_m = -999, ttH_topjjj_aj_btagcsv = -999;
+   Float_t ttH_toplvj_aj_e = -999, ttH_toplvj_aj_pt = -999, ttH_toplvj_aj_eta = -999, ttH_toplvj_aj_phi = -999, ttH_toplvj_aj_m = -999, ttH_toplvj_aj_btagcsv = -999;
+   Float_t ttH_topjjj_e = -999, ttH_topjjj_pt = -999, ttH_topjjj_eta = -999, ttH_topjjj_phi = -999, ttH_topjjj_m = -999;
+   Float_t ttH_toplvj_e = -999, ttH_toplvj_pt = -999, ttH_toplvj_eta = -999, ttH_toplvj_phi = -999, ttH_toplvj_m = -999;
+   Float_t ttH_dijetaj_e = -999, ttH_dijetaj_pt = -999, ttH_dijetaj_eta = -999, ttH_dijetaj_phi = -999, ttH_dijetaj_m = -999, ttH_dijetaj_btagcsv = -999;
+   Float_t ttH_dijetbj_e = -999, ttH_dijetbj_pt = -999, ttH_dijetbj_eta = -999, ttH_dijetbj_phi = -999, ttH_dijetbj_m = -999, ttH_dijetbj_btagcsv = -999;
+   Float_t ttH_dijetajbj_deltaR = -999, ttH_dijetajbj_deltaphi = -999;
+   Float_t ttH_dijet_e = -999, ttH_dijet_pt = -999, ttH_dijet_eta = -999, ttH_dijet_phi = -999, ttH_dijet_m = -999, ttH_dijet_y = -999;
+   Float_t ttH_ditop_e = -999, ttH_ditop_pt = -999, ttH_ditop_eta = -999, ttH_ditop_phi = -999, ttH_ditop_m = -999, ttH_ditop_y = -999;
+   Float_t ttH_toplvjdijet_deltaR = -999, ttH_toplvjdijet_deltaphi = -999;
+   Float_t ttH_topjjjdijet_deltaR = -999, ttH_topjjjdijet_deltaphi = -999;
+   Float_t ttH_ditopdijet_deltaR  = -999, ttH_ditopdijet_deltaphi = -999;
+
+   TBranch *branch_ttH_wlv_e   =  newtree->Branch("ttH_wlv_e", &ttH_wlv_e, "ttH_wlv_e/F");
+   TBranch *branch_ttH_wlv_pt  =  newtree->Branch("ttH_wlv_pt", &ttH_wlv_pt, "ttH_wlv_pt/F");
+   TBranch *branch_ttH_wlv_eta =  newtree->Branch("ttH_wlv_eta", &ttH_wlv_eta, "ttH_wlv_eta/F");
+   TBranch *branch_ttH_wlv_phi =  newtree->Branch("ttH_wlv_phi", &ttH_wlv_phi, "ttH_wlv_phi/F");
+   TBranch *branch_ttH_wlv_m   =  newtree->Branch("ttH_wlv_m", &ttH_wlv_m, "ttH_wlv_m/F");
+
+   TBranch *branch_ttH_waj_e   =  newtree->Branch("ttH_waj_e", &ttH_waj_e, "ttH_waj_e/F");
+   TBranch *branch_ttH_waj_pt  =  newtree->Branch("ttH_waj_pt", &ttH_waj_pt, "ttH_waj_pt/F");
+   TBranch *branch_ttH_waj_eta =  newtree->Branch("ttH_waj_eta", &ttH_waj_eta, "ttH_waj_eta/F");
+   TBranch *branch_ttH_waj_phi =  newtree->Branch("ttH_waj_phi", &ttH_waj_phi, "ttH_waj_phi/F");
+   TBranch *branch_ttH_waj_m   =  newtree->Branch("ttH_waj_m", &ttH_waj_m, "ttH_waj_m/F");
+
+   TBranch *branch_ttH_wbj_e   =  newtree->Branch("ttH_wbj_e", &ttH_wbj_e, "ttH_wbj_e/F");
+   TBranch *branch_ttH_wbj_pt  =  newtree->Branch("ttH_wbj_pt", &ttH_wbj_pt, "ttH_wbj_pt/F");
+   TBranch *branch_ttH_wbj_eta =  newtree->Branch("ttH_wbj_eta", &ttH_wbj_eta, "ttH_wbj_eta/F");
+   TBranch *branch_ttH_wbj_phi =  newtree->Branch("ttH_wbj_phi", &ttH_wbj_phi, "ttH_wbj_phi/F");
+   TBranch *branch_ttH_wbj_m   =  newtree->Branch("ttH_wbj_m", &ttH_wbj_m, "ttH_wbj_m/F");
+
+   TBranch *branch_ttH_wjj_e   =  newtree->Branch("ttH_wjj_e", &ttH_wjj_e, "ttH_wjj_e/F");
+   TBranch *branch_ttH_wjj_pt  =  newtree->Branch("ttH_wjj_pt", &ttH_wjj_pt, "ttH_wjj_pt/F");
+   TBranch *branch_ttH_wjj_eta =  newtree->Branch("ttH_wjj_eta", &ttH_wjj_eta, "ttH_wjj_eta/F");
+   TBranch *branch_ttH_wjj_phi =  newtree->Branch("ttH_wjj_phi", &ttH_wjj_phi, "ttH_wjj_phi/F");
+   TBranch *branch_ttH_wjj_m   =  newtree->Branch("ttH_wjj_m", &ttH_wjj_m, "ttH_wjj_m/F");
+
+   TBranch *branch_ttH_topjjj_aj_e   =  newtree->Branch("ttH_topjjj_aj_e", &ttH_topjjj_aj_e, "ttH_topjjj_aj_e/F");
+   TBranch *branch_ttH_topjjj_aj_pt  =  newtree->Branch("ttH_topjjj_aj_pt", &ttH_topjjj_aj_pt, "ttH_topjjj_aj_pt/F");
+   TBranch *branch_ttH_topjjj_aj_eta =  newtree->Branch("ttH_topjjj_aj_eta", &ttH_topjjj_aj_eta, "ttH_topjjj_aj_eta/F");
+   TBranch *branch_ttH_topjjj_aj_phi =  newtree->Branch("ttH_topjjj_aj_phi", &ttH_topjjj_aj_phi, "ttH_topjjj_aj_phi/F");
+   TBranch *branch_ttH_topjjj_aj_m   =  newtree->Branch("ttH_topjjj_aj_m", &ttH_topjjj_aj_m, "ttH_topjjj_aj_m/F");
+   TBranch *branch_ttH_topjjj_aj_btagcsv = newtree->Branch("ttH_topjjj_aj_btagcsv", &ttH_topjjj_aj_btagcsv, "ttH_topjjj_aj_btagcsv/F");
+
+   TBranch *branch_ttH_toplvj_aj_e   =  newtree->Branch("ttH_toplvj_aj_e", &ttH_toplvj_aj_e, "ttH_toplvj_aj_e/F");
+   TBranch *branch_ttH_toplvj_aj_pt  =  newtree->Branch("ttH_toplvj_aj_pt", &ttH_toplvj_aj_pt, "ttH_toplvj_aj_pt/F");
+   TBranch *branch_ttH_toplvj_aj_eta =  newtree->Branch("ttH_toplvj_aj_eta", &ttH_toplvj_aj_eta, "ttH_toplvj_aj_eta/F");
+   TBranch *branch_ttH_toplvj_aj_phi =  newtree->Branch("ttH_toplvj_aj_phi", &ttH_toplvj_aj_phi, "ttH_toplvj_aj_phi/F");
+   TBranch *branch_ttH_toplvj_aj_m   =  newtree->Branch("ttH_toplvj_aj_m", &ttH_toplvj_aj_m, "ttH_toplvj_aj_m/F");
+   TBranch *branch_ttH_toplvj_aj_btagcsv = newtree->Branch("ttH_toplvj_aj_btagcsv", &ttH_toplvj_aj_btagcsv, "ttH_toplvj_aj_btagcsv/F");
+
+   TBranch *branch_ttH_topjjj_e   =  newtree->Branch("ttH_topjjj_e", &ttH_topjjj_e, "ttH_topjjj_e/F");
+   TBranch *branch_ttH_topjjj_pt  =  newtree->Branch("ttH_topjjj_pt", &ttH_topjjj_pt, "ttH_topjjj_pt/F");
+   TBranch *branch_ttH_topjjj_eta =  newtree->Branch("ttH_topjjj_eta", &ttH_topjjj_eta, "ttH_topjjj_eta/F");
+   TBranch *branch_ttH_topjjj_phi =  newtree->Branch("ttH_topjjj_phi", &ttH_topjjj_phi, "ttH_topjjj_phi/F");
+   TBranch *branch_ttH_topjjj_m   =  newtree->Branch("ttH_topjjj_m", &ttH_topjjj_m, "ttH_topjjj_m/F");
+
+   TBranch *branch_ttH_toplvj_e   =  newtree->Branch("ttH_toplvj_e", &ttH_toplvj_e, "ttH_toplvj_e/F");
+   TBranch *branch_ttH_toplvj_pt  =  newtree->Branch("ttH_toplvj_pt", &ttH_toplvj_pt, "ttH_toplvj_pt/F");
+   TBranch *branch_ttH_toplvj_eta =  newtree->Branch("ttH_toplvj_eta", &ttH_toplvj_eta, "ttH_toplvj_eta/F");
+   TBranch *branch_ttH_toplvj_phi =  newtree->Branch("ttH_toplvj_phi", &ttH_toplvj_phi, "ttH_toplvj_phi/F");
+   TBranch *branch_ttH_toplvj_m   =  newtree->Branch("ttH_toplvj_m", &ttH_toplvj_m, "ttH_toplvj_m/F");
+   TBranch *branch_ttH_dijetaj_e   =  newtree->Branch("ttH_dijetaj_e", &ttH_dijetaj_e, "ttH_dijetaj_e/F");
+   TBranch *branch_ttH_dijetaj_pt  =  newtree->Branch("ttH_dijetaj_pt", &ttH_dijetaj_pt, "ttH_dijetaj_pt/F");
+   TBranch *branch_ttH_dijetaj_eta =  newtree->Branch("ttH_dijetaj_eta", &ttH_dijetaj_eta, "ttH_dijetaj_eta/F");
+   TBranch *branch_ttH_dijetaj_phi =  newtree->Branch("ttH_dijetaj_phi", &ttH_dijetaj_phi, "ttH_dijetaj_phi/F");
+   TBranch *branch_ttH_dijetaj_m   =  newtree->Branch("ttH_dijetaj_m", &ttH_dijetaj_m, "ttH_dijetaj_m/F");
+   TBranch *branch_ttH_dijetaj_btagcsv = newtree->Branch("ttH_dijetaj_btagcsv", &ttH_dijetaj_btagcsv, "ttH_dijetaj_btagcsv/F");
+
+   TBranch *branch_ttH_dijetbj_e   =  newtree->Branch("ttH_dijetbj_e", &ttH_dijetbj_e, "ttH_dijetbj_e/F");
+   TBranch *branch_ttH_dijetbj_pt  =  newtree->Branch("ttH_dijetbj_pt", &ttH_dijetbj_pt, "ttH_dijetbj_pt/F");
+   TBranch *branch_ttH_dijetbj_eta =  newtree->Branch("ttH_dijetbj_eta", &ttH_dijetbj_eta, "ttH_dijetbj_eta/F");
+   TBranch *branch_ttH_dijetbj_phi =  newtree->Branch("ttH_dijetbj_phi", &ttH_dijetbj_phi, "ttH_dijetbj_phi/F");
+   TBranch *branch_ttH_dijetbj_m   =  newtree->Branch("ttH_dijetbj_m", &ttH_dijetbj_m, "ttH_dijetbj_m/F");
+   TBranch *branch_ttH_dijetbj_btagcsv = newtree->Branch("ttH_dijetbj_btagcsv", &ttH_dijetbj_btagcsv, "ttH_dijetbj_btagcsv/F");
+
+   TBranch *branch_ttH_dijetajbj_deltaR =  newtree->Branch("ttH_dijetajbj_deltaR", &ttH_dijetajbj_deltaR, "ttH_dijetajbj_deltaR/F");
+   TBranch *branch_ttH_dijetajbj_deltaphi =  newtree->Branch("ttH_dijetajbj_deltaphi", &ttH_dijetajbj_deltaphi, "ttH_dijetajbj_deltaphi/F");
+
+   TBranch *branch_ttH_dijet_e   =  newtree->Branch("ttH_dijet_e", &ttH_dijet_e, "ttH_dijet_e/F");
+   TBranch *branch_ttH_dijet_pt  =  newtree->Branch("ttH_dijet_pt", &ttH_dijet_pt, "ttH_dijet_pt/F");
+   TBranch *branch_ttH_dijet_eta =  newtree->Branch("ttH_dijet_eta", &ttH_dijet_eta, "ttH_dijet_eta/F");
+   TBranch *branch_ttH_dijet_phi =  newtree->Branch("ttH_dijet_phi", &ttH_dijet_phi, "ttH_dijet_phi/F");
+   TBranch *branch_ttH_dijet_m   =  newtree->Branch("ttH_dijet_m", &ttH_dijet_m, "ttH_dijet_m/F");
+   TBranch *branch_ttH_dijet_y   =  newtree->Branch("ttH_dijet_y", &ttH_dijet_y, "ttH_dijet_y/F");
+
+   TBranch *branch_ttH_ditop_e   =  newtree->Branch("ttH_ditop_e", &ttH_ditop_e, "ttH_ditop_e/F");
+   TBranch *branch_ttH_ditop_pt  =  newtree->Branch("ttH_ditop_pt", &ttH_ditop_pt, "ttH_ditop_pt/F");
+   TBranch *branch_ttH_ditop_eta =  newtree->Branch("ttH_ditop_eta", &ttH_ditop_eta, "ttH_ditop_eta/F");
+   TBranch *branch_ttH_ditop_phi =  newtree->Branch("ttH_ditop_phi", &ttH_ditop_phi, "ttH_ditop_phi/F");
+   TBranch *branch_ttH_ditop_m   =  newtree->Branch("ttH_ditop_m", &ttH_ditop_m, "ttH_ditop_m/F");
+   TBranch *branch_ttH_ditop_y   =  newtree->Branch("ttH_ditop_y", &ttH_ditop_y, "ttH_ditop_y/F");
+
+   TBranch *branch_ttH_ditopdijet_deltaR   =  newtree->Branch("ttH_ditopdijet_deltaR", &ttH_ditopdijet_deltaR, "ttH_ditopdijet_deltaR/F");
+   TBranch *branch_ttH_ditopdijet_deltaphi =  newtree->Branch("ttH_ditopdijet_deltaphi", &ttH_ditopdijet_deltaphi, "ttH_ditopdijet_deltaphi/F");
+   TBranch *branch_ttH_toplvjdijet_deltaR  =  newtree->Branch("ttH_toplvjdijet_deltaR", &ttH_toplvjdijet_deltaR, "ttH_toplvjdijet_deltaR/F");
+   TBranch *branch_ttH_toplvjdijet_deltaphi =  newtree->Branch("ttH_toplvjdijet_deltaphi", &ttH_toplvjdijet_deltaphi, "ttH_toplvjdijet_deltaphi/F");
+   TBranch *branch_ttH_topjjjdijet_deltaR  =  newtree->Branch("ttH_topjjjdijet_deltaR", &ttH_topjjjdijet_deltaR, "ttH_topjjjdijet_deltaR/F");
+   TBranch *branch_ttH_topjjjdijet_deltaphi =  newtree->Branch("ttH_topjjjdijet_deltaphi", &ttH_topjjjdijet_deltaphi, "ttH_topjjjdijet_deltaphi/F");
+
+   //End for the ttH analysis
+
    // For MVA analysis
    const char* inputVars[] = { "ptlvjj", "ylvjj", "W_muon_charge", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
+   const char* inputVars_v2[] = { "ptlvjj", "ylvjj", "W_electron_charge", "ang_ha", "ang_hb", "ang_hs", "ang_phi", "ang_phib" };
    std::vector<std::string> inputVarsMVA;
    for (int i=0; i<8; ++i) inputVarsMVA.push_back( inputVars[i] );
+   std::vector<std::string> inputVarsMVA_v2;
+   for (int i=0; i<8; ++i) inputVarsMVA_v2.push_back( inputVars_v2[i] );
 
    ReadMVA2j170el mvaReader2j170el( inputVarsMVA );  
    ReadMVA2j180el mvaReader2j180el( inputVarsMVA );  
@@ -1381,6 +1617,27 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA2j500el mvaReader2j500el( inputVarsMVA );  
    ReadMVA2j550el mvaReader2j550el( inputVarsMVA );  
    ReadMVA2j600el mvaReader2j600el( inputVarsMVA );  
+   ReadMVA2j500interferencedownel mvaReader2j500interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j500interferencenominalel mvaReader2j500interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j500interferenceupel mvaReader2j500interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j550interferencedownel mvaReader2j550interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j550interferencenominalel mvaReader2j550interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j550interferenceupel mvaReader2j550interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j600interferencedownel mvaReader2j600interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j600interferencenominalel mvaReader2j600interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j600interferenceupel mvaReader2j600interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j700interferencedownel mvaReader2j700interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j700interferencenominalel mvaReader2j700interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j700interferenceupel mvaReader2j700interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j800interferencedownel mvaReader2j800interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j800interferencenominalel mvaReader2j800interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j800interferenceupel mvaReader2j800interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j900interferencedownel mvaReader2j900interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j900interferencenominalel mvaReader2j900interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j900interferenceupel mvaReader2j900interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j1000interferencedownel mvaReader2j1000interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j1000interferencenominalel mvaReader2j1000interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j1000interferenceupel mvaReader2j1000interferenceupel( inputVarsMVA_v2 );
 
    ReadMVA3j170el mvaReader3j170el( inputVarsMVA );  
    ReadMVA3j180el mvaReader3j180el( inputVarsMVA );  
@@ -1439,6 +1696,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    EffTableLoader eleWMtEff(        fDir + "FullyEfficient.txt");
 
    //For Interference Correction
+   LOTable interferencetableggH400;
+   LOTable interferencetableggH450;
    LOTable interferencetableggH500;
    LOTable interferencetableggH550;
    LOTable interferencetableggH600;
@@ -1447,6 +1706,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    LOTable interferencetableggH900;
    LOTable interferencetableggH1000;
 
+   interferencetableggH400.LoadTable(fInterferenceDir + "ratio400.txt");
+   interferencetableggH450.LoadTable(fInterferenceDir + "ratio450.txt");
    interferencetableggH500.LoadTable(fInterferenceDir + "ratio500.txt");
    interferencetableggH550.LoadTable(fInterferenceDir + "ratio550.txt");
    interferencetableggH600.LoadTable(fInterferenceDir + "ratio600.txt");
@@ -1634,9 +1895,12 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    const unsigned int jetsize         = 6;
    const double Jpt                   = 30;    // Jet pt threshold
    const double btssv                 = 1.74;  // BTagging
+   const double btcsvm                = 0.679; //CSVM
+   const double btcsvl                = 0.244; //CSVL
    const double boostedWJpt           = 80;   // Conservative boosted Jet cut
    const double boostedWtranpt        = 150;
    const double VBF_MaxEta            = 4.5;   // VBF jet max eta
+   const double mtop                  = 172.5; //Top mass
    // Loop over all events
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -1679,6 +1943,9 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       masslvjj=-999; ptlvjj    =-999; ylvjj   =-999;philvjj   =-999;
 
       mva2j160el = 999; mva2j170el = 999; mva2j180el = 999; mva2j190el = 999; mva2j200el = 999; mva2j250el = 999; mva2j300el = 999; mva2j350el = 999; mva2j400el = 999; mva2j450el = 999; mva2j500el = 999; mva2j550el = 999; mva2j600el = 999;
+      mva2j500interferencenominalel = 999; mva2j550interferencenominalel = 999; mva2j600interferencenominalel = 999; mva2j700interferencenominalel = 999; mva2j800interferencenominalel = 999; mva2j900interferencenominalel = 999; mva2j1000interferencenominalel = 999;
+      mva2j500interferencedownel = 999; mva2j550interferencedownel = 999; mva2j600interferencedownel = 999;  mva2j700interferencedownel = 999; mva2j800interferencedownel = 999; mva2j900interferencedownel = 999; mva2j1000interferencedownel = 999;
+      mva2j500interferenceupel = 999; mva2j550interferenceupel = 999; mva2j600interferenceupel = 999; mva2j700interferenceupel = 999; mva2j800interferenceupel = 999; mva2j900interferenceupel = 999; mva2j1000interferenceupel = 999;
       mva3j160el = 999; mva3j170el = 999; mva3j180el = 999; mva3j190el = 999; mva3j200el = 999; mva3j250el = 999; mva3j300el = 999; mva3j350el = 999; mva3j400el = 999; mva3j450el = 999; mva3j500el = 999; mva3j550el = 999; mva3j600el = 999;
       mva2jdibosonel = 999; mva3jdibosonel = 999; mva2jdibnoqgel = 999; mva3jdibnoqgel = 999;
       mvavbf160el = 999; mvavbf170el = 999; mvavbf180el = 999; mvavbf190el = 999; mvavbf200el = 999; mvavbf250el = 999; mvavbf300el = 999; mvavbf350el = 999; mvavbf400el = 999; mvavbf450el = 999; mvavbf500el = 999; mvavbf550el = 999; mvavbf600el = 999;
@@ -1689,9 +1956,9 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       qgld_Summer11[0]= -1;       qgld_Summer11[1]= -1;       qgld_Summer11[2]= -1;       qgld_Summer11[3]= -1;       qgld_Summer11[4]= -1;       qgld_Summer11[5]= -1;
       qgld_Summer11CHS[0]= -1;    qgld_Summer11CHS[1]= -1;    qgld_Summer11CHS[2]= -1;    qgld_Summer11CHS[3]= -1;    qgld_Summer11CHS[4]= -1;    qgld_Summer11CHS[5]= -1;
 
-      interferencewtggH500 = 1.0; interferencewtggH550 = 1.0; interferencewtggH600 = 1.0; interferencewtggH700 = 1.0; interferencewtggH800 = 1.0; interferencewtggH900 = 1.0; interferencewtggH1000 = 1.0;
-      interferencewt_upggH500 = 1.0; interferencewt_upggH550 = 1.0; interferencewt_upggH600 = 1.0; interferencewt_upggH700 = 1.0; interferencewt_upggH800 = 1.0; interferencewt_upggH900 = 1.0; interferencewt_upggH1000 = 1.0;
-      interferencewt_downggH500 = 1.0; interferencewt_downggH550 = 1.0; interferencewt_downggH600 = 1.0; interferencewt_downggH700 = 1.0; interferencewt_downggH800 = 1.0; interferencewt_downggH900 = 1.0; interferencewt_downggH1000 = 1.0;
+      interferencewtggH400 = 1.0; interferencewtggH450 = 1.0; interferencewtggH500 = 1.0; interferencewtggH550 = 1.0; interferencewtggH600 = 1.0; interferencewtggH700 = 1.0; interferencewtggH800 = 1.0; interferencewtggH900 = 1.0; interferencewtggH1000 = 1.0;
+      interferencewt_upggH400 = 1.0; interferencewt_upggH450 = 1.0; interferencewt_upggH500 = 1.0; interferencewt_upggH550 = 1.0; interferencewt_upggH600 = 1.0; interferencewt_upggH700 = 1.0; interferencewt_upggH800 = 1.0; interferencewt_upggH900 = 1.0; interferencewt_upggH1000 = 1.0;
+      interferencewt_downggH400 = 1.0; interferencewt_downggH450 = 1.0; interferencewt_downggH500 = 1.0; interferencewt_downggH550 = 1.0; interferencewt_downggH600 = 1.0; interferencewt_downggH700 = 1.0; interferencewt_downggH800 = 1.0; interferencewt_downggH900 = 1.0; interferencewt_downggH1000 = 1.0;
 
       //Complex Pole Weight
       complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
@@ -1743,6 +2010,27 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       vbf_event = 0; vbf_aj_id = -1; vbf_bj_id = -1; vbf_waj_id = -1; vbf_wbj_id = -1;
       vbf_wjj_ang_ha   = 999; vbf_wjj_ang_hb = 999; vbf_wjj_ang_hs = 999; vbf_wjj_ang_phi = 999; vbf_wjj_ang_phia = 999; vbf_wjj_ang_phib = 999;
 
+      //ttH initilization
+      ttH_event = 0; ttH_waj_id = -1; ttH_wbj_id = -1; ttH_toplvj_aj_id = -1; ttH_topjjj_aj_id = -1; ttH_dijetaj_id = -1; ttH_dijetbj_id = -1;
+
+      ttH_wlv_e = -999; ttH_wlv_pt = -999; ttH_wlv_eta = -999; ttH_wlv_phi = -999; ttH_wlv_m = -999;
+      ttH_waj_e = -999; ttH_waj_pt = -999; ttH_waj_eta = -999; ttH_waj_phi = -999; ttH_waj_m = -999;
+      ttH_wbj_e = -999; ttH_wbj_pt = -999; ttH_wbj_eta = -999; ttH_wbj_phi = -999; ttH_wbj_m = -999;
+      ttH_wjj_e = -999; ttH_wjj_pt = -999; ttH_wjj_eta = -999; ttH_wjj_phi = -999; ttH_wjj_m = -999;
+      ttH_topjjj_aj_e = -999; ttH_topjjj_aj_pt = -999; ttH_topjjj_aj_eta = -999; ttH_topjjj_aj_phi = -999; ttH_topjjj_aj_m = -999; ttH_topjjj_aj_btagcsv = -999;
+      ttH_toplvj_aj_e = -999; ttH_toplvj_aj_pt = -999; ttH_toplvj_aj_eta = -999; ttH_toplvj_aj_phi = -999; ttH_toplvj_aj_m = -999; ttH_toplvj_aj_btagcsv = -999;
+      ttH_topjjj_e = -999; ttH_topjjj_pt = -999; ttH_topjjj_eta = -999; ttH_topjjj_phi = -999; ttH_topjjj_m = -999;
+      ttH_toplvj_e = -999; ttH_toplvj_pt = -999; ttH_toplvj_eta = -999; ttH_toplvj_phi = -999; ttH_toplvj_m = -999;
+      ttH_dijetaj_e = -999; ttH_dijetaj_pt = -999; ttH_dijetaj_eta = -999; ttH_dijetaj_phi = -999; ttH_dijetaj_m = -999; ttH_dijetaj_btagcsv = -999;
+      ttH_dijetbj_e = -999; ttH_dijetbj_pt = -999; ttH_dijetbj_eta = -999; ttH_dijetbj_phi = -999; ttH_dijetbj_m = -999; ttH_dijetbj_btagcsv = -999;
+      ttH_dijetajbj_deltaR = -999; ttH_dijetajbj_deltaphi = -999;
+      ttH_dijet_e = -999; ttH_dijet_pt = -999; ttH_dijet_eta = -999; ttH_dijet_phi = -999; ttH_dijet_m = -999; ttH_dijet_y = -999;
+      ttH_ditop_e = -999; ttH_ditop_pt = -999; ttH_ditop_eta = -999; ttH_ditop_phi = -999; ttH_ditop_m = -999; ttH_ditop_y = -999;
+      ttH_toplvjdijet_deltaR = -999; ttH_toplvjdijet_deltaphi = -999;
+      ttH_topjjjdijet_deltaR = -999; ttH_topjjjdijet_deltaphi = -999;
+      ttH_ditopdijet_deltaR  = -999; ttH_ditopdijet_deltaphi = -999;
+      //End ttH
+
       // Calculate efficiency
       effwt = 
          eleIdEff.GetEfficiency(W_electron_pt, W_electron_eta) * 
@@ -1784,6 +2072,14 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          {
             //Table: 1 R2 Nominal Value; 0 R2 Up Value; 2 R2 Down Value
             //Real Interference factor = 1 + R2
+            interferencewtggH400 = (1 + interferencetableggH400.GetValue(W_H_mass_gen)[1]);
+            interferencewt_upggH400 = ( 1 + interferencetableggH400.GetValue(W_H_mass_gen)[0]);
+            interferencewt_downggH400 = ( 1 + interferencetableggH400.GetValue(W_H_mass_gen)[2]);
+
+            interferencewtggH450 = (1 + interferencetableggH450.GetValue(W_H_mass_gen)[1]);
+            interferencewt_upggH450 = ( 1 + interferencetableggH450.GetValue(W_H_mass_gen)[0]);
+            interferencewt_downggH450 = ( 1 + interferencetableggH450.GetValue(W_H_mass_gen)[2]);
+
             interferencewtggH500 = (1 + interferencetableggH500.GetValue(W_H_mass_gen)[1]);
             interferencewt_upggH500 = ( 1 + interferencetableggH500.GetValue(W_H_mass_gen)[0]);
             interferencewt_downggH500 = ( 1 + interferencetableggH500.GetValue(W_H_mass_gen)[2]);
@@ -2034,6 +2330,27 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j500el = (float) mvaReader2j500el.GetMvaValue( mvaInputVal );
          mva2j550el = (float) mvaReader2j550el.GetMvaValue( mvaInputVal );
          mva2j600el = (float) mvaReader2j600el.GetMvaValue( mvaInputVal );
+         mva2j500interferencenominalel = (float) mvaReader2j500interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j550interferencenominalel = (float) mvaReader2j550interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j600interferencenominalel = (float) mvaReader2j600interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j700interferencenominalel = (float) mvaReader2j700interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j800interferencenominalel = (float) mvaReader2j800interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j900interferencenominalel = (float) mvaReader2j900interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j1000interferencenominalel = (float) mvaReader2j1000interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j500interferencedownel = (float) mvaReader2j500interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j550interferencedownel = (float) mvaReader2j550interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j600interferencedownel = (float) mvaReader2j600interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j700interferencedownel = (float) mvaReader2j700interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j800interferencedownel = (float) mvaReader2j800interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j900interferencedownel = (float) mvaReader2j900interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j1000interferencedownel = (float) mvaReader2j1000interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j500interferenceupel = (float) mvaReader2j500interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j550interferenceupel = (float) mvaReader2j550interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j600interferenceupel = (float) mvaReader2j600interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j700interferenceupel = (float) mvaReader2j700interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j800interferenceupel = (float) mvaReader2j800interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j900interferenceupel = (float) mvaReader2j900interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j1000interferenceupel = (float) mvaReader2j1000interferenceupel.GetMvaValue( mvaInputVal );
 
          mva3j170el = (float) mvaReader3j170el.GetMvaValue( mvaInputVal );
          mva3j180el = (float) mvaReader3j180el.GetMvaValue( mvaInputVal );
@@ -2482,6 +2799,215 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          }
          // For VBF Analysis ! Currently Gd Event Selection same as Hww
       }
+
+      //Next is for ttH Analysis
+      if(isgengdevt)
+      {
+         //ttH event is requiring 6 good jets in the event and at leat of two of them are (CSVM) btagged jet
+         int ncsvmjet = 0, njet = 0;
+         vector<TLorentzVector> jetsp4;
+
+         for( unsigned int i = 0; i < jetsize; i++)
+         {
+            if(JetPFCor_Pt[i] > Jpt)
+            {
+               njet++;
+
+               TLorentzVector tmpp4;
+               tmpp4.SetPtEtaPhiE(jess * JetPFCor_Pt[i], JetPFCor_Eta[i], JetPFCor_Phi[i], jess * JetPFCor_E[i]);
+               jetsp4.push_back(tmpp4);
+
+               if(JetPFCor_bDiscriminatorCSV[i] > btcsvm)
+               {
+                  ncsvmjet++;
+               }
+            }
+         }
+
+         if(njet >= 6 && ncsvmjet >= 2)
+         {
+            //the leading two b jets and then the left four jets are assuming to form the hadronic W candidate
+            TLorentzVector btagj1_p(0.,0.,0.,0.), btagj2_p(0.,0.,0.,0.), waj_p(0.,0.,0.,0.), wbj_p(0.,0.,0.,0.), dijetaj_p(0.,0.,0.,0.), dijetbj_p(0.,0.,0.,0.);
+            TLorentzVector toplvj_aj_p(0.,0.,0.,0.), topjjj_aj_p(0.,0.,0.,0.);
+            TLorentzVector wjj_p(0.,0.,0.,0.), toplvj_p(0.,0.,0.,0.), topjjj_p(0.,0.,0.,0.), ditop_p(0.,0.,0.,0.);
+            TLorentzVector dijet_p(0.,0.,0.,0.);
+            TLorentzVector wlv_p = mup + b_nvp;
+
+            Int_t topjetindex[4] = {-1, -1, -1, -1}; 
+
+            //find dijet jet index
+            Int_t dijetindex[2] = {-1, -1}; 
+
+            Double_t lepsigma2 = 295.4;
+            Double_t sigma2 = 103.6; //From the PAS Top-11-009
+            Double_t sigma2top = 302.4; 
+
+            Double_t tmpfirstchi2 = 9999999999999999.0;
+
+            for ( Int_t iijet = 0; iijet < (njet ); ++iijet ) {//leptonic top jet
+               for ( Int_t jjjet = 0; jjjet < (njet - 1); ++jjjet ) { //first hadronic top jet
+                  for(Int_t kkjet = jjjet + 1; kkjet < njet; ++kkjet){ //second hadronic top jet
+                     for(Int_t lljet = 0; lljet < njet; ++lljet){//third hadronic top jet
+                        if(jjjet == iijet || jjjet == lljet || kkjet == lljet) continue;
+                        if(kkjet == iijet) continue;
+                        if(lljet == iijet) continue;
+                        TLorentzVector tmpleptop = mup + nvp + jetsp4[iijet];
+                        TLorentzVector tmpvv = jetsp4[jjjet] + jetsp4[kkjet];
+                        Double_t tmpmass = tmpvv.M();
+                        TLorentzVector tmptop = jetsp4[jjjet] + jetsp4[kkjet] + jetsp4[lljet];
+                        Double_t tmptopmass = tmptop.M();
+                        Double_t reconstructionchi2 = TMath::Abs(tmpleptop.M() - 172.5) * TMath::Abs(tmpleptop.M() - 172.5) /lepsigma2 + TMath::Abs(tmpmass - 80.4) * TMath::Abs(tmpmass - 80.4)/sigma2 + TMath::Abs(tmptopmass - 172.5) * TMath::Abs(tmptopmass - 172.5)/sigma2top;
+                        if( tmpfirstchi2 > reconstructionchi2){
+                           tmpfirstchi2 = reconstructionchi2;
+                           topjetindex[0] = iijet;
+                           topjetindex[1] = jjjet;
+                           topjetindex[2] = kkjet;
+                           topjetindex[3] = lljet;
+                        }
+                     }
+                  }
+               }
+            }
+
+            Int_t icount = 0;
+            if(topjetindex[0] != -1 && topjetindex[1] != -1 && topjetindex[2] != -1 && topjetindex[3] != -1)
+            {
+               toplvj_aj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[topjetindex[0]], JetPFCor_Eta[topjetindex[0]], JetPFCor_Phi[topjetindex[0]], jess * JetPFCor_E[topjetindex[0]]);
+               waj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[topjetindex[1]], JetPFCor_Eta[topjetindex[1]], JetPFCor_Phi[topjetindex[1]], jess * JetPFCor_E[topjetindex[1]]);
+               wbj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[topjetindex[2]], JetPFCor_Eta[topjetindex[2]], JetPFCor_Phi[topjetindex[2]], jess * JetPFCor_E[topjetindex[2]]);
+               topjjj_aj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[topjetindex[3]], JetPFCor_Eta[topjetindex[3]], JetPFCor_Phi[topjetindex[3]], jess * JetPFCor_E[topjetindex[3]]);
+               wjj_p = waj_p +  wbj_p;
+               toplvj_p = wlv_p + toplvj_aj_p;
+               topjjj_p = wjj_p + topjjj_aj_p;
+               ditop_p = toplvj_p + topjjj_p;
+
+               for(Int_t ijet = 0; ijet < njet; ijet++)
+               {
+                  if(ijet == topjetindex[0] || ijet == topjetindex[1] || ijet == topjetindex[2] || ijet == topjetindex[3]) continue;
+                  dijetindex[icount] = ijet;
+                  icount++;
+               }
+            }
+
+            //if(dijetindex[0] != -1 && dijetindex[1] != -1 && wjetindex[0] != -1 && wjetindex[1] != -1 && topbjetindex[0] != -1 && topbjetindex[1] != -1)
+            if(dijetindex[0] != -1 && dijetindex[1] != -1 && topjetindex[0] != -1 && topjetindex[1] != -1 && topjetindex[2] != -1 && topjetindex[3] != -1)
+            {
+               dijetaj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[dijetindex[0]], JetPFCor_Eta[dijetindex[0]], JetPFCor_Phi[dijetindex[0]], jess * JetPFCor_E[dijetindex[0]]);
+               dijetbj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[dijetindex[1]], JetPFCor_Eta[dijetindex[1]], JetPFCor_Phi[dijetindex[1]], jess * JetPFCor_E[dijetindex[1]]);
+               dijet_p = dijetaj_p + dijetbj_p;
+
+               ttH_event = 1;
+
+               //Fill the value we want to store
+               ttH_waj_id = topjetindex[1];
+               ttH_wbj_id = topjetindex[2];
+               ttH_toplvj_aj_id = topjetindex[0];
+               ttH_topjjj_aj_id = topjetindex[3];
+               ttH_dijetaj_id = dijetindex[0];
+               ttH_dijetbj_id = dijetindex[1];
+
+
+               //Kinenamatic variables
+               //leptonic W
+               ttH_wlv_e   =  wlv_p.E();
+               ttH_wlv_pt  =  wlv_p.Pt();
+               ttH_wlv_eta =  wlv_p.Eta();
+               ttH_wlv_phi =  wlv_p.Phi();
+               ttH_wlv_m   =  wlv_p.M();
+
+               //hadronic W 
+               ttH_waj_e   =  waj_p.E();
+               ttH_waj_pt  =  waj_p.Pt();
+               ttH_waj_eta =  waj_p.Eta();
+               ttH_waj_phi =  waj_p.Phi();
+               ttH_waj_m   =  waj_p.M();
+
+               ttH_wbj_e   =  wbj_p.E();
+               ttH_wbj_pt  =  wbj_p.Pt();
+               ttH_wbj_eta =  wbj_p.Eta();
+               ttH_wbj_phi =  wbj_p.Phi();
+               ttH_wbj_m   =  wbj_p.M();
+
+               ttH_wjj_e   =  wjj_p.E();
+               ttH_wjj_pt  =  wjj_p.Pt();
+               ttH_wjj_eta =  wjj_p.Eta();
+               ttH_wjj_phi =  wjj_p.Phi();
+               ttH_wjj_m   =  wjj_p.M();
+
+               //Top
+               ttH_toplvj_aj_e   = toplvj_aj_p.E();
+               ttH_toplvj_aj_pt  = toplvj_aj_p.Pt();
+               ttH_toplvj_aj_eta = toplvj_aj_p.Eta();
+               ttH_toplvj_aj_phi = toplvj_aj_p.Phi();
+               ttH_toplvj_aj_m   = toplvj_aj_p.M();
+               ttH_toplvj_aj_btagcsv = JetPFCor_bDiscriminatorCSV[ttH_toplvj_aj_id];;
+
+               ttH_topjjj_aj_e   = topjjj_aj_p.E();
+               ttH_topjjj_aj_pt  = topjjj_aj_p.Pt();
+               ttH_topjjj_aj_eta = topjjj_aj_p.Eta();
+               ttH_topjjj_aj_phi = topjjj_aj_p.Phi();
+               ttH_topjjj_aj_m   = topjjj_aj_p.M();
+               ttH_topjjj_aj_btagcsv = JetPFCor_bDiscriminatorCSV[ttH_topjjj_aj_id];;
+
+               ttH_toplvj_e   = toplvj_p.E();
+               ttH_toplvj_pt  = toplvj_p.Pt();
+               ttH_toplvj_eta = toplvj_p.Eta();
+               ttH_toplvj_phi = toplvj_p.Phi();
+               ttH_toplvj_m   = toplvj_p.M();
+
+               ttH_topjjj_e   = topjjj_p.E();
+               ttH_topjjj_pt  = topjjj_p.Pt();
+               ttH_topjjj_eta = topjjj_p.Eta();
+               ttH_topjjj_phi = topjjj_p.Phi();
+               ttH_topjjj_m   = topjjj_p.M();
+
+               //ditop
+               ttH_ditop_e   = ditop_p.E();
+               ttH_ditop_pt  = ditop_p.Pt();
+               ttH_ditop_eta = ditop_p.Eta();
+               ttH_ditop_phi = ditop_p.Phi();
+               ttH_ditop_m   = ditop_p.M();
+               ttH_ditop_y   = ditop_p.Rapidity();
+
+               //Extral Jet to formulate the Z or H
+               ttH_dijetaj_e   = dijetaj_p.E();
+               ttH_dijetaj_pt  = dijetaj_p.Pt();
+               ttH_dijetaj_eta = dijetaj_p.Eta();
+               ttH_dijetaj_phi = dijetaj_p.Phi();
+               ttH_dijetaj_m   = dijetaj_p.M();
+               ttH_dijetaj_btagcsv = JetPFCor_bDiscriminatorCSV[ttH_dijetaj_id];
+
+               ttH_dijetbj_e   = dijetbj_p.E();
+               ttH_dijetbj_pt  = dijetbj_p.Pt();
+               ttH_dijetbj_eta = dijetbj_p.Eta();
+               ttH_dijetbj_phi = dijetbj_p.Phi();
+               ttH_dijetbj_m   = dijetbj_p.M();
+               ttH_dijetbj_btagcsv = JetPFCor_bDiscriminatorCSV[ttH_dijetbj_id];
+
+               //DeltaR and DeltaPhi of dijet system
+               ttH_dijetajbj_deltaR   = dijetaj_p.DeltaR(dijetbj_p);
+               ttH_dijetajbj_deltaphi = getDeltaPhi(dijetaj_p.Phi(),dijetbj_p.Phi());
+
+               ttH_dijet_e   = dijet_p.E();
+               ttH_dijet_pt  = dijet_p.Pt();
+               ttH_dijet_eta = dijet_p.Eta();
+               ttH_dijet_phi = dijet_p.Phi();
+               ttH_dijet_m   = dijet_p.M();
+               ttH_dijet_y   = dijet_p.Rapidity();
+
+               //DeltaR and DeltaPhi of TTbar and dijet
+               ttH_topjjjdijet_deltaR = topjjj_p.DeltaR(dijet_p);
+               ttH_topjjjdijet_deltaphi = getDeltaPhi(topjjj_p.Phi(),dijet_p.Phi());
+
+               ttH_toplvjdijet_deltaR = toplvj_p.DeltaR(dijetbj_p);
+               ttH_toplvjdijet_deltaphi = getDeltaPhi(toplvj_p.Phi(),dijet_p.Phi());
+
+               ttH_ditopdijet_deltaR   = ditop_p.DeltaR(dijet_p);
+               ttH_ditopdijet_deltaphi = getDeltaPhi(ditop_p.Phi(),dijet_p.Phi());
+            }
+         }
+      }
+
       branch_ggdevt->Fill();
       branch_evtNJ ->Fill();
 
@@ -2541,6 +3067,27 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j500el->Fill();
       branch_2j550el->Fill();
       branch_2j600el->Fill();
+      branch_2j500interferencenominalel->Fill();
+      branch_2j550interferencenominalel->Fill();
+      branch_2j600interferencenominalel->Fill();
+      branch_2j700interferencenominalel->Fill();
+      branch_2j800interferencenominalel->Fill();
+      branch_2j900interferencenominalel->Fill();
+      branch_2j1000interferencenominalel->Fill();
+      branch_2j500interferencedownel->Fill();
+      branch_2j550interferencedownel->Fill();
+      branch_2j600interferencedownel->Fill();
+      branch_2j700interferencedownel->Fill();
+      branch_2j800interferencedownel->Fill();
+      branch_2j900interferencedownel->Fill();
+      branch_2j1000interferencedownel->Fill();
+      branch_2j500interferenceupel->Fill();
+      branch_2j550interferenceupel->Fill();
+      branch_2j600interferenceupel->Fill();
+      branch_2j700interferenceupel->Fill();
+      branch_2j800interferenceupel->Fill();
+      branch_2j900interferenceupel->Fill();
+      branch_2j1000interferenceupel->Fill();
 
       branch_3j160el->Fill();
       branch_3j170el->Fill();
@@ -2580,6 +3127,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_puwt_up->Fill();
       branch_puwt_down->Fill();
 
+      branch_interferencewtggH400->Fill();
+      branch_interferencewtggH450->Fill();
       branch_interferencewtggH500->Fill();
       branch_interferencewtggH550->Fill();
       branch_interferencewtggH600->Fill();
@@ -2588,6 +3137,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_interferencewtggH900->Fill();
       branch_interferencewtggH1000->Fill();
 
+      branch_interferencewt_upggH400->Fill();
+      branch_interferencewt_upggH450->Fill();
       branch_interferencewt_upggH500->Fill();
       branch_interferencewt_upggH550->Fill();
       branch_interferencewt_upggH600->Fill();
@@ -2596,6 +3147,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_interferencewt_upggH900->Fill();
       branch_interferencewt_upggH1000->Fill();
 
+      branch_interferencewt_downggH400->Fill();
+      branch_interferencewt_downggH450->Fill();
       branch_interferencewt_downggH500->Fill();
       branch_interferencewt_downggH550->Fill();
       branch_interferencewt_downggH600->Fill();
@@ -2774,6 +3327,102 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_boostedW_wjj_ang_phi->Fill();
       branch_boostedW_wjj_ang_phia->Fill();
       branch_boostedW_wjj_ang_phib->Fill();
+
+      //ttH Analysis
+      branch_ttH_event->Fill();
+      branch_ttH_waj_id->Fill();
+      branch_ttH_wbj_id->Fill();
+      branch_ttH_toplvj_aj_id->Fill();
+      branch_ttH_topjjj_aj_id->Fill();
+      branch_ttH_dijetaj_id->Fill();
+      branch_ttH_dijetbj_id->Fill();
+
+      branch_ttH_wlv_e->Fill();
+      branch_ttH_wlv_pt->Fill();
+      branch_ttH_wlv_eta->Fill();
+      branch_ttH_wlv_phi->Fill();
+      branch_ttH_wlv_m->Fill();
+
+      branch_ttH_waj_e->Fill();
+      branch_ttH_waj_pt->Fill();
+      branch_ttH_waj_eta->Fill();
+      branch_ttH_waj_phi->Fill();
+      branch_ttH_waj_m->Fill();
+
+      branch_ttH_wbj_e->Fill();
+      branch_ttH_wbj_pt->Fill();
+      branch_ttH_wbj_eta->Fill();
+      branch_ttH_wbj_phi->Fill();
+      branch_ttH_wbj_m->Fill();
+
+      branch_ttH_wjj_e->Fill();
+      branch_ttH_wjj_pt->Fill();
+      branch_ttH_wjj_eta->Fill();
+      branch_ttH_wjj_phi->Fill();
+      branch_ttH_wjj_m->Fill();
+      branch_ttH_topjjj_aj_e->Fill();
+      branch_ttH_topjjj_aj_pt->Fill();
+      branch_ttH_topjjj_aj_eta->Fill();
+      branch_ttH_topjjj_aj_phi->Fill();
+      branch_ttH_topjjj_aj_m->Fill();
+      branch_ttH_topjjj_aj_btagcsv->Fill();
+
+      branch_ttH_toplvj_aj_e->Fill();
+      branch_ttH_toplvj_aj_pt->Fill();
+      branch_ttH_toplvj_aj_eta->Fill();
+      branch_ttH_toplvj_aj_phi->Fill();
+      branch_ttH_toplvj_aj_m->Fill();
+      branch_ttH_toplvj_aj_btagcsv->Fill();
+
+      branch_ttH_topjjj_e->Fill();
+      branch_ttH_topjjj_pt->Fill();
+      branch_ttH_topjjj_eta->Fill();
+      branch_ttH_topjjj_phi->Fill();
+      branch_ttH_topjjj_m->Fill();
+
+      branch_ttH_toplvj_e->Fill();
+      branch_ttH_toplvj_pt->Fill();
+      branch_ttH_toplvj_eta->Fill();
+      branch_ttH_toplvj_phi->Fill();
+      branch_ttH_toplvj_m->Fill();
+
+      branch_ttH_dijetaj_e->Fill();
+      branch_ttH_dijetaj_pt->Fill();
+      branch_ttH_dijetaj_eta->Fill();
+      branch_ttH_dijetaj_phi->Fill();
+      branch_ttH_dijetaj_m->Fill();
+      branch_ttH_dijetaj_btagcsv->Fill();
+
+      branch_ttH_dijetbj_e->Fill();
+      branch_ttH_dijetbj_pt->Fill();
+      branch_ttH_dijetbj_eta->Fill();
+      branch_ttH_dijetbj_phi->Fill();
+      branch_ttH_dijetbj_m->Fill();
+      branch_ttH_dijetbj_btagcsv->Fill();
+
+      branch_ttH_dijetajbj_deltaR->Fill();
+      branch_ttH_dijetajbj_deltaphi->Fill();
+
+      branch_ttH_dijet_e->Fill();
+      branch_ttH_dijet_pt->Fill();
+      branch_ttH_dijet_eta->Fill();
+      branch_ttH_dijet_phi->Fill();
+      branch_ttH_dijet_m->Fill();
+      branch_ttH_dijet_y->Fill();
+      branch_ttH_ditop_e->Fill();
+      branch_ttH_ditop_pt->Fill();
+      branch_ttH_ditop_eta->Fill();
+      branch_ttH_ditop_phi->Fill();
+      branch_ttH_ditop_m->Fill();
+      branch_ttH_ditop_y->Fill();
+
+      branch_ttH_ditopdijet_deltaR->Fill();
+      branch_ttH_ditopdijet_deltaphi->Fill();
+      branch_ttH_toplvjdijet_deltaR->Fill();
+      branch_ttH_toplvjdijet_deltaphi->Fill();
+      branch_ttH_topjjjdijet_deltaR->Fill();
+      branch_ttH_topjjjdijet_deltaphi->Fill();
+
 
    } // end event loop
    fresults.cd();

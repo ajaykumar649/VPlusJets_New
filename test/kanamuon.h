@@ -1373,6 +1373,7 @@ class kanamuon {
                           const char * outfilename,
                           bool isQCD = false);
     virtual double   getDeltaPhi(double phi1, double phi2);
+    //virtual bool     large(const double &a, const double &b);
     virtual bool     doKinematicFit(Int_t                 fflage,
                                     const TLorentzVector     mup, 
                                     const TLorentzVector     nvp,
