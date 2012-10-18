@@ -86,6 +86,9 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
         print "done"
         gROOT.GetInterpreter().AddIncludePath(cmssw_base + '/src')
         gSystem.AddIncludePath('-I"' + cmssw_base + '/src"')
+        gROOT.ProcessLine('.L EffTableReader.cc+')
+        gROOT.ProcessLine('.L EffTableLoader.cc+')
+        gROOT.ProcessLine('.L CPWeighter.cc+')
         gROOT.ProcessLine('.L RooPowerLaw.cc+')
         gROOT.ProcessLine('.L RooPowerExpPdf.cxx+')
         gROOT.ProcessLine('.L RooErfExpPdf.cxx+')

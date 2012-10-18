@@ -68,11 +68,17 @@ double ExpIntegralE(double p, double x) {
     term = TMath::Exp(k*TMath::Log(x)-TMath::LnGamma(2-p+k));
     sum += term;
     ++k;
-    // std::cout << "  term " << k << ": " << term << '\n';
-  } while ((TMath::Abs(term) > 1e-9)&&(k<1000));
+    //std::cout << "  term " << k << ": " << term << '\n';
+  } while ((TMath::Abs(term) > 1e-100)&&(k<1000));
 
   double ret(TMath::Gamma(1-p)*(TMath::Power(x, p-1) - TMath::Exp(-x)*sum));
-  // std::cout << "returns: " << ret << '\n';
+  //std::cout << "returns: " << ret << '\n';
+  return ret;
+}
+
+double incomplete_gamma(double s, double x) {
+  double ret(TMath::Gamma(s, x)*TMath::Gamma(s));
+  // std::cout << "incomplete_gamma(" << s << ',' << x << ") = " << ret << '\n';
   return ret;
 }
 
@@ -87,6 +93,12 @@ double ExpIntegralE(double p, double x) {
        ExpIntegralE(-1*power, -1*c*x.max(rangeName));
      double minTerm = -1*TMath::Power(x.min(rangeName), power+1) * 
        ExpIntegralE(-1*power, -1*c*x.min(rangeName));
+     // double maxTerm = -1*incomplete_gamma(power+1, -1*c*x.max(rangeName)) *
+     //   TMath::Power(x.max(rangeName), power+1) * 
+     //   TMath::Power((-1*c*x.max(rangeName)), -1*power -1);
+     // double minTerm = -1*incomplete_gamma(power+1, -1*c*x.min(rangeName)) *
+     //   TMath::Power(x.min(rangeName), power+1) * 
+     //   TMath::Power((-1*c*x.min(rangeName)), -1*power -1);
      // std::cout << "c " << c << " power " << power << '\n';
      // std::cout << "integral: " << maxTerm << " - " << minTerm << " = " << 
      //   (maxTerm-minTerm) << '\n';

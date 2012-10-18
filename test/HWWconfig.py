@@ -10,8 +10,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
     # fitterPars.MCDirectory = "root://cmseos.fnal.gov:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/RD_"
-    fitterPars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/RD_"
-    #fitterPars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample/RD_"
+    fitterPars.MCDirectory = "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_"
 
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
@@ -21,8 +20,8 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     #fitterPars.QCDDirectory = 'root://cmseos:1094//eos/uscms/store/user/lnujj/2012_RDTrees_PAT/'
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
-    #fitterPars.DataDirectory = fitterPars.MCDirectory
-    fitterPars.DataDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample/RD_"
+    fitterPars.DataDirectory = fitterPars.MCDirectory
+    # fitterPars.DataDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample/RD_"
     #fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
     #fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_3p5invfb.root'
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_11p5invfb.root'

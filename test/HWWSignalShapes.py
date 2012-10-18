@@ -130,7 +130,7 @@ def GenHiggsHists(pars, mH, utils = None, cpw = True, iwt = 0):
 from ROOT import gSystem, gROOT
 
 # gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
-gROOT.ProcessLine(".L CPWeighter.cc+")
+# gROOT.ProcessLine(".L CPWeighter.cc+")
 
 from ROOT import getCPweight
 

@@ -54,17 +54,15 @@ parser.add_option('--lumi', dest='lumi', type='float',
 
 import pyroot_logon
 
-config = __import__(opts.modeConfig)
-
 assert (opts.syst >= 0)
 assert (opts.syst <= 2)
 
 #import HWWwideSideband
 
 from ROOT import gPad, TFile, Double, Long, gROOT, TCanvas
+config = __import__(opts.modeConfig)
+
 #gROOT.ProcessLine('.L RooWjjFitterParams.h+')
-gROOT.ProcessLine('.L EffTableReader.cc+')
-gROOT.ProcessLine('.L EffTableLoader.cc+')
 gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
@@ -83,19 +81,12 @@ fitterPars.WpJfunction = opts.ParamWpJ
 if opts.ParamWpJ<0:
     fitterPars.smoothingOrder = 0
 
-#fitterPars.smoothingOrder = 0    
+#fitterPars.smoothingOrder = 0
 
 if opts.mH < 250:
     fitterPars.binEdges.erase(fitterPars.binEdges.begin())
     fitterPars.minMass = fitterPars.binEdges[0]
     fitterPars.minFit = fitterPars.minMass
-if (opts.mH == 250) or (opts.mH == 300):
-    # fitterPars.binEdges.insert(fitterPars.binEdges.begin(), 40.)
-    # fitterPars.minMass = fitterPars.binEdges[0]
-    # fitterPars.minFit = fitterPars.minMass
-    # fitterPars.smoothingOrder = 1
-    # fitterPars.truncRange = False
-    pass
 if (opts.mH == 400):
     fitterPars.binEdges.insert(fitterPars.binEdges.begin(), 40.)
     fitterPars.minMass = fitterPars.binEdges[0]
@@ -137,6 +128,8 @@ theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 #theFitter.getWorkSpace().var('nWjets').setConstant()
 theFitter.getWorkSpace().var('nQCD').setConstant()
 
+if (opts.mH >= 250) and (opts.mH <= 400) and (opts.Nj == 3):
+    theFitter.getWorkSpace().var('nTTbar').setConstant()
 
 theFitter.loadData()
 theFitter.resetYields()
@@ -379,7 +372,7 @@ lf4.SetName("Mlvjj_log")
 
 fitUtils = RooWjjFitterUtils(pars4)
 iwt = 0
-if opts.mH > 450:
+if (opts.mH > 450) and (opts.Nj == 2):
     iwt = 1
 sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils, iwt = iwt)
 
@@ -547,5 +540,6 @@ SigVisualLog.Write()
 
 ShapeFile.Close()
 
-print "down norm change:", (downIntegral/nomIntegral)
-print "up norm change:", (upIntegral/nomIntegral)
+if iwt == 1:
+    print "down norm change:", (downIntegral/nomIntegral)
+    print "up norm change:", (upIntegral/nomIntegral)

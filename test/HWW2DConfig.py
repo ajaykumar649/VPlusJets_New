@@ -27,13 +27,20 @@ mu2Pars = {
     600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22 ),
     }
 mu3Pars = {
-    170: ( "mva3j170mu", 0.300, 165.0, 250.0, 17 ),
-    180: ( "mva3j180mu", 0.300, 165.0, 250.0, 17 ),
-    190: ( "mva3j190mu", 0.300, 165.0, 250.0, 17 ),
-    200: ( "mva3j200mu", 0.300, 165.0, 250.0, 17 ),
-    250: ( "mva3j250mu", 0.400, 200.0, 400.0, 20 ),
-    300: ( "mva3j300mu", 0.600, 240.0, 400.0, 16 ),
-    350: ( "mva3j350mu", 0.650, 300.0, 780.0, 24 ),
+    170: ( "mva3j170mu", 0.300, 165.0, 250.0, 17,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+    180: ( "mva3j180mu", 0.300, 165.0, 250.0, 17,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+    190: ( "mva3j190mu", 0.300, 165.0, 250.0, 17,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+    200: ( "mva3j200mu", 0.300, 165.0, 250.0, 17,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
+    250: ( "mva3j250mu", 0.400, 200.0, 400.0, 20,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
+    300: ( "mva3j300mu", 0.600, 240.0, 400.0, 16,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
+    350: ( "mva3j350mu", 0.650, 300.0, 780.0, 24,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
     400: ( "mva3j400mu", 0.500, 300.0, 780.0, 24 ),
     450: ( "mva3j450mu", 0.550, 340.0, 780.0, 22 ),
     500: ( "mva3j500mu", 0.650, 340.0, 780.0, 22 ),
@@ -74,7 +81,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
     #pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/'
-    pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/"
+    #pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/"
+    pars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/"
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
 
@@ -157,12 +165,12 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.HWWPlotting = {'color' : kBlue, 'title' : "H(%i) #rightarrow WW" % mH}
 
     pars.var1 = 'Mass2j_PFCor'
-    pars.v1nbins = 16
+    pars.v1nbins = 17
     pars.v1min = 50.
-    pars.v1max = 180.
+    pars.v1max = 200.
     #pars.v1binEdges = []
     pars.v1binEdges = [50, 55.,60.,65.,70.,75.,80.,85.,95.,
-                       105.,115.,125.,135.,150.,165.,180.]
+                       105.,115.,125.,135.,150.,165.,180.,200.]
 
     pars.var2 = 'fit_mlvjj'
     pars.v2nbins = modePars[mH][4]

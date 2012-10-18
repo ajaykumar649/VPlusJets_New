@@ -510,7 +510,7 @@ RooAbsData * RooWjjMjjFitter::loadData(bool trunc) {
   //  double rel2jet = 0.0663, rel3jet = 0.0229, rmu2jet = 0.001625, rmu3jet = 0.;
   //  double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.004214, ermu3jet = 0.0040797;
 
-  double rel2jet = 0.02, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
+  double rel2jet = 0.06, rel3jet = 0.02, rmu2jet = 0.001625, rmu3jet = 0.;
   double erel2jet = rel2jet*0.5, erel3jet = rel3jet*0.5, ermu2jet = 0.005, ermu3jet = 0.005;
 
 
@@ -1263,7 +1263,7 @@ RooAbsPdf* RooWjjMjjFitter::makeQCDPdf() {
   }
   if (params_.includeElectrons) {
     tmpHist = utils_.File2Hist(params_.QCDDirectory + 
-			       "RDQCD_WenuJets_Isog0p3NoElMVA_9p3invfb.root", 
+			       "RDQCD_WenuJets_Isog0p3NoElMVA_11p9invfb.root", 
 			       // "RDQCD_WenuJets_DataAll_GoldenJSON_9p3invfb.root",
 			       "hist_qcd_el", true, 1, false, 1,
 			       params_.QCDcuts);
@@ -1454,9 +1454,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	    << '\n';
 
   double localMin = params_.minMass;
-  if (params_.model == 4)
-    localMin = th1wjets->GetBinLowEdge(2);
+  // if (params_.model == 4)
+  //   localMin = th1wjets->GetBinLowEdge(2);
   mass->setRange("SBFitRange", localMin, localMax);
+  std::cout << "SBFitRange: [" << localMin << ',' << localMax << "]\n";
 
   th1wjets->Scale(1./th1wjets->Integral());
   RooDataHist theSBDataNorm("theSBDataNorm", "theSBDataNorm", 
@@ -1524,6 +1525,10 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 			 "(TMath::Erf((@0-@1)/@2)+1)/2.*"
 			 "TMath::Power(@0,@3)",
 			 RooArgSet(*mass, turnOn, width, c));
+  RooRealVar power("p", "p", 2.0);
+  power.setConstant(false);
+  RooPowerExpPdf powerExp("WpJ4BodyPdf", "WpJ4BodyPdf",
+			  *mass, c, power);
   RooLandau landau("WpJ4BodyPdf", "WpJ4BodyPdf", *mass, turnOn, c);
   RooFitResult * fr = 0;
   double diff = 0, newErr = 0;
@@ -1536,6 +1541,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
       // c.setVal(18.6);
       // turnOn.setVal(180.);
       // ws_.import(landau);
+    } else if (params_.model == 4) {
+      c.setVal(-0.07);
+      c.setError(0.01);
+      power.setVal(14.7);
+      power.setVal(0.5);
+      ws_.import(powerExp);
     } else {
       expPdf.SetName("WpJ4BodyPdf");
       ws_.import(expPdf);
@@ -1550,7 +1561,6 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	       RooFit::RenameVariable("c", "c_up"),
 	       RooFit::RenameAllNodes("up"));
     ws_.Print();
-
     // ws_.pdf("WpJ4BodyPdf_down")->chi2FitTo(theSBAlphaDown, 
     // 					   RooFit::Minos(false),
     // 					   RooFit::DataError(RooAbsData::SumW2),
@@ -1579,6 +1589,9 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     				       RooFit::SumW2Error(false),
     				       RooFit::Range("SBFitRange"),
     				       RooFit::Save(true));
+    ws_.import(theSBAlphaDown);
+    ws_.import(theSBAlphaUp);
+    ws_.import(theSBData);
     if ((fr->covQual() != 3) && (fitf)) {
       th1wjets->Fit(fitf, "RI0");
       ws_.var("c")->setVal(fitf->GetParameter(0));

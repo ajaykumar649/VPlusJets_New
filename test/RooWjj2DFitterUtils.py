@@ -120,11 +120,13 @@ class Wjj2DFitterUtils:
                 if pt > 0:
                     jet_pt.append(pt)
                     jet_eta.append(theTree.JetPFCor_Eta[idx])
-            effWgt = self.effWeight(lepton_pt = lep_pt, lepton_eta = lep_eta, 
-                                    #jet_pt = jet_pt, jet_eta,
-                                    mt_pt = theTree.W_mt, mt_eta = lep_eta,
-                                    met_pt = theTree.event_met_pfmet, 
-                                    met_eta = 0.)
+            effWgt = theTree.puwt*theTree.effwt
+
+            # effWgt = self.effWeight(lepton_pt = lep_pt, lepton_eta = lep_eta, 
+            #                         #jet_pt = jet_pt, jet_eta,
+            #                         mt_pt = theTree.W_mt, mt_eta = lep_eta,
+            #                         met_pt = theTree.event_met_pfmet, 
+            #                         met_eta = 0.)
             if CPweight:
                 cpw = HiggsCPWeight(self.pars.mHiggs, theTree.W_H_mass_gen)
             else:
