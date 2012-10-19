@@ -256,7 +256,7 @@ RooFitResult * RooWjjMjjFitter::fit(bool repeat) {
 	    << " difference: " << data->sumEntries() - sumNonWpJ
 	    << '\n';
 
-  ws_.var("nWjets")->setVal(data->sumEntries() - sumNonWpJ);
+  // ws_.var("nWjets")->setVal(data->sumEntries() - sumNonWpJ);
 
   std::cout << "is fitter extended? " << fitPdf->canBeExtended()
 	    << " must be extended? " << fitPdf->mustBeExtended()
@@ -1560,7 +1560,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     ws_.import(*(ws_.pdf("WpJ4BodyPdf")), 
 	       RooFit::RenameVariable("c", "c_up"),
 	       RooFit::RenameAllNodes("up"));
-    ws_.Print();
+    // ws_.Print();
     // ws_.pdf("WpJ4BodyPdf_down")->chi2FitTo(theSBAlphaDown, 
     // 					   RooFit::Minos(false),
     // 					   RooFit::DataError(RooAbsData::SumW2),
@@ -1575,6 +1575,12 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     // 					   RooFit::DataError(RooAbsData::SumW2),
     // 					   RooFit::Range("SBFitRange"),
     // 					   RooFit::Save(true));
+    fr = ws_.pdf("WpJ4BodyPdf")->fitTo(theSBData, RooFit::Minos(false),
+    				       RooFit::SumW2Error(false),
+    				       RooFit::Range("SBFitRange"),
+    				       RooFit::Save(true));
+    if (ws_.var("p"))
+      ws_.var("p")->setConstant();
     ws_.pdf("WpJ4BodyPdf_down")->fitTo(theSBAlphaDown, 
     				       RooFit::Minos(false),
     				       RooFit::SumW2Error(false),
@@ -1585,10 +1591,6 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     				       RooFit::SumW2Error(false),
     				       RooFit::Range("SBFitRange")
     				       );
-    fr = ws_.pdf("WpJ4BodyPdf")->fitTo(theSBData, RooFit::Minos(false),
-    				       RooFit::SumW2Error(false),
-    				       RooFit::Range("SBFitRange"),
-    				       RooFit::Save(true));
     ws_.import(theSBAlphaDown);
     ws_.import(theSBAlphaUp);
     ws_.import(theSBData);

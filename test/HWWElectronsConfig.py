@@ -95,7 +95,7 @@ def the4BodyConfig(twoBodyConfig, mH=400, syst=0, alphaOverride = None):
     fitterPars.nbins = optPars[5]
     fitterPars.model = 1
     if (mH <= 200): # and (twoBodyConfig.njets == 2):
-        fitterPars.model = 5
+        fitterPars.model = 4
     if (mH <= 250) and (twoBodyConfig.njets == 3):
         fitterPars.model = 4
 

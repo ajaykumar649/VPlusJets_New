@@ -35,9 +35,9 @@ def morph(hist1, hist2, mass1, mass2, targetMass, fitter, params,
     print 'low integral:', histLow.Integral(), \
         'high integral:', histHigh.Integral(), \
         'new integral:', newIntegral
-    sigHistLow = utils.Hist2Pdf(histLow, "sigHistLow_%s" % (mode), 
+    sigHistLow = utils.Hist2Pdf(histLow, "%s_low_pdf" % (histLow.GetName()), 
                                 fitter.getWorkSpace())
-    sigHistHigh = utils.Hist2Pdf(histHigh, "sigHistHigh_%s" % (mode),
+    sigHistHigh = utils.Hist2Pdf(histHigh, "%s_high_pdf" % (histHigh.GetName()),
                                  fitter.getWorkSpace())
     x = fitter.getWorkSpace().var(params.var)
     #x.Print("v")
@@ -124,11 +124,10 @@ everything else : same as zero
     assert (opts.mHmorph)
 
     from ROOT import TFile, gROOT, kRed, kBlue, kViolet, RooMsgService, RooFit
-    #gROOT.ProcessLine('.L RooWjjFitterParams.h+')
-    gROOT.ProcessLine('.L EffTableReader.cc+')
-    gROOT.ProcessLine('.L EffTableLoader.cc+')
+
     gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
     gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
+
     from ROOT import RooWjjMjjFitter, RooWjjFitterUtils, gPad
     import re
     import HWWSignalShapes
@@ -156,6 +155,8 @@ everything else : same as zero
 
     pars4 = config.the4BodyConfig(fitterPars, mHbasis, opts.syst, 
                                   opts.alpha)
+    pars4.mHiggs = opts.mH
+    pars4.wHiggs = HWWSignalShapes.HiggsWidth[mHmorph]
     fitter4 = RooWjjMjjFitter(pars4)
 
     higgsModes = HWWSignalShapes.modes
@@ -166,7 +167,11 @@ everything else : same as zero
     print 'basis Higgs', mHbasis, 'morphing with Higgs', mHmorph,
     print 'to make Higgs', opts.mH
 
-    higgsHists = HWWSignalShapes.GenHiggsHists(pars4, mHmorph)
+    iwt = 0
+    if (opts.mH > 450) and (opts.Nj == 2):
+        iwt = 1
+
+    higgsHists = HWWSignalShapes.GenHiggsHists(pars4, mHmorph, utils, iwt = iwt)
 
     fbasis = TFile(opts.basisFile)
     # fmorph = TFile(opts.morphFile)
@@ -203,6 +208,52 @@ everything else : same as zero
             gPad.Update()
             gPad.WaitPrimitive()
 
+
+    if iwt == 1:
+        pars4up = RooWjjFitterParams(pars4)
+        pars4up.cuts = pars4.cuts.replace('interferencenominal', 
+                                          'interferenceup')
+        fitUtilsUp = RooWjjFitterUtils(pars4up)
+        sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, 
+                                                   fitUtilsUp, 
+                                                   iwt = 2)
+        sigHistsUp['HWW'].SetName(sigHistsUp['HWW'].GetName() + '_up')
+
+        basisName = '%s%i_%s_shape_up' % (higgsMode, mHbasis, modeString)
+        morphName = '%s%i_%s_shape_up' % (higgsMode,  mHmorph, modeString)
+
+        print 'basis hist name:',basisName,'morph hist name:',morphName
+
+        histbasis = scaleUnwidth(fbasis.Get(basisName))
+        histmorph = scaleUnwidth(sigHistsUp['HWW'])
+
+        gROOT.cd()
+        morphedHists.append(morph(histbasis, histmorph, mHbasis, mHmorph, 
+                                  targetMass = opts.mH, mode = higgsMode,
+                                  fitter = fitter4, params = pars4up, 
+                                  debug = opts.debug))
+
+        pars4down = RooWjjFitterParams(pars4)
+        pars4down.cuts = pars4.cuts.replace('interferencenominal', 
+                                            'interferencedown')
+        fitUtilsDown = RooWjjFitterUtils(pars4down)
+        sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
+                                                     fitUtilsDown, iwt = 3)
+        sigHistsDown['HWW'].SetName(sigHistsDown['HWW'].GetName() + '_down')
+
+        basisName = '%s%i_%s_shape_down' % (higgsMode, mHbasis, modeString)
+        morphName = '%s%i_%s_shape_down' % (higgsMode,  mHmorph, modeString)
+
+        print 'basis hist name:',basisName,'morph hist name:',morphName
+
+        histbasis = scaleUnwidth(fbasis.Get(basisName))
+        histmorph = scaleUnwidth(sigHistsDown['HWW'])
+
+        gROOT.cd()
+        morphedHists.append(morph(histbasis, histmorph, mHbasis, mHmorph, 
+                                  targetMass = opts.mH, mode = higgsMode,
+                                  fitter = fitter4, params = pars4down, 
+                                  debug = opts.debug))
 
     foutput = TFile('H%i_%s_%iJets_Fit_Shapes.root' % (opts.mH, modeString,
                                                        opts.Nj), 'recreate')

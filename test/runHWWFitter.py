@@ -67,7 +67,7 @@ gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
 gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      RooMsgService, RooFit, TLatex, TMatrixDSym, RooArgList, RooArgSet, gPad, \
-     kBlue, TH1D, TMath, gDirectory, RooWjjFitterParams
+     kBlue, TH1D, TMath, gDirectory, RooWjjFitterParams, kRed, kGray
 from math import sqrt
 import HWWSignalShapes
 
@@ -130,6 +130,8 @@ theFitter.getWorkSpace().var('nQCD').setConstant()
 
 if (opts.mH >= 250) and (opts.mH <= 400) and (opts.Nj == 3):
     theFitter.getWorkSpace().var('nTTbar').setConstant()
+if (opts.mH <= 200) and (opts.Nj == 2):
+    theFitter.getWorkSpace().var('nTTbar').setConstant()
 
 theFitter.loadData()
 theFitter.resetYields()
@@ -143,9 +145,9 @@ ndf = Long(fr.floatParsFinal().getSize()-5)
 while (fr.covQual() < 2) and (tries < 3):
     print "Fit didn't converge well.  Will try again."
     # theFitter.getWorkSpace().var('nDiboson').setConstant()
-    # theFitter.getWorkSpace().var('nTTbar').setConstant()
+    theFitter.getWorkSpace().var('nTTbar').setConstant()
     # theFitter.getWorkSpace().var('nSingleTop').setConstant()
-    # theFitter.getWorkSpace().var('nQCD').setConstant()
+    theFitter.getWorkSpace().var('nQCD').setConstant()
     # theFitter.getWorkSpace().var('nZjets').setConstant()
     #theFitter.getWorkSpace().var('nWjets').setConstant()
     fr = theFitter.fit()
@@ -388,12 +390,37 @@ SigVisual.Print()
 SigVisualLog = TH1D(SigVisual)
 SigVisualLog.SetName("SigVisualLog")
 
+c = fitter4.getWorkSpace().var('c')
+c.Print()
+cNom = c.getVal()
+
 c4body = TCanvas('c4body', '4 body stacked')
 mf4.addTH1(SigVisual, "hist")
+
+c.setVal(cNom + c.getError())
+mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+c.setVal(cNom - c.getError())
+mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+
+h_total_up = mf4_up.getCurve('h_total')
+h_total_up.SetName('h_total_up')
+h_total_up.SetLineColor(kGray+3)
+h_total_up.SetLineStyle(2)
+h_total_down = mf4_down.getCurve('h_total')
+h_total_down.SetName('h_total_down')
+h_total_down.SetLineColor(kGray+3)
+h_total_down.SetLineStyle(2)
+
+mf4.addPlotable(h_total_up, "l")
+mf4.addPlotable(h_total_down, "l")
+
 mf4.Draw()
 tmpLeg = mf4.findObject('theLegend')
 tmpLeg.AddEntry(SigVisual, "H(%d)#times%.0f" % (opts.mH, extraFactor), "l")
+tmpLeg.AddEntry(h_total_up, "bkg. syst.", "l")
 pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
+
+
 c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
 c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
 
@@ -423,10 +450,6 @@ c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj,
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj,
                                                        opts.mH))
 
-c = fitter4.getWorkSpace().var('c')
-c.Print()
-cNom = c.getVal()
-
 sbf = cWpJ.FindObject("SideBandPlot")
 print sbf
 if not sbf:
@@ -435,13 +458,11 @@ if not sbf:
     sbf.Print()
 
 c.setVal(cNom + c.getError())
-mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
                                                  RooFit.Name('syst_up'),
                                                  RooFit.LineColor(kBlue+1))
 
 c.setVal(cNom - c.getError())
-mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 fitter4.getWorkSpace().pdf("WpJ4BodyPdf").plotOn(sbf, RooFit.LineStyle(2),
                                                  RooFit.Name('syst_down'),
                                                  RooFit.LineColor(kBlue+1))
@@ -481,14 +502,11 @@ ShapeFile = TFile('H{2}_{1}_{0}Jets_Fit_Shapes.root'.format(opts.Nj,
                   'recreate')
 
 h_total = mf4.getCurve('h_total')
-h_total_up = mf4_up.getCurve('h_total')
-h_total_up.SetName('h_total_up')
-h_total_down = mf4_down.getCurve('h_total')
-h_total_down.SetName('h_total_down')
 
 theData = mf4.getHist('theData')
 
-fitter4.getWorkSpace().Write()
+fitter4.getWorkSpace().Write("ws4")
+theFitter.getWorkSpace().Write('ws2')
 
 h_total.Write()
 theData.Write()

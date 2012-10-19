@@ -21,13 +21,13 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
     fitterPars.DataDirectory = fitterPars.MCDirectory
-    # fitterPars.DataDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample/RD_"
+    # fitterPars.DataDirectory = "/uscms_data/d1/andersj/Wjj/2012/data/ICHEP2012/ReducedTrees/RD_"
     #fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
-    #fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_3p5invfb.root'
+    #fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_5p1invfb.root'
     fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_11p5invfb.root'
     fitterPars.includeMuons = True    
     #fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
-    # fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_3p5invfb.root'
+    #fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root'
     fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_11p9invfb.root'
     fitterPars.includeElectrons = True
    
