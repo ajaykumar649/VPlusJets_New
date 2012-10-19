@@ -93,8 +93,13 @@ namespace ewk
     TTree* tree_;
     bool runningOverMC_;
     bool applyJECToGroomedJets_;
-    FactorizedJetCorrector* jec_;
-    JetCorrectionUncertainty* jecUnc_;
+    
+//    FactorizedJetCorrector* jec_;
+//    JetCorrectionUncertainty* jecUnc_;
+
+    boost::shared_ptr<JetCorrectionUncertainty> jecUnc_;
+    boost::shared_ptr<FactorizedJetCorrector> jec_;
+        
     std::string jetLabel_;
     std::string JetsFor_rho;
     std::string JEC_GlobalTag_forGroomedJet;
@@ -199,6 +204,7 @@ namespace ewk
 
     
     double rhoVal_;
+    double sigmaVal_;        
     double nPV_;
     bool isGenJ;
     };

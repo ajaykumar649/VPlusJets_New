@@ -214,8 +214,8 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     
     
         // ---- setting up the jec on-the-fly from text files...    
-    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
-//    std::string fDir = JEC_GlobalTag_forGroomedJet;   
+//    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
+    std::string fDir = JEC_GlobalTag_forGroomedJet;   
     std::vector< JetCorrectorParameters > jecPars;
     std::vector< std::string > jecStr;
     
@@ -227,18 +227,11 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
         if (!runningOverMC_)
             jecStr.push_back( fDir + "_L2L3Residual_AK5PFchs.txt" );
       }else{
-//        jecStr.push_back( fDir + "_L1FastJet_AK7PFchs.txt" );
-//        jecStr.push_back( fDir + "_L2Relative_AK7PFchs.txt" );
-//        jecStr.push_back( fDir + "_L3Absolute_AK7PFchs.txt" );
-//        if (!runningOverMC_)
-//            jecStr.push_back( fDir + "_L2L3Residual_AK7PFchs.txt" );
-        jecStr.push_back( fDir + "_L1FastJet_AK5PF.txt" );
-//        jecStr.push_back( "GR_R_52_V9_L1Offset_AK5PFchs.txt" );
-        jecStr.push_back( fDir + "_L2Relative_AK5PF.txt" );
-        jecStr.push_back( fDir + "_L3Absolute_AK5PF.txt" );
+        jecStr.push_back( fDir + "_L1FastJet_AK7PFchs.txt" );
+        jecStr.push_back( fDir + "_L2Relative_AK7PFchs.txt" );
+        jecStr.push_back( fDir + "_L3Absolute_AK7PFchs.txt" );
         if (!runningOverMC_)
-            jecStr.push_back( fDir + "_L2L3Residual_AK5PFchs.txt" );
-      }        
+            jecStr.push_back( fDir + "_L2L3Residual_AK7PFchs.txt" );
         
         for (unsigned int i = 0; i < jecStr.size(); ++i){
             std::cout << "files: " << jecStr[i] << std::endl;
@@ -255,7 +248,7 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
 
         }else{
 //            jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK7PFchs.txt" );
-            jecUnc_ = boost::shared_ptr<JetCorrectionUncertainty>( new JetCorrectionUncertainty(fDir + "_Uncertainty_AK5PFchs.txt"));
+            jecUnc_ = boost::shared_ptr<JetCorrectionUncertainty>( new JetCorrectionUncertainty(fDir + "_Uncertainty_AK7PFchs.txt"));
         }
     }
     
@@ -433,11 +426,11 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     iEvent.getByLabel(eventrho,rho);
     rhoVal_ = *rho;
 
-    sigmaVal_ = -99.;
-    edm::Handle<double> sigma;
-    const edm::InputTag eventsigma(JetsFor_rho, "sigma");
-    iEvent.getByLabel(eventsigma,sigma);
-    sigmaVal_ = *sigma;
+//    sigmaVal_ = -99.;
+//    edm::Handle<double> sigma;
+//    const edm::InputTag eventsigma(JetsFor_rho, "sigma");
+//    iEvent.getByLabel(eventsigma,sigma);
+//    sigmaVal_ = *sigma;
     
         // ------ get nPV: primary/secondary vertices------ 
     nPV_ = 0.;
@@ -516,41 +509,41 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
          if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
 				out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(20.0));    
     
-        // -------------------------
-        ////////////////////////////
-        // temp
-    std::cout << " ================ start JEC crosscheck ================" << std::endl;
-    if(mJetAlgo == "CA" && fabs(mJetRadius-0.8)<0.001){
-        std::cout << "out_jets[0].pT: " << out_jets[0].pt() << ", out_jets[0].m: " << out_jets[0].m() << std::endl;
-//        std::cout << "out_jets[0].pX: " << out_jets[0].px() << ", out_jets[0].pY: " << out_jets[0].py() << ", out_jets[0].pZ: " << out_jets[0].pz() << std::endl;
-        std::cout << "out_jets[0].pT, corr: " << getCorrectedJet(out_jets[0]).Pt() << ", out_jets[0].m, corr: " << getCorrectedJet(out_jets[0]).M() << std::endl;
-        edm::Handle<edm::View<pat::Jet> > ca8jethandle;
-        iEvent.getByLabel( "selectedPatJetsCA8PF", ca8jethandle);
-        edm::View<pat::Jet> ca8jets = *ca8jethandle;
-        for(edm::View<pat::Jet>::const_iterator jet_iter = ca8jets.begin(); jet_iter!=ca8jets.end(); ++jet_iter){
-            std::cout << "jet_iter.py = " << jet_iter->pt() << ", jet_iter.m = " << jet_iter->mass() << std::endl;
-            std::cout << "jet_iter.py corr = " << jet_iter->correctedJet("Uncorrected").pt() << ", jet_iter.m corr = " << jet_iter->correctedJet("Uncorrected").mass() << std::endl;            
-            for (unsigned int kk = 0; kk < jet_iter->availableJECLevels().size(); kk++){
-                std::cout << "available jecLevels, " << kk << ": " << jet_iter->availableJECLevels().at(kk) << ", value: " << jet_iter->jecFactor(jet_iter->availableJECLevels().at(kk)) << std::endl;
-            }
-            reco::Candidate::LorentzVector uncorrJet = jet_iter->correctedP4(0);
-
-            jec_->setJetEta( uncorrJet.eta() );
-            jec_->setJetPt ( uncorrJet.pt() );
-            jec_->setJetE  ( uncorrJet.energy() );
-            jec_->setJetA  ( jet_iter->jetArea() );
-//            jec_->setJetA  ( out_jets[0].area() );            
-            jec_->setRho   ( rhoVal_ );
-            jec_->setNPV   ( nPV_ );
-            double corr = jec_->getCorrection();
-            std::cout << "uncorrJet.eta() = " << uncorrJet.eta() << ", uncorrJet.pt() = " << uncorrJet.pt() << ", uncorrJet.area() = " << jet_iter->jetArea() << ", correction = " << corr << ", -- area... " << out_jets[0].area() << std::endl;
-//            for (unsigned int i = jec_->getSubCorrections().size(); i > 0 ; i--){
-//                std::cout << "corr #" << i-1 << ": ";
-//                std::cout << jec_->getSubCorrections()[i-1] << std::endl;
+//        // -------------------------
+//        ////////////////////////////
+//        // temp
+//    std::cout << " ================ start JEC crosscheck ================" << std::endl;
+//    if(mJetAlgo == "CA" && fabs(mJetRadius-0.8)<0.001){
+//        std::cout << "out_jets[0].pT: " << out_jets[0].pt() << ", out_jets[0].m: " << out_jets[0].m() << std::endl;
+////        std::cout << "out_jets[0].pX: " << out_jets[0].px() << ", out_jets[0].pY: " << out_jets[0].py() << ", out_jets[0].pZ: " << out_jets[0].pz() << std::endl;
+//        std::cout << "out_jets[0].pT, corr: " << getCorrectedJet(out_jets[0]).Pt() << ", out_jets[0].m, corr: " << getCorrectedJet(out_jets[0]).M() << std::endl;
+//        edm::Handle<edm::View<pat::Jet> > ca8jethandle;
+//        iEvent.getByLabel( "selectedPatJetsCA8PF", ca8jethandle);
+//        edm::View<pat::Jet> ca8jets = *ca8jethandle;
+//        for(edm::View<pat::Jet>::const_iterator jet_iter = ca8jets.begin(); jet_iter!=ca8jets.end(); ++jet_iter){
+//            std::cout << "jet_iter.py = " << jet_iter->pt() << ", jet_iter.m = " << jet_iter->mass() << std::endl;
+//            std::cout << "jet_iter.py corr = " << jet_iter->correctedJet("Uncorrected").pt() << ", jet_iter.m corr = " << jet_iter->correctedJet("Uncorrected").mass() << std::endl;            
+//            for (unsigned int kk = 0; kk < jet_iter->availableJECLevels().size(); kk++){
+//                std::cout << "available jecLevels, " << kk << ": " << jet_iter->availableJECLevels().at(kk) << ", value: " << jet_iter->jecFactor(jet_iter->availableJECLevels().at(kk)) << std::endl;
 //            }
-        }
-    }
-    std::cout << " ================ end JEC crosscheck ================" << std::endl;
+//            reco::Candidate::LorentzVector uncorrJet = jet_iter->correctedP4(0);
+//
+//            jec_->setJetEta( uncorrJet.eta() );
+//            jec_->setJetPt ( uncorrJet.pt() );
+//            jec_->setJetE  ( uncorrJet.energy() );
+//            jec_->setJetA  ( jet_iter->jetArea() );
+////            jec_->setJetA  ( out_jets[0].area() );            
+//            jec_->setRho   ( rhoVal_ );
+//            jec_->setNPV   ( nPV_ );
+//            double corr = jec_->getCorrection();
+//            std::cout << "uncorrJet.eta() = " << uncorrJet.eta() << ", uncorrJet.pt() = " << uncorrJet.pt() << ", uncorrJet.area() = " << jet_iter->jetArea() << ", correction = " << corr << ", -- area... " << out_jets[0].area() << std::endl;
+////            for (unsigned int i = jec_->getSubCorrections().size(); i > 0 ; i--){
+////                std::cout << "corr #" << i-1 << ": ";
+////                std::cout << jec_->getSubCorrections()[i-1] << std::endl;
+////            }
+//        }
+//    }
+//    std::cout << " ================ end JEC crosscheck ================" << std::endl;
         ////////////////////////////    
         // -------------------------    
 
@@ -808,12 +801,6 @@ double ewk::GroomedJetFiller::getJEC(double curJetEta,
     std::cout << "rho = " << rhoVal_ << ", area = " << curJetArea << ", rho*area = " << rhoVal_*curJetArea << ", sigma = " << sigmaVal_ << std::endl;
     
     double corr = jec_->getCorrection();
-    std::cout << "jec..." << corr << std::endl;
-//    std::cout << "got here?" << std::endl;
-//    for (unsigned int i = jec_->getSubCorrections().size(); i > 0 ; i--){
-//        std::cout << "corr #" << i-1 << ": ";
-//        std::cout << jec_->getSubCorrections()[i-1] << std::endl;
-//    }
     
     return corr;
 }
