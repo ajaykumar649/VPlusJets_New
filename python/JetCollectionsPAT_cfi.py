@@ -22,17 +22,17 @@ ak5PFJetsClean = cms.EDProducer("PFPATJetCleaner",
     srcJets = cms.InputTag("ak5PFGoodJets"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("looseElectrons"),cms.InputTag("looseMuons")),
-    deltaRMin = cms.double(0.3)
+    deltaRMin = cms.double(0.5)
 )
 
 
 ak5PFJetsLooseId = cms.EDFilter("PATJetRefSelector",
-    src = cms.InputTag("ak5PFGoodJets"),
+    src = cms.InputTag("ak5PFJetsClean"),
     cut = cms.string('pt > 20.0 && abs(eta) < 2.4')
 )
 
 ak5PFJetsLooseIdVBFTag = cms.EDFilter("PATJetRefSelector",
-    src = cms.InputTag("ak5PFGoodJets"),
+    src = cms.InputTag("ak5PFJetsClean"),
     cut = cms.string('pt > 20.0 && abs(eta) > 2.4 && abs(eta) < 9.9')
 )
 

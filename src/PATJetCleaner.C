@@ -118,6 +118,7 @@ void PATJetCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 	const reco::Candidate& obj = objects->at(iObj);
 	double deltaR = reco::deltaR(jet,obj);
 	if (deltaR<deltaRMin_)  isClean[iJet] = false;
+	// if (deltaR<deltaRMin_)  cout<<"deltaR="<<deltaR<<"iJet="<<iJet<<endl;
       }
     }
   }
@@ -157,7 +158,8 @@ void PATJetCleaner<T>::endJob()
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef PATJetCleaner<reco::CaloJet> CaloPATJetCleaner;
-typedef PATJetCleaner<reco::PFJet>   PFPATJetCleaner;
+//typedef PATJetCleaner<reco::PFJet>   PFPATJetCleaner;
+typedef PATJetCleaner<pat::Jet>   PFPATJetCleaner;
 typedef PATJetCleaner<reco::JPTJet>  JPTPATJetCleaner;
 typedef PATJetCleaner<reco::GenJet>  GenPATJetCleaner;
 
