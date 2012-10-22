@@ -81,8 +81,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   const double WZ_scale      = 32.3161   * intLUMI/10000267; // V
   const double ZZ_scale      = 8.059   * intLUMI/9702850; // V
 
-  const double QCD_scale     = 1. ; // V
-//  const double QCD_scale     = 364000000 *    0.00037 * intLUMI/7529312 ; // V
+  double QCD_scale     = 1. ; // V
   const double ZJets_scale   = 3503.71  * intLUMI/30209426; // V
   const double ttbar_scale   = 225.197 * intLUMI/6893735; // V
   const double SToppS_scale  = 1.75776  * intLUMI/139974; // V anti-top
@@ -92,17 +91,31 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   const double STopT_scale   = 55.531  * intLUMI/3758221; //V
   const double STopTW_scale  = 11.1773  * intLUMI/497657; // V
 
+  //Cuts for QCD evaluation
+  std::string QCDCut = "effwt*puwt*((ggdevt==2) && fit_status==0  &&abs(JetPFCor_dphiMET[0])>0.4)";
+  if ( domu ) QCDCut = "effwt*puwt*((ggdevt==2) && fit_status==0  &&abs(JetPFCor_dphiMET[0])>0.4 && abs(W_muon_eta)<2.1)";
+
   //organize cut flow
+  std::string MetCut = "30";
+  if ( domu ) MetCut = "25";
+  std::string dPhiCut = "0.8";
+  if ( domu ) dPhiCut = "0.4";
+  
   std::vector<std::string> additional_cuts;
-  additional_cuts.push_back("effwt*puwt*(event_met_pfmet > 30 && evtNJ >= 2)");
-  additional_cuts.push_back("effwt*puwt*(event_met_pfmet > 30 && evtNJ == 2)");
-  additional_cuts.push_back("effwt*puwt*(event_met_pfmet > 30 && evtNJ == 3)");
+  additional_cuts.push_back("effwt*puwt*(ggdevt >= 2)");
+  additional_cuts.push_back("effwt*puwt*(fit_status == 1 && ggdevt >= 2)");
+  additional_cuts.push_back("effwt*puwt*(fit_status == 1 && ggdevt >= 2 && abs(JetPFCor_dphiMET[0])>" + dPhiCut + ")");
+  additional_cuts.push_back("effwt*puwt*(fit_status == 1 && ggdevt == 2 && abs(JetPFCor_dphiMET[0])>" + dPhiCut + ")");
+  additional_cuts.push_back("effwt*puwt*(fit_status == 1 && ggdevt == 3 && abs(JetPFCor_dphiMET[0])>" + dPhiCut + ")");
   std::vector<std::string> additional_cuts_name;
-  additional_cuts_name.push_back("MET > 30");
+  additional_cuts_name.push_back("MET > " + MetCut);
+  additional_cuts_name.push_back("Good Kin. Fit");
+  additional_cuts_name.push_back("|#phi(WJ1)-#phi(MET)| > " + dPhiCut);
   additional_cuts_name.push_back("evtNJ == 2");
   additional_cuts_name.push_back("evtNJ == 3");
   float step_min = 4;
-  float step_max = 15;
+  float step_max_presel = 7;
+  float step_max = 12;
   int   step_extra = additional_cuts.size();
   float minValue = 1000;
 
@@ -125,7 +138,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
     else
       wjetsShape_file = new TFile("InData/RD_mu_WpJ_CMSSW532.root", "READ");
     ttbar_file      = new TFile("InData/RD_mu_TTbar_CMSSW532.root", "READ");
-    qcd_file1       = new TFile("InData/RD_mu_WW_CMSSW532.root", "READ");
+    qcd_file1       = new TFile("InData/RD_mu_WpJ_CMSSW532.root", "READ"); //temporary: for muons take the Wjets as QCD proxy: WRONG!
     zjets_file      = new TFile("InData/RD_mu_ZpJ_CMSSW532.root", "READ");
     stops_file      = new TFile("InData/RD_mu_STopS_T_CMSSW532.root", "READ");
     stopt_file      = new TFile("InData/RD_mu_STopT_T_CMSSW532.root", "READ");
@@ -168,6 +181,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   TH1D* tmpHist = new TH1D("tmpHist","tmpHist",1,0,10);
 
   TH1* th1data  = (TH1D*) fin2 -> Get("h_events_weighted");
+
   TH1* th1data_ext  = new TH1D("th1data_ext","th1data_ext", step_max+step_extra, 0, step_max+step_extra);
   for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1data_ext -> SetBinContent(iBin, th1data->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
@@ -179,6 +193,9 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
     
   TBox *errbox = new TBox(step_min,0.95,step_max+step_extra,1.05);
   errbox->SetFillColor(kYellow);
+
+  treedata->Draw(TString("numPFCorJets")+TString(">>tmpHist"), QCDCut.c_str(), "goff");
+  double nDataQCD = tmpHist -> Integral();
  
     // Get Signal MC
 
@@ -194,12 +211,23 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   th1wz->Sumw2();
   th1zz->Sumw2();
 
+
   TH1* th1ww_ext  = new TH1D("th1ww_ext","th1ww_ext", step_max+step_extra, 0, step_max+step_extra);
   TH1* th1wz_ext  = new TH1D("th1wz_ext","th1wz_ext", step_max+step_extra, 0, step_max+step_extra);
   TH1* th1zz_ext  = new TH1D("th1zz_ext","th1zz_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1ww_ext -> SetBinContent(iBin, th1ww->GetBinContent(iBin));
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1wz_ext -> SetBinContent(iBin, th1wz->GetBinContent(iBin));
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1zz_ext -> SetBinContent(iBin, th1zz->GetBinContent(iBin));
+
+  //Scale factor for preselection bins
+  double weightSF = 1.;
+  weightSF = th1ww -> GetBinContent(step_max_presel+1+1)/((TH1D*) wwShape_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1ww_ext -> SetBinContent(iBin, weightSF*th1ww->GetBinContent(iBin));
+  weightSF = th1wz -> GetBinContent(step_max_presel+1+1)/((TH1D*) wzShape_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1wz_ext -> SetBinContent(iBin, weightSF*th1wz->GetBinContent(iBin));
+  weightSF = th1zz -> GetBinContent(step_max_presel+1+1)/((TH1D*) zzShape_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1zz_ext -> SetBinContent(iBin, weightSF*th1zz->GetBinContent(iBin));
+
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1ww_ext -> SetBinContent(iBin, th1ww->GetBinContent(iBin));
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1wz_ext -> SetBinContent(iBin, th1wz->GetBinContent(iBin));
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1zz_ext -> SetBinContent(iBin, th1zz->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treeww->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1ww_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -220,7 +248,11 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   TH1* th1wjets  = (TH1D*) wjetsShape_file -> Get("h_events_weighted");
   th1wjets->Sumw2();
   TH1* th1wjets_ext  = new TH1D("th1wjets_ext","th1wjets_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1wjets_ext -> SetBinContent(iBin, th1wjets->GetBinContent(iBin));
+
+  weightSF = th1wjets -> GetBinContent(step_max_presel+1+1)/((TH1D*) wjetsShape_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1wjets_ext -> SetBinContent(iBin, weightSF*th1wjets->GetBinContent(iBin));
+
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1wjets_ext -> SetBinContent(iBin, th1wjets->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treewj->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1wjets_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -233,7 +265,11 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   TH1* th1Top = (TH1D*) ttbar_file -> Get("h_events_weighted");
   th1Top->Sumw2();
   TH1* th1Top_ext  = new TH1D("th1Top_ext","th1Top_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1Top_ext -> SetBinContent(iBin, th1Top->GetBinContent(iBin));
+
+  weightSF = th1Top -> GetBinContent(step_max_presel+1+1)/((TH1D*) ttbar_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1Top_ext -> SetBinContent(iBin, weightSF*th1Top->GetBinContent(iBin));
+
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1Top_ext -> SetBinContent(iBin, th1Top->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treettb->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1Top_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -243,10 +279,22 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
 
   // Get QCD
 
+
   TH1* th1qcd = (TH1D*) qcd_file1 -> Get("h_events_weighted");
   th1qcd->Sumw2();
   TH1* th1qcd_ext  = new TH1D("th1qcd_ext","th1qcd_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1qcd_ext -> SetBinContent(iBin, th1qcd->GetBinContent(iBin));
+  
+  treeqcd->Draw(TString("numPFCorJets")+TString(">>tmpHist"), QCDCut.c_str(), "goff");
+  double nQCD     = tmpHist -> Integral();
+  tmpHist -> Reset();
+
+  //Fix the QCD scale
+  QCD_scale = nDataQCD/nQCD * 0.17;
+  if (domu) QCD_scale = nDataQCD/nQCD * 0.02;
+  std::cout << " qcd_scale  " << QCD_scale <<std::endl;
+
+  if (!domu) for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1qcd_ext -> SetBinContent(iBin, 1./QCD_scale*th1qcd->GetBinContent(iBin));
+  else for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1qcd_ext -> SetBinContent(iBin, th1qcd->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treeqcd->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1qcd_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -254,13 +302,18 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   }
   th1qcd_ext -> Sumw2();
 
+  th1qcd_ext->Scale(QCD_scale);
 
   // Get Z+Jets
 
   TH1* th1zjets = (TH1D*) zjets_file -> Get("h_events_weighted");
   th1zjets->Sumw2();
   TH1* th1zjets_ext  = new TH1D("th1zjets_ext","th1zjets_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1zjets_ext -> SetBinContent(iBin, th1zjets->GetBinContent(iBin));
+  
+  weightSF = th1zjets -> GetBinContent(step_max_presel+1+1)/((TH1D*) zjets_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1zjets_ext -> SetBinContent(iBin, weightSF*th1zjets->GetBinContent(iBin));
+
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1zjets_ext -> SetBinContent(iBin, th1zjets->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treezj->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1zjets_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -280,9 +333,17 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   TH1* th1stops_ext  = new TH1D("th1stops_ext","th1stops_ext", step_max+step_extra, 0, step_max+step_extra);
   TH1* th1stopt_ext  = new TH1D("th1stopt_ext","th1stopt_ext", step_max+step_extra, 0, step_max+step_extra);
   TH1* th1stoptw_ext  = new TH1D("th1stopsw_ext","th1stopsw_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1stops_ext -> SetBinContent(iBin, th1stops->GetBinContent(iBin));
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1stopt_ext -> SetBinContent(iBin, th1stopt->GetBinContent(iBin));
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1stoptw_ext -> SetBinContent(iBin, th1stoptw->GetBinContent(iBin));
+  
+  weightSF = th1stops -> GetBinContent(step_max_presel+1+1)/((TH1D*) stops_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1stops_ext -> SetBinContent(iBin, weightSF*th1stops->GetBinContent(iBin));
+  weightSF = th1stopt -> GetBinContent(step_max_presel+1+1)/((TH1D*) stopt_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1stopt_ext -> SetBinContent(iBin, weightSF*th1stopt->GetBinContent(iBin));
+  weightSF = th1stoptw -> GetBinContent(step_max_presel+1+1)/((TH1D*) stoptW_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1stoptw_ext -> SetBinContent(iBin, weightSF*th1stoptw->GetBinContent(iBin));
+  
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1stops_ext -> SetBinContent(iBin, th1stops->GetBinContent(iBin));
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1stopt_ext -> SetBinContent(iBin, th1stopt->GetBinContent(iBin));
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1stoptw_ext -> SetBinContent(iBin, th1stoptw->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treests->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1stops_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -314,9 +375,17 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   TH1* th1stopps_ext  = new TH1D("th1stopps_ext","th1stopps_ext", step_max+step_extra, 0, step_max+step_extra);
   TH1* th1stoppt_ext  = new TH1D("th1stoppt_ext","th1stoppt_ext", step_max+step_extra, 0, step_max+step_extra);
   TH1* th1stopptw_ext  = new TH1D("th1stopptw_ext","th1stopptw_ext", step_max+step_extra, 0, step_max+step_extra);
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1stopps_ext -> SetBinContent(iBin, th1stopps->GetBinContent(iBin));
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1stoppt_ext -> SetBinContent(iBin, th1stoppt->GetBinContent(iBin));
-  for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1stopptw_ext -> SetBinContent(iBin, th1stopptw->GetBinContent(iBin));
+  
+  weightSF = th1stopps -> GetBinContent(step_max_presel+1+1)/((TH1D*) stopps_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1stopps_ext -> SetBinContent(iBin, weightSF*th1stopps->GetBinContent(iBin));
+  weightSF = th1stoppt -> GetBinContent(step_max_presel+1+1)/((TH1D*) stoppt_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1stoppt_ext -> SetBinContent(iBin, weightSF*th1stoppt->GetBinContent(iBin));
+  weightSF = th1stopptw -> GetBinContent(step_max_presel+1+1)/((TH1D*) stopptW_file -> Get("h_events"))->GetBinContent(step_max_presel+1+1);
+  for ( int iBin = 1; iBin <= step_max_presel+1; iBin++ ) th1stopptw_ext -> SetBinContent(iBin, weightSF*th1stopptw->GetBinContent(iBin));
+
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1stopps_ext -> SetBinContent(iBin, th1stopps->GetBinContent(iBin));
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1stoppt_ext -> SetBinContent(iBin, th1stoppt->GetBinContent(iBin));
+  for ( int iBin = step_max_presel+1+1; iBin <= step_max+1; iBin++ ) th1stopptw_ext -> SetBinContent(iBin, th1stopptw->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treests->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
    th1stopps_ext -> SetBinContent(step_max+1+iExtraStep, tmpHist->Integral()); 
@@ -394,9 +463,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   th1zz_ext->Scale(ZZ_scale);
   th1zz_ext->SetFillColor(11);
   th1zz_ext->SetLineWidth(0);
-//     QCD_scale= th1data->Integral()*0.062/th1qcd->Integral();
-//  th1qcd->Scale(QCD_scale);
-
+  
   th1qcd_ext->SetFillColor(kGray+1);
   th1qcd_ext->SetLineColor(kGray+1);
   th1qcd_ext->SetLineWidth(0);
@@ -404,7 +471,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   th1zjets_ext->SetFillColor(kYellow);
   th1zjets_ext->SetLineColor(kYellow);
   th1zjets_ext->SetLineWidth(0);
-  std::cout << " qcd " << th1qcd_ext->Integral()   << std::endl;
+  std::cout << "qcd "  << th1qcd_ext->Integral()   << std::endl;
   std::cout << "tt "   << th1Top_ext->Integral()   << std::endl;
   std::cout << "ww "   << th1ww_ext->Integral()    << std::endl;
   std::cout << "wz "   << th1wz_ext->Integral()    << std::endl;
@@ -424,22 +491,6 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
     th1wz_ext->Integral()+
     th1zz_ext->Integral()+
     th1zjets_ext->Integral();
-
-  double qcd_scale;
-
-     if (domu)
-       qcd_scale = 0.0 ;//muon
-//  else
-//      qcd_scale = (n2*0.170 + n3*0.152) / (n2+n3); //electron
-//      qcd_scale = (n2*0.0637 + n3*0.02) / (n2+n3); //electron
-//      qcd_scale = 0.0637 ; //electron
-    else
-       qcd_scale = .57 ; //electron
-//       qcd_scale = (n2*0.0637/3. + n3*0.02/3.) / (n2+n3); //electron
-
-
-  std::cout << " qcd_scale  " << qcd_scale <<std::endl;
-  th1qcd_ext->Scale(qcd_scale*den_qcd/th1qcd_ext->Integral()); 
 
   double den = 
     th1Top_ext->Integral()+
@@ -632,8 +683,6 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   hhratio->GetYaxis()->SetTitleOffset(0.5);
   hhratio->GetYaxis()->CenterTitle(true);
   hhratio->GetYaxis()->SetLabelSize(0.1);
-  std::cout << hhratio->GetNbinsX() << std::endl;
-  std::cout << th1tot->GetNbinsX() << std::endl;
   hhratio->Divide(th1tot);
   double binError(0.0), mcbinentry(0.0), mcerror(0.0);
   for(int i=0; i<hhratio->GetNbinsX(); ++i) {
@@ -659,7 +708,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   th1emptyclone->GetYaxis()->CenterTitle(true);
   th1emptyclone->GetYaxis()->SetLabelSize(0.1);
   for ( int iBin = step_min+1; iBin <= step_max+1; iBin++ ) th1emptyclone -> GetXaxis() -> SetBinLabel(iBin, th1data -> GetXaxis() -> GetBinLabel(iBin));
-  for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) { th1emptyclone -> GetXaxis() -> SetBinLabel(step_max+1+iExtraStep, additional_cuts_name[iExtraStep].c_str()); std::cout << additional_cuts_name[iExtraStep].c_str() << std::endl;}
+  for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) th1emptyclone -> GetXaxis() -> SetBinLabel(step_max+1+iExtraStep, additional_cuts_name[iExtraStep].c_str());
   th1emptyclone->Draw();
   errbox->Draw();
   hhratio->Draw("esame");
