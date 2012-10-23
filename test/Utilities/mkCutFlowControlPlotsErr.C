@@ -92,8 +92,8 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   const double STopTW_scale  = 11.1773  * intLUMI/497657; // V
 
   //Cuts for QCD evaluation
-  std::string QCDCut = "effwt*puwt*((ggdevt==2) && fit_status==0  &&abs(JetPFCor_dphiMET[0])>0.4)";
-  if ( domu ) QCDCut = "effwt*puwt*((ggdevt==2) && fit_status==0  &&abs(JetPFCor_dphiMET[0])>0.4 && abs(W_muon_eta)<2.1)";
+  std::string QCDCut = "effwt*puwt*((ggdevt==2)   && abs(JetPFCor_dphiMET[0])>0.8)";
+  if ( domu ) QCDCut = "effwt*puwt*((ggdevt==2)   && abs(JetPFCor_dphiMET[0])>0.8)";
 
   //organize cut flow
   std::string MetCut = "30";
@@ -293,7 +293,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   if (domu) QCD_scale = nDataQCD/nQCD * 0.02;
   std::cout << " qcd_scale  " << QCD_scale <<std::endl;
 
-  if (!domu) for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1qcd_ext -> SetBinContent(iBin, 1./QCD_scale*th1qcd->GetBinContent(iBin));
+  if (!domu) for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1qcd_ext -> SetBinContent(iBin, 1./QCD_scale/0.57*th1qcd->GetBinContent(iBin));
   else for ( int iBin = 1; iBin <= step_max+1; iBin++ ) th1qcd_ext -> SetBinContent(iBin, th1qcd->GetBinContent(iBin));
   for ( int iExtraStep = 0; iExtraStep < step_extra; iExtraStep++ ) {
    treeqcd->Draw(TString("numPFCorJets")+TString(">>tmpHist"), additional_cuts[iExtraStep].c_str(), "goff");
