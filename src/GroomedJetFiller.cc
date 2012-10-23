@@ -65,7 +65,7 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     
     lableGen = "";
     if(isGen) lableGen = "Gen";
-    // get algo and radius
+        // get algo and radius
     unsigned int labelSize = jetLabel.size();
     mJetAlgo = "";
     mJetAlgo.push_back( jetLabel.at(0) ); mJetAlgo.push_back( jetLabel.at(1) );
@@ -75,8 +75,8 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     }
     else if (labelSize == 4){
         const char* tmp1 = &jetLabel.at(2);
-//        const char* tmp2 = &jetLabel.at(3);        
-//        mJetRadius = atof( tmp1 )*10. + atof( tmp2 );        
+            //        const char* tmp2 = &jetLabel.at(3);        
+            //        mJetRadius = atof( tmp1 )*10. + atof( tmp2 );        
         mJetRadius = atof( tmp1 );                
     }
     else{
@@ -138,27 +138,27 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     SetBranch( jetarea_pr, lableGen + "GroomedJet_" + jetLabel_ + "_area_pr");
     SetBranch( jetconstituents, lableGen + "GroomedJet_" + jetLabel_ + "_jetconstituents");
     SetBranch( jetcharge, lableGen + "GroomedJet_" + jetLabel_ + "_jetcharge");
-
+    
         // cores
     tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_rcores").c_str(), rcores, (lableGen + "GroomedJet_" + jetLabel_ + "_rcores"+"[11][6]/F").c_str() );
     bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_rcores").c_str() );
     tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_ptcores").c_str(), ptcores, (lableGen + "GroomedJet_" + jetLabel_ + "_ptcores"+"[11][6]/F").c_str() );
     bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_ptcores").c_str() );
     
-    //planarflow
+        //planarflow
     tree_->Branch((lableGen + "GroomedJet_" + jetLabel_ + "_planarflow").c_str(),planarflow, (lableGen + "GroomedJet_" + jetLabel_ + "_planarflow"+"[11][6]/F").c_str());
     bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_planarflow").c_str() );
-
+    
         // qjets
     tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmass").c_str(), qjetmass, (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmass"+"[50]/F").c_str() );
     bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmass").c_str() );
     tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmassdrop").c_str(), qjetmassdrop, (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmassdrop"+"[50]/F").c_str() );
     bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_qjetmassdrop").c_str() );
-
+    
     if( iConfig.existsAs<bool>("GroomedJet_saveConstituents") ) 
         mSaveConstituents=iConfig.getParameter< bool >("GroomedJet_saveConstituents");
     else mSaveConstituents = true;
-
+    
     if (mSaveConstituents){
         tree_->Branch( (lableGen + "GroomedJet_" + jetLabel_ + "_constituents0_eta").c_str(), constituents0_eta, (lableGen + "GroomedJet_" + jetLabel_ + "_constituents0_eta"+"[100]/F").c_str() );
         bnames.push_back( (lableGen + "GroomedJet_" + jetLabel_ + "_constituents0_eta").c_str() );   
@@ -214,24 +214,27 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     
     
         // ---- setting up the jec on-the-fly from text files...    
-//    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
+        //    std::string fDir = "JEC/" + JEC_GlobalTag_forGroomedJet;   
     std::string fDir = JEC_GlobalTag_forGroomedJet;   
     std::vector< JetCorrectorParameters > jecPars;
     std::vector< std::string > jecStr;
     
     if(applyJECToGroomedJets_) {
-      if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
-        jecStr.push_back( fDir + "_L1FastJet_AK5PFchs.txt" );
-        jecStr.push_back( fDir + "_L2Relative_AK5PFchs.txt" );
-        jecStr.push_back( fDir + "_L3Absolute_AK5PFchs.txt" );
-        if (!runningOverMC_)
-            jecStr.push_back( fDir + "_L2L3Residual_AK5PFchs.txt" );
-      }else{
-        jecStr.push_back( fDir + "_L1FastJet_AK7PFchs.txt" );
-        jecStr.push_back( fDir + "_L2Relative_AK7PFchs.txt" );
-        jecStr.push_back( fDir + "_L3Absolute_AK7PFchs.txt" );
-        if (!runningOverMC_)
-            jecStr.push_back( fDir + "_L2L3Residual_AK7PFchs.txt" );
+        if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+            jecStr.push_back( fDir + "_L1FastJet_AK5PFchs.txt" );
+            jecStr.push_back( fDir + "_L2Relative_AK5PFchs.txt" );
+            jecStr.push_back( fDir + "_L3Absolute_AK5PFchs.txt" );
+            if (!runningOverMC_)
+                jecStr.push_back( fDir + "_L2L3Residual_AK5PFchs.txt" );
+        }
+        else{
+            jecStr.push_back( fDir + "_L1FastJet_AK7PFchs.txt" );
+            jecStr.push_back( fDir + "_L2Relative_AK7PFchs.txt" );
+            jecStr.push_back( fDir + "_L3Absolute_AK7PFchs.txt" );
+            if (!runningOverMC_)
+                jecStr.push_back( fDir + "_L2L3Residual_AK7PFchs.txt" );
+        }
+        
         
         for (unsigned int i = 0; i < jecStr.size(); ++i){
             std::cout << "files: " << jecStr[i] << std::endl;
@@ -239,15 +242,15 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
             jecPars.push_back( *ijec );
         }
         
-//        jec_ = new FactorizedJetCorrector(jecPars);
+            //        jec_ = new FactorizedJetCorrector(jecPars);
         jec_ = boost::shared_ptr<FactorizedJetCorrector> ( new FactorizedJetCorrector(jecPars) );
         
         if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
-//            jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK5PFchs.txt" );
+                //            jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK5PFchs.txt" );
             jecUnc_ = boost::shared_ptr<JetCorrectionUncertainty>( new JetCorrectionUncertainty(fDir + "_Uncertainty_AK5PFchs.txt"));
-
+            
         }else{
-//            jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK7PFchs.txt" );
+                //            jecUnc_ = new JetCorrectionUncertainty( fDir + "_Uncertainty_AK7PFchs.txt" );
             jecUnc_ = boost::shared_ptr<JetCorrectionUncertainty>( new JetCorrectionUncertainty(fDir + "_Uncertainty_AK7PFchs.txt"));
         }
     }
@@ -268,7 +271,7 @@ ewk::GroomedJetFiller::GroomedJetFiller(const char *name,
     if( iConfig.existsAs<bool>("GroomedJet_doQJets") ) 
         mDoQJets=iConfig.getParameter< bool >("GroomedJet_doQJets");
     else mDoQJets = true;
-
+    
         // define charges of pdgIds
     neutrals.push_back( 22 ); neutrals.push_back( 130 ); neutrals.push_back( 310 ); neutrals.push_back( 311 ); neutrals.push_back( 111 ); 
     neutrals.push_back( 1 ); neutrals.push_back( 2 ); neutrals.push_back( 3 ); neutrals.push_back( 4 ); neutrals.push_back( 5 ); 
@@ -323,7 +326,7 @@ void ewk::GroomedJetFiller::SetBranch( int* x, std::string name)
 
     // ------------ method called to produce the data  ------------
 void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
-            
+    
         ////----------
         // init
     for (int j =0; j< NUM_JET_MAX; ++j) {
@@ -388,7 +391,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         }
     }
     
-
+    
         // ----- get handles... --------    
     std::string pfinput_ = mGroomedJet;    
     edm::Handle< std::vector<float> > PF_px_handle;
@@ -396,41 +399,41 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     edm::Handle< std::vector<float> > PF_pz_handle;
     edm::Handle< std::vector<float> > PF_en_handle;
     edm::Handle< std::vector<float> > PF_id_handle;
-
+    
     std::vector<float>  PF_id_handle_AK5;
     std::vector<float>  PF_id_handle_Gen;
     
     edm::Handle< reco::PFCandidateCollection > pfCandidates;
     edm::Handle<reco::GenParticleRefVector> genParticles;
     reco::GenParticleRefVector genParticlesforJets;
-
+    
     if( isGenJ ) {
-      iEvent.getByLabel(mGroomedJet, genParticles);
-       genParticlesforJets = *genParticles;
+        iEvent.getByLabel(mGroomedJet, genParticles);
+        genParticlesforJets = *genParticles;
     }else{
-      if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
-         iEvent.getByLabel(mGroomedJet,"pfCandidates",pfCandidates);
-      }else{
-         iEvent.getByLabel( pfinput_, "px" ,    PF_px_handle);
-         iEvent.getByLabel( pfinput_, "py" ,    PF_py_handle);
-         iEvent.getByLabel( pfinput_, "pz" ,    PF_pz_handle);
-         iEvent.getByLabel( pfinput_, "energy", PF_en_handle);
-         iEvent.getByLabel( pfinput_, "pdgId", PF_id_handle);
-      }
+        if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+            iEvent.getByLabel(mGroomedJet,"pfCandidates",pfCandidates);
+        }else{
+            iEvent.getByLabel( pfinput_, "px" ,    PF_px_handle);
+            iEvent.getByLabel( pfinput_, "py" ,    PF_py_handle);
+            iEvent.getByLabel( pfinput_, "pz" ,    PF_pz_handle);
+            iEvent.getByLabel( pfinput_, "energy", PF_en_handle);
+            iEvent.getByLabel( pfinput_, "pdgId", PF_id_handle);
+        }
     }
-
+    
         // ------ get rho --------    
     rhoVal_ = -99.;
     edm::Handle<double> rho;
     const edm::InputTag eventrho(JetsFor_rho, "rho");
     iEvent.getByLabel(eventrho,rho);
     rhoVal_ = *rho;
-
-//    sigmaVal_ = -99.;
-//    edm::Handle<double> sigma;
-//    const edm::InputTag eventsigma(JetsFor_rho, "sigma");
-//    iEvent.getByLabel(eventsigma,sigma);
-//    sigmaVal_ = *sigma;
+    
+        //    sigmaVal_ = -99.;
+        //    edm::Handle<double> sigma;
+        //    const edm::InputTag eventsigma(JetsFor_rho, "sigma");
+        //    iEvent.getByLabel(eventsigma,sigma);
+        //    sigmaVal_ = *sigma;
     
         // ------ get nPV: primary/secondary vertices------ 
     nPV_ = 0.;
@@ -453,36 +456,36 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     charge_handle_Gen.clear();
     std::vector<fastjet::PseudoJet> FJparticles;
     if(isGenJ){
-
-	for(size_t i = 0; i < genParticles->size(); ++ i) {
-             const reco::GenParticle&    P = *(genParticlesforJets[i]);
-             FJparticles.push_back( fastjet::PseudoJet( P.px(), 
- 						  P.py(),
-  						  P.pz(),
-      						  P.energy() ) );
-             PF_id_handle_Gen.push_back(P.pdgId());
-             charge_handle_Gen.push_back(P.charge());
+        
+        for(size_t i = 0; i < genParticles->size(); ++ i) {
+            const reco::GenParticle&    P = *(genParticlesforJets[i]);
+            FJparticles.push_back( fastjet::PseudoJet( P.px(), 
+                                                      P.py(),
+                                                      P.pz(),
+                                                      P.energy() ) );
+            PF_id_handle_Gen.push_back(P.pdgId());
+            charge_handle_Gen.push_back(P.charge());
         }
-
+        
     }else{
-      if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
-       for( reco::PFCandidateCollection::const_iterator ci  = pfCandidates->begin(); ci!=pfCandidates->end(); ++ci)  {
-         FJparticles.push_back( fastjet::PseudoJet( ci->px(), 
- 						  ci->py(),
-  						  ci->pz(),
- 						  ci->energy() ) );
-         PF_id_handle_AK5.push_back(ci->translateTypeToPdgId(ci->particleId()));
-       }
-      }else{
-         for (unsigned i = 0; i < PF_px_handle->size() ; i++){
-             FJparticles.push_back( fastjet::PseudoJet( PF_px_handle->at(i), 
-                                                     PF_py_handle->at(i), 
-                                                     PF_pz_handle->at(i), 
-                                                     PF_en_handle->at(i) ) );
-         }
-      }
+        if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+            for( reco::PFCandidateCollection::const_iterator ci  = pfCandidates->begin(); ci!=pfCandidates->end(); ++ci)  {
+                FJparticles.push_back( fastjet::PseudoJet( ci->px(), 
+                                                          ci->py(),
+                                                          ci->pz(),
+                                                          ci->energy() ) );
+                PF_id_handle_AK5.push_back(ci->translateTypeToPdgId(ci->particleId()));
+            }
+        }else{
+            for (unsigned i = 0; i < PF_px_handle->size() ; i++){
+                FJparticles.push_back( fastjet::PseudoJet( PF_px_handle->at(i), 
+                                                          PF_py_handle->at(i), 
+                                                          PF_pz_handle->at(i), 
+                                                          PF_en_handle->at(i) ) );
+            }
+        }
     }
-
+    
         // std::cout << "FJparticles.size() = " << FJparticles.size() << std::endl;
     if (FJparticles.size() < 1) return;
     
@@ -491,7 +494,7 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     if (mJetAlgo == "AK") jetDef.set_jet_algorithm( fastjet::antikt_algorithm );
     else if (mJetAlgo == "CA") jetDef.set_jet_algorithm( fastjet::cambridge_algorithm );
     else throw cms::Exception("GroomedJetFiller") << " unknown jet algorithm " << std::endl;
-
+    
     int activeAreaRepeats = 1;
     double ghostArea = 0.01;
     double ghostEtaMax = 5.0;
@@ -502,51 +505,51 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     fastjet::ClusterSequenceArea thisClustering(FJparticles, jetDef, fjAreaDefinition);
     
     std::vector<fastjet::PseudoJet> out_jets = sorted_by_pt(thisClustering.inclusive_jets(50.0));
-         if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
-				out_jets = sorted_by_pt(thisClustering.inclusive_jets(20.0));
+    if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
+        out_jets = sorted_by_pt(thisClustering.inclusive_jets(20.0));
     fastjet::ClusterSequence thisClustering_basic(FJparticles, jetDef);
     std::vector<fastjet::PseudoJet> out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(50.0));
-         if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
-				out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(20.0));    
+    if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
+        out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(20.0));    
     
-//        // -------------------------
-//        ////////////////////////////
-//        // temp
-//    std::cout << " ================ start JEC crosscheck ================" << std::endl;
-//    if(mJetAlgo == "CA" && fabs(mJetRadius-0.8)<0.001){
-//        std::cout << "out_jets[0].pT: " << out_jets[0].pt() << ", out_jets[0].m: " << out_jets[0].m() << std::endl;
-////        std::cout << "out_jets[0].pX: " << out_jets[0].px() << ", out_jets[0].pY: " << out_jets[0].py() << ", out_jets[0].pZ: " << out_jets[0].pz() << std::endl;
-//        std::cout << "out_jets[0].pT, corr: " << getCorrectedJet(out_jets[0]).Pt() << ", out_jets[0].m, corr: " << getCorrectedJet(out_jets[0]).M() << std::endl;
-//        edm::Handle<edm::View<pat::Jet> > ca8jethandle;
-//        iEvent.getByLabel( "selectedPatJetsCA8PF", ca8jethandle);
-//        edm::View<pat::Jet> ca8jets = *ca8jethandle;
-//        for(edm::View<pat::Jet>::const_iterator jet_iter = ca8jets.begin(); jet_iter!=ca8jets.end(); ++jet_iter){
-//            std::cout << "jet_iter.py = " << jet_iter->pt() << ", jet_iter.m = " << jet_iter->mass() << std::endl;
-//            std::cout << "jet_iter.py corr = " << jet_iter->correctedJet("Uncorrected").pt() << ", jet_iter.m corr = " << jet_iter->correctedJet("Uncorrected").mass() << std::endl;            
-//            for (unsigned int kk = 0; kk < jet_iter->availableJECLevels().size(); kk++){
-//                std::cout << "available jecLevels, " << kk << ": " << jet_iter->availableJECLevels().at(kk) << ", value: " << jet_iter->jecFactor(jet_iter->availableJECLevels().at(kk)) << std::endl;
-//            }
-//            reco::Candidate::LorentzVector uncorrJet = jet_iter->correctedP4(0);
-//
-//            jec_->setJetEta( uncorrJet.eta() );
-//            jec_->setJetPt ( uncorrJet.pt() );
-//            jec_->setJetE  ( uncorrJet.energy() );
-//            jec_->setJetA  ( jet_iter->jetArea() );
-////            jec_->setJetA  ( out_jets[0].area() );            
-//            jec_->setRho   ( rhoVal_ );
-//            jec_->setNPV   ( nPV_ );
-//            double corr = jec_->getCorrection();
-//            std::cout << "uncorrJet.eta() = " << uncorrJet.eta() << ", uncorrJet.pt() = " << uncorrJet.pt() << ", uncorrJet.area() = " << jet_iter->jetArea() << ", correction = " << corr << ", -- area... " << out_jets[0].area() << std::endl;
-////            for (unsigned int i = jec_->getSubCorrections().size(); i > 0 ; i--){
-////                std::cout << "corr #" << i-1 << ": ";
-////                std::cout << jec_->getSubCorrections()[i-1] << std::endl;
-////            }
-//        }
-//    }
-//    std::cout << " ================ end JEC crosscheck ================" << std::endl;
+        //        // -------------------------
+        //        ////////////////////////////
+        //        // temp
+        //    std::cout << " ================ start JEC crosscheck ================" << std::endl;
+        //    if(mJetAlgo == "CA" && fabs(mJetRadius-0.8)<0.001){
+        //        std::cout << "out_jets[0].pT: " << out_jets[0].pt() << ", out_jets[0].m: " << out_jets[0].m() << std::endl;
+        ////        std::cout << "out_jets[0].pX: " << out_jets[0].px() << ", out_jets[0].pY: " << out_jets[0].py() << ", out_jets[0].pZ: " << out_jets[0].pz() << std::endl;
+        //        std::cout << "out_jets[0].pT, corr: " << getCorrectedJet(out_jets[0]).Pt() << ", out_jets[0].m, corr: " << getCorrectedJet(out_jets[0]).M() << std::endl;
+        //        edm::Handle<edm::View<pat::Jet> > ca8jethandle;
+        //        iEvent.getByLabel( "selectedPatJetsCA8PF", ca8jethandle);
+        //        edm::View<pat::Jet> ca8jets = *ca8jethandle;
+        //        for(edm::View<pat::Jet>::const_iterator jet_iter = ca8jets.begin(); jet_iter!=ca8jets.end(); ++jet_iter){
+        //            std::cout << "jet_iter.py = " << jet_iter->pt() << ", jet_iter.m = " << jet_iter->mass() << std::endl;
+        //            std::cout << "jet_iter.py corr = " << jet_iter->correctedJet("Uncorrected").pt() << ", jet_iter.m corr = " << jet_iter->correctedJet("Uncorrected").mass() << std::endl;            
+        //            for (unsigned int kk = 0; kk < jet_iter->availableJECLevels().size(); kk++){
+        //                std::cout << "available jecLevels, " << kk << ": " << jet_iter->availableJECLevels().at(kk) << ", value: " << jet_iter->jecFactor(jet_iter->availableJECLevels().at(kk)) << std::endl;
+        //            }
+        //            reco::Candidate::LorentzVector uncorrJet = jet_iter->correctedP4(0);
+        //
+        //            jec_->setJetEta( uncorrJet.eta() );
+        //            jec_->setJetPt ( uncorrJet.pt() );
+        //            jec_->setJetE  ( uncorrJet.energy() );
+        //            jec_->setJetA  ( jet_iter->jetArea() );
+        ////            jec_->setJetA  ( out_jets[0].area() );            
+        //            jec_->setRho   ( rhoVal_ );
+        //            jec_->setNPV   ( nPV_ );
+        //            double corr = jec_->getCorrection();
+        //            std::cout << "uncorrJet.eta() = " << uncorrJet.eta() << ", uncorrJet.pt() = " << uncorrJet.pt() << ", uncorrJet.area() = " << jet_iter->jetArea() << ", correction = " << corr << ", -- area... " << out_jets[0].area() << std::endl;
+        ////            for (unsigned int i = jec_->getSubCorrections().size(); i > 0 ; i--){
+        ////                std::cout << "corr #" << i-1 << ": ";
+        ////                std::cout << jec_->getSubCorrections()[i-1] << std::endl;
+        ////            }
+        //        }
+        //    }
+        //    std::cout << " ================ end JEC crosscheck ================" << std::endl;
         ////////////////////////////    
         // -------------------------    
-
+    
         // define groomers
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, 0.2), fastjet::SelectorPtFractionMin(0.03)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, 0.3), fastjet::SelectorNHardest(3)));
@@ -559,18 +562,18 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     
         // define n-subjettiness
     NsubParameters paraNsub = NsubParameters(mNsubjettinessKappa, mJetRadius);   
-//    Nsubjettiness routine(nsub_kt_axes, paraNsub);
+        //    Nsubjettiness routine(nsub_kt_axes, paraNsub);
     Nsubjettiness routine(nsub_1pass_from_kt_axes, paraNsub);    
     
-
+    
         // -----------------------------------------------
         // -----------------------------------------------
         // s t a r t   l o o p   o n   j e t s
         // -----------------------------------------------
         // -----------------------------------------------
-//      cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
-
-
+        //      cout<<mJetAlgo<<"\t"<<mJetRadius<<endl;
+    
+    
     for (unsigned j = 0; j < out_jets.size()&&int(j)<NUM_JET_MAX; j++) {
         
         if (mSaveConstituents && j==0){
@@ -604,10 +607,10 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
             
             fastjet::PseudoJet transformedJet = out_jets.at(j);
             transformedJet = (**itransf)(transformedJet);
-
+            
             fastjet::PseudoJet transformedJet_basic = out_jets_basic.at(j);
             transformedJet_basic = (**itransf)(transformedJet_basic);
-
+            
             
             if (transctr == 0){ // trimmed
                 jetmass_tr_uncorr[j] = transformedJet.m();
@@ -646,9 +649,9 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
                     int nsubjetstokeep = 2;
                     std::vector<fastjet::PseudoJet> subjets = transformedJet_basic.associated_cluster_sequence()->exclusive_subjets(transformedJet_basic,nsubjetstokeep);    
                     
-//                    for (unsigned k = 0; k < subjets.size(); k++) {
-//                        std::cout << "subjet " << k << ": mass = " << subjets.at(k).m() << " and pt = " << subjets.at(k).pt() << std::endl;
-//                    }
+                        //                    for (unsigned k = 0; k < subjets.size(); k++) {
+                        //                        std::cout << "subjet " << k << ": mass = " << subjets.at(k).m() << " and pt = " << subjets.at(k).pt() << std::endl;
+                        //                    }
                     TLorentzVector sj1( subjets.at(0).px(),subjets.at(0).py(),subjets.at(0).pz(),subjets.at(0).e());
                     TLorentzVector sj2( subjets.at(1).px(),subjets.at(1).py(),subjets.at(1).pz(),subjets.at(1).e());     
                     
@@ -683,17 +686,17 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
             transctr++;
         }        
         
-       //std::cout<< "Beging the n-subjettiness computation" << endl; 
+            //std::cout<< "Beging the n-subjettiness computation" << endl; 
             // n-subjettiness  -------------
         tau1[j] = routine.getTau(1, out_jets.at(j).constituents()); 
         tau2[j] = routine.getTau(2, out_jets.at(j).constituents());
         tau3[j] = routine.getTau(3, out_jets.at(j).constituents());
         tau4[j] = routine.getTau(4, out_jets.at(j).constituents());
         tau2tau1[j] = tau2[j]/tau1[j];
-       
-       //std::cout<< "End the n-subjettiness computation" << endl;
+        
+            //std::cout<< "End the n-subjettiness computation" << endl;
             // cores computation  -------------
-        //std::cout<< "Beging the core computation" << endl;
+            //std::cout<< "Beging the core computation" << endl;
         std::vector<fastjet::PseudoJet> constits = thisClustering.constituents(out_jets.at(j));
         for (int kk = 0; kk < 11; ++kk){
             double coreCtr = (double) kk;    
@@ -704,22 +707,22 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
                 if (tmppt > 0) ptcores[kk][j] = tmppt/out_jets.at(j).pt();
             }
         }
-        //std::cout<< "Ending the core computation" << endl;
-
-        //std::cout<< "Beging the planarflow computation" << endl;
-
-        //planarflow computation
+            //std::cout<< "Ending the core computation" << endl;
+        
+            //std::cout<< "Beging the planarflow computation" << endl;
+        
+            //planarflow computation
         for (int kk = 0; kk < 11; ++kk){
-           double coreCtr = (double) (kk + 1);
-           if (coreCtr < mJetRadius*10.){
-               float tmppflow = 0;
-               computePlanarflow(constits,coreCtr/10.,out_jets.at(j),mJetAlgo,tmppflow);
-               planarflow[kk][j] = tmppflow;
-           }
+            double coreCtr = (double) (kk + 1);
+            if (coreCtr < mJetRadius*10.){
+                float tmppflow = 0;
+                computePlanarflow(constits,coreCtr/10.,out_jets.at(j),mJetAlgo,tmppflow);
+                planarflow[kk][j] = tmppflow;
+            }
         }
         
-        //std::cout<< "Ending the planarflow computation" << endl;
-
+            //std::cout<< "Ending the planarflow computation" << endl;
+        
             // qjets computation  -------------
         if ((mDoQJets)&&(j == 0)){ // do qjets only for the hardest jet in the event!
             double zcut(0.1), dcut_fctr(0.5), exp_min(0.), exp_max(0.), rigidity(0.1);                
@@ -732,23 +735,23 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
             for(unsigned int ii = 0 ; ii < (unsigned int) mQJetsN ; ii++){
                 fastjet::ClusterSequence qjet_seq(constits, qjet_def);
                 vector<fastjet::PseudoJet> inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(50.0));
-                      if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
- 					   inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(20.0));
-
+                if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001)
+                    inclusive_jets2 = sorted_by_pt(qjet_seq.inclusive_jets(20.0));
+                
                 if (inclusive_jets2.size()>0) {
-                  qjetmass[ii] = inclusive_jets2[0].m();
-                  if (inclusive_jets2[0].constituents().size() > 1){
-                      vector<fastjet::PseudoJet> subjets_qjet = qjet_seq.exclusive_subjets(inclusive_jets2[0],2);
-                      if (subjets_qjet.at(0).m() >= subjets_qjet.at(1).m()){
-                          qjetmassdrop[ii] = (subjets_qjet.at(0).m()/inclusive_jets2[0].m());                        
-                      }
-                      else{
-                          qjetmassdrop[ii] = (subjets_qjet.at(1).m()/inclusive_jets2[0].m());                                    
-                      }
-                  }
-                  else{
-                      qjetmassdrop[ii] = 1.;
-                  }
+                    qjetmass[ii] = inclusive_jets2[0].m();
+                    if (inclusive_jets2[0].constituents().size() > 1){
+                        vector<fastjet::PseudoJet> subjets_qjet = qjet_seq.exclusive_subjets(inclusive_jets2[0],2);
+                        if (subjets_qjet.at(0).m() >= subjets_qjet.at(1).m()){
+                            qjetmassdrop[ii] = (subjets_qjet.at(0).m()/inclusive_jets2[0].m());                        
+                        }
+                        else{
+                            qjetmassdrop[ii] = (subjets_qjet.at(1).m()/inclusive_jets2[0].m());                                    
+                        }
+                    }
+                    else{
+                        qjetmassdrop[ii] = 1.;
+                    }
                 }else{
                     qjetmassdrop[ii] = 1.;
                 }
@@ -759,18 +762,18 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         std::vector< float > pdgIds;
         for (unsigned ii = 0; ii < out_jets_basic.at(j).constituents().size(); ii++){
             for (unsigned jj = 0; jj < FJparticles.size(); jj++){
-//                std::cout << ii << ", " << jj << ": " << FJparticles.at(jj).pt() << ", " << out_jets_basic.at(j).constituents().at(ii).pt() << std::endl;
+                    //                std::cout << ii << ", " << jj << ": " << FJparticles.at(jj).pt() << ", " << out_jets_basic.at(j).constituents().at(ii).pt() << std::endl;
                 if (FJparticles.at(jj).pt() == out_jets_basic.at(j).constituents().at(ii).pt()){
-                  if(!isGenJ) {
-                    if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
-                          pdgIds.push_back(PF_id_handle_AK5.at(jj));
+                    if(!isGenJ) {
+                        if(mJetAlgo == "AK" && fabs(mJetRadius-0.5)<0.001) {
+                            pdgIds.push_back(PF_id_handle_AK5.at(jj));
+                        }else{
+                            pdgIds.push_back(PF_id_handle->at(jj));
+                        }
                     }else{
-                          pdgIds.push_back(PF_id_handle->at(jj));
+                        pdgIds.push_back(PF_id_handle_Gen.at(jj));
                     }
-                  }else{
-                    pdgIds.push_back(PF_id_handle_Gen.at(jj));
-                  }
-                  break;
+                    break;
                 }
             }
         }
@@ -834,94 +837,94 @@ void ewk::GroomedJetFiller::computeCore( std::vector<fastjet::PseudoJet> constit
 }
 
 void ewk::GroomedJetFiller::computePlanarflow(std::vector<fastjet::PseudoJet> constits, double Rval, fastjet::PseudoJet jet,std::string mJetAlgo, float &planarflow){
-
-   fastjet::JetDefinition jetDef_rplanarflow(fastjet::cambridge_algorithm,Rval);
-   if (mJetAlgo == "AK") jetDef_rplanarflow.set_jet_algorithm( fastjet::antikt_algorithm );
-   else if (mJetAlgo == "CA") jetDef_rplanarflow.set_jet_algorithm( fastjet::cambridge_algorithm );
-   else throw cms::Exception("GroomedJetFiller") << " unknown jet algorithm " << std::endl;
-   fastjet::ClusterSequence thisClustering(constits, jetDef_rplanarflow);
-
-   //reclustering jets
-   std::vector<fastjet::PseudoJet> out_jets = sorted_by_pt(thisClustering.inclusive_jets(0.0));
-
-   //leading sub jet constits mass not equal Zero
-   float mJ = jet.m();
-   if(mJ != 0)
-   {
-      std::vector<fastjet::PseudoJet> subconstits = thisClustering.constituents(out_jets.at(0)); 
-
-      TLorentzVector jetp4;
-      //jetp4.SetPxPyPzE(out_jets.at(0).px(),out_jets.at(0).py(),out_jets.at(0).pz(),out_jets.at(0).e());
-      jetp4.SetPxPyPzE(jet.px(),jet.py(),jet.pz(),jet.e());
-   
-      TVector3 zaxis = jetp4.Vect().Unit();
-      TVector3 zbeam(0, 0, 1);
-      
-      //Transverse component (X, Y) relative to the jet(Z) axis
-      TVector3 xaxis = (zaxis.Cross(zbeam)).Unit();
-      TVector3 yaxis = (xaxis.Cross(zaxis)).Unit();
-
-      double I[3][3];
-      for (int i = 0; i < 3; i ++) for (int j = 0; j < 3; j ++) I[i][j] = 0;
-      
-      int matrixsize = subconstits.size();
-
-      for(int k = 0; k < matrixsize; k++)
-      {   
-         TLorentzVector tmpjetk;
-         tmpjetk.SetPxPyPzE(subconstits.at(k).px(),subconstits.at(k).py(),subconstits.at(k).pz(),subconstits.at(k).e());
-         float tmp_px = tmpjetk.Vect().Dot(xaxis);
-         float tmp_py = tmpjetk.Vect().Dot(yaxis);
-         //Avoid Too Samll Energy
-         if(subconstits.at(k).e() >= 0.001){
-            
-           I[1][1] += tmp_px * tmp_px / (mJ * subconstits.at(k).e());
-           I[1][2] += tmp_px * tmp_py / (mJ * subconstits.at(k).e());
-           I[2][1] += tmp_py * tmp_px / (mJ * subconstits.at(k).e());
-           I[2][2] += tmp_py * tmp_py / (mJ * subconstits.at(k).e());
-
-         }
-      }
-
-      //From arXiv 1012.2077
-      planarflow = 4*(I[1][1]*I[2][2] - I[1][2]*I[2][1])/((I[1][1]+I[2][2])*(I[1][1]+I[2][2])); 
-   }
+    
+    fastjet::JetDefinition jetDef_rplanarflow(fastjet::cambridge_algorithm,Rval);
+    if (mJetAlgo == "AK") jetDef_rplanarflow.set_jet_algorithm( fastjet::antikt_algorithm );
+    else if (mJetAlgo == "CA") jetDef_rplanarflow.set_jet_algorithm( fastjet::cambridge_algorithm );
+    else throw cms::Exception("GroomedJetFiller") << " unknown jet algorithm " << std::endl;
+    fastjet::ClusterSequence thisClustering(constits, jetDef_rplanarflow);
+    
+        //reclustering jets
+    std::vector<fastjet::PseudoJet> out_jets = sorted_by_pt(thisClustering.inclusive_jets(0.0));
+    
+        //leading sub jet constits mass not equal Zero
+    float mJ = jet.m();
+    if(mJ != 0)
+        {
+        std::vector<fastjet::PseudoJet> subconstits = thisClustering.constituents(out_jets.at(0)); 
+        
+        TLorentzVector jetp4;
+            //jetp4.SetPxPyPzE(out_jets.at(0).px(),out_jets.at(0).py(),out_jets.at(0).pz(),out_jets.at(0).e());
+        jetp4.SetPxPyPzE(jet.px(),jet.py(),jet.pz(),jet.e());
+        
+        TVector3 zaxis = jetp4.Vect().Unit();
+        TVector3 zbeam(0, 0, 1);
+        
+            //Transverse component (X, Y) relative to the jet(Z) axis
+        TVector3 xaxis = (zaxis.Cross(zbeam)).Unit();
+        TVector3 yaxis = (xaxis.Cross(zaxis)).Unit();
+        
+        double I[3][3];
+        for (int i = 0; i < 3; i ++) for (int j = 0; j < 3; j ++) I[i][j] = 0;
+        
+        int matrixsize = subconstits.size();
+        
+        for(int k = 0; k < matrixsize; k++)
+            {   
+                TLorentzVector tmpjetk;
+                tmpjetk.SetPxPyPzE(subconstits.at(k).px(),subconstits.at(k).py(),subconstits.at(k).pz(),subconstits.at(k).e());
+                float tmp_px = tmpjetk.Vect().Dot(xaxis);
+                float tmp_py = tmpjetk.Vect().Dot(yaxis);
+                    //Avoid Too Samll Energy
+                if(subconstits.at(k).e() >= 0.001){
+                    
+                    I[1][1] += tmp_px * tmp_px / (mJ * subconstits.at(k).e());
+                    I[1][2] += tmp_px * tmp_py / (mJ * subconstits.at(k).e());
+                    I[2][1] += tmp_py * tmp_px / (mJ * subconstits.at(k).e());
+                    I[2][2] += tmp_py * tmp_py / (mJ * subconstits.at(k).e());
+                    
+                }
+            }
+        
+            //From arXiv 1012.2077
+        planarflow = 4*(I[1][1]*I[2][2] - I[1][2]*I[2][1])/((I[1][1]+I[2][2])*(I[1][1]+I[2][2])); 
+        }
 }
 
 float ewk::GroomedJetFiller::computeJetCharge( std::vector<fastjet::PseudoJet> constits, std::vector<float> pdgIds, float Ejet ){
-
-   float val = 0.;
-   for (unsigned int i = 0; i < pdgIds.size(); i++){
-      float qq ;
-      if(isGenJ) {
-         qq = charge_handle_Gen.at(i);
-      }else{
-         qq = getPdgIdCharge( pdgIds.at(i) );
-      }
-      val += qq*pow(constits.at(i).e(),mJetChargeKappa);
-   }
-   val /= Ejet;
-   return val;
-
+    
+    float val = 0.;
+    for (unsigned int i = 0; i < pdgIds.size(); i++){
+        float qq ;
+        if(isGenJ) {
+            qq = charge_handle_Gen.at(i);
+        }else{
+            qq = getPdgIdCharge( pdgIds.at(i) );
+        }
+        val += qq*pow(constits.at(i).e(),mJetChargeKappa);
+    }
+    val /= Ejet;
+    return val;
+    
 }
 
 float ewk::GroomedJetFiller::getPdgIdCharge( float fid ){
-
-   float qq = -99.;
-   int id = (int) fid;
-   if (std::find(neutrals.begin(), neutrals.end(), id) != neutrals.end()){
-      qq = 0.;
-   }
-   else if (std::find(positives.begin(), positives.end(), id) != positives.end()){
-      qq = 1.;
-   }
-   else if (std::find(negatives.begin(), negatives.end(), id) != negatives.end()){
-      qq = -1.;
-   }
-   else{
-      throw cms::Exception("GroomedJetFiller") << " unknown PDG id " << id << std::endl;
-   }
-   return qq;
+    
+    float qq = -99.;
+    int id = (int) fid;
+    if (std::find(neutrals.begin(), neutrals.end(), id) != neutrals.end()){
+        qq = 0.;
+    }
+    else if (std::find(positives.begin(), positives.end(), id) != positives.end()){
+        qq = 1.;
+    }
+    else if (std::find(negatives.begin(), negatives.end(), id) != negatives.end()){
+        qq = -1.;
+    }
+    else{
+        throw cms::Exception("GroomedJetFiller") << " unknown PDG id " << id << std::endl;
+    }
+    return qq;
 }
 
 
