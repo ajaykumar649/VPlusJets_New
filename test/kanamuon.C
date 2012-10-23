@@ -69,6 +69,27 @@
 #include "ClassifierOut/TMVAClassification_500_nJ3_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_550_nJ3_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ3_mu_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_500_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_550_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_600_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_700_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_700_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_700_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_800_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_800_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_800_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_900_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_900_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_900_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_1000_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_1000_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_1000_nJ3_mu_interferenceup_Likelihood.class.C"
 
 #include "ClassifierOut/TMVAClassification_noqg_nJ2_mu_BDT.class.C"
 #include "ClassifierOut/TMVAClassification_noqg_nJ3_mu_BDT.class.C"
@@ -111,7 +132,7 @@ const TString inQCDDir   = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtup
 //const TString outDataDir = "/eos/uscms/store/user/lnujj/postICHEP12/RDtreesPU5p2/";
 //const TString outDataDir = "/eos/uscms/store/user/smpjs/weizou/HCP2012/RDtreesPUCMSSW532/";
 //const TString outDataDir   = "/uscms_data/d3/weizou/MakeNtuple/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/";
-const TString outDataDir   = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample_New_v6/";
+const TString outDataDir   = "/uscmst1b_scratch/lpc1/3DayLifetime/weizou/ttHsample_New_v13/";
 //const TString outDataDir   = "/eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/";
 //const std::string fDir   = "EffTableDir/";
 const std::string fDir   = "EffTable2012/";
@@ -1115,6 +1136,9 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    Float_t mva2j500interferenceupmu = 999, mva2j550interferenceupmu = 999, mva2j600interferenceupmu = 999, mva2j700interferenceupmu = 999, mva2j800interferenceupmu = 999, mva2j900interferenceupmu = 999, mva2j1000interferenceupmu = 999;
 
    Float_t mva3j160mu = 999, mva3j170mu = 999, mva3j180mu = 999, mva3j190mu = 999, mva3j200mu = 999, mva3j250mu = 999, mva3j300mu = 999, mva3j350mu = 999, mva3j400mu = 999, mva3j450mu = 999, mva3j500mu = 999, mva3j550mu = 999, mva3j600mu = 999;
+   Float_t mva3j500interferencenominalmu = 999, mva3j550interferencenominalmu = 999, mva3j600interferencenominalmu = 999, mva3j700interferencenominalmu = 999, mva3j800interferencenominalmu = 999, mva3j900interferencenominalmu = 999, mva3j1000interferencenominalmu = 999;
+   Float_t mva3j500interferencedownmu = 999, mva3j550interferencedownmu = 999, mva3j600interferencedownmu = 999, mva3j700interferencedownmu = 999, mva3j800interferencedownmu = 999, mva3j900interferencedownmu = 999, mva3j1000interferencedownmu = 999;
+   Float_t mva3j500interferenceupmu = 999, mva3j550interferenceupmu = 999, mva3j600interferenceupmu = 999, mva3j700interferenceupmu = 999, mva3j800interferenceupmu = 999, mva3j900interferenceupmu = 999, mva3j1000interferenceupmu = 999;
    Float_t mva2jdibosonmu = 999,mva3jdibosonmu = 999, mva2jdibnoqgmu = 999,mva3jdibnoqgmu = 999;
    Float_t mvavbf160mu = 999, mvavbf170mu = 999, mvavbf180mu = 999, mvavbf190mu = 999, mvavbf200mu = 999, mvavbf250mu = 999, mvavbf300mu = 999, mvavbf350mu = 999, mvavbf400mu = 999, mvavbf450mu = 999, mvavbf500mu = 999, mvavbf550mu = 999, mvavbf600mu = 999;
 
@@ -1166,6 +1190,27 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j500mu   =  newtree->Branch("mva3j500mu",   &mva3j500mu,    "mva3j500mu/F");
    TBranch * branch_3j550mu   =  newtree->Branch("mva3j550mu",   &mva3j550mu,    "mva3j550mu/F");
    TBranch * branch_3j600mu   =  newtree->Branch("mva3j600mu",   &mva3j600mu,    "mva3j600mu/F");
+   TBranch * branch_3j500interferencenominalmu   =  newtree->Branch("mva3j500interferencenominalmu",   &mva3j500interferencenominalmu,    "mva3j500interferencenominalmu/F");
+   TBranch * branch_3j550interferencenominalmu   =  newtree->Branch("mva3j550interferencenominalmu",   &mva3j550interferencenominalmu,    "mva3j550interferencenominalmu/F");
+   TBranch * branch_3j600interferencenominalmu   =  newtree->Branch("mva3j600interferencenominalmu",   &mva3j600interferencenominalmu,    "mva3j600interferencenominalmu/F");
+   TBranch * branch_3j700interferencenominalmu   =  newtree->Branch("mva3j700interferencenominalmu",   &mva3j700interferencenominalmu,    "mva3j700interferencenominalmu/F");
+   TBranch * branch_3j800interferencenominalmu   =  newtree->Branch("mva3j800interferencenominalmu",   &mva3j800interferencenominalmu,    "mva3j800interferencenominalmu/F");
+   TBranch * branch_3j900interferencenominalmu   =  newtree->Branch("mva3j900interferencenominalmu",   &mva3j900interferencenominalmu,    "mva3j900interferencenominalmu/F");
+   TBranch * branch_3j1000interferencenominalmu   =  newtree->Branch("mva3j1000interferencenominalmu",   &mva3j1000interferencenominalmu,    "mva3j1000interferencenominalmu/F");
+   TBranch * branch_3j500interferenceupmu   =  newtree->Branch("mva3j500interferenceupmu",   &mva3j500interferenceupmu,    "mva3j500interferenceupmu/F");
+   TBranch * branch_3j550interferenceupmu   =  newtree->Branch("mva3j550interferenceupmu",   &mva3j550interferenceupmu,    "mva3j550interferenceupmu/F");
+   TBranch * branch_3j600interferenceupmu   =  newtree->Branch("mva3j600interferenceupmu",   &mva3j600interferenceupmu,    "mva3j600interferenceupmu/F");
+   TBranch * branch_3j700interferenceupmu   =  newtree->Branch("mva3j700interferenceupmu",   &mva3j700interferenceupmu,    "mva3j700interferenceupmu/F");
+   TBranch * branch_3j800interferenceupmu   =  newtree->Branch("mva3j800interferenceupmu",   &mva3j800interferenceupmu,    "mva3j800interferenceupmu/F");
+   TBranch * branch_3j900interferenceupmu   =  newtree->Branch("mva3j900interferenceupmu",   &mva3j900interferenceupmu,    "mva3j900interferenceupmu/F");
+   TBranch * branch_3j1000interferenceupmu   =  newtree->Branch("mva3j1000interferenceupmu",   &mva3j1000interferenceupmu,    "mva3j1000interferenceupmu/F");
+   TBranch * branch_3j500interferencedownmu   =  newtree->Branch("mva3j500interferencedownmu",   &mva3j500interferencedownmu,    "mva3j500interferencedownmu/F");
+   TBranch * branch_3j550interferencedownmu   =  newtree->Branch("mva3j550interferencedownmu",   &mva3j550interferencedownmu,    "mva3j550interferencedownmu/F");
+   TBranch * branch_3j600interferencedownmu   =  newtree->Branch("mva3j600interferencedownmu",   &mva3j600interferencedownmu,    "mva3j600interferencedownmu/F");
+   TBranch * branch_3j700interferencedownmu   =  newtree->Branch("mva3j700interferencedownmu",   &mva3j700interferencedownmu,    "mva3j700interferencedownmu/F");
+   TBranch * branch_3j800interferencedownmu   =  newtree->Branch("mva3j800interferencedownmu",   &mva3j800interferencedownmu,    "mva3j800interferencedownmu/F");
+   TBranch * branch_3j900interferencedownmu   =  newtree->Branch("mva3j900interferencedownmu",   &mva3j900interferencedownmu,    "mva3j900interferencedownmu/F");
+   TBranch * branch_3j1000interferencedownmu   =  newtree->Branch("mva3j1000interferencedownmu",   &mva3j1000interferencedownmu,    "mva3j1000interferencedownmu/F");
 
    TBranch * branch_2jdibosonmu   =  newtree->Branch("mva2jdibosonmu",   &mva2jdibosonmu,    "mva2jdibosonmu/F");
    TBranch * branch_3jdibosonmu   =  newtree->Branch("mva3jdibosonmu",   &mva3jdibosonmu,    "mva3jdibosonmu/F");
@@ -1462,8 +1507,13 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    //New Category for ttH analysis
    Int_t ttH_check_event = 0;
    Int_t ttH_event = 0, ttH_waj_id = -1, ttH_wbj_id = -1, ttH_toplvj_aj_id = -1, ttH_topjjj_aj_id = -1, ttH_dijetaj_id = -1, ttH_dijetbj_id = -1;
+   Int_t ttH_fitstatus = -1, ttH_fitNDF = -1;
+   Float_t ttH_fitchi2 = -999.;
    TBranch *branch_ttH_check_event = newtree->Branch("ttH_check_event", &ttH_check_event, "ttH_check_event/I");
    TBranch *branch_ttH_event = newtree->Branch("ttH_event", &ttH_event, "ttH_event/I");
+   TBranch *branch_ttH_fitstatus = newtree->Branch("ttH_fitstatus", &ttH_fitstatus, "ttH_fitstatus/I");
+   TBranch *branch_ttH_fitNDF = newtree->Branch("ttH_fitNDF", &ttH_fitNDF, "ttH_fitNDF/I");
+   TBranch *branch_ttH_fitchi2 = newtree->Branch("ttH_fitchi2", &ttH_fitchi2, "ttH_fitchi2/F");
    TBranch *branch_ttH_waj_id = newtree->Branch("ttH_waj_id", &ttH_waj_id, "ttH_waj_id/I");
    TBranch *branch_ttH_wbj_id = newtree->Branch("ttH_wbj_id", &ttH_wbj_id, "ttH_wbj_id/I");
    TBranch *branch_ttH_toplvj_aj_id = newtree->Branch("ttH_toplvj_aj_id", &ttH_toplvj_aj_id, "ttH_toplvj_aj_id/I");
@@ -1484,6 +1534,10 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    Float_t ttH_dijetajbj_deltaR = -999, ttH_dijetajbj_deltaphi = -999;
    Float_t ttH_dijet_e = -999, ttH_dijet_pt = -999, ttH_dijet_eta = -999, ttH_dijet_phi = -999, ttH_dijet_m = -999, ttH_dijet_y = -999;
    Float_t ttH_ditop_e = -999, ttH_ditop_pt = -999, ttH_ditop_eta = -999, ttH_ditop_phi = -999, ttH_ditop_m = -999, ttH_ditop_y = -999;
+   Float_t ttH_toplvjdijetaj_deltaR = -999, ttH_toplvjdijetaj_deltaphi = -999;
+   Float_t ttH_topjjjdijetaj_deltaR = -999, ttH_topjjjdijetaj_deltaphi = -999;
+   Float_t ttH_toplvjdijetbj_deltaR = -999, ttH_toplvjdijetbj_deltaphi = -999;
+   Float_t ttH_topjjjdijetbj_deltaR = -999, ttH_topjjjdijetbj_deltaphi = -999;
    Float_t ttH_toplvjdijet_deltaR = -999, ttH_toplvjdijet_deltaphi = -999;
    Float_t ttH_topjjjdijet_deltaR = -999, ttH_topjjjdijet_deltaphi = -999;
    Float_t ttH_ditopdijet_deltaR  = -999, ttH_ditopdijet_deltaphi = -999;
@@ -1569,13 +1623,21 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch *branch_ttH_ditop_m   =  newtree->Branch("ttH_ditop_m", &ttH_ditop_m, "ttH_ditop_m/F");
    TBranch *branch_ttH_ditop_y   =  newtree->Branch("ttH_ditop_y", &ttH_ditop_y, "ttH_ditop_y/F");
 
+   TBranch *branch_ttH_toplvjdijetaj_deltaR = newtree->Branch("ttH_toplvjdijetaj_deltaR", &ttH_toplvjdijetaj_deltaR, "ttH_toplvjdijetaj_deltaR/F");
+   TBranch *branch_ttH_toplvjdijetaj_deltaphi = newtree->Branch("ttH_toplvjdijetaj_deltaphi", &ttH_toplvjdijetaj_deltaphi, "ttH_toplvjdijetaj_deltaphi/F");
+   TBranch *branch_ttH_topjjjdijetaj_deltaR = newtree->Branch("ttH_topjjjdijetaj_deltaR", &ttH_topjjjdijetaj_deltaR, "ttH_topjjjdijetaj_deltaR/F");
+   TBranch *branch_ttH_topjjjdijetaj_deltaphi = newtree->Branch("ttH_topjjjdijetaj_deltaphi", &ttH_topjjjdijetaj_deltaphi, "ttH_topjjjdijetaj_deltaphi/F");
+   TBranch *branch_ttH_toplvjdijetbj_deltaR = newtree->Branch("ttH_toplvjdijetbj_deltaR", &ttH_toplvjdijetbj_deltaR, "ttH_toplvjdijetbj_deltaR/F");
+   TBranch *branch_ttH_toplvjdijetbj_deltaphi = newtree->Branch("ttH_toplvjdijetbj_deltaphi", &ttH_toplvjdijetbj_deltaphi, "ttH_toplvjdijetbj_deltaphi/F");
+   TBranch *branch_ttH_topjjjdijetbj_deltaR = newtree->Branch("ttH_topjjjdijetbj_deltaR", &ttH_topjjjdijetbj_deltaR, "ttH_topjjjdijetbj_deltaR/F");
+   TBranch *branch_ttH_topjjjdijetbj_deltaphi = newtree->Branch("ttH_topjjjdijetbj_deltaphi", &ttH_topjjjdijetbj_deltaphi, "ttH_topjjjdijetbj_deltaphi/F");
+
    TBranch *branch_ttH_ditopdijet_deltaR   =  newtree->Branch("ttH_ditopdijet_deltaR", &ttH_ditopdijet_deltaR, "ttH_ditopdijet_deltaR/F");
    TBranch *branch_ttH_ditopdijet_deltaphi =  newtree->Branch("ttH_ditopdijet_deltaphi", &ttH_ditopdijet_deltaphi, "ttH_ditopdijet_deltaphi/F");
    TBranch *branch_ttH_toplvjdijet_deltaR  =  newtree->Branch("ttH_toplvjdijet_deltaR", &ttH_toplvjdijet_deltaR, "ttH_toplvjdijet_deltaR/F");  
    TBranch *branch_ttH_toplvjdijet_deltaphi =  newtree->Branch("ttH_toplvjdijet_deltaphi", &ttH_toplvjdijet_deltaphi, "ttH_toplvjdijet_deltaphi/F");  
    TBranch *branch_ttH_topjjjdijet_deltaR  =  newtree->Branch("ttH_topjjjdijet_deltaR", &ttH_topjjjdijet_deltaR, "ttH_topjjjdijet_deltaR/F");  
    TBranch *branch_ttH_topjjjdijet_deltaphi =  newtree->Branch("ttH_topjjjdijet_deltaphi", &ttH_topjjjdijet_deltaphi, "ttH_topjjjdijet_deltaphi/F");  
-
    //End for the ttH analysis
 
    // For MVA analysis
@@ -1629,6 +1691,27 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA3j500mu mvaReader3j500mu( inputVarsMVA );  
    ReadMVA3j550mu mvaReader3j550mu( inputVarsMVA );  
    ReadMVA3j600mu mvaReader3j600mu( inputVarsMVA );  
+   ReadMVA3j500interferencedownmu mvaReader3j500interferencedownmu( inputVarsMVA );
+   ReadMVA3j500interferencenominalmu mvaReader3j500interferencenominalmu( inputVarsMVA );
+   ReadMVA3j500interferenceupmu mvaReader3j500interferenceupmu( inputVarsMVA );
+   ReadMVA3j550interferencedownmu mvaReader3j550interferencedownmu( inputVarsMVA );
+   ReadMVA3j550interferencenominalmu mvaReader3j550interferencenominalmu( inputVarsMVA );
+   ReadMVA3j550interferenceupmu mvaReader3j550interferenceupmu( inputVarsMVA );
+   ReadMVA3j600interferencedownmu mvaReader3j600interferencedownmu( inputVarsMVA );
+   ReadMVA3j600interferencenominalmu mvaReader3j600interferencenominalmu( inputVarsMVA );
+   ReadMVA3j600interferenceupmu mvaReader3j600interferenceupmu( inputVarsMVA );
+   ReadMVA3j700interferencedownmu mvaReader3j700interferencedownmu( inputVarsMVA );
+   ReadMVA3j700interferencenominalmu mvaReader3j700interferencenominalmu( inputVarsMVA );
+   ReadMVA3j700interferenceupmu mvaReader3j700interferenceupmu( inputVarsMVA );
+   ReadMVA3j800interferencedownmu mvaReader3j800interferencedownmu( inputVarsMVA );
+   ReadMVA3j800interferencenominalmu mvaReader3j800interferencenominalmu( inputVarsMVA );
+   ReadMVA3j800interferenceupmu mvaReader3j800interferenceupmu( inputVarsMVA );
+   ReadMVA3j900interferencedownmu mvaReader3j900interferencedownmu( inputVarsMVA );
+   ReadMVA3j900interferencenominalmu mvaReader3j900interferencenominalmu( inputVarsMVA );
+   ReadMVA3j900interferenceupmu mvaReader3j900interferenceupmu( inputVarsMVA );
+   ReadMVA3j1000interferencedownmu mvaReader3j1000interferencedownmu( inputVarsMVA );
+   ReadMVA3j1000interferencenominalmu mvaReader3j1000interferencenominalmu( inputVarsMVA );
+   ReadMVA3j1000interferenceupmu mvaReader3j1000interferenceupmu( inputVarsMVA );
 
    const char* DB_inputVars[] = { "W_pt", "event_met_pfmet", "W_muon_charge", "JetPFCor_QGLikelihood[0]", "JetPFCor_QGLikelihood[1]", "ang_hs", "ang_phib", "abs(JetPFCor_Eta[0]-JetPFCor_Eta[1])", "masslvjj" };
    std::vector<std::string> DB_inputVarsMVA;
@@ -1907,6 +1990,9 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       mva2j500interferencedownmu = 999; mva2j550interferencedownmu = 999; mva2j600interferencedownmu = 999; mva2j700interferencedownmu = 999; mva2j800interferencedownmu = 999; mva2j900interferencedownmu = 999; mva2j1000interferencedownmu = 999;
       mva2j500interferenceupmu = 999; mva2j550interferenceupmu = 999; mva2j600interferenceupmu = 999; mva2j700interferenceupmu = 999; mva2j800interferenceupmu = 999; mva2j900interferenceupmu = 999; mva2j1000interferenceupmu = 999;
       mva3j160mu = 999; mva3j170mu = 999; mva3j180mu = 999; mva3j190mu = 999; mva3j200mu = 999; mva3j250mu = 999; mva3j300mu = 999; mva3j350mu = 999; mva3j400mu = 999; mva3j450mu = 999; mva3j500mu = 999; mva3j550mu = 999; mva3j600mu = 999;
+      mva3j500interferencenominalmu = 999; mva3j550interferencenominalmu = 999; mva3j600interferencenominalmu = 999; mva3j700interferencenominalmu = 999; mva3j800interferencenominalmu = 999; mva3j900interferencenominalmu = 999; mva3j1000interferencenominalmu = 999;
+      mva3j500interferencedownmu = 999; mva3j550interferencedownmu = 999; mva3j600interferencedownmu = 999; mva3j700interferencedownmu = 999; mva3j800interferencedownmu = 999; mva3j900interferencedownmu = 999; mva3j1000interferencedownmu = 999;
+      mva3j500interferenceupmu = 999; mva3j550interferenceupmu = 999; mva3j600interferenceupmu = 999; mva3j700interferenceupmu = 999; mva3j800interferenceupmu = 999; mva3j900interferenceupmu = 999; mva3j1000interferenceupmu = 999;
       mva2jdibosonmu = 999; mva3jdibosonmu = 999; mva2jdibnoqgmu = 999; mva3jdibnoqgmu = 999;
       mvavbf160mu = 999; mvavbf170mu = 999; mvavbf180mu = 999; mvavbf190mu = 999; mvavbf200mu = 999; mvavbf250mu = 999; mvavbf300mu = 999; mvavbf350mu = 999; mvavbf400mu = 999; mvavbf450mu = 999; mvavbf500mu = 999; mvavbf550mu = 999; mvavbf600mu = 999;
 
@@ -1974,6 +2060,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       //ttH initilization
       ttH_check_event = 0;
       ttH_event = 0; ttH_waj_id = -1; ttH_wbj_id = -1; ttH_toplvj_aj_id = -1; ttH_topjjj_aj_id = -1; ttH_dijetaj_id = -1; ttH_dijetbj_id = -1;
+      ttH_fitstatus = -1; ttH_fitNDF = -1; ttH_fitchi2 = -999;
 
       ttH_wlv_e = -999; ttH_wlv_pt = -999; ttH_wlv_eta = -999; ttH_wlv_phi = -999; ttH_wlv_m = -999;
       ttH_waj_e = -999; ttH_waj_pt = -999; ttH_waj_eta = -999; ttH_waj_phi = -999; ttH_waj_m = -999;
@@ -1988,6 +2075,10 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       ttH_dijetajbj_deltaR = -999; ttH_dijetajbj_deltaphi = -999;
       ttH_dijet_e = -999; ttH_dijet_pt = -999; ttH_dijet_eta = -999; ttH_dijet_phi = -999; ttH_dijet_m = -999; ttH_dijet_y = -999;
       ttH_ditop_e = -999; ttH_ditop_pt = -999; ttH_ditop_eta = -999; ttH_ditop_phi = -999; ttH_ditop_m = -999; ttH_ditop_y = -999;
+      ttH_toplvjdijetaj_deltaR = -999; ttH_toplvjdijetaj_deltaphi = -999;
+      ttH_topjjjdijetaj_deltaR = -999; ttH_topjjjdijetaj_deltaphi = -999;
+      ttH_toplvjdijetbj_deltaR = -999; ttH_toplvjdijetbj_deltaphi = -999;
+      ttH_topjjjdijetbj_deltaR = -999; ttH_topjjjdijetbj_deltaphi = -999;
       ttH_toplvjdijet_deltaR = -999; ttH_toplvjdijet_deltaphi = -999;
       ttH_topjjjdijet_deltaR = -999; ttH_topjjjdijet_deltaphi = -999;
       ttH_ditopdijet_deltaR  = -999; ttH_ditopdijet_deltaphi = -999;
@@ -2036,7 +2127,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             interferencewtggH400 = (1 + interferencetableggH400.GetValue(W_H_mass_gen)[1]);
             interferencewt_upggH400 = ( 1 + interferencetableggH400.GetValue(W_H_mass_gen)[0]);
             interferencewt_downggH400 = ( 1 + interferencetableggH400.GetValue(W_H_mass_gen)[2]);
-            
+
             interferencewtggH450 = (1 + interferencetableggH450.GetValue(W_H_mass_gen)[1]);
             interferencewt_upggH450 = ( 1 + interferencetableggH450.GetValue(W_H_mass_gen)[0]);
             interferencewt_downggH450 = ( 1 + interferencetableggH450.GetValue(W_H_mass_gen)[2]);
@@ -2111,7 +2202,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             avecomplexpolewtggH180 = 1.0; avecomplexpolewtggH190 = 1.0; avecomplexpolewtggH200 = 1.0; avecomplexpolewtggH250 = 1.0; avecomplexpolewtggH300 = 1.0; avecomplexpolewtggH350 = 1.0; avecomplexpolewtggH400 = 1.0; avecomplexpolewtggH450 = 1.0; avecomplexpolewtggH500 = 1.0; avecomplexpolewtggH550 = 1.0; avecomplexpolewtggH600 = 1.0; avecomplexpolewtggH700 = 1.0; avecomplexpolewtggH800 = 1.0; avecomplexpolewtggH900 = 1.0; avecomplexpolewtggH1000 = 1.0;
          }
       }else{
-        interferencewtggH400=1.0; interferencewtggH450=1.0;  interferencewtggH500=1.0; interferencewtggH550=1.0; interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
+         interferencewtggH400=1.0; interferencewtggH450=1.0;  interferencewtggH500=1.0; interferencewtggH550=1.0; interferencewtggH600=1.0;interferencewtggH700=1.0;interferencewtggH800=1.0;interferencewtggH900=1.0;interferencewtggH1000=1.0;
          interferencewt_upggH400=1.0; interferencewt_upggH450=1.0; interferencewt_upggH500=1.0; interferencewt_upggH550=1.0; interferencewt_upggH600=1.0;interferencewt_upggH700=1.0;interferencewt_upggH800=1.0;interferencewt_upggH900=1.0;interferencewt_upggH1000=1.0;
          interferencewt_downggH400=1.0; interferencewt_downggH450=1.0; interferencewt_downggH500=1.0; interferencewt_downggH550=1.0; interferencewt_downggH600=1.0;interferencewt_downggH700=1.0;interferencewt_downggH800=1.0;interferencewt_downggH900=1.0;interferencewt_downggH1000=1.0;
          complexpolewtggH180 = 1.0; complexpolewtggH190 = 1.0; complexpolewtggH200 = 1.0; complexpolewtggH250 = 1.0; complexpolewtggH300 = 1.0; complexpolewtggH350 = 1.0; complexpolewtggH400 = 1.0; complexpolewtggH450 = 1.0; complexpolewtggH500 = 1.0; complexpolewtggH550 = 1.0; complexpolewtggH600 = 1.0; complexpolewtggH700 = 1.0; complexpolewtggH800 = 1.0; complexpolewtggH900 = 1.0; complexpolewtggH1000 = 1.0;
@@ -2336,6 +2427,27 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j500mu = (float) mvaReader3j500mu.GetMvaValue( mvaInputVal );
          mva3j550mu = (float) mvaReader3j550mu.GetMvaValue( mvaInputVal );
          mva3j600mu = (float) mvaReader3j600mu.GetMvaValue( mvaInputVal );
+         mva3j500interferencenominalmu = (float) mvaReader3j500interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j550interferencenominalmu = (float) mvaReader3j550interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j600interferencenominalmu = (float) mvaReader3j600interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j700interferencenominalmu = (float) mvaReader3j700interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j800interferencenominalmu = (float) mvaReader3j800interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j900interferencenominalmu = (float) mvaReader3j900interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j1000interferencenominalmu = (float) mvaReader3j1000interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j500interferencedownmu = (float) mvaReader3j500interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j550interferencedownmu = (float) mvaReader3j550interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j600interferencedownmu = (float) mvaReader3j600interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j700interferencedownmu = (float) mvaReader3j700interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j800interferencedownmu = (float) mvaReader3j800interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j900interferencedownmu = (float) mvaReader3j900interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j1000interferencedownmu = (float) mvaReader3j1000interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j500interferenceupmu = (float) mvaReader3j500interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j550interferenceupmu = (float) mvaReader3j550interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j600interferenceupmu = (float) mvaReader3j600interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j700interferenceupmu = (float) mvaReader3j700interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j800interferenceupmu = (float) mvaReader3j800interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j900interferenceupmu = (float) mvaReader3j900interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j1000interferenceupmu = (float) mvaReader3j1000interferenceupmu.GetMvaValue( mvaInputVal );
 
          std::vector<double> DB_mvaInputVal;
          DB_mvaInputVal.push_back( W_pt );
@@ -2799,7 +2911,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          }
 
          //if(njet >= 6 && ncsvmjet >= 2)
-         if(njet >= 6 && ncsvmjet >= 4)
+         //if(njet >= 6 && ncsvmjet >= 4)
+         if(njet >= 6)
          {
             ttH_check_event = 1;
 
@@ -2815,11 +2928,14 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             //find dijet jet index
             Int_t dijetindex[2] = {-1, -1}; 
 
-            Double_t lepsigma2 = 295.4;
-            Double_t sigma2 = 103.6; //From the PAS Top-11-009
-            Double_t sigma2top = 302.4; 
+            //Double_t lepsigma2 = 295.4;
+            //Double_t sigma2 = 103.6; //From the PAS Top-11-009
+            //Double_t sigma2top = 302.4; 
 
-            Double_t tmpfirstchi2 = 9.0e+30;
+            Double_t smallestfitchi2 = 9.0e+30;
+            Int_t smallestfitstatus = -1;
+            Int_t smallestfitNDF = -1;
+
 
             for ( Int_t iijet = 0; iijet < (njet ); ++iijet ) {//leptonic top jet
                for ( Int_t jjjet = 0; jjjet < (njet - 1); ++jjjet ) { //first hadronic top jet
@@ -2828,16 +2944,82 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                         if(jjjet == iijet || jjjet == lljet || kkjet == lljet) continue;
                         if(kkjet == iijet) continue;
                         if(lljet == iijet) continue;
-                        if(JetPFCor_bDiscriminatorCSV[jjjet] > btcsvl || JetPFCor_bDiscriminatorCSV[kkjet] > btcsvl) continue;
-                        if(JetPFCor_bDiscriminatorCSV[iijet] < btcsvl || JetPFCor_bDiscriminatorCSV[lljet] < btcsvl) continue;
-                        TLorentzVector tmpleptop = mup + nvp + jetsp4[iijet];
-                        TLorentzVector tmpvv = jetsp4[jjjet] + jetsp4[kkjet];
-                        Double_t tmpmass = tmpvv.M();
-                        TLorentzVector tmptop = jetsp4[jjjet] + jetsp4[kkjet] + jetsp4[lljet];
-                        Double_t tmptopmass = tmptop.M();
-                        Double_t reconstructionchi2 = TMath::Abs(tmpleptop.M() - 172.5) * TMath::Abs(tmpleptop.M() - 172.5) /lepsigma2 + TMath::Abs(tmpmass - 80.4) * TMath::Abs(tmpmass - 80.4)/sigma2 + TMath::Abs(tmptopmass - 172.5) * TMath::Abs(tmptopmass - 172.5)/sigma2top;
-                        if( tmpfirstchi2 > reconstructionchi2){
-                           tmpfirstchi2 = reconstructionchi2;
+                        //if(JetPFCor_bDiscriminatorCSV[jjjet] > btcsvl || JetPFCor_bDiscriminatorCSV[kkjet] > btcsvl) continue;
+                        //if(JetPFCor_bDiscriminatorCSV[iijet] < btcsvl || JetPFCor_bDiscriminatorCSV[lljet] < btcsvl) continue;
+                        //######################At least#########################
+                        //if((JetPFCor_bDiscriminatorCSV[jjjet] > btcsvl && JetPFCor_bDiscriminatorCSV[kkjet] > btcsvl)) continue;
+                        //if((JetPFCor_bDiscriminatorCSV[iijet] < btcsvl && JetPFCor_bDiscriminatorCSV[lljet] < btcsvl)) continue;
+                        //######################At least#########################
+                        //#####################At least Three CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        /*if((JetPFCor_bDiscriminatorCSV[iijet] < btcsvl && JetPFCor_bDiscriminatorCSV[lljet] < btcsvl)) continue;
+                          Int_t tmpdijetindex[2] = {-1, -1};
+                          Int_t tmpcount = 0;
+                          for(Int_t ijet = 0; ijet < njet; ijet++)
+                          {
+                          if(ijet == iijet || ijet == jjjet || ijet == kkjet || ijet == lljet) continue;
+                          tmpdijetindex[tmpcount] = ijet;
+                          tmpcount++;
+                          }
+                          if((JetPFCor_bDiscriminatorCSV[tmpdijetindex[0]] < btcsvl || JetPFCor_bDiscriminatorCSV[tmpdijetindex[1]] < btcsvl)) continue;
+                         */
+                        //#####################At least Three CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        //#####################Four CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        /*if((JetPFCor_bDiscriminatorCSV[iijet] < btcsvl || JetPFCor_bDiscriminatorCSV[lljet] < btcsvl)) continue;
+                        Int_t tmpdijetindex[2] = {-1, -1};
+                        Int_t tmpcount = 0;
+                        for(Int_t ijet = 0; ijet < njet; ijet++)
+                        {
+                           if(ijet == iijet || ijet == jjjet || ijet == kkjet || ijet == lljet) continue;
+                           tmpdijetindex[tmpcount] = ijet;
+                           tmpcount++;
+                        }
+                        if((JetPFCor_bDiscriminatorCSV[tmpdijetindex[0]] < btcsvl || JetPFCor_bDiscriminatorCSV[tmpdijetindex[1]] < btcsvl)) continue;
+                        */
+                        //#####################Four CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        //#####################==Three CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        /*if((JetPFCor_bDiscriminatorCSV[iijet] < btcsvl && JetPFCor_bDiscriminatorCSV[lljet] < btcsvl) || (JetPFCor_bDiscriminatorCSV[iijet] > btcsvl && JetPFCor_bDiscriminatorCSV[lljet] > btcsvl)) continue;
+                        Int_t tmpdijetindex[2] = {-1, -1};
+                        Int_t tmpcount = 0;
+                        for(Int_t ijet = 0; ijet < njet; ijet++)
+                        {
+                           if(ijet == iijet || ijet == jjjet || ijet == kkjet || ijet == lljet) continue;
+                           tmpdijetindex[tmpcount] = ijet;
+                           tmpcount++;
+                        }
+                        if((JetPFCor_bDiscriminatorCSV[tmpdijetindex[0]] < btcsvl || JetPFCor_bDiscriminatorCSV[tmpdijetindex[1]] < btcsvl)) continue;
+                        */
+                        //#####################==Three CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        //#####################==Three CSVL Btag Method, but don't require two extra jets should be csvl btag jets, Remove the Btag Veto Requirement########################################################
+                        Int_t tmpdijetindex[2] = {-1, -1};
+                        Int_t tmpcount = 0;
+                        for(Int_t ijet = 0; ijet < njet; ijet++)
+                        {
+                           if(ijet == iijet || ijet == jjjet || ijet == kkjet || ijet == lljet) continue;
+                           tmpdijetindex[tmpcount] = ijet;
+                           tmpcount++;
+                        }
+                        Int_t tmpnbtagcount = 0;
+                        if(JetPFCor_bDiscriminatorCSV[iijet] > btcsvl) tmpnbtagcount++;
+                        if(JetPFCor_bDiscriminatorCSV[lljet] > btcsvl) tmpnbtagcount++;
+                        if(JetPFCor_bDiscriminatorCSV[tmpdijetindex[0]] > btcsvl) tmpnbtagcount++;
+                        if(JetPFCor_bDiscriminatorCSV[tmpdijetindex[1]] > btcsvl) tmpnbtagcount++;
+                        if(tmpnbtagcount != 3) continue;
+                        //#####################==Three CSVL Btag Method, Remove the Btag Veto Requirement########################################################
+                        //TLorentzVector tmpleptop = mup + nvp + jetsp4[iijet];
+                        //TLorentzVector tmpvv = jetsp4[jjjet] + jetsp4[kkjet];
+                        //Double_t tmpmass = tmpvv.M();
+                        //TLorentzVector tmptop = jetsp4[jjjet] + jetsp4[kkjet] + jetsp4[lljet];
+                        //Double_t tmptopmass = tmptop.M();
+                        //Double_t reconstructionchi2 = TMath::Abs(tmpleptop.M() - 172.5) * TMath::Abs(tmpleptop.M() - 172.5) /lepsigma2 + TMath::Abs(tmpmass - 80.4) * TMath::Abs(tmpmass - 80.4)/sigma2 + TMath::Abs(tmptopmass - 172.5) * TMath::Abs(tmptopmass - 172.5)/sigma2top;
+                        Float_t reconstructionchi2 = 0.;
+                        Int_t tmpfitstatus = -1;
+                        Int_t tmpfitNDF = -1;
+                        dottHKinematicFit(mup, b_nvp, jetsp4[jjjet], jetsp4[kkjet], jetsp4[iijet], jetsp4[lljet], reconstructionchi2, tmpfitNDF, tmpfitstatus);
+                        if(tmpfitstatus != 0) continue;
+                        if( smallestfitchi2 > reconstructionchi2){
+                           smallestfitchi2 = reconstructionchi2;
+                           smallestfitstatus = tmpfitstatus;
+                           smallestfitNDF = tmpfitNDF;
                            topjetindex[0] = iijet;
                            topjetindex[1] = jjjet;
                            topjetindex[2] = kkjet;
@@ -2868,7 +3050,6 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                }
             }
 
-            //if(dijetindex[0] != -1 && dijetindex[1] != -1 && wjetindex[0] != -1 && wjetindex[1] != -1 && topbjetindex[0] != -1 && topbjetindex[1] != -1)
             if(dijetindex[0] != -1 && dijetindex[1] != -1 && topjetindex[0] != -1 && topjetindex[1] != -1 && topjetindex[2] != -1 && topjetindex[3] != -1)
             {
                dijetaj_p.SetPtEtaPhiE(jess * JetPFCor_Pt[dijetindex[0]], JetPFCor_Eta[dijetindex[0]], JetPFCor_Phi[dijetindex[0]], jess * JetPFCor_E[dijetindex[0]]);
@@ -2876,6 +3057,10 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                dijet_p = dijetaj_p + dijetbj_p;
 
                ttH_event = 1;
+
+               ttH_fitchi2 = smallestfitchi2;
+               ttH_fitstatus = smallestfitstatus;
+               ttH_fitNDF = smallestfitNDF;
 
                //Fill the value we want to store
                ttH_waj_id = topjetindex[1];
@@ -2973,11 +3158,24 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                ttH_dijet_m   = dijet_p.M();
                ttH_dijet_y   = dijet_p.Rapidity();
 
+               //DeltaR and DeltaPhi of Top and Anti-top and dijet subjet
+               ttH_toplvjdijetaj_deltaR = toplvj_p.DeltaR(dijetaj_p);
+               ttH_toplvjdijetaj_deltaphi = getDeltaPhi(toplvj_p.Phi(),dijetaj_p.Phi());
+
+               ttH_topjjjdijetaj_deltaR = topjjj_p.DeltaR(dijetaj_p);
+               ttH_topjjjdijetaj_deltaphi = getDeltaPhi(topjjj_p.Phi(),dijetaj_p.Phi());
+
+               ttH_toplvjdijetbj_deltaR = toplvj_p.DeltaR(dijetbj_p);
+               ttH_toplvjdijetbj_deltaphi = getDeltaPhi(toplvj_p.Phi(),dijetbj_p.Phi());
+
+               ttH_topjjjdijetbj_deltaR = topjjj_p.DeltaR(dijetbj_p);
+               ttH_topjjjdijetbj_deltaphi = getDeltaPhi(topjjj_p.Phi(),dijetbj_p.Phi());
+
                //DeltaR and DeltaPhi of TTbar and dijet
                ttH_topjjjdijet_deltaR = topjjj_p.DeltaR(dijet_p);
                ttH_topjjjdijet_deltaphi = getDeltaPhi(topjjj_p.Phi(),dijet_p.Phi());
 
-               ttH_toplvjdijet_deltaR = toplvj_p.DeltaR(dijetbj_p);
+               ttH_toplvjdijet_deltaR = toplvj_p.DeltaR(dijet_p);
                ttH_toplvjdijet_deltaphi = getDeltaPhi(toplvj_p.Phi(),dijet_p.Phi());
 
                ttH_ditopdijet_deltaR   = ditop_p.DeltaR(dijet_p);
@@ -3080,6 +3278,27 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j500mu->Fill();
       branch_3j550mu->Fill();
       branch_3j600mu->Fill();
+      branch_3j500interferencenominalmu->Fill();
+      branch_3j550interferencenominalmu->Fill();
+      branch_3j600interferencenominalmu->Fill();
+      branch_3j700interferencenominalmu->Fill();
+      branch_3j800interferencenominalmu->Fill();
+      branch_3j900interferencenominalmu->Fill();
+      branch_3j1000interferencenominalmu->Fill();
+      branch_3j500interferencedownmu->Fill();
+      branch_3j550interferencedownmu->Fill();
+      branch_3j600interferencedownmu->Fill();
+      branch_3j700interferencedownmu->Fill();
+      branch_3j800interferencedownmu->Fill();
+      branch_3j900interferencedownmu->Fill();
+      branch_3j1000interferencedownmu->Fill();
+      branch_3j500interferenceupmu->Fill();
+      branch_3j550interferenceupmu->Fill();
+      branch_3j600interferenceupmu->Fill();
+      branch_3j700interferenceupmu->Fill();
+      branch_3j800interferenceupmu->Fill();
+      branch_3j900interferenceupmu->Fill();
+      branch_3j1000interferenceupmu->Fill();
 
       branch_2jdibosonmu->Fill();
       branch_3jdibosonmu->Fill();
@@ -3310,6 +3529,9 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       //ttH Analysis
       branch_ttH_check_event->Fill();
       branch_ttH_event->Fill();
+      branch_ttH_fitchi2->Fill();
+      branch_ttH_fitstatus->Fill();
+      branch_ttH_fitNDF->Fill();
       branch_ttH_waj_id->Fill();
       branch_ttH_wbj_id->Fill();
       branch_ttH_toplvj_aj_id->Fill();
@@ -3397,6 +3619,15 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_ttH_ditop_phi->Fill();
       branch_ttH_ditop_m->Fill();
       branch_ttH_ditop_y->Fill();
+
+      branch_ttH_toplvjdijetaj_deltaR->Fill();
+      branch_ttH_toplvjdijetaj_deltaphi->Fill();
+      branch_ttH_topjjjdijetaj_deltaR->Fill();
+      branch_ttH_topjjjdijetaj_deltaphi->Fill();
+      branch_ttH_toplvjdijetbj_deltaR->Fill();
+      branch_ttH_toplvjdijetbj_deltaphi->Fill();
+      branch_ttH_topjjjdijetbj_deltaR->Fill();
+      branch_ttH_topjjjdijetbj_deltaphi->Fill();
 
       branch_ttH_ditopdijet_deltaR->Fill();
       branch_ttH_ditopdijet_deltaphi->Fill();
@@ -3722,6 +3953,141 @@ void kanamuon::calculateAngles(TLorentzVector& thep4M11, TLorentzVector& thep4M1
 
 }
 
+bool kanamuon::dottHKinematicFit(const TLorentzVector mup, const TLorentzVector nvp, const TLorentzVector wajp, const TLorentzVector wbjp, const TLorentzVector topajp, const TLorentzVector topbjp, Float_t & fit_chi2, Int_t & fit_NDF, Int_t & fit_status)
+{
+
+   bool OK                     = false;
+   Resolution* resolution      = new Resolution();
+
+   TMatrixD m1(3,3);
+   TMatrixD m2(3,3);
+   TMatrixD m3(3,3);
+   TMatrixD m4(3,3);
+   TMatrixD m5(3,3);
+   TMatrixD m6(3,3);
+   m1.Zero();
+   m2.Zero();
+   m3.Zero();
+   m4.Zero();
+   m5.Zero();
+   m6.Zero();
+
+   double etRes, etaRes, phiRes;
+   // lepton resolution
+   const std::string& leptonName = "muon";  const TLorentzVector lepton   = mup;
+   if(leptonName == "electron") {
+      OK = resolution->electronResolution(lepton.Et(), lepton.Eta(), etRes, etaRes, phiRes);
+      if(!OK) return OK;
+   } else {
+      OK = resolution->muonResolution(lepton.Et(), lepton.Eta(), etRes, etaRes, phiRes);
+      if(!OK) return OK;
+   }
+   m1(0,0) = resolution->square(etRes);
+   m1(1,1) = resolution->square(etaRes);
+   m1(2,2) = resolution->square(phiRes);
+   // MET resolution
+   OK = resolution->PFMETResolution( nvp.Et(), etRes, etaRes, phiRes);
+   if(!OK) return OK;
+   m2(0,0) = resolution->square(etRes);
+   m2(1,1) = 0.01; // resolution->square(etaRes)
+   m2(2,2) = resolution->square(phiRes);
+   // W aJet resolution
+   OK = resolution->udscPFJetResolution( wajp.Et(), wajp.Eta(), etRes, etaRes, phiRes);
+   if(!OK) return OK;
+   m3(0,0) = resolution->square(etRes);
+   m3(1,1) = resolution->square(etaRes);
+   m3(2,2) = resolution->square(phiRes);
+   // W bJet resolution
+   OK = resolution->udscPFJetResolution( wbjp.Et(), wbjp.Eta(), etRes, etaRes, phiRes);
+   if(!OK) return OK;
+   m4(0,0) = resolution->square(etRes);
+   m4(1,1) = resolution->square(etaRes);
+   m4(2,2) = resolution->square(phiRes);
+   //Top aJet resolution
+   OK = resolution->bPFJetResolution( topajp.Et(), topajp.Eta(), etRes, etaRes, phiRes);
+   if(!OK) return OK;
+   m5(0,0) = resolution->square(etRes);
+   m5(1,1) = resolution->square(etaRes);
+   m5(2,2) = resolution->square(phiRes);
+   //Top bJet resolution
+   OK = resolution->bPFJetResolution( topbjp.Et(), topbjp.Eta(), etRes, etaRes, phiRes);
+   if(!OK) return OK;
+   m6(0,0) = resolution->square(etRes);
+   m6(1,1) = resolution->square(etaRes);
+   m6(2,2) = resolution->square(phiRes);
+
+   TLorentzVector tmp_mup = mup;
+   TLorentzVector tmp_nvp = nvp;
+   TLorentzVector tmp_ajp = wajp;
+   TLorentzVector tmp_bjp = wbjp;
+   TLorentzVector tmp_topajp = topajp;
+   TLorentzVector tmp_topbjp = topbjp;
+
+   // Fit Particle
+   TFitParticleEtEtaPhi* particle1 = new TFitParticleEtEtaPhi( "Lepton",   "Lepton",   &tmp_mup,    &m1 );
+   TFitParticleEtEtaPhi* particle2 = new TFitParticleEtEtaPhi( "Neutrino", "Neutrino", &tmp_nvp,    &m2 );
+   TFitParticleEtEtaPhi* particle3 = new TFitParticleEtEtaPhi( "Jeta",     "Jeta",     &tmp_ajp,    &m3 );
+   TFitParticleEtEtaPhi* particle4 = new TFitParticleEtEtaPhi( "Jetb",     "Jetb",     &tmp_bjp,    &m4 );
+   TFitParticleEtEtaPhi* particle5 = new TFitParticleEtEtaPhi( "TopJeta",     "TopJeta",     &tmp_topajp,    &m5 );
+   TFitParticleEtEtaPhi* particle6 = new TFitParticleEtEtaPhi( "TopJetb",     "TopJetb",     &tmp_topbjp,    &m6 );
+
+   // Constraint
+   TFitConstraintMGaus* mCons1 = new TFitConstraintMGaus( "W1MassConstraint", "W1Mass-Constraint", 0, 0 , 80.399, 2.085);
+   mCons1->addParticles1( particle1, particle2 );
+
+   TFitConstraintMGaus* mCons2 = new TFitConstraintMGaus( "W2MassConstraint", "W2Mass-Constraint", 0, 0 , 80.399, 2.085);
+   mCons2->addParticles1( particle3, particle4 );
+
+   TFitConstraintMGaus* mCons3 = new TFitConstraintMGaus( "Top1MassConstraint", "Top1Mass-Constraint", 0, 0 , 172.5, 13.1);
+   mCons3->addParticles1( particle1, particle2, particle5 );
+
+   TFitConstraintMGaus* mCons4 = new TFitConstraintMGaus( "Top2MassConstraint", "Top2Mass-Constraint", 0, 0 , 172.5, 13.1);
+   mCons4->addParticles1( particle3, particle4, particle6 );
+
+   //Definition of the fitter
+   TKinFitter* fitter = new TKinFitter("fitter", "fitter");
+   fitter->addMeasParticle( particle1 );
+   fitter->addMeasParticle( particle2 );
+   fitter->addMeasParticle( particle3 );
+   fitter->addMeasParticle( particle4 );
+   fitter->addMeasParticle( particle5 );
+   fitter->addMeasParticle( particle6 );
+   fitter->addConstraint( mCons1 );
+   fitter->addConstraint( mCons2 );
+   fitter->addConstraint( mCons3 );
+   fitter->addConstraint( mCons4 );
+
+   //Set convergence criteria
+   fitter->setMaxNbIter( 50 );
+   fitter->setMaxDeltaS( 1e-2 );
+   fitter->setMaxF( 1e-1 );
+   fitter->setVerbosity(1);
+   fitter->fit();
+
+   //Return the kinematic fit results
+   fit_status   = fitter->getStatus();
+   fit_chi2     = fitter->getS();
+   fit_NDF      = fitter->getNDF();
+
+   if(fitter->getStatus() == 0) { OK = true;  } else { OK = false;  }
+   delete resolution;
+   delete particle1;
+   delete particle2;
+   delete particle3;
+   delete particle4;
+   delete particle5;
+   delete particle6;
+   delete mCons1;
+   delete mCons2;
+   delete mCons3;
+   delete mCons4;
+   delete fitter;
+
+   return OK;
+
+
+}
+
 // function used to fill the counters with preselction level cuts
 void kanamuon::InitCounters( const char* input_file_name, TH1F* h_events, TH1F* h_events_weighted)
 {
@@ -3746,3 +4112,5 @@ void kanamuon::InitCounters( const char* input_file_name, TH1F* h_events, TH1F* 
    }
    f -> Close();
 }
+
+

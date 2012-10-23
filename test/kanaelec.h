@@ -1391,6 +1391,15 @@ public :
 				   Float_t            & fit_chi2,
 				   Int_t              & fit_NDF, 
 				   Int_t              & fit_status);
+    virtual bool    dottHKinematicFit(const TLorentzVector     mup, 
+                                      const TLorentzVector     nvp, 
+                                      const TLorentzVector     wajp,
+                                      const TLorentzVector     wbjp,
+                                      const TLorentzVector     topajp,
+                                      const TLorentzVector     topbjp,
+                                       Float_t            & fit_chi2,
+                                       Int_t              & fit_NDF,
+                                       Int_t              & fit_status);
    virtual void     calculateAngles( TLorentzVector& thep4M11, TLorentzVector& thep4M12, TLorentzVector& thep4M21, TLorentzVector& thep4M22, double& costheta1, double& costheta2, double& phi, double& costhetastar, double& phistar1, double& phistar2);
    virtual void     InitCounters(const char* input_file_name, TH1F* h_events, TH1F* h_events_weighted);
 
