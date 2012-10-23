@@ -115,7 +115,6 @@ void findQCDfastNorm(bool domu=false,bool domva=false,
     MC_files.push_back( new TFile("InData/RD_mu_WW_CMSSW532.root", "READ") );
     MC_files.push_back( new TFile("InData/RD_mu_WZ_CMSSW532.root", "READ") );
     MC_files.push_back( new TFile("InData/RD_mu_ZZ_CMSSW532.root", "READ") );
-    MC_files.push_back( new TFile("InData/RD_mu_WpJ_CMSSW532.root", "READ") ); //temporary: for muons take the Wjets as QCD proxy: WRONG!
     MC_files.push_back( new TFile("InData/RD_mu_ZpJ_CMSSW532.root", "READ") );
     MC_files.push_back( new TFile("InData/RD_mu_TTbar_CMSSW532.root", "READ") );
     MC_files.push_back( new TFile("InData/RD_mu_STopS_T_CMSSW532.root", "READ") );
