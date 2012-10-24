@@ -570,7 +570,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   th1totClone->SetFillColor(1);
   th1totClone->SetLineColor(0);
   double binErr(0.0);
-  for(int i=0; i<th1totClone->GetNbinsX(); ++i) {
+  for(int i=1; i<=th1totClone->GetNbinsX(); ++i) {
     binErr = sqrt(
 		  (th1ww_ext->GetBinError(i))**2 +
 		  (th1qcd_ext->GetBinError(i))**2 +
@@ -690,7 +690,7 @@ void mkCutFlowControlPlotsErr(bool domu=false,bool domva=false,
   hhratio->GetYaxis()->SetLabelSize(0.1);
   hhratio->Divide(th1tot);
   double binError(0.0), mcbinentry(0.0), mcerror(0.0);
-  for(int i=0; i<hhratio->GetNbinsX(); ++i) {
+  for(int i=1; i<=hhratio->GetNbinsX(); ++i) {
     binError = hhratio->GetBinError(i);
     mcerror = th1tot->GetBinError(i);
     mcbinentry = th1tot->GetBinContent(i);
