@@ -35,6 +35,12 @@
 #include "ClassifierOut/TMVAClassification_500_nJ2_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_550_nJ2_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ2_mu_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_mu_interferenceup_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ2_mu_interferencedown_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ2_mu_interferencenominal_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ2_mu_interferenceup_Likelihood.class.C"
@@ -69,6 +75,12 @@
 #include "ClassifierOut/TMVAClassification_500_nJ3_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_550_nJ3_mu_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ3_mu_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_mu_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_mu_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_mu_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_mu_interferenceup_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ3_mu_interferencedown_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ3_mu_interferencenominal_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ3_mu_interferenceup_Likelihood.class.C"
@@ -1131,14 +1143,14 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_orgph=  newtree->Branch("philvjj",  &philvjj,   "philvjj/F");
 
    Float_t mva2j160mu = 999, mva2j170mu = 999, mva2j180mu = 999, mva2j190mu = 999, mva2j200mu = 999, mva2j250mu = 999, mva2j300mu = 999, mva2j350mu = 999, mva2j400mu = 999, mva2j450mu = 999, mva2j500mu = 999, mva2j550mu = 999, mva2j600mu = 999;
-   Float_t mva2j500interferencenominalmu = 999, mva2j550interferencenominalmu = 999, mva2j600interferencenominalmu = 999, mva2j700interferencenominalmu = 999, mva2j800interferencenominalmu = 999, mva2j900interferencenominalmu = 999, mva2j1000interferencenominalmu = 999;
-   Float_t mva2j500interferencedownmu = 999, mva2j550interferencedownmu = 999, mva2j600interferencedownmu = 999, mva2j700interferencedownmu = 999, mva2j800interferencedownmu = 999, mva2j900interferencedownmu = 999, mva2j1000interferencedownmu = 999;
-   Float_t mva2j500interferenceupmu = 999, mva2j550interferenceupmu = 999, mva2j600interferenceupmu = 999, mva2j700interferenceupmu = 999, mva2j800interferenceupmu = 999, mva2j900interferenceupmu = 999, mva2j1000interferenceupmu = 999;
+   Float_t mva2j400interferencenominalmu = 999, mva2j450interferencenominalmu = 999, mva2j500interferencenominalmu = 999, mva2j550interferencenominalmu = 999, mva2j600interferencenominalmu = 999, mva2j700interferencenominalmu = 999, mva2j800interferencenominalmu = 999, mva2j900interferencenominalmu = 999, mva2j1000interferencenominalmu = 999;
+   Float_t mva2j400interferencedownmu = 999, mva2j450interferencedownmu = 999, mva2j500interferencedownmu = 999, mva2j550interferencedownmu = 999, mva2j600interferencedownmu = 999, mva2j700interferencedownmu = 999, mva2j800interferencedownmu = 999, mva2j900interferencedownmu = 999, mva2j1000interferencedownmu = 999;
+   Float_t mva2j400interferenceupmu = 999, mva2j450interferenceupmu = 999, mva2j500interferenceupmu = 999, mva2j550interferenceupmu = 999, mva2j600interferenceupmu = 999, mva2j700interferenceupmu = 999, mva2j800interferenceupmu = 999, mva2j900interferenceupmu = 999, mva2j1000interferenceupmu = 999;
 
    Float_t mva3j160mu = 999, mva3j170mu = 999, mva3j180mu = 999, mva3j190mu = 999, mva3j200mu = 999, mva3j250mu = 999, mva3j300mu = 999, mva3j350mu = 999, mva3j400mu = 999, mva3j450mu = 999, mva3j500mu = 999, mva3j550mu = 999, mva3j600mu = 999;
-   Float_t mva3j500interferencenominalmu = 999, mva3j550interferencenominalmu = 999, mva3j600interferencenominalmu = 999, mva3j700interferencenominalmu = 999, mva3j800interferencenominalmu = 999, mva3j900interferencenominalmu = 999, mva3j1000interferencenominalmu = 999;
-   Float_t mva3j500interferencedownmu = 999, mva3j550interferencedownmu = 999, mva3j600interferencedownmu = 999, mva3j700interferencedownmu = 999, mva3j800interferencedownmu = 999, mva3j900interferencedownmu = 999, mva3j1000interferencedownmu = 999;
-   Float_t mva3j500interferenceupmu = 999, mva3j550interferenceupmu = 999, mva3j600interferenceupmu = 999, mva3j700interferenceupmu = 999, mva3j800interferenceupmu = 999, mva3j900interferenceupmu = 999, mva3j1000interferenceupmu = 999;
+   Float_t mva3j400interferencenominalmu = 999, mva3j450interferencenominalmu = 999, mva3j500interferencenominalmu = 999, mva3j550interferencenominalmu = 999, mva3j600interferencenominalmu = 999, mva3j700interferencenominalmu = 999, mva3j800interferencenominalmu = 999, mva3j900interferencenominalmu = 999, mva3j1000interferencenominalmu = 999;
+   Float_t mva3j400interferencedownmu = 999, mva3j450interferencedownmu = 999, mva3j500interferencedownmu = 999, mva3j550interferencedownmu = 999, mva3j600interferencedownmu = 999, mva3j700interferencedownmu = 999, mva3j800interferencedownmu = 999, mva3j900interferencedownmu = 999, mva3j1000interferencedownmu = 999;
+   Float_t mva3j400interferenceupmu = 999, mva3j450interferenceupmu = 999, mva3j500interferenceupmu = 999, mva3j550interferenceupmu = 999, mva3j600interferenceupmu = 999, mva3j700interferenceupmu = 999, mva3j800interferenceupmu = 999, mva3j900interferenceupmu = 999, mva3j1000interferenceupmu = 999;
    Float_t mva2jdibosonmu = 999,mva3jdibosonmu = 999, mva2jdibnoqgmu = 999,mva3jdibnoqgmu = 999;
    Float_t mvavbf160mu = 999, mvavbf170mu = 999, mvavbf180mu = 999, mvavbf190mu = 999, mvavbf200mu = 999, mvavbf250mu = 999, mvavbf300mu = 999, mvavbf350mu = 999, mvavbf400mu = 999, mvavbf450mu = 999, mvavbf500mu = 999, mvavbf550mu = 999, mvavbf600mu = 999;
 
@@ -1155,6 +1167,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j500mu   =  newtree->Branch("mva2j500mu",   &mva2j500mu,    "mva2j500mu/F");
    TBranch * branch_2j550mu   =  newtree->Branch("mva2j550mu",   &mva2j550mu,    "mva2j550mu/F");
    TBranch * branch_2j600mu   =  newtree->Branch("mva2j600mu",   &mva2j600mu,    "mva2j600mu/F");
+   TBranch * branch_2j400interferencenominalmu   =  newtree->Branch("mva2j400interferencenominalmu",   &mva2j400interferencenominalmu,    "mva2j400interferencenominalmu/F");
+   TBranch * branch_2j450interferencenominalmu   =  newtree->Branch("mva2j450interferencenominalmu",   &mva2j450interferencenominalmu,    "mva2j450interferencenominalmu/F");
    TBranch * branch_2j500interferencenominalmu   =  newtree->Branch("mva2j500interferencenominalmu",   &mva2j500interferencenominalmu,    "mva2j500interferencenominalmu/F");
    TBranch * branch_2j550interferencenominalmu   =  newtree->Branch("mva2j550interferencenominalmu",   &mva2j550interferencenominalmu,    "mva2j550interferencenominalmu/F");
    TBranch * branch_2j600interferencenominalmu   =  newtree->Branch("mva2j600interferencenominalmu",   &mva2j600interferencenominalmu,    "mva2j600interferencenominalmu/F");
@@ -1162,6 +1176,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j800interferencenominalmu   =  newtree->Branch("mva2j800interferencenominalmu",   &mva2j800interferencenominalmu,    "mva2j800interferencenominalmu/F");
    TBranch * branch_2j900interferencenominalmu   =  newtree->Branch("mva2j900interferencenominalmu",   &mva2j900interferencenominalmu,    "mva2j900interferencenominalmu/F");
    TBranch * branch_2j1000interferencenominalmu   =  newtree->Branch("mva2j1000interferencenominalmu",   &mva2j1000interferencenominalmu,    "mva2j1000interferencenominalmu/F");
+   TBranch * branch_2j400interferenceupmu   =  newtree->Branch("mva2j400interferenceupmu",   &mva2j400interferenceupmu,    "mva2j400interferenceupmu/F");
+   TBranch * branch_2j450interferenceupmu   =  newtree->Branch("mva2j450interferenceupmu",   &mva2j450interferenceupmu,    "mva2j450interferenceupmu/F");
    TBranch * branch_2j500interferenceupmu   =  newtree->Branch("mva2j500interferenceupmu",   &mva2j500interferenceupmu,    "mva2j500interferenceupmu/F");
    TBranch * branch_2j550interferenceupmu   =  newtree->Branch("mva2j550interferenceupmu",   &mva2j550interferenceupmu,    "mva2j550interferenceupmu/F");
    TBranch * branch_2j600interferenceupmu   =  newtree->Branch("mva2j600interferenceupmu",   &mva2j600interferenceupmu,    "mva2j600interferenceupmu/F");
@@ -1169,6 +1185,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j800interferenceupmu   =  newtree->Branch("mva2j800interferenceupmu",   &mva2j800interferenceupmu,    "mva2j800interferenceupmu/F");
    TBranch * branch_2j900interferenceupmu   =  newtree->Branch("mva2j900interferenceupmu",   &mva2j900interferenceupmu,    "mva2j900interferenceupmu/F");
    TBranch * branch_2j1000interferenceupmu   =  newtree->Branch("mva2j1000interferenceupmu",   &mva2j1000interferenceupmu,    "mva2j1000interferenceupmu/F");
+   TBranch * branch_2j400interferencedownmu   =  newtree->Branch("mva2j400interferencedownmu",   &mva2j400interferencedownmu,    "mva2j400interferencedownmu/F");
+   TBranch * branch_2j450interferencedownmu   =  newtree->Branch("mva2j450interferencedownmu",   &mva2j450interferencedownmu,    "mva2j450interferencedownmu/F");
    TBranch * branch_2j500interferencedownmu   =  newtree->Branch("mva2j500interferencedownmu",   &mva2j500interferencedownmu,    "mva2j500interferencedownmu/F");
    TBranch * branch_2j550interferencedownmu   =  newtree->Branch("mva2j550interferencedownmu",   &mva2j550interferencedownmu,    "mva2j550interferencedownmu/F");
    TBranch * branch_2j600interferencedownmu   =  newtree->Branch("mva2j600interferencedownmu",   &mva2j600interferencedownmu,    "mva2j600interferencedownmu/F");
@@ -1190,6 +1208,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j500mu   =  newtree->Branch("mva3j500mu",   &mva3j500mu,    "mva3j500mu/F");
    TBranch * branch_3j550mu   =  newtree->Branch("mva3j550mu",   &mva3j550mu,    "mva3j550mu/F");
    TBranch * branch_3j600mu   =  newtree->Branch("mva3j600mu",   &mva3j600mu,    "mva3j600mu/F");
+   TBranch * branch_3j400interferencenominalmu   =  newtree->Branch("mva3j400interferencenominalmu",   &mva3j400interferencenominalmu,    "mva3j400interferencenominalmu/F");
+   TBranch * branch_3j450interferencenominalmu   =  newtree->Branch("mva3j450interferencenominalmu",   &mva3j450interferencenominalmu,    "mva3j450interferencenominalmu/F");
    TBranch * branch_3j500interferencenominalmu   =  newtree->Branch("mva3j500interferencenominalmu",   &mva3j500interferencenominalmu,    "mva3j500interferencenominalmu/F");
    TBranch * branch_3j550interferencenominalmu   =  newtree->Branch("mva3j550interferencenominalmu",   &mva3j550interferencenominalmu,    "mva3j550interferencenominalmu/F");
    TBranch * branch_3j600interferencenominalmu   =  newtree->Branch("mva3j600interferencenominalmu",   &mva3j600interferencenominalmu,    "mva3j600interferencenominalmu/F");
@@ -1197,6 +1217,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j800interferencenominalmu   =  newtree->Branch("mva3j800interferencenominalmu",   &mva3j800interferencenominalmu,    "mva3j800interferencenominalmu/F");
    TBranch * branch_3j900interferencenominalmu   =  newtree->Branch("mva3j900interferencenominalmu",   &mva3j900interferencenominalmu,    "mva3j900interferencenominalmu/F");
    TBranch * branch_3j1000interferencenominalmu   =  newtree->Branch("mva3j1000interferencenominalmu",   &mva3j1000interferencenominalmu,    "mva3j1000interferencenominalmu/F");
+   TBranch * branch_3j400interferenceupmu   =  newtree->Branch("mva3j400interferenceupmu",   &mva3j400interferenceupmu,    "mva3j400interferenceupmu/F");
+   TBranch * branch_3j450interferenceupmu   =  newtree->Branch("mva3j450interferenceupmu",   &mva3j450interferenceupmu,    "mva3j450interferenceupmu/F");
    TBranch * branch_3j500interferenceupmu   =  newtree->Branch("mva3j500interferenceupmu",   &mva3j500interferenceupmu,    "mva3j500interferenceupmu/F");
    TBranch * branch_3j550interferenceupmu   =  newtree->Branch("mva3j550interferenceupmu",   &mva3j550interferenceupmu,    "mva3j550interferenceupmu/F");
    TBranch * branch_3j600interferenceupmu   =  newtree->Branch("mva3j600interferenceupmu",   &mva3j600interferenceupmu,    "mva3j600interferenceupmu/F");
@@ -1204,6 +1226,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j800interferenceupmu   =  newtree->Branch("mva3j800interferenceupmu",   &mva3j800interferenceupmu,    "mva3j800interferenceupmu/F");
    TBranch * branch_3j900interferenceupmu   =  newtree->Branch("mva3j900interferenceupmu",   &mva3j900interferenceupmu,    "mva3j900interferenceupmu/F");
    TBranch * branch_3j1000interferenceupmu   =  newtree->Branch("mva3j1000interferenceupmu",   &mva3j1000interferenceupmu,    "mva3j1000interferenceupmu/F");
+   TBranch * branch_3j400interferencedownmu   =  newtree->Branch("mva3j400interferencedownmu",   &mva3j400interferencedownmu,    "mva3j400interferencedownmu/F");
+   TBranch * branch_3j450interferencedownmu   =  newtree->Branch("mva3j450interferencedownmu",   &mva3j450interferencedownmu,    "mva3j450interferencedownmu/F");
    TBranch * branch_3j500interferencedownmu   =  newtree->Branch("mva3j500interferencedownmu",   &mva3j500interferencedownmu,    "mva3j500interferencedownmu/F");
    TBranch * branch_3j550interferencedownmu   =  newtree->Branch("mva3j550interferencedownmu",   &mva3j550interferencedownmu,    "mva3j550interferencedownmu/F");
    TBranch * branch_3j600interferencedownmu   =  newtree->Branch("mva3j600interferencedownmu",   &mva3j600interferencedownmu,    "mva3j600interferencedownmu/F");
@@ -1657,6 +1681,12 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA2j500mu mvaReader2j500mu( inputVarsMVA );  
    ReadMVA2j550mu mvaReader2j550mu( inputVarsMVA );  
    ReadMVA2j600mu mvaReader2j600mu( inputVarsMVA );  
+   ReadMVA2j400interferencedownmu mvaReader2j400interferencedownmu( inputVarsMVA );
+   ReadMVA2j400interferencenominalmu mvaReader2j400interferencenominalmu( inputVarsMVA );
+   ReadMVA2j400interferenceupmu mvaReader2j400interferenceupmu( inputVarsMVA );
+   ReadMVA2j450interferencedownmu mvaReader2j450interferencedownmu( inputVarsMVA );
+   ReadMVA2j450interferencenominalmu mvaReader2j450interferencenominalmu( inputVarsMVA );
+   ReadMVA2j450interferenceupmu mvaReader2j450interferenceupmu( inputVarsMVA );
    ReadMVA2j500interferencedownmu mvaReader2j500interferencedownmu( inputVarsMVA );
    ReadMVA2j500interferencenominalmu mvaReader2j500interferencenominalmu( inputVarsMVA );
    ReadMVA2j500interferenceupmu mvaReader2j500interferenceupmu( inputVarsMVA );
@@ -1691,6 +1721,12 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA3j500mu mvaReader3j500mu( inputVarsMVA );  
    ReadMVA3j550mu mvaReader3j550mu( inputVarsMVA );  
    ReadMVA3j600mu mvaReader3j600mu( inputVarsMVA );  
+   ReadMVA3j400interferencedownmu mvaReader3j400interferencedownmu( inputVarsMVA );
+   ReadMVA3j400interferencenominalmu mvaReader3j400interferencenominalmu( inputVarsMVA );
+   ReadMVA3j400interferenceupmu mvaReader3j400interferenceupmu( inputVarsMVA );
+   ReadMVA3j450interferencedownmu mvaReader3j450interferencedownmu( inputVarsMVA );
+   ReadMVA3j450interferencenominalmu mvaReader3j450interferencenominalmu( inputVarsMVA );
+   ReadMVA3j450interferenceupmu mvaReader3j450interferenceupmu( inputVarsMVA );
    ReadMVA3j500interferencedownmu mvaReader3j500interferencedownmu( inputVarsMVA );
    ReadMVA3j500interferencenominalmu mvaReader3j500interferencenominalmu( inputVarsMVA );
    ReadMVA3j500interferenceupmu mvaReader3j500interferenceupmu( inputVarsMVA );
@@ -1986,13 +2022,13 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       masslvjj=-999; ptlvjj    =-999; ylvjj   =-999;philvjj   =-999;
 
       mva2j160mu = 999; mva2j170mu = 999; mva2j180mu = 999; mva2j190mu = 999; mva2j200mu = 999; mva2j250mu = 999; mva2j300mu = 999; mva2j350mu = 999; mva2j400mu = 999; mva2j450mu = 999; mva2j500mu = 999; mva2j550mu = 999; mva2j600mu = 999;
-      mva2j500interferencenominalmu = 999; mva2j550interferencenominalmu = 999; mva2j600interferencenominalmu = 999; mva2j700interferencenominalmu = 999; mva2j800interferencenominalmu = 999; mva2j900interferencenominalmu = 999; mva2j1000interferencenominalmu = 999;
-      mva2j500interferencedownmu = 999; mva2j550interferencedownmu = 999; mva2j600interferencedownmu = 999; mva2j700interferencedownmu = 999; mva2j800interferencedownmu = 999; mva2j900interferencedownmu = 999; mva2j1000interferencedownmu = 999;
-      mva2j500interferenceupmu = 999; mva2j550interferenceupmu = 999; mva2j600interferenceupmu = 999; mva2j700interferenceupmu = 999; mva2j800interferenceupmu = 999; mva2j900interferenceupmu = 999; mva2j1000interferenceupmu = 999;
+      mva2j400interferencenominalmu = 999; mva2j450interferencenominalmu = 999; mva2j500interferencenominalmu = 999; mva2j550interferencenominalmu = 999; mva2j600interferencenominalmu = 999; mva2j700interferencenominalmu = 999; mva2j800interferencenominalmu = 999; mva2j900interferencenominalmu = 999; mva2j1000interferencenominalmu = 999;
+      mva2j400interferencedownmu = 999; mva2j450interferencedownmu = 999; mva2j500interferencedownmu = 999; mva2j550interferencedownmu = 999; mva2j600interferencedownmu = 999; mva2j700interferencedownmu = 999; mva2j800interferencedownmu = 999; mva2j900interferencedownmu = 999; mva2j1000interferencedownmu = 999;
+      mva2j400interferenceupmu = 999; mva2j450interferenceupmu = 999; mva2j500interferenceupmu = 999; mva2j550interferenceupmu = 999; mva2j600interferenceupmu = 999; mva2j700interferenceupmu = 999; mva2j800interferenceupmu = 999; mva2j900interferenceupmu = 999; mva2j1000interferenceupmu = 999;
       mva3j160mu = 999; mva3j170mu = 999; mva3j180mu = 999; mva3j190mu = 999; mva3j200mu = 999; mva3j250mu = 999; mva3j300mu = 999; mva3j350mu = 999; mva3j400mu = 999; mva3j450mu = 999; mva3j500mu = 999; mva3j550mu = 999; mva3j600mu = 999;
-      mva3j500interferencenominalmu = 999; mva3j550interferencenominalmu = 999; mva3j600interferencenominalmu = 999; mva3j700interferencenominalmu = 999; mva3j800interferencenominalmu = 999; mva3j900interferencenominalmu = 999; mva3j1000interferencenominalmu = 999;
-      mva3j500interferencedownmu = 999; mva3j550interferencedownmu = 999; mva3j600interferencedownmu = 999; mva3j700interferencedownmu = 999; mva3j800interferencedownmu = 999; mva3j900interferencedownmu = 999; mva3j1000interferencedownmu = 999;
-      mva3j500interferenceupmu = 999; mva3j550interferenceupmu = 999; mva3j600interferenceupmu = 999; mva3j700interferenceupmu = 999; mva3j800interferenceupmu = 999; mva3j900interferenceupmu = 999; mva3j1000interferenceupmu = 999;
+      mva3j400interferencenominalmu = 999; mva3j450interferencenominalmu = 999; mva3j500interferencenominalmu = 999; mva3j550interferencenominalmu = 999; mva3j600interferencenominalmu = 999; mva3j700interferencenominalmu = 999; mva3j800interferencenominalmu = 999; mva3j900interferencenominalmu = 999; mva3j1000interferencenominalmu = 999;
+      mva3j400interferencedownmu = 999; mva3j450interferencedownmu = 999; mva3j500interferencedownmu = 999; mva3j550interferencedownmu = 999; mva3j600interferencedownmu = 999; mva3j700interferencedownmu = 999; mva3j800interferencedownmu = 999; mva3j900interferencedownmu = 999; mva3j1000interferencedownmu = 999;
+      mva3j400interferenceupmu = 999; mva3j450interferenceupmu = 999; mva3j500interferenceupmu = 999; mva3j550interferenceupmu = 999; mva3j600interferenceupmu = 999; mva3j700interferenceupmu = 999; mva3j800interferenceupmu = 999; mva3j900interferenceupmu = 999; mva3j1000interferenceupmu = 999;
       mva2jdibosonmu = 999; mva3jdibosonmu = 999; mva2jdibnoqgmu = 999; mva3jdibnoqgmu = 999;
       mvavbf160mu = 999; mvavbf170mu = 999; mvavbf180mu = 999; mvavbf190mu = 999; mvavbf200mu = 999; mvavbf250mu = 999; mvavbf300mu = 999; mvavbf350mu = 999; mvavbf400mu = 999; mvavbf450mu = 999; mvavbf500mu = 999; mvavbf550mu = 999; mvavbf600mu = 999;
 
@@ -2393,6 +2429,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j500mu = (float) mvaReader2j500mu.GetMvaValue( mvaInputVal );
          mva2j550mu = (float) mvaReader2j550mu.GetMvaValue( mvaInputVal );
          mva2j600mu = (float) mvaReader2j600mu.GetMvaValue( mvaInputVal );
+         mva2j400interferencenominalmu = (float) mvaReader2j400interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva2j450interferencenominalmu = (float) mvaReader2j450interferencenominalmu.GetMvaValue( mvaInputVal );
          mva2j500interferencenominalmu = (float) mvaReader2j500interferencenominalmu.GetMvaValue( mvaInputVal );
          mva2j550interferencenominalmu = (float) mvaReader2j550interferencenominalmu.GetMvaValue( mvaInputVal );
          mva2j600interferencenominalmu = (float) mvaReader2j600interferencenominalmu.GetMvaValue( mvaInputVal );
@@ -2400,6 +2438,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j800interferencenominalmu = (float) mvaReader2j800interferencenominalmu.GetMvaValue( mvaInputVal );
          mva2j900interferencenominalmu = (float) mvaReader2j900interferencenominalmu.GetMvaValue( mvaInputVal );
          mva2j1000interferencenominalmu = (float) mvaReader2j1000interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva2j400interferencedownmu = (float) mvaReader2j400interferencedownmu.GetMvaValue( mvaInputVal );
+         mva2j450interferencedownmu = (float) mvaReader2j450interferencedownmu.GetMvaValue( mvaInputVal );
          mva2j500interferencedownmu = (float) mvaReader2j500interferencedownmu.GetMvaValue( mvaInputVal );
          mva2j550interferencedownmu = (float) mvaReader2j550interferencedownmu.GetMvaValue( mvaInputVal );
          mva2j600interferencedownmu = (float) mvaReader2j600interferencedownmu.GetMvaValue( mvaInputVal );
@@ -2407,6 +2447,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j800interferencedownmu = (float) mvaReader2j800interferencedownmu.GetMvaValue( mvaInputVal );
          mva2j900interferencedownmu = (float) mvaReader2j900interferencedownmu.GetMvaValue( mvaInputVal );
          mva2j1000interferencedownmu = (float) mvaReader2j1000interferencedownmu.GetMvaValue( mvaInputVal );
+         mva2j400interferenceupmu = (float) mvaReader2j400interferenceupmu.GetMvaValue( mvaInputVal );
+         mva2j450interferenceupmu = (float) mvaReader2j450interferenceupmu.GetMvaValue( mvaInputVal );
          mva2j500interferenceupmu = (float) mvaReader2j500interferenceupmu.GetMvaValue( mvaInputVal );
          mva2j550interferenceupmu = (float) mvaReader2j550interferenceupmu.GetMvaValue( mvaInputVal );
          mva2j600interferenceupmu = (float) mvaReader2j600interferenceupmu.GetMvaValue( mvaInputVal );
@@ -2427,6 +2469,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j500mu = (float) mvaReader3j500mu.GetMvaValue( mvaInputVal );
          mva3j550mu = (float) mvaReader3j550mu.GetMvaValue( mvaInputVal );
          mva3j600mu = (float) mvaReader3j600mu.GetMvaValue( mvaInputVal );
+         mva3j400interferencenominalmu = (float) mvaReader3j400interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j450interferencenominalmu = (float) mvaReader3j450interferencenominalmu.GetMvaValue( mvaInputVal );
          mva3j500interferencenominalmu = (float) mvaReader3j500interferencenominalmu.GetMvaValue( mvaInputVal );
          mva3j550interferencenominalmu = (float) mvaReader3j550interferencenominalmu.GetMvaValue( mvaInputVal );
          mva3j600interferencenominalmu = (float) mvaReader3j600interferencenominalmu.GetMvaValue( mvaInputVal );
@@ -2434,6 +2478,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j800interferencenominalmu = (float) mvaReader3j800interferencenominalmu.GetMvaValue( mvaInputVal );
          mva3j900interferencenominalmu = (float) mvaReader3j900interferencenominalmu.GetMvaValue( mvaInputVal );
          mva3j1000interferencenominalmu = (float) mvaReader3j1000interferencenominalmu.GetMvaValue( mvaInputVal );
+         mva3j400interferencedownmu = (float) mvaReader3j400interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j450interferencedownmu = (float) mvaReader3j450interferencedownmu.GetMvaValue( mvaInputVal );
          mva3j500interferencedownmu = (float) mvaReader3j500interferencedownmu.GetMvaValue( mvaInputVal );
          mva3j550interferencedownmu = (float) mvaReader3j550interferencedownmu.GetMvaValue( mvaInputVal );
          mva3j600interferencedownmu = (float) mvaReader3j600interferencedownmu.GetMvaValue( mvaInputVal );
@@ -2441,6 +2487,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j800interferencedownmu = (float) mvaReader3j800interferencedownmu.GetMvaValue( mvaInputVal );
          mva3j900interferencedownmu = (float) mvaReader3j900interferencedownmu.GetMvaValue( mvaInputVal );
          mva3j1000interferencedownmu = (float) mvaReader3j1000interferencedownmu.GetMvaValue( mvaInputVal );
+         mva3j400interferenceupmu = (float) mvaReader3j400interferenceupmu.GetMvaValue( mvaInputVal );
+         mva3j450interferenceupmu = (float) mvaReader3j450interferenceupmu.GetMvaValue( mvaInputVal );
          mva3j500interferenceupmu = (float) mvaReader3j500interferenceupmu.GetMvaValue( mvaInputVal );
          mva3j550interferenceupmu = (float) mvaReader3j550interferenceupmu.GetMvaValue( mvaInputVal );
          mva3j600interferenceupmu = (float) mvaReader3j600interferenceupmu.GetMvaValue( mvaInputVal );
@@ -3243,6 +3291,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j500mu->Fill();
       branch_2j550mu->Fill();
       branch_2j600mu->Fill();
+      branch_2j400interferencenominalmu->Fill();
+      branch_2j450interferencenominalmu->Fill();
       branch_2j500interferencenominalmu->Fill();
       branch_2j550interferencenominalmu->Fill();
       branch_2j600interferencenominalmu->Fill();
@@ -3250,6 +3300,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j800interferencenominalmu->Fill();
       branch_2j900interferencenominalmu->Fill();
       branch_2j1000interferencenominalmu->Fill();
+      branch_2j400interferencedownmu->Fill();
+      branch_2j450interferencedownmu->Fill();
       branch_2j500interferencedownmu->Fill();
       branch_2j550interferencedownmu->Fill();
       branch_2j600interferencedownmu->Fill();
@@ -3257,6 +3309,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j800interferencedownmu->Fill();
       branch_2j900interferencedownmu->Fill();
       branch_2j1000interferencedownmu->Fill();
+      branch_2j400interferenceupmu->Fill();
+      branch_2j450interferenceupmu->Fill();
       branch_2j500interferenceupmu->Fill();
       branch_2j550interferenceupmu->Fill();
       branch_2j600interferenceupmu->Fill();
@@ -3278,6 +3332,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j500mu->Fill();
       branch_3j550mu->Fill();
       branch_3j600mu->Fill();
+      branch_3j400interferencenominalmu->Fill();
+      branch_3j450interferencenominalmu->Fill();
       branch_3j500interferencenominalmu->Fill();
       branch_3j550interferencenominalmu->Fill();
       branch_3j600interferencenominalmu->Fill();
@@ -3285,6 +3341,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j800interferencenominalmu->Fill();
       branch_3j900interferencenominalmu->Fill();
       branch_3j1000interferencenominalmu->Fill();
+      branch_3j400interferencedownmu->Fill();
+      branch_3j450interferencedownmu->Fill();
       branch_3j500interferencedownmu->Fill();
       branch_3j550interferencedownmu->Fill();
       branch_3j600interferencedownmu->Fill();
@@ -3292,6 +3350,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j800interferencedownmu->Fill();
       branch_3j900interferencedownmu->Fill();
       branch_3j1000interferencedownmu->Fill();
+      branch_3j400interferenceupmu->Fill();
+      branch_3j450interferenceupmu->Fill();
       branch_3j500interferenceupmu->Fill();
       branch_3j550interferenceupmu->Fill();
       branch_3j600interferenceupmu->Fill();

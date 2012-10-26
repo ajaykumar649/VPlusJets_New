@@ -34,6 +34,12 @@
 #include "ClassifierOut/TMVAClassification_500_nJ2_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_550_nJ2_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ2_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ2_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ2_el_interferenceup_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ2_el_interferencedown_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ2_el_interferencenominal_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ2_el_interferenceup_Likelihood.class.C"
@@ -68,6 +74,12 @@
 #include "ClassifierOut/TMVAClassification_500_nJ3_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_550_nJ3_el_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_600_nJ3_el_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_400_nJ3_el_interferenceup_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_el_interferencedown_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_el_interferencenominal_Likelihood.class.C"
+#include "ClassifierOut/TMVAClassification_450_nJ3_el_interferenceup_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ3_el_interferencedown_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ3_el_interferencenominal_Likelihood.class.C"
 #include "ClassifierOut/TMVAClassification_500_nJ3_el_interferenceup_Likelihood.class.C"
@@ -1155,13 +1167,13 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_orgph=  newtree->Branch("philvjj",  &philvjj,   "philvjj/F");
 
    Float_t mva2j160el = 999, mva2j170el = 999, mva2j180el = 999, mva2j190el = 999, mva2j200el = 999, mva2j250el = 999, mva2j300el = 999, mva2j350el = 999, mva2j400el = 999, mva2j450el = 999, mva2j500el = 999, mva2j550el = 999, mva2j600el = 999;
-   Float_t mva2j500interferencenominalel = 999, mva2j550interferencenominalel = 999, mva2j600interferencenominalel = 999, mva2j700interferencenominalel = 999, mva2j800interferencenominalel = 999, mva2j900interferencenominalel = 999, mva2j1000interferencenominalel = 999; 
-   Float_t mva2j500interferencedownel = 999, mva2j550interferencedownel = 999, mva2j600interferencedownel = 999, mva2j700interferencedownel = 999, mva2j800interferencedownel = 999, mva2j900interferencedownel = 999, mva2j1000interferencedownel = 999; 
-   Float_t mva2j500interferenceupel = 999, mva2j550interferenceupel = 999, mva2j600interferenceupel = 999, mva2j700interferenceupel = 999, mva2j800interferenceupel = 999, mva2j900interferenceupel = 999, mva2j1000interferenceupel = 999;
+   Float_t mva2j400interferencenominalel = 999, mva2j450interferencenominalel = 999, mva2j500interferencenominalel = 999, mva2j550interferencenominalel = 999, mva2j600interferencenominalel = 999, mva2j700interferencenominalel = 999, mva2j800interferencenominalel = 999, mva2j900interferencenominalel = 999, mva2j1000interferencenominalel = 999; 
+   Float_t mva2j400interferencedownel = 999, mva2j450interferencedownel = 999, mva2j500interferencedownel = 999, mva2j550interferencedownel = 999, mva2j600interferencedownel = 999, mva2j700interferencedownel = 999, mva2j800interferencedownel = 999, mva2j900interferencedownel = 999, mva2j1000interferencedownel = 999; 
+   Float_t mva2j400interferenceupel = 999, mva2j450interferenceupel = 999, mva2j500interferenceupel = 999, mva2j550interferenceupel = 999, mva2j600interferenceupel = 999, mva2j700interferenceupel = 999, mva2j800interferenceupel = 999, mva2j900interferenceupel = 999, mva2j1000interferenceupel = 999;
    Float_t mva3j160el = 999, mva3j170el = 999, mva3j180el = 999, mva3j190el = 999, mva3j200el = 999, mva3j250el = 999, mva3j300el = 999, mva3j350el = 999, mva3j400el = 999, mva3j450el = 999, mva3j500el = 999, mva3j550el = 999, mva3j600el = 999;
-   Float_t mva3j500interferencenominalel = 999, mva3j550interferencenominalel = 999, mva3j600interferencenominalel = 999, mva3j700interferencenominalel = 999, mva3j800interferencenominalel = 999, mva3j900interferencenominalel = 999, mva3j1000interferencenominalel = 999; 
-   Float_t mva3j500interferencedownel = 999, mva3j550interferencedownel = 999, mva3j600interferencedownel = 999, mva3j700interferencedownel = 999, mva3j800interferencedownel = 999, mva3j900interferencedownel = 999, mva3j1000interferencedownel = 999; 
-   Float_t mva3j500interferenceupel = 999, mva3j550interferenceupel = 999, mva3j600interferenceupel = 999, mva3j700interferenceupel = 999, mva3j800interferenceupel = 999, mva3j900interferenceupel = 999, mva3j1000interferenceupel = 999;
+   Float_t mva3j400interferencenominalel = 999, mva3j450interferencenominalel = 999, mva3j500interferencenominalel = 999, mva3j550interferencenominalel = 999, mva3j600interferencenominalel = 999, mva3j700interferencenominalel = 999, mva3j800interferencenominalel = 999, mva3j900interferencenominalel = 999, mva3j1000interferencenominalel = 999; 
+   Float_t mva3j400interferencedownel = 999, mva3j450interferencedownel = 999, mva3j500interferencedownel = 999, mva3j550interferencedownel = 999, mva3j600interferencedownel = 999, mva3j700interferencedownel = 999, mva3j800interferencedownel = 999, mva3j900interferencedownel = 999, mva3j1000interferencedownel = 999; 
+   Float_t mva3j400interferenceupel = 999, mva3j450interferenceupel = 999, mva3j500interferenceupel = 999, mva3j550interferenceupel = 999, mva3j600interferenceupel = 999, mva3j700interferenceupel = 999, mva3j800interferenceupel = 999, mva3j900interferenceupel = 999, mva3j1000interferenceupel = 999;
    Float_t mva2jdibosonel = 999,mva3jdibosonel = 999, mva2jdibnoqgel = 999,mva3jdibnoqgel = 999;
    Float_t mvavbf160el = 999, mvavbf170el = 999, mvavbf180el = 999, mvavbf190el = 999, mvavbf200el = 999, mvavbf250el = 999, mvavbf300el = 999, mvavbf350el = 999, mvavbf400el = 999, mvavbf450el = 999, mvavbf500el = 999, mvavbf550el = 999, mvavbf600el = 999;
 
@@ -1178,6 +1190,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j500el   =  newtree->Branch("mva2j500el",   &mva2j500el,    "mva2j500el/F");
    TBranch * branch_2j550el   =  newtree->Branch("mva2j550el",   &mva2j550el,    "mva2j550el/F");
    TBranch * branch_2j600el   =  newtree->Branch("mva2j600el",   &mva2j600el,    "mva2j600el/F");
+   TBranch * branch_2j400interferencenominalel   =  newtree->Branch("mva2j400interferencenominalel",   &mva2j400interferencenominalel,    "mva2j400interferencenominalel/F");
+   TBranch * branch_2j450interferencenominalel   =  newtree->Branch("mva2j450interferencenominalel",   &mva2j450interferencenominalel,    "mva2j450interferencenominalel/F");
    TBranch * branch_2j500interferencenominalel   =  newtree->Branch("mva2j500interferencenominalel",   &mva2j500interferencenominalel,    "mva2j500interferencenominalel/F");
    TBranch * branch_2j550interferencenominalel   =  newtree->Branch("mva2j550interferencenominalel",   &mva2j550interferencenominalel,    "mva2j550interferencenominalel/F");
    TBranch * branch_2j600interferencenominalel   =  newtree->Branch("mva2j600interferencenominalel",   &mva2j600interferencenominalel,    "mva2j600interferencenominalel/F");
@@ -1185,6 +1199,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j800interferencenominalel   =  newtree->Branch("mva2j800interferencenominalel",   &mva2j800interferencenominalel,    "mva2j800interferencenominalel/F");
    TBranch * branch_2j900interferencenominalel   =  newtree->Branch("mva2j900interferencenominalel",   &mva2j900interferencenominalel,    "mva2j900interferencenominalel/F");
    TBranch * branch_2j1000interferencenominalel   =  newtree->Branch("mva2j1000interferencenominalel",   &mva2j1000interferencenominalel,    "mva2j1000interferencenominalel/F");
+   TBranch * branch_2j400interferenceupel   =  newtree->Branch("mva2j400interferenceupel",   &mva2j400interferenceupel,    "mva2j400interferenceupel/F");
+   TBranch * branch_2j450interferenceupel   =  newtree->Branch("mva2j450interferenceupel",   &mva2j450interferenceupel,    "mva2j450interferenceupel/F");
    TBranch * branch_2j500interferenceupel   =  newtree->Branch("mva2j500interferenceupel",   &mva2j500interferenceupel,    "mva2j500interferenceupel/F");
    TBranch * branch_2j550interferenceupel   =  newtree->Branch("mva2j550interferenceupel",   &mva2j550interferenceupel,    "mva2j550interferenceupel/F");
    TBranch * branch_2j600interferenceupel   =  newtree->Branch("mva2j600interferenceupel",   &mva2j600interferenceupel,    "mva2j600interferenceupel/F");
@@ -1192,6 +1208,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_2j800interferenceupel   =  newtree->Branch("mva2j800interferenceupel",   &mva2j800interferenceupel,    "mva2j800interferenceupel/F");
    TBranch * branch_2j900interferenceupel   =  newtree->Branch("mva2j900interferenceupel",   &mva2j900interferenceupel,    "mva2j900interferenceupel/F");
    TBranch * branch_2j1000interferenceupel   =  newtree->Branch("mva2j1000interferenceupel",   &mva2j1000interferenceupel,    "mva2j1000interferenceupel/F");
+   TBranch * branch_2j400interferencedownel   =  newtree->Branch("mva2j400interferencedownel",   &mva2j400interferencedownel,    "mva2j400interferencedownel/F");
+   TBranch * branch_2j450interferencedownel   =  newtree->Branch("mva2j450interferencedownel",   &mva2j450interferencedownel,    "mva2j450interferencedownel/F");
    TBranch * branch_2j500interferencedownel   =  newtree->Branch("mva2j500interferencedownel",   &mva2j500interferencedownel,    "mva2j500interferencedownel/F");
    TBranch * branch_2j550interferencedownel   =  newtree->Branch("mva2j550interferencedownel",   &mva2j550interferencedownel,    "mva2j550interferencedownel/F");
    TBranch * branch_2j600interferencedownel   =  newtree->Branch("mva2j600interferencedownel",   &mva2j600interferencedownel,    "mva2j600interferencedownel/F");
@@ -1214,6 +1232,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j500el   =  newtree->Branch("mva3j500el",   &mva3j500el,    "mva3j500el/F");
    TBranch * branch_3j550el   =  newtree->Branch("mva3j550el",   &mva3j550el,    "mva3j550el/F");
    TBranch * branch_3j600el   =  newtree->Branch("mva3j600el",   &mva3j600el,    "mva3j600el/F");
+   TBranch * branch_3j400interferencenominalel   =  newtree->Branch("mva3j400interferencenominalel",   &mva3j400interferencenominalel,    "mva3j400interferencenominalel/F");
+   TBranch * branch_3j450interferencenominalel   =  newtree->Branch("mva3j450interferencenominalel",   &mva3j450interferencenominalel,    "mva3j450interferencenominalel/F");
    TBranch * branch_3j500interferencenominalel   =  newtree->Branch("mva3j500interferencenominalel",   &mva3j500interferencenominalel,    "mva3j500interferencenominalel/F");
    TBranch * branch_3j550interferencenominalel   =  newtree->Branch("mva3j550interferencenominalel",   &mva3j550interferencenominalel,    "mva3j550interferencenominalel/F");
    TBranch * branch_3j600interferencenominalel   =  newtree->Branch("mva3j600interferencenominalel",   &mva3j600interferencenominalel,    "mva3j600interferencenominalel/F");
@@ -1221,6 +1241,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j800interferencenominalel   =  newtree->Branch("mva3j800interferencenominalel",   &mva3j800interferencenominalel,    "mva3j800interferencenominalel/F");
    TBranch * branch_3j900interferencenominalel   =  newtree->Branch("mva3j900interferencenominalel",   &mva3j900interferencenominalel,    "mva3j900interferencenominalel/F");
    TBranch * branch_3j1000interferencenominalel   =  newtree->Branch("mva3j1000interferencenominalel",   &mva3j1000interferencenominalel,    "mva3j1000interferencenominalel/F");
+   TBranch * branch_3j400interferenceupel   =  newtree->Branch("mva3j400interferenceupel",   &mva3j400interferenceupel,    "mva3j400interferenceupel/F");
+   TBranch * branch_3j450interferenceupel   =  newtree->Branch("mva3j450interferenceupel",   &mva3j450interferenceupel,    "mva3j450interferenceupel/F");
    TBranch * branch_3j500interferenceupel   =  newtree->Branch("mva3j500interferenceupel",   &mva3j500interferenceupel,    "mva3j500interferenceupel/F");
    TBranch * branch_3j550interferenceupel   =  newtree->Branch("mva3j550interferenceupel",   &mva3j550interferenceupel,    "mva3j550interferenceupel/F");
    TBranch * branch_3j600interferenceupel   =  newtree->Branch("mva3j600interferenceupel",   &mva3j600interferenceupel,    "mva3j600interferenceupel/F");
@@ -1228,6 +1250,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_3j800interferenceupel   =  newtree->Branch("mva3j800interferenceupel",   &mva3j800interferenceupel,    "mva3j800interferenceupel/F");
    TBranch * branch_3j900interferenceupel   =  newtree->Branch("mva3j900interferenceupel",   &mva3j900interferenceupel,    "mva3j900interferenceupel/F");
    TBranch * branch_3j1000interferenceupel   =  newtree->Branch("mva3j1000interferenceupel",   &mva3j1000interferenceupel,    "mva3j1000interferenceupel/F");
+   TBranch * branch_3j400interferencedownel   =  newtree->Branch("mva3j400interferencedownel",   &mva3j400interferencedownel,    "mva3j400interferencedownel/F");
+   TBranch * branch_3j450interferencedownel   =  newtree->Branch("mva3j450interferencedownel",   &mva3j450interferencedownel,    "mva3j450interferencedownel/F");
    TBranch * branch_3j500interferencedownel   =  newtree->Branch("mva3j500interferencedownel",   &mva3j500interferencedownel,    "mva3j500interferencedownel/F");
    TBranch * branch_3j550interferencedownel   =  newtree->Branch("mva3j550interferencedownel",   &mva3j550interferencedownel,    "mva3j550interferencedownel/F");
    TBranch * branch_3j600interferencedownel   =  newtree->Branch("mva3j600interferencedownel",   &mva3j600interferencedownel,    "mva3j600interferencedownel/F");
@@ -1685,6 +1709,12 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA2j500el mvaReader2j500el( inputVarsMVA );  
    ReadMVA2j550el mvaReader2j550el( inputVarsMVA );  
    ReadMVA2j600el mvaReader2j600el( inputVarsMVA );  
+   ReadMVA2j400interferencedownel mvaReader2j400interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j400interferencenominalel mvaReader2j400interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j400interferenceupel mvaReader2j400interferenceupel( inputVarsMVA_v2 );
+   ReadMVA2j450interferencedownel mvaReader2j450interferencedownel( inputVarsMVA_v2 );
+   ReadMVA2j450interferencenominalel mvaReader2j450interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA2j450interferenceupel mvaReader2j450interferenceupel( inputVarsMVA_v2 );
    ReadMVA2j500interferencedownel mvaReader2j500interferencedownel( inputVarsMVA_v2 );
    ReadMVA2j500interferencenominalel mvaReader2j500interferencenominalel( inputVarsMVA_v2 );
    ReadMVA2j500interferenceupel mvaReader2j500interferenceupel( inputVarsMVA_v2 );
@@ -1719,6 +1749,12 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA3j500el mvaReader3j500el( inputVarsMVA );  
    ReadMVA3j550el mvaReader3j550el( inputVarsMVA );  
    ReadMVA3j600el mvaReader3j600el( inputVarsMVA );  
+   ReadMVA3j400interferencedownel mvaReader3j400interferencedownel( inputVarsMVA_v2 );
+   ReadMVA3j400interferencenominalel mvaReader3j400interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA3j400interferenceupel mvaReader3j400interferenceupel( inputVarsMVA_v2 );
+   ReadMVA3j450interferencedownel mvaReader3j450interferencedownel( inputVarsMVA_v2 );
+   ReadMVA3j450interferencenominalel mvaReader3j450interferencenominalel( inputVarsMVA_v2 );
+   ReadMVA3j450interferenceupel mvaReader3j450interferenceupel( inputVarsMVA_v2 );
    ReadMVA3j500interferencedownel mvaReader3j500interferencedownel( inputVarsMVA_v2 );
    ReadMVA3j500interferencenominalel mvaReader3j500interferencenominalel( inputVarsMVA_v2 );
    ReadMVA3j500interferenceupel mvaReader3j500interferenceupel( inputVarsMVA_v2 );
@@ -2032,13 +2068,13 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       masslvjj=-999; ptlvjj    =-999; ylvjj   =-999;philvjj   =-999;
 
       mva2j160el = 999; mva2j170el = 999; mva2j180el = 999; mva2j190el = 999; mva2j200el = 999; mva2j250el = 999; mva2j300el = 999; mva2j350el = 999; mva2j400el = 999; mva2j450el = 999; mva2j500el = 999; mva2j550el = 999; mva2j600el = 999;
-      mva2j500interferencenominalel = 999; mva2j550interferencenominalel = 999; mva2j600interferencenominalel = 999; mva2j700interferencenominalel = 999; mva2j800interferencenominalel = 999; mva2j900interferencenominalel = 999; mva2j1000interferencenominalel = 999;
-      mva2j500interferencedownel = 999; mva2j550interferencedownel = 999; mva2j600interferencedownel = 999;  mva2j700interferencedownel = 999; mva2j800interferencedownel = 999; mva2j900interferencedownel = 999; mva2j1000interferencedownel = 999;
-      mva2j500interferenceupel = 999; mva2j550interferenceupel = 999; mva2j600interferenceupel = 999; mva2j700interferenceupel = 999; mva2j800interferenceupel = 999; mva2j900interferenceupel = 999; mva2j1000interferenceupel = 999;
+      mva2j400interferencenominalel = 999; mva2j450interferencenominalel = 999; mva2j500interferencenominalel = 999; mva2j550interferencenominalel = 999; mva2j600interferencenominalel = 999; mva2j700interferencenominalel = 999; mva2j800interferencenominalel = 999; mva2j900interferencenominalel = 999; mva2j1000interferencenominalel = 999;
+      mva2j400interferencedownel = 999; mva2j450interferencedownel = 999; mva2j500interferencedownel = 999; mva2j550interferencedownel = 999; mva2j600interferencedownel = 999;  mva2j700interferencedownel = 999; mva2j800interferencedownel = 999; mva2j900interferencedownel = 999; mva2j1000interferencedownel = 999;
+      mva2j400interferenceupel = 999; mva2j450interferenceupel = 999; mva2j500interferenceupel = 999; mva2j550interferenceupel = 999; mva2j600interferenceupel = 999; mva2j700interferenceupel = 999; mva2j800interferenceupel = 999; mva2j900interferenceupel = 999; mva2j1000interferenceupel = 999;
       mva3j160el = 999; mva3j170el = 999; mva3j180el = 999; mva3j190el = 999; mva3j200el = 999; mva3j250el = 999; mva3j300el = 999; mva3j350el = 999; mva3j400el = 999; mva3j450el = 999; mva3j500el = 999; mva3j550el = 999; mva3j600el = 999;
-      mva3j500interferencenominalel = 999; mva3j550interferencenominalel = 999; mva3j600interferencenominalel = 999; mva3j700interferencenominalel = 999; mva3j800interferencenominalel = 999; mva3j900interferencenominalel = 999; mva3j1000interferencenominalel = 999;
-      mva3j500interferencedownel = 999; mva3j550interferencedownel = 999; mva3j600interferencedownel = 999;  mva3j700interferencedownel = 999; mva3j800interferencedownel = 999; mva3j900interferencedownel = 999; mva3j1000interferencedownel = 999;
-      mva3j500interferenceupel = 999; mva3j550interferenceupel = 999; mva3j600interferenceupel = 999; mva3j700interferenceupel = 999; mva3j800interferenceupel = 999; mva3j900interferenceupel = 999; mva3j1000interferenceupel = 999;
+      mva3j400interferencenominalel = 999; mva3j450interferencenominalel = 999; mva3j500interferencenominalel = 999; mva3j550interferencenominalel = 999; mva3j600interferencenominalel = 999; mva3j700interferencenominalel = 999; mva3j800interferencenominalel = 999; mva3j900interferencenominalel = 999; mva3j1000interferencenominalel = 999;
+      mva3j400interferencedownel = 999; mva3j450interferencedownel = 999; mva3j500interferencedownel = 999; mva3j550interferencedownel = 999; mva3j600interferencedownel = 999;  mva3j700interferencedownel = 999; mva3j800interferencedownel = 999; mva3j900interferencedownel = 999; mva3j1000interferencedownel = 999;
+      mva3j400interferenceupel = 999; mva3j450interferenceupel = 999; mva3j500interferenceupel = 999; mva3j550interferenceupel = 999; mva3j600interferenceupel = 999; mva3j700interferenceupel = 999; mva3j800interferenceupel = 999; mva3j900interferenceupel = 999; mva3j1000interferenceupel = 999;
       mva2jdibosonel = 999; mva3jdibosonel = 999; mva2jdibnoqgel = 999; mva3jdibnoqgel = 999;
       mvavbf160el = 999; mvavbf170el = 999; mvavbf180el = 999; mvavbf190el = 999; mvavbf200el = 999; mvavbf250el = 999; mvavbf300el = 999; mvavbf350el = 999; mvavbf400el = 999; mvavbf450el = 999; mvavbf500el = 999; mvavbf550el = 999; mvavbf600el = 999;
 
@@ -2428,6 +2464,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j500el = (float) mvaReader2j500el.GetMvaValue( mvaInputVal );
          mva2j550el = (float) mvaReader2j550el.GetMvaValue( mvaInputVal );
          mva2j600el = (float) mvaReader2j600el.GetMvaValue( mvaInputVal );
+         mva2j400interferencenominalel = (float) mvaReader2j400interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j450interferencenominalel = (float) mvaReader2j450interferencenominalel.GetMvaValue( mvaInputVal );
          mva2j500interferencenominalel = (float) mvaReader2j500interferencenominalel.GetMvaValue( mvaInputVal );
          mva2j550interferencenominalel = (float) mvaReader2j550interferencenominalel.GetMvaValue( mvaInputVal );
          mva2j600interferencenominalel = (float) mvaReader2j600interferencenominalel.GetMvaValue( mvaInputVal );
@@ -2435,6 +2473,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j800interferencenominalel = (float) mvaReader2j800interferencenominalel.GetMvaValue( mvaInputVal );
          mva2j900interferencenominalel = (float) mvaReader2j900interferencenominalel.GetMvaValue( mvaInputVal );
          mva2j1000interferencenominalel = (float) mvaReader2j1000interferencenominalel.GetMvaValue( mvaInputVal );
+         mva2j400interferencedownel = (float) mvaReader2j400interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j450interferencedownel = (float) mvaReader2j450interferencedownel.GetMvaValue( mvaInputVal );
          mva2j500interferencedownel = (float) mvaReader2j500interferencedownel.GetMvaValue( mvaInputVal );
          mva2j550interferencedownel = (float) mvaReader2j550interferencedownel.GetMvaValue( mvaInputVal );
          mva2j600interferencedownel = (float) mvaReader2j600interferencedownel.GetMvaValue( mvaInputVal );
@@ -2442,6 +2482,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva2j800interferencedownel = (float) mvaReader2j800interferencedownel.GetMvaValue( mvaInputVal );
          mva2j900interferencedownel = (float) mvaReader2j900interferencedownel.GetMvaValue( mvaInputVal );
          mva2j1000interferencedownel = (float) mvaReader2j1000interferencedownel.GetMvaValue( mvaInputVal );
+         mva2j400interferenceupel = (float) mvaReader2j400interferenceupel.GetMvaValue( mvaInputVal );
+         mva2j450interferenceupel = (float) mvaReader2j450interferenceupel.GetMvaValue( mvaInputVal );
          mva2j500interferenceupel = (float) mvaReader2j500interferenceupel.GetMvaValue( mvaInputVal );
          mva2j550interferenceupel = (float) mvaReader2j550interferenceupel.GetMvaValue( mvaInputVal );
          mva2j600interferenceupel = (float) mvaReader2j600interferenceupel.GetMvaValue( mvaInputVal );
@@ -2462,6 +2504,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j500el = (float) mvaReader3j500el.GetMvaValue( mvaInputVal );
          mva3j550el = (float) mvaReader3j550el.GetMvaValue( mvaInputVal );
          mva3j600el = (float) mvaReader3j600el.GetMvaValue( mvaInputVal );
+         mva3j400interferencenominalel = (float) mvaReader3j400interferencenominalel.GetMvaValue( mvaInputVal );
+         mva3j450interferencenominalel = (float) mvaReader3j450interferencenominalel.GetMvaValue( mvaInputVal );
          mva3j500interferencenominalel = (float) mvaReader3j500interferencenominalel.GetMvaValue( mvaInputVal );
          mva3j550interferencenominalel = (float) mvaReader3j550interferencenominalel.GetMvaValue( mvaInputVal );
          mva3j600interferencenominalel = (float) mvaReader3j600interferencenominalel.GetMvaValue( mvaInputVal );
@@ -2469,6 +2513,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j800interferencenominalel = (float) mvaReader3j800interferencenominalel.GetMvaValue( mvaInputVal );
          mva3j900interferencenominalel = (float) mvaReader3j900interferencenominalel.GetMvaValue( mvaInputVal );
          mva3j1000interferencenominalel = (float) mvaReader3j1000interferencenominalel.GetMvaValue( mvaInputVal );
+         mva3j400interferencedownel = (float) mvaReader3j400interferencedownel.GetMvaValue( mvaInputVal );
+         mva3j450interferencedownel = (float) mvaReader3j450interferencedownel.GetMvaValue( mvaInputVal );
          mva3j500interferencedownel = (float) mvaReader3j500interferencedownel.GetMvaValue( mvaInputVal );
          mva3j550interferencedownel = (float) mvaReader3j550interferencedownel.GetMvaValue( mvaInputVal );
          mva3j600interferencedownel = (float) mvaReader3j600interferencedownel.GetMvaValue( mvaInputVal );
@@ -2476,6 +2522,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          mva3j800interferencedownel = (float) mvaReader3j800interferencedownel.GetMvaValue( mvaInputVal );
          mva3j900interferencedownel = (float) mvaReader3j900interferencedownel.GetMvaValue( mvaInputVal );
          mva3j1000interferencedownel = (float) mvaReader3j1000interferencedownel.GetMvaValue( mvaInputVal );
+         mva3j400interferenceupel = (float) mvaReader3j400interferenceupel.GetMvaValue( mvaInputVal );
+         mva3j450interferenceupel = (float) mvaReader3j450interferenceupel.GetMvaValue( mvaInputVal );
          mva3j500interferenceupel = (float) mvaReader3j500interferenceupel.GetMvaValue( mvaInputVal );
          mva3j550interferenceupel = (float) mvaReader3j550interferenceupel.GetMvaValue( mvaInputVal );
          mva3j600interferenceupel = (float) mvaReader3j600interferenceupel.GetMvaValue( mvaInputVal );
@@ -3276,6 +3324,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j500el->Fill();
       branch_2j550el->Fill();
       branch_2j600el->Fill();
+      branch_2j400interferencenominalel->Fill();
+      branch_2j450interferencenominalel->Fill();
       branch_2j500interferencenominalel->Fill();
       branch_2j550interferencenominalel->Fill();
       branch_2j600interferencenominalel->Fill();
@@ -3283,6 +3333,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j800interferencenominalel->Fill();
       branch_2j900interferencenominalel->Fill();
       branch_2j1000interferencenominalel->Fill();
+      branch_2j400interferencedownel->Fill();
+      branch_2j450interferencedownel->Fill();
       branch_2j500interferencedownel->Fill();
       branch_2j550interferencedownel->Fill();
       branch_2j600interferencedownel->Fill();
@@ -3290,6 +3342,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_2j800interferencedownel->Fill();
       branch_2j900interferencedownel->Fill();
       branch_2j1000interferencedownel->Fill();
+      branch_2j400interferenceupel->Fill();
+      branch_2j450interferenceupel->Fill();
       branch_2j500interferenceupel->Fill();
       branch_2j550interferenceupel->Fill();
       branch_2j600interferenceupel->Fill();
@@ -3311,6 +3365,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j500el->Fill();
       branch_3j550el->Fill();
       branch_3j600el->Fill();
+      branch_3j400interferencenominalel->Fill();
+      branch_3j450interferencenominalel->Fill();
       branch_3j500interferencenominalel->Fill();
       branch_3j550interferencenominalel->Fill();
       branch_3j600interferencenominalel->Fill();
@@ -3318,6 +3374,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j800interferencenominalel->Fill();
       branch_3j900interferencenominalel->Fill();
       branch_3j1000interferencenominalel->Fill();
+      branch_3j400interferencedownel->Fill();
+      branch_3j450interferencedownel->Fill();
       branch_3j500interferencedownel->Fill();
       branch_3j550interferencedownel->Fill();
       branch_3j600interferencedownel->Fill();
@@ -3325,6 +3383,8 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_3j800interferencedownel->Fill();
       branch_3j900interferencedownel->Fill();
       branch_3j1000interferencedownel->Fill();
+      branch_3j400interferenceupel->Fill();
+      branch_3j450interferenceupel->Fill();
       branch_3j500interferenceupel->Fill();
       branch_3j550interferenceupel->Fill();
       branch_3j600interferenceupel->Fill();

@@ -34,6 +34,12 @@ void MyRunElec(double myflag=20112250, bool isQCD=false, int runflag)
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ3_el_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_550_nJ3_el_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_600_nJ3_el_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_nJ2_el_interferencedown_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_nJ2_el_interferencenominal_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_nJ2_el_interferenceup_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_nJ2_el_interferencedown_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_nJ2_el_interferencenominal_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_nJ2_el_interferenceup_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ2_el_interferencedown_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ2_el_interferencenominal_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ2_el_interferenceup_Likelihood.class.C+");
@@ -55,6 +61,12 @@ void MyRunElec(double myflag=20112250, bool isQCD=false, int runflag)
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_1000_nJ2_el_interferencedown_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_1000_nJ2_el_interferencenominal_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_1000_nJ2_el_interferenceup_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_nJ3_el_interferencedown_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_nJ3_el_interferencenominal_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_400_nJ3_el_interferenceup_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_nJ3_el_interferencedown_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_nJ3_el_interferencenominal_Likelihood.class.C+");
+  gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_450_nJ3_el_interferenceup_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ3_el_interferencedown_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ3_el_interferencenominal_Likelihood.class.C+");
   gROOT->ProcessLine(".L ClassifierOut/TMVAClassification_500_nJ3_el_interferenceup_Likelihood.class.C+");
