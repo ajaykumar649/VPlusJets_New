@@ -1,4 +1,7 @@
 utils = None
+from ROOT import gROOT
+
+gROOT.ProcessLine('.L th1dmorph.C+')
 
 def scaleUnwidth(hist):
     for binx in range(1, hist.GetNbinsX()+1):
@@ -11,7 +14,7 @@ def scaleUnwidth(hist):
 def morph(hist1, hist2, mass1, mass2, targetMass, fitter, params,
           mode = "HWW",
           debug = False):
-    from ROOT import RooRealVar, RooIntegralMorph,\
+    from ROOT import th1dmorph, \
         kRed,kBlue,kViolet
     import re
 
@@ -26,8 +29,8 @@ def morph(hist1, hist2, mass1, mass2, targetMass, fitter, params,
         histHigh = hist1
         massHigh = mass1
 
-    mAlpha = 1.0 - float(targetMass-massLow)/float(massHigh-massLow)
-    print 'alpha:',mAlpha,
+    # mAlpha = 1.0 - float(targetMass-massLow)/float(massHigh-massLow)
+    # print 'alpha:',mAlpha,
     newIntegral = histLow.Integral() + \
         (targetMass - massLow) * \
         (histHigh.Integral()-histLow.Integral()) / \
@@ -35,39 +38,45 @@ def morph(hist1, hist2, mass1, mass2, targetMass, fitter, params,
     print 'low integral:', histLow.Integral(), \
         'high integral:', histHigh.Integral(), \
         'new integral:', newIntegral
-    sigHistLow = utils.Hist2Pdf(histLow, "%s_low_pdf" % (histLow.GetName()), 
-                                fitter.getWorkSpace())
-    sigHistHigh = utils.Hist2Pdf(histHigh, "%s_high_pdf" % (histHigh.GetName()),
-                                 fitter.getWorkSpace())
-    x = fitter.getWorkSpace().var(params.var)
-    #x.Print("v")
-    #x.setBins(params.nbins, "cache")
-    x.setBins(1000, "cache")
-    alpha_morph = RooRealVar("alpha_morph", "#alpha_{morph}", mAlpha, 0., 1.)
+    # sigHistLow = utils.Hist2Pdf(histLow, "%s_low_pdf" % (histLow.GetName()), 
+    #                             fitter.getWorkSpace(), 0, False)
+    # sigHistHigh = utils.Hist2Pdf(histHigh,"%s_high_pdf" % (histHigh.GetName()),
+    #                              fitter.getWorkSpace(), 0, False)
+    # x = fitter.getWorkSpace().var(params.var)
+    # #x.Print("v")
+    # x.setBins(pars.nbins*5, "cache")
+    # #x.setBins(1000, "cache")
+    # alpha_morph = RooRealVar("alpha_morph", "#alpha_{morph}", mAlpha, 0., 1.)
 
-    sigModel = RooIntegralMorph("sigModel", "sigModel", sigHistLow, 
-                                sigHistHigh, x, alpha_morph)
+    # sigModel = RooIntegralMorph("sigModel", "sigModel", sigHistLow, 
+    #                             sigHistHigh, x, alpha_morph)
 
-    if (debug):
-        from ROOT import gPad, RooFit
-        frame = x.frame()
-        sigHistLow.plotOn(frame, RooFit.LineColor(kRed+1),
-                          RooFit.LineStyle(2))
-        sigHistHigh.plotOn(frame, RooFit.LineColor(kBlue+1),
-                           RooFit.LineStyle(2))
-        sigModel.plotOn(frame, RooFit.LineColor(kViolet+1),
-                        RooFit.LineStyle(9))
-        frame.Draw()
-        gPad.Update()
-        gPad.WaitPrimitive()
+    # if (debug):
+    #     from ROOT import gPad, RooFit
+    #     frame = x.frame()
+    #     sigHistLow.plotOn(frame, RooFit.LineColor(kRed+1),
+    #                       RooFit.LineStyle(2))
+    #     sigHistHigh.plotOn(frame, RooFit.LineColor(kBlue+1),
+    #                        RooFit.LineStyle(2))
+    #     sigModel.plotOn(frame, RooFit.LineColor(kViolet+1),
+    #                     RooFit.LineStyle(9))
+    #     frame.Draw()
+    #     gPad.Update()
+    #     gPad.WaitPrimitive()
 
-    morphHist = sigModel.createHistogram(re.sub(r'\d+', '%i' % targetMass,
-                                                hist1.GetName()), x)
-    morphHist.Scale(newIntegral/morphHist.Integral())
-    morphHist.SetName(re.sub(r'\d+', '%i' % targetMass, hist1.GetName()))
-    
-    # if debug:
-    #     morphHist.Print()
+    # morphHist = sigModel.createHistogram(re.sub(r'\d+', '%i' % targetMass,
+    #                                             hist1.GetName()), x)
+    # morphHist.Scale(newIntegral/morphHist.Integral())
+    # morphHist.SetName(re.sub(r'\d+', '%i' % targetMass, hist1.GetName()))
+
+    morphHist = th1dmorph(re.sub(r'\d+', '%i' % targetMass, hist1.GetName()),
+                          re.sub(r'\d+', '%i' % targetMass, hist1.GetName()),
+                          histLow, histHigh, massLow, massHigh, targetMass,
+                          -1)
+                          # newIntegral)
+                          
+    if debug:
+        morphHist.Print()
 
     return morphHist
 
@@ -197,7 +206,7 @@ everything else : same as zero
         if opts.debug:
             histbasis.SetLineColor(kBlue)
             histmorph.SetLineColor(kRed)
-            if mHbasis < mHmorph:
+            if histbasis.Integral() > histmorph.Integral():
                 histbasis.Draw('hist')
                 histmorph.Draw('histsame')
             else:

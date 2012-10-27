@@ -276,21 +276,25 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
 }
 
 RooAbsPdf * RooWjjFitterUtils::Hist2Pdf(TH1 * hist, TString pdfName,
-					RooWorkspace& ws, int order) const {
+					RooWorkspace& ws, int order,
+					bool fast) const {
   if (ws.pdf(pdfName))
     return ws.pdf(pdfName);
 
   // hist->Print();
-  // RooDataHist newHist(pdfName + "_hist", pdfName + "_hist",
-  // 		      RooArgList(*mjj_), hist);
-  // ws.import(newHist);
+  if (fast) {
+    RooTH1DPdf thePdf(pdfName, pdfName, *mjj_, *(dynamic_cast<TH1D*>(hist)),
+		      order);
+    ws.import(thePdf, RooFit::RecycleConflictNodes(), RooFit::Silence());
+  } else {
+    RooDataHist newHist(pdfName + "_hist", pdfName + "_hist",
+			RooArgList(*mjj_), hist);
+    // ws.import(newHist);
 
-  RooTH1DPdf thePdf(pdfName, pdfName, *mjj_, *(dynamic_cast<TH1D*>(hist)),
-  		    order);
-  // RooHistPdf thePdf(pdfName, pdfName, RooArgSet(*massVar_),
-  // 		    RooArgSet(*mjj_), newHist, order);
-  //thePdf.Print();
-  ws.import(thePdf, RooFit::RecycleConflictNodes(), RooFit::Silence());
+    RooHistPdf thePdf(pdfName, pdfName, RooArgSet(*massVar_),
+		      RooArgSet(*mjj_), newHist, order);
+    ws.import(thePdf, RooFit::RecycleConflictNodes(), RooFit::Silence());
+  }
 
   return ws.pdf(pdfName);
 }

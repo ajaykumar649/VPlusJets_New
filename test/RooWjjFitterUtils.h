@@ -38,7 +38,8 @@ public:
 		  int binMult = 1, TString cutOverride = "",
 		  bool CPweights = false, int interfereWgt = 0) const;
   RooAbsPdf * Hist2Pdf(TH1 * hist, TString pdfName, 
-		       RooWorkspace& ws, int order = 0) const;
+		       RooWorkspace& ws, int order = 0,
+		       bool fast = true) const;
   RooDataSet * File2Dataset(TString fname, TString dsName,
 			    bool isElectron,
 			    bool trunc = false,
