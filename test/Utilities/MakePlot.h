@@ -21,29 +21,29 @@
 #include "THStack.h"
 #include "TLatex.h"
 
-const TString inData = "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree/";
+const TString inData = "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/";
 static const int TotI = 52;
 
-static const double DatLumi_mu     = 4710.649;
-static const double DatLumi_el     = 4717.435;
+static const double DatLumi_mu     = 11500;
+static const double DatLumi_el     = 11900;
 
 static const double TrigEff_mu     = 1.000;
 static const double TrigEff_el     = 1.000;
 
 static const double XSecs[TotI][4] ={ 
   //xsecs pb-1, filter eff,     events,         k-factor 
-  {31500.0,             1,           80754279,      1}, // 0  "W Jets Madgraph",                              // 0
-  {157.5,               1,           3573410,       1}, // 1  "TTbar Madgrap",                                // 1
-  {3.19,                1,           259572,        1}, // 2  "Single Top T S Channel Powheg",                // 2
-  {1.44,                1,           117647,        1}, // 3  "Single Top Tbar S Channel Powheg",             // 3
-  {41.92,               1,           3891502,       1}, // 4  "Single Top T T Channel Powheg",                // 4
-  {22.65,               1,           1939460,       1}, // 5  "Single Top Tbar T Channel Powheg",             // 5
-  {7.87,                1,           812544,        1}, // 6  "Single Top T TW Channel Powheg",               // 6
-  {7.87,                1,           322638,        1}, // 7  "Single Top Tbar TW Channel Powheg",            // 7
-  {3048.0,              1,           34689542,      1}, // 8  "DY Jets Madgraph",                             // 8
+  {36257.2,             1,           18353019,      1}, // 0  "W Jets Madgraph",                              // 0
+  {225.197,               1,           6893735,       1}, // 1  "TTbar Madgrap",                                // 1
+  {3.79,                1,           259960,        1}, // 2  "Single Top T S Channel Powheg",                // 2
+  {1.76,                1,           139974,        1}, // 3  "Single Top Tbar S Channel Powheg",             // 3
+  {56.4,               1,           3758221,       1}, // 4  "Single Top T T Channel Powheg",                // 4
+  {30.7,               1,           1935066,       1}, // 5  "Single Top Tbar T Channel Powheg",             // 5
+  {11.1,                1,           497657,        1}, // 6  "Single Top T TW Channel Powheg",               // 6
+  {11.1,                1,           493458,        1}, // 7  "Single Top Tbar TW Channel Powheg",            // 7
+  {3503.71,              1,           30209426,      1}, // 8  "DY Jets Madgraph",                             // 8
   {296900000.0,         0.0002684,   0.000000,      1}, // 9  "QCD Pythia6",                                  // 9
-  {43.0,                1,           4205913,       1}, // 10 "WW Pythia6",                                   // 10
-  {18.0,                1,           4265239,       1}, // 11 "WZ Pythia6",                                   // 11
+  {57.1,                1,            9450414,       1}, // 10 "WW Pythia6",                                   // 10
+  {32.3,                1,           10000267,       1}, // 11 "WZ Pythia6",                                   // 11
   {11439,               0.773,       10430764,      1}, // 12 "W Jets Matching Up Madgraph",                  // 12
   {42352,               0.201,       9846896,       1}, // 13 "W Jets Matching Down Madgraph",                // 13
   {17859,               0.556,       9724842,       1}, // 14 "W Jets Scale Up Madgraph",                     // 14
@@ -54,18 +54,18 @@ static const double XSecs[TotI][4] ={
   { 1.0,                1.0,         109990,        1}, // 19 HWW140
   { 1.0,                1.0,         109993,        1}, // 20 HWW150
   { 2.415,              1.0,         109992,        1}, // 21 HWW160
-  { 2.180,              1.0,         109989,        1}, // 22 HWW170
-  { 1.846,              1.0,         109325,        1}, // 23 HWW180
-  { 1.356,              1.0,         109986,        1}, // 24 HWW190
-  {10.4978,             0.108,       109315,        1}, // 25 HWW200
-  { 6.624,              0.103,       109992,        1}, // 26 HWW250
-  { 4.844,              0.101,       109990,        1}, // 27 HWW300
-  { 4.612,              0.0990,      109313,        1}, // 28 HWW350
-  { 4.064,              0.0852,      107879,        1}, // 29 HWW400
-  { 2.600,              0.0810,      107158,        1}, // 30 HWW450
-  { 1.6982,             0.0799,      107169,        1}, // 31 HWW500
-  { 1.04,               0.0806,      107870,        1}, // 32 HWW550
-  { 0.6533,             0.0818,      108561,        1}, // 33 HWW600
+  { 4.7334,              1.0,         199986,        1}, // 22 HWW170
+  { 4.0508,              1.0,         197496,        1}, // 23 HWW180
+  { 3.0298,              1.0,         194504,        1}, // 24 HWW190
+  {7.97110,             0.108*2,       199982,        1}, // 25 HWW200
+  { 5.38220,            0.103*2,       194513,        1}, // 26 HWW250
+  { 4.04680,            0.101*2,       197284,        1}, // 27 HWW300
+  { 3.72600,            0.0990*2,      199800,        1}, // 28 HWW350
+  { 3.17830,            0.0852*2,      199485,        1}, // 29 HWW400
+  { 2.20320,            0.0810*2,      198969,        1}, // 30 HWW450
+  { 1.43910,            0.0799*2,      198470,        1}, // 31 HWW500
+  { 0.93640,            0.0806*2,      199471,        1}, // 32 HWW550
+  { 0.61988,            0.0818*2,      197170,        1}, // 33 HWW600
   { 1.0,                1.0,         217674,        1}, // 34 VBFHWW120
   { 1.0,                1.0,         216316,        1}, // 35 VBFHWW130
   { 1.0,                1.0,         219691,        1}, // 36 VBFHWW140
@@ -143,112 +143,112 @@ static const char * PlainNames[TotI]= {
 
 
 static const char *Mu_InFileNames[TotI] = {
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WpJ_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_TTbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_STopS_T_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_STopS_Tbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_STopT_T_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_STopT_Tbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_STopTW_T_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_STopTW_Tbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_ZpJ_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WW_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WZ_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WpJmatchingup_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WpJmatchingdown_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WpJscaleup_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WpJscaledown_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_WpJsherpa_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH120_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH130_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH140_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH150_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH160_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH170_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH180_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH190_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH200_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH250_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH300_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH350_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH400_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH450_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH500_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH550_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_HWWMH600_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH120_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH130_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH140_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH150_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH160_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH170_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH180_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH190_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH200_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH250_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH300_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH350_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH400_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH450_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH500_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH550_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_mu_VBFHWWMH600_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_WmunuJets_DataAll_GoldenJSON_4p7invfb.root"
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WpJ_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_TTbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_STopS_T_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_STopS_Tbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_STopT_T_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_STopT_Tbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_STopTW_T_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_STopTW_Tbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_ZpJ_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RDQCD_WmunuJets_DataAll_GoldenJSON_2p1invfb.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WW_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WZ_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WpJmatchingup_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WpJmatchingdown_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WpJscaleup_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WpJscaledown_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_WpJsherpa_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH120_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH130_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH140_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH150_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH160_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH170_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH180_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH190_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH200_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH250_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH300_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH350_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH400_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH450_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH500_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH550_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_HWWMH600_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH120_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH130_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH140_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH150_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH160_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH170_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH180_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH190_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH200_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH250_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH300_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH350_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH400_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH450_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH500_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH550_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_mu_VBFHWWMH600_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_WmunuJets_DataAll_GoldenJSON_11p5invfb.root"
 };
 
 static const char *El_InFileNames[TotI] = {
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WpJ_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_TTbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_STopS_T_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_STopS_Tbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_STopT_T_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_STopT_Tbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_STopTW_T_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_STopTW_Tbar_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_ZpJ_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WW_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WZ_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WpJmatchingup_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WpJmatchingdown_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WpJscaleup_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WpJscaledown_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_WpJsherpa_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH120_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH130_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH140_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH150_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH160_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH170_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH180_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH190_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH200_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH250_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH300_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH350_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH400_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH450_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH500_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH550_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_HWWMH600_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH120_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH130_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH140_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH150_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH160_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH170_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH180_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH190_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH200_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH250_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH300_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH350_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH400_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH450_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH500_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH550_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_el_VBFHWWMH600_CMSSW428.root",
-  "/uscms_data/d2/yangf/ana/WuvWjj/Full2011Data/RDTree_PAT/RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_4p7invfb.root"
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WpJ_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_TTbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_STopS_T_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_STopS_Tbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_STopT_T_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_STopT_Tbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_STopTW_T_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_STopTW_Tbar_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_ZpJ_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RDQCD_WenuJets_DataAll_GoldenJSON_2p1invfb.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WW_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WZ_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WpJmatchingup_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WpJmatchingdown_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WpJscaleup_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WpJscaledown_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_WpJsherpa_CMSSW532.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH120_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH130_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH140_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH150_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH160_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH170_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH180_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH190_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH200_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH250_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH300_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH350_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH400_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH450_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH500_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH550_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_HWWMH600_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH120_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH130_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH140_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH150_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH160_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH170_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH180_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH190_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH200_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH250_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH300_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH350_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH400_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH450_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH500_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH550_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_el_VBFHWWMH600_CMSSW532_private.root",
+  "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_11p9invfb.root"
 };
 

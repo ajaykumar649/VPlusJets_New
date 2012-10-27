@@ -128,7 +128,8 @@ everything else : same as zero
     gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
     gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 
-    from ROOT import RooWjjMjjFitter, RooWjjFitterUtils, gPad
+    from ROOT import RooWjjMjjFitter, RooWjjFitterUtils, gPad, \
+        RooWjjFitterParams
     import re
     import HWWSignalShapes
 
@@ -155,7 +156,7 @@ everything else : same as zero
 
     pars4 = config.the4BodyConfig(fitterPars, mHbasis, opts.syst, 
                                   opts.alpha)
-    pars4.mHiggs = opts.mH
+    pars4.mHiggs = mHmorph
     pars4.wHiggs = HWWSignalShapes.HiggsWidth[mHmorph]
     fitter4 = RooWjjMjjFitter(pars4)
 
@@ -168,7 +169,7 @@ everything else : same as zero
     print 'to make Higgs', opts.mH
 
     iwt = 0
-    if (opts.mH > 450) and (opts.Nj == 2):
+    if (opts.mH >= 500) and (opts.Nj == 2):
         iwt = 1
 
     higgsHists = HWWSignalShapes.GenHiggsHists(pars4, mHmorph, utils, iwt = iwt)
@@ -214,7 +215,7 @@ everything else : same as zero
         pars4up.cuts = pars4.cuts.replace('interferencenominal', 
                                           'interferenceup')
         fitUtilsUp = RooWjjFitterUtils(pars4up)
-        sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, 
+        sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mHmorph, 
                                                    fitUtilsUp, 
                                                    iwt = 2)
         sigHistsUp['HWW'].SetName(sigHistsUp['HWW'].GetName() + '_up')
@@ -237,7 +238,7 @@ everything else : same as zero
         pars4down.cuts = pars4.cuts.replace('interferencenominal', 
                                             'interferencedown')
         fitUtilsDown = RooWjjFitterUtils(pars4down)
-        sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
+        sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mHmorph, 
                                                      fitUtilsDown, iwt = 3)
         sigHistsDown['HWW'].SetName(sigHistsDown['HWW'].GetName() + '_down')
 

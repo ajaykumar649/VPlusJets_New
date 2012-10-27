@@ -122,15 +122,15 @@ theFitter.getWorkSpace().var('nDiboson').setConstant(False)
 #     theFitter.getWorkSpace().var('fSU').setConstant(True)
 
 # theFitter.getWorkSpace().var('nDiboson').setConstant()
-# theFitter.getWorkSpace().var('nTTbar').setConstant()
+#theFitter.getWorkSpace().var('nTTbar').setConstant()
 # theFitter.getWorkSpace().var('nSingleTop').setConstant()
 # theFitter.getWorkSpace().var('nZjets').setConstant()
 #theFitter.getWorkSpace().var('nWjets').setConstant()
 theFitter.getWorkSpace().var('nQCD').setConstant()
 
-if (opts.mH >= 250) and (opts.mH <= 400) and (opts.Nj == 3):
+if (opts.Nj == 3):
     theFitter.getWorkSpace().var('nTTbar').setConstant()
-if (opts.mH <= 200) and (opts.Nj == 2):
+if (opts.mH <= 300) and (opts.Nj == 2):
     theFitter.getWorkSpace().var('nTTbar').setConstant()
 
 theFitter.loadData()
@@ -260,7 +260,9 @@ totalYield = 0.
 sigYield = 0.
 sigErrs = {}
 
-sigYieldsFile = open('lastSigYield.txt', 'w')
+sigYieldFilename = 'last_H%i_%s_%iJets_signalYield.txt' % (opts.mH, 
+                                                           modeString, opts.Nj)
+sigYieldsFile = open(sigYieldFilename, 'w')
 
 WpJNonPoissonError = 0
 
@@ -354,13 +356,13 @@ cWpJ = TCanvas('cWpJ', 'W+jets shape')
 pars4 = config.the4BodyConfig(fitterPars, opts.mH, opts.syst, opts.alpha)
 pars4.mHiggs = opts.mH
 pars4.wHiggs = HWWSignalShapes.HiggsWidth[opts.mH]
-pars4.initParamsFile = 'lastSigYield.txt'
+pars4.initParamsFile = sigYieldFilename
 fitter4 = RooWjjMjjFitter(pars4)
 
 fitter4.makeFitter((opts.ParamWpJ>=0))
 fitter4.loadData()
 fitter4.make4BodyPdf(theFitter)
-fitter4.loadParameters('lastSigYield.txt')
+fitter4.loadParameters(sigYieldFilename)
 
 ## assert(False)
 
@@ -374,7 +376,7 @@ lf4.SetName("Mlvjj_log")
 
 fitUtils = RooWjjFitterUtils(pars4)
 iwt = 0
-if (opts.mH > 450) and (opts.Nj == 2):
+if (opts.mH >= 500):
     iwt = 1
 sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils, iwt = iwt)
 
@@ -390,37 +392,40 @@ SigVisual.Print()
 SigVisualLog = TH1D(SigVisual)
 SigVisualLog.SetName("SigVisualLog")
 
-c = fitter4.getWorkSpace().var('c')
-c.Print()
-cNom = c.getVal()
-
 c4body = TCanvas('c4body', '4 body stacked')
 mf4.addTH1(SigVisual, "hist")
 
-c.setVal(cNom + c.getError())
-mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
-c.setVal(cNom - c.getError())
-mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
-
-h_total_up = mf4_up.getCurve('h_total')
-h_total_up.SetName('h_total_up')
-h_total_up.SetLineColor(kGray+3)
-h_total_up.SetLineStyle(2)
-h_total_down = mf4_down.getCurve('h_total')
-h_total_down.SetName('h_total_down')
-h_total_down.SetLineColor(kGray+3)
-h_total_down.SetLineStyle(2)
-
-mf4.addPlotable(h_total_up, "l")
-mf4.addPlotable(h_total_down, "l")
-
-mf4.Draw()
 tmpLeg = mf4.findObject('theLegend')
 tmpLeg.AddEntry(SigVisual, "H(%d)#times%.0f" % (opts.mH, extraFactor), "l")
-tmpLeg.AddEntry(h_total_up, "bkg. syst.", "l")
+
+if (pars4.model >= 1):
+    c = fitter4.getWorkSpace().var('c')
+    c.Print()
+    cNom = c.getVal()
+
+    c.setVal(cNom + c.getError())
+    mf4_up = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+    c.setVal(cNom - c.getError())
+    mf4_down = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
+
+    h_total_up = mf4_up.getCurve('h_total')
+    h_total_up.SetName('h_total_up')
+    h_total_up.SetLineColor(kGray+3)
+    h_total_up.SetLineStyle(2)
+    h_total_down = mf4_down.getCurve('h_total')
+    h_total_down.SetName('h_total_down')
+    h_total_down.SetLineColor(kGray+3)
+    h_total_down.SetLineStyle(2)
+
+    mf4.addPlotable(h_total_up, "l")
+    mf4.addPlotable(h_total_down, "l")
+    
+    tmpLeg.AddEntry(h_total_up, "bkg. syst.", "l")
+
+mf4.Draw()
 pyroot_logon.cmsPrelim(c4body, pars4.intLumi/1000)
 
-
+c4body.Update()
 c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.pdf'.format(modeString, opts.Nj, opts.mH))
 c4body.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH))
 
@@ -445,6 +450,7 @@ c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString,
 c4body4 = TCanvas("c4body4", "4 body pull")
 pf4.Draw()
 pyroot_logon.cmsPrelim(c4body4, pars4.intLumi/1000)
+c4body4.Update()
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj,
                                                        opts.mH))
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj,
@@ -521,7 +527,9 @@ sigHists['HWW'].Print()
 nomIntegral = sigHists['HWW'].Integral()
 if iwt == 1:
     pars4up = RooWjjFitterParams(pars4)
-    pars4up.cuts = pars4.cuts.replace('interferencenominal', 'interferenceup')
+    if (opts.Nj == 2):
+        pars4up.cuts = pars4.cuts.replace('interferencenominal', 
+                                          'interferenceup')
     fitUtilsUp = RooWjjFitterUtils(pars4up)
     sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, fitUtilsUp, 
                                                iwt = 2)
@@ -531,8 +539,9 @@ if iwt == 1:
     sigHistsUp['HWW'].Print()
     upIntegral = sigHistsUp['HWW'].Integral()
     pars4down = RooWjjFitterParams(pars4)
-    pars4down.cuts = pars4.cuts.replace('interferencenominal', 
-                                        'interferencedown')
+    if (opts.Nj == 2):
+        pars4down.cuts = pars4.cuts.replace('interferencenominal', 
+                                            'interferencedown')
     fitUtilsDown = RooWjjFitterUtils(pars4down)
     sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
                                                  fitUtilsDown, iwt = 3)
@@ -552,6 +561,7 @@ pf.Write()
 mf4.Write()
 pf4.Write()
 lf4.Write()
+sbf.Write()
 
 SigVisual.Write()
 SigVisualLog.Write()

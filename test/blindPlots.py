@@ -58,7 +58,7 @@ if opts.blind:
     c4blog.Print("%s_Mlvjj_%s_%s_Stacked_log.pdf" % (fparts[0], fparts[1], 
                                                      fparts[2]))
     c4blog.Print("%s_Mlvjj_%s_%s_Stacked_log.png" % (fparts[0], fparts[1], 
-                                                     fparts[2]))
+                                                     fparts[2].lower()))
 
 if opts.blind:
     mf = fin.Get("Mjj_Stacked")

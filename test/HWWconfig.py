@@ -24,7 +24,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     # fitterPars.DataDirectory = "/uscms_data/d1/andersj/Wjj/2012/data/ICHEP2012/ReducedTrees/RD_"
     #fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
     #fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_5p1invfb.root'
-    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_11p5invfb.root'
+    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_12p0invfb.root'
     fitterPars.includeMuons = True    
     #fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
     #fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root'
@@ -36,7 +36,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     #fitterPars.minMass = 50.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 17
-    fitterPars.intLumi = 11500
+    fitterPars.intLumi = 12000
     # fitterPars.intLumi = 3500.
     # fitterPars.intLumi = 539.385+21.297
     # fitterPars.intLumi = 297.848+21.297+48.465

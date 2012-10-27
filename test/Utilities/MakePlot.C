@@ -11,6 +11,7 @@
 #include "TFile.h"
 #include "TStyle.h"
 #include "TMarker.h"
+//#include "TString.h"
 
 #include "./MakePlot.h"
 
@@ -370,11 +371,11 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
     "2j170el","2j180el","2j190el","2j200el","2j250el","2j300el","2j350el","2j400el","2j450el","2j500el","2j550el","2j600el",
     "3j170el","3j180el","3j190el","3j200el","3j250el","3j300el","3j350el","3j400el","3j450el","3j500el","3j550el","3j600el", };
   const char * plcut[nmp]    = {
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>165&&fit_mlvjj<180)&&fit_status==0)", // 2j170mu =====
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<200)&&fit_status==0)", // 2j180mu
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>185&&fit_mlvjj<210)&&fit_status==0)", // 2j190mu
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>190&&fit_mlvjj<220)&&fit_status==0)", // 2j200mu
-    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>226&&fit_mlvjj<287)&&fit_status==0)", // 2j250mu
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>165&&fit_mlvjj<180)&&(abs(JetPFCor_dphiMET[0])>0.4)&&(abs(W_muon_eta) < 2.1)&&fit_status==0)", // 2j170mu =====
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>170&&fit_mlvjj<200)&&(abs(JetPFCor_dphiMET[0])>0.4)&&(abs(W_muon_eta) < 2.1)&&fit_status==0)", // 2j180mu
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>185&&fit_mlvjj<210)&&(abs(JetPFCor_dphiMET[0])>0.4)&&(abs(W_muon_eta) < 2.1)&&fit_status==0)", // 2j190mu
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>190&&fit_mlvjj<220)&&(abs(JetPFCor_dphiMET[0])>0.4)&&(abs(W_muon_eta) < 2.1)&&fit_status==0)", // 2j200mu
+    "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>226&&fit_mlvjj<287)&&(abs(JetPFCor_dphiMET[0])>0.4)&&(abs(W_muon_eta) < 2.1)&&fit_status==0)", // 2j250mu
     "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>265&&fit_mlvjj<347)&&fit_status==0)", // 2j300mu
     "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>308&&fit_mlvjj<401)&&fit_status==0)", // 2j350mu
     "(ggdevt==2&&(Mass2j_PFCor>65&&Mass2j_PFCor<95)&&(fit_mlvjj>346&&fit_mlvjj<457)&&fit_status==0)", // 2j400mu
@@ -461,65 +462,65 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
     // Specify the range and nbin for alpha, now it's point dependent
     if (tuneAlpha==0) {
       // Muon 2j 
-      if (p==0     ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==1     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=105;}//teak
-      if (p==3     ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==4     ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==5     ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==6     ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==7     ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==8     ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9     ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.10;}
-      if (p==10    ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
-      if (p==11    ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
+      if (p==0     ) { opmva=0.50; a_led=170; a_hed=240; a_nbin=14;  sblL=50; sblH=65; sbhL=110; sbhH=120;}
+      if (p==1     ) { opmva=0.60; a_led=165; a_hed=250; a_nbin=17;  sblL=50; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2     ) { opmva=0.60; a_led=165; a_hed=250; a_nbin=17;  sblL=50; sblH=65; sbhL=110; sbhH=115;}//teak
+      if (p==3     ) { opmva=0.60; a_led=165; a_hed=250; a_nbin=18;  sblL=50; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4     ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=20; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==5     ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=16;  sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==6     ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==7     ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==8     ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9     ) { opmva=0.50; a_led=380; a_hed=780; a_nbin=10; sblL=55; sblH=65; sbhL=100; sbhH=165;opqgl=0.0;}
+      if (p==10    ) { opmva=0.55; a_led=380; a_hed=780; a_nbin=10; sblL=45; sblH=65; sbhL=95; sbhH=150;opqgl=0.0;}
+      if (p==11    ) { opmva=0.65; a_led=420; a_hed=780; a_nbin=9; sblL=45; sblH=65; sbhL=95; sbhH=150;opqgl=0.0;}
       			    	     	      	       			    				
       // Muon 3j 	    	     	      	       			    				
-      if (p==0 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==1 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==3 +12 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==4 +12 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==5 +12 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==6 +12 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==7 +12 ) { opmva=0.50; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==8 +12 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9 +12 ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
-      if (p==10+12 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
-      if (p==11+12 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
+      if (p==0 +12 ) { opmva=0.30; a_led=170; a_hed=240; a_nbin=14;  sblL=55; sblH=65; sbhL=95; sbhH=120;}
+      if (p==1 +12 ) { opmva=0.30; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==2 +12 ) { opmva=0.30; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +12 ) { opmva=0.30; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4 +12 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=20; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==5 +12 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=16;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==6 +12 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==7 +12 ) { opmva=0.50; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==8 +12 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +12 ) { opmva=0.65; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.0;}
+      if (p==10+12 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=22; sblL=45; sblH=65; sbhL=95; sbhH=200;opqgl=0.0;}
+      if (p==11+12 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=22; sblL=45; sblH=65; sbhL=95; sbhH=200;opqgl=0.0;}
       			    	     	      	       			    				
       // Electron 2j	    	     	      	       			    				
-      if (p==0 +24 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==1 +24 ) { opmva=0.55; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2 +24 ) { opmva=0.55; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=110; sbhH=125;}//teak
-      if (p==3 +24 ) { opmva=0.60; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==4 +24 ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==5 +24 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==6 +24 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==7 +24 ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==8 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
-      if (p==10+24 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.35;}
-      if (p==11+24 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
+      if (p==0 +24 ) { opmva=0.50; a_led=170; a_hed=240; a_nbin=14;  sblL=50; sblH=65; sbhL=95; sbhH=110;}
+      if (p==1 +24 ) { opmva=0.55; a_led=170; a_hed=230; a_nbin=12;  sblL=50; sblH=65; sbhL=95; sbhH=110;}
+      if (p==2 +24 ) { opmva=0.55; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=110; sbhH=115;}//teak
+      if (p==3 +24 ) { opmva=0.60; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4 +24 ) { opmva=0.65; a_led=200; a_hed=400; a_nbin=20; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==5 +24 ) { opmva=0.60; a_led=240; a_hed=400; a_nbin=16;  sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==6 +24 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==7 +24 ) { opmva=0.55; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==8 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=125;}
+      if (p==9 +24 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=125;opqgl=0.0;}
+      if (p==10+24 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=22; sblL=45; sblH=65; sbhL=95; sbhH=125;opqgl=0.0;}
+      if (p==11+24 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=22; sblL=45; sblH=65; sbhL=95; sbhH=125;opqgl=0.0;}
       			    	     	      	       			    				
       // Electron 3j	    	     	      	       			    				
-      if (p==0 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==1 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==2 +36 ) { opmva=0.30; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==3 +36 ) { opmva=0.40; a_led=170; a_hed=250; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
-      if (p==4 +36 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=10; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==5 +36 ) { opmva=0.50; a_led=240; a_hed=400; a_nbin=8;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==6 +36 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==7 +36 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=12; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==8 +36 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;}
-      if (p==9 +36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.20;}
-      if (p==10+36 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.35;}
-      if (p==11+36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=11; sblL=40; sblH=65; sbhL=95; sbhH=200;opqgl=0.45;}
+      if (p==0 +36 ) { opmva=0.30; a_led=170; a_hed=240; a_nbin=14;  sblL=55; sblH=65; sbhL=95; sbhH=120;}
+      if (p==1 +36 ) { opmva=0.30; a_led=165; a_hed=230; a_nbin=12;  sblL=50; sblH=65; sbhL=95; sbhH=125;}
+      if (p==2 +36 ) { opmva=0.30; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==3 +36 ) { opmva=0.40; a_led=165; a_hed=250; a_nbin=17;  sblL=55; sblH=65; sbhL=95; sbhH=115;}
+      if (p==4 +36 ) { opmva=0.40; a_led=200; a_hed=400; a_nbin=20; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==5 +36 ) { opmva=0.50; a_led=240; a_hed=400; a_nbin=16;  sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==6 +36 ) { opmva=0.65; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==7 +36 ) { opmva=0.60; a_led=300; a_hed=780; a_nbin=24; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==8 +36 ) { opmva=0.55; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=200;}
+      if (p==9 +36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=22; sblL=55; sblH=65; sbhL=95; sbhH=200;opqgl=0.0;}
+      if (p==10+36 ) { opmva=0.50; a_led=340; a_hed=780; a_nbin=22; sblL=45; sblH=65; sbhL=95; sbhH=200;opqgl=0.0;}
+      if (p==11+36 ) { opmva=0.60; a_led=340; a_hed=780; a_nbin=22; sblL=45; sblH=65; sbhL=95; sbhH=200;opqgl=0.0;}
     }
     int myflagb=0; 
     for (int c=0; c<nvbs; c++){ if (c!=myflagb && myflagb>=0) continue;
       int sctype = sccc[c]; float xmin  = 0.0; float xmax = 1.0;
-      sprintf(ppvar,"%s",ccva[c]);sprintf(ppcut,"effwt*(%s)",plcut[p]);
+      sprintf(ppvar,"%s",ccva[c]);sprintf(ppcut,"effwt*puwt*(%s)",plcut[p]);
       // Setup Cut and Variable
       if (c==0){xmin=  0.0; xmax= 1.0; sprintf(ppvar,"%s%s",ccva[c], cate[p]);}//sprintf(ppcut,"%s",plcut[p]);}
       if (c==1){xmin= -1.0; xmax= 1.0; }
@@ -529,7 +530,7 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
       if (c==5){xmin= -1.0; xmax= 1.0; }
       if (c==6){xmin=  0.0; xmax= 200; }
       if (c==7){xmin= -2.5; xmax= 2.5; }
-      if (sqnc==1) sprintf(ppcut,"effwt*(%s&&%s)",plcut[p],opcutC);
+      if (sqnc==1) sprintf(ppcut,"effwt*puwt*(%s&&%s)",plcut[p],opcutC);
       if (sqnc==0) ndef[c] = ndef[0];
       //cout << ppvar << "  @  " << ppcut << endl;
       break;
@@ -712,7 +713,7 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
       // Setup For Cut Study
       int c_nbin=40; float c_xmin=0.0,c_xmax=1.0; 
       char cutvar[500] = ""; sprintf(cutvar,"mva%s",cate[p]);
-      char topcut[500] = ""; sprintf(topcut,"effwt*(TopWm>0)"); if (dosys==3) sprintf(topcut,"%s",ppcut); // dosys==3 : plot the normal comparison plots
+      char topcut[500] = ""; sprintf(topcut,"effwt*puwt*(TopWm>0)"); if (dosys==3) sprintf(topcut,"%s",ppcut); // dosys==3 : plot the normal comparison plots
       float beNtt=0, afNtt=0,  beNdd=0, afNdd=0; 
       cout << cutvar << " @ " << topcut << endl;
       // Start to fill plots
@@ -745,7 +746,7 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
       if (ctt==2||ctt==3)Sys_hs[p] = getHist(El_InFileNames[lb], "WJet", cutvar, topcut, tpname, c_nbin, c_xmin, c_xmax, rflag);      Sys_hs[p]->Sumw2(); Sys_hs[p]->Scale(g_norfac);
 
       // Fill Data Again!! After All Cuts we want to study
-      char topafc[200]; sprintf(topafc, "effwt*(TopWm>0&&%s>%.2f&&qgld_Summer11CHS[1]>%.2f)",cutvar, opmva, opqgl);   cout << cutvar << " @ " << topafc << endl;
+      char topafc[200]; sprintf(topafc, "effwt*puwt*(TopWm>0&&%s>%.2f&&qgld_Summer11CHS[1]>%.2f)",cutvar, opmva, opqgl);   cout << cutvar << " @ " << topafc << endl;
 
       sprintf(tpname, "Saf_dd[%i]",p);
       if (ctt==0||ctt==1)Saf_dd[p] = getHist(Mu_InFileNames[51], "WJet", cutvar, topafc, tpname, c_nbin, c_xmin, c_xmax, rflag);
@@ -808,7 +809,13 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
     // Now start to study the alpha method
     // ======================================================================================================
     // flag==1 : Scan the mva output only
-    if (scflag==1) {sprintf(opcutC, "(mva%s>%.3f)", cate[p],sccut); mvaCut=sccut;} 
+    if (scflag==1) {
+      // TString muonCuts("(abs(W_muon_eta)<2.1)");
+      // TString electronCuts("(W_electron_pt > 35)");
+      sprintf(opcutC, "(mva%s>%.3f)&&(abs(JetPFCor_dphiMET[0])>%0.1f)&&(%s)", cate[p],sccut, ((p<24)?0.4:0.8),
+	      ((p<24) ? "(abs(W_muon_eta)<2.1)" : "(W_electron_pt > 35)" ));
+      mvaCut=sccut;
+    } 
     // flag==2 : Scan the Q/G second Jet Likelihood  AFTER the Optimized MVA cut!
     if (scflag==2) {sprintf(opcutC, "(mva%s>%.3f&&%s>%.3f)", cate[p],opmva, "qgld_Summer11CHS[1]",sccut); mvaCut=opmva;} 
     if (scflag!=1&&scflag!=2) {cout << "scan type is not correct: 1, for mva scan, 2, for next leading jet qg scan after optimized mva cut" << endl;return;}
@@ -816,9 +823,9 @@ void MakePlot(int myflag = 7, int scflag=0, float sccut= -1.0, int dosys=0) {  s
     TH1F * a_hgg[nbgc]; TH1F * a_hsgg = new TH1F("a_hsgg", "", a_nbin, a_led, a_hed); a_hsgg->Sumw2();
     TH1F * a_hhh[nbgc]; TH1F * a_hhig = new TH1F("a_hhig", "", a_nbin, a_led, a_hed); a_hhig->Sumw2();
 
-    char a_cutl[5000]; sprintf(a_cutl, "effwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sblL,sblH,opcutC);
-    char a_cutg[5000]; sprintf(a_cutg, "effwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sigL,sigH,opcutC);
-    char a_cuth[5000]; sprintf(a_cuth, "effwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sbhL,sbhH,opcutC);
+    char a_cutl[5000]; sprintf(a_cutl, "effwt*puwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sblL,sblH,opcutC);
+    char a_cutg[5000]; sprintf(a_cutg, "effwt*puwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sigL,sigH,opcutC);
+    char a_cuth[5000]; sprintf(a_cuth, "effwt*puwt*((ggdevt==%i)&&(Mass2j_PFCor>%.0f&&Mass2j_PFCor<%.0f)&&(fit_status==0)&&%s)",(int)(ctt%2+2),sbhL,sbhH,opcutC);
 
     cout << a_cutl << endl;
     cout << a_cutg << endl;
@@ -1084,7 +1091,7 @@ void JESinTop(){  setTDRStyle();gStyle->SetOptFit(0);gStyle->SetOptStat(0);
   THStack * Ts[3]; 
   TLegend * Lg[3];
   char cutvar[500] = "TopWm";
-  char topcut[500] = "effwt*(TopWm>0)";
+  char topcut[500] = "effwt*puwt*(TopWm>0)";
   char tpname[500] = "";
   for (int c=2;c>=0;c--){
     // Fill MC
@@ -1172,7 +1179,7 @@ void JESinTop(){  setTDRStyle();gStyle->SetOptFit(0);gStyle->SetOptStat(0);
 
 
 void compareKF(int plsample=24, int nbin=90, float xmin=100, float xmax=900, int rflag=0){   setTDRStyle();gStyle->SetOptFit(0);gStyle->SetOptStat(0);
-  char gencut[500] = "effwt*(ggdevt==2&&Mass2j_PFCor>65&&Mass2j_PFCor<95&&fit_status==0)";
+  char gencut[500] = "effwt*puwt*(ggdevt==2&&Mass2j_PFCor>65&&Mass2j_PFCor<95&&fit_status==0)";
   char tpname[500] = "";
   TH1F * hbe = getHist(Mu_InFileNames[plsample], "WJet", "MassV2j_PFCor", gencut, "hbe", nbin, xmin, xmax, rflag);
   TH1F * haf = getHist(Mu_InFileNames[plsample], "WJet", "fit_mlvjj",     gencut, "haf", nbin, xmin, xmax, rflag);

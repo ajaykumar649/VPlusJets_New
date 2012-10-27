@@ -6,7 +6,7 @@ import HWWSignalShapes
 # (0: mavVariableName, 1: mvaCut, 2: min4BodyMass, 3: max4BodyMass, 
 #  4: n4BodyBins)
 mu2Pars = {
-    170: ( "mva2j170mu", 0.300, 165.0, 250.0, 17,
+    170: ( "mva2j170mu", 0.500, 165.0, 250.0, 17,
            {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
     180: ( "mva2j180mu", 0.600, 165.0, 250.0, 17,
            {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
@@ -22,7 +22,8 @@ mu2Pars = {
            {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22 ),
-    500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22 ),
+    500: ( "mva2j500mu", 0.500, 380.0, 740.0, 22,
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
     550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22 ),
     600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22 ),
     }
@@ -80,9 +81,9 @@ el3Pars = {
 def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
-    #pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/RDTrees_PAT/'
+    pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/ReducedTrees/'
     #pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/"
-    pars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/"
+    #pars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/"
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
 

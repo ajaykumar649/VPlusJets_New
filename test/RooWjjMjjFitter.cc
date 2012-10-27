@@ -1454,8 +1454,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 	    << '\n';
 
   double localMin = params_.minMass;
-  // if (params_.model == 4)
-  //   localMin = th1wjets->GetBinLowEdge(2);
+  if (params_.model == 7)
+    localMin = th1wjets->GetBinLowEdge(3);
   mass->setRange("SBFitRange", localMin, localMax);
   std::cout << "SBFitRange: [" << localMin << ',' << localMax << "]\n";
 
@@ -1518,14 +1518,14 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   RooPowerLaw powerPdf("powerPdf", "powerPdf", *mass, c);
   RooRealVar turnOn("turnOn4", "turnOn4", 161.);
   turnOn.setConstant(false);
-  RooRealVar width("width4", "width4", 20.);
+  RooRealVar width("width4", "width4", 50.);
   // width.setConstant(false);
   RooErfExpPdf erfExp("WpJ4BodyPdf", "WpJ4BodyPdf", *mass, c, turnOn, width);
   RooGenericPdf erfPower("WpJ4BodyPdf", "WpJ4BodyPdf", 
 			 "(TMath::Erf((@0-@1)/@2)+1)/2.*"
 			 "TMath::Power(@0,@3)",
 			 RooArgSet(*mass, turnOn, width, c));
-  RooRealVar power("p", "p", 2.0);
+  RooRealVar power("p", "p", -5.0);
   power.setConstant(false);
   RooPowerExpPdf powerExp("WpJ4BodyPdf", "WpJ4BodyPdf",
 			  *mass, c, power);
@@ -1536,17 +1536,28 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
   case 4:
   case 5:
   case 1:     
-    if (params_.model == 5) {
+  case 6:
+  case 7:
+  case 2:
+    if ((params_.model == 5) || (params_.model == 6) || 
+	(params_.model == 7)) {
+      if (params_.model == 6)
+	width.setConstant(false);
       ws_.import(erfExp);
       // c.setVal(18.6);
       // turnOn.setVal(180.);
       // ws_.import(landau);
     } else if (params_.model == 4) {
-      c.setVal(-0.07);
-      c.setError(0.01);
-      power.setVal(14.7);
-      power.setVal(0.5);
+      c.setVal(-0.0002);
+      c.setError(0.0001);
+      power.setVal(-5.);
+      power.setVal(0.05);
       ws_.import(powerExp);
+    } else if (params_.model == 2) {
+      c.setVal(-2.);
+      c.setError(0.5);
+      powerPdf.SetName("WpJ4BodyPdf");
+      ws_.import(powerPdf);
     } else {
       expPdf.SetName("WpJ4BodyPdf");
       ws_.import(expPdf);
@@ -1579,6 +1590,7 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
     				       RooFit::SumW2Error(false),
     				       RooFit::Range("SBFitRange"),
     				       RooFit::Save(true));
+    ws_.saveSnapshot("nom_fit", RooArgSet(fr->floatParsFinal()), false);
     if (ws_.var("p"))
       ws_.var("p")->setConstant();
     ws_.pdf("WpJ4BodyPdf_down")->fitTo(theSBAlphaDown, 
@@ -1638,6 +1650,8 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 //     break;
   default:
     utils_.Hist2Pdf(th1wjets, "WpJ4BodyPdf", ws_, histOrder);
+    utils_.Hist2Pdf(alphaDownHist, "WpJ4BodyPdf_down", ws_, histOrder);
+    utils_.Hist2Pdf(alphaUpHist, "WpJ4BodyPdf_up", ws_, histOrder);
   }
 
 //   if (fr >= 0) {
@@ -1701,11 +1715,20 @@ RooAbsPdf * RooWjjMjjFitter::makeWpJ4BodyPdf(RooWjjMjjFitter & fitter2body) {
 
   RooPlot * sbf = mass->frame(RooFit::Name("SideBandPlot"));
   theSBDataNorm.plotOn(sbf);
+  if (fr)
+    ws_.loadSnapshot("nom_fit");
+    if (ws_.var("p"))
+      ws_.var("p")->setConstant(false);
+    ws_.pdf("WpJ4BodyPdf")->plotOn(sbf, RooFit::VisualizeError(*fr, 1, false),
+				   RooFit::FillColor(kOrange+1), 
+				   RooFit::FillStyle(3001));
   ws_.pdf("WpJ4BodyPdf")->plotOn(sbf);
+  theSBDataNorm.plotOn(sbf);
   sbf->Draw();
   sbf->GetYaxis()->SetTitle("normalized units");
   gPad->Modified();
   gPad->Update();
+  // gPad->WaitPrimitive();
   
   if (fr) {
     cout << "chi2/ndf: " << sbf->chiSquare(fr->floatParsFinal().getSize())
