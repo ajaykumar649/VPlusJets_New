@@ -22,7 +22,7 @@ ak5PFJetsClean = cms.EDProducer("PFPATJetCleaner",
     srcJets = cms.InputTag("ak5PFGoodJets"),
     module_label = cms.string(""),
     srcObjects = cms.VInputTag(cms.InputTag("looseElectrons"),cms.InputTag("looseMuons")),
-    deltaRMin = cms.double(0.5)
+    deltaRMin = cms.double(0.3)
 )
 
 
