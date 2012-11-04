@@ -48,7 +48,9 @@
 #include "fastjet/tools/MassDropTagger.hh"
 #include "fastjet/GhostedAreaSpec.hh"
 
-#include "ElectroWeakAnalysis/VPlusJets/interface/Nsubjettiness.h"
+//#include "ElectroWeakAnalysis/VPlusJets/interface/Nsubjettiness.h"
+#include "ElectroWeakAnalysis/VPlusJets/src/NjettinessPlugin.hh"
+#include "ElectroWeakAnalysis/VPlusJets/src/Nsubjettiness.hh"
 #include "ElectroWeakAnalysis/VPlusJets/src/QjetsPlugin.h"
 #include "TVector3.h"
 #include "TMath.h"
@@ -509,10 +511,16 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
     transformers.push_back(&pruner);
     
         // define n-subjettiness
-    NsubParameters paraNsub = NsubParameters(mNsubjettinessKappa, mJetRadius);   
-    Nsubjettiness routine(nsub_kt_axes, paraNsub);
+//    NsubParameters paraNsub = NsubParameters(mNsubjettinessKappa, mJetRadius);   
+//    Nsubjettiness routine(nsub_kt_axes, paraNsub);
 //    Nsubjettiness routine(nsub_1pass_from_kt_axes, paraNsub);
     
+        // Defining Nsubjettiness parameters
+    double beta = mNsubjettinessKappa; // power for angular dependence, e.g. beta = 1 --> linear k-means, beta = 2 --> quadratic/classic k-means
+    double R0 = mJetRadius; // Characteristic jet radius for normalization	      
+    double Rcut = mJetRadius; // maximum R particles can be from axis to be included in jet	      
+    
+//    fastjet::Nsubjettiness nSub1KT(1, Njettiness::kt_axes, beta, R0, Rcut);
 
         // -----------------------------------------------
         // -----------------------------------------------
@@ -636,12 +644,23 @@ void ewk::GroomedJetFiller::fill(const edm::Event& iEvent) {
         
        //std::cout<< "Beging the n-subjettiness computation" << endl; 
             // n-subjettiness  -------------
-        tau1[j] = routine.getTau(1, out_jets.at(j).constituents()); 
-        tau2[j] = routine.getTau(2, out_jets.at(j).constituents());
-        tau3[j] = routine.getTau(3, out_jets.at(j).constituents());
-        tau4[j] = routine.getTau(4, out_jets.at(j).constituents());
+//        tau1[j] = routine.getTau(1, out_jets.at(j).constituents()); 
+//        tau2[j] = routine.getTau(2, out_jets.at(j).constituents());
+//        tau3[j] = routine.getTau(3, out_jets.at(j).constituents());
+//        tau4[j] = routine.getTau(4, out_jets.at(j).constituents());
+//        tau2tau1[j] = tau2[j]/tau1[j];
+//        fastjet::Nsubjettiness nSub1KT(1, Njettiness::kt_axes, beta, R0, Rcut);
+        fastjet::Nsubjettiness nSub1KT(1, Njettiness::onepass_kt_axes, beta, R0, Rcut);
+        tau1[j] = nSub1KT(out_jets.at(j));
+        fastjet::Nsubjettiness nSub2KT(2, Njettiness::onepass_kt_axes, beta, R0, Rcut);
+        tau2[j] = nSub2KT(out_jets.at(j));
+        fastjet::Nsubjettiness nSub3KT(3, Njettiness::onepass_kt_axes, beta, R0, Rcut);
+        tau3[j] = nSub3KT(out_jets.at(j));
+        fastjet::Nsubjettiness nSub4KT(4, Njettiness::onepass_kt_axes, beta, R0, Rcut);
+        tau4[j] = nSub4KT(out_jets.at(j));
         tau2tau1[j] = tau2[j]/tau1[j];
-       
+
+        
        //std::cout<< "End the n-subjettiness computation" << endl;
             // cores computation  -------------
         //std::cout<< "Beging the core computation" << endl;
