@@ -11,9 +11,7 @@ def scaleUnwidth(hist):
 
     return hist
 
-def morph(hist1, hist2, mass1, mass2, targetMass, fitter, params,
-          mode = "HWW",
-          debug = False):
+def morph(hist1, hist2, mass1, mass2, targetMass, debug = False):
     from ROOT import th1dmorph, \
         kRed,kBlue,kViolet
     import re
@@ -135,9 +133,9 @@ everything else : same as zero
     from ROOT import TFile, gROOT, kRed, kBlue, kViolet, RooMsgService, RooFit
 
     gROOT.ProcessLine('.L RooWjjFitterUtils.cc+')
-    gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
+    # gROOT.ProcessLine('.L RooWjjMjjFitter.cc+')
 
-    from ROOT import RooWjjMjjFitter, RooWjjFitterUtils, gPad, \
+    from ROOT import RooWjjFitterUtils, gPad, \
         RooWjjFitterParams
     import re
     import HWWSignalShapes
@@ -148,7 +146,7 @@ everything else : same as zero
     mHmorph = opts.mHmorph
 
     fitterPars = config.theConfig(opts.Nj, opts.mcdir, '', 
-                                  mHbasis, opts.mvaCut, opts.qgCut)
+                                  mHmorph, opts.mvaCut, opts.qgCut)
 
     fitterPars.WpJfunction = opts.ParamWpJ
     if opts.ParamWpJ<0:
@@ -167,7 +165,7 @@ everything else : same as zero
                                   opts.alpha)
     pars4.mHiggs = mHmorph
     pars4.wHiggs = HWWSignalShapes.HiggsWidth[mHmorph]
-    fitter4 = RooWjjMjjFitter(pars4)
+    # fitter4 = RooWjjMjjFitter(pars4)
 
     higgsModes = HWWSignalShapes.modes
     morphedHists = []
@@ -178,7 +176,7 @@ everything else : same as zero
     print 'to make Higgs', opts.mH
 
     iwt = 0
-    if (opts.mH >= 500) and (opts.Nj == 2):
+    if (opts.mH >= 500):
         iwt = 1
 
     higgsHists = HWWSignalShapes.GenHiggsHists(pars4, mHmorph, utils, iwt = iwt)
@@ -199,9 +197,7 @@ everything else : same as zero
 
         gROOT.cd()
         morphedHists.append(morph(histbasis, histmorph, mHbasis, mHmorph, 
-                                  targetMass = opts.mH, mode = higgsMode,
-                                  fitter = fitter4, params = pars4, 
-                                  debug = opts.debug))
+                                  targetMass = opts.mH, debug = opts.debug))
 
         if opts.debug:
             histbasis.SetLineColor(kBlue)
@@ -221,8 +217,9 @@ everything else : same as zero
 
     if iwt == 1:
         pars4up = RooWjjFitterParams(pars4)
-        pars4up.cuts = pars4.cuts.replace('interferencenominal', 
-                                          'interferenceup')
+        if (opts.Nj == 2):
+            pars4up.cuts = pars4.cuts.replace('interferencenominal', 
+                                              'interferenceup')
         fitUtilsUp = RooWjjFitterUtils(pars4up)
         sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mHmorph, 
                                                    fitUtilsUp, 
@@ -239,13 +236,12 @@ everything else : same as zero
 
         gROOT.cd()
         morphedHists.append(morph(histbasis, histmorph, mHbasis, mHmorph, 
-                                  targetMass = opts.mH, mode = higgsMode,
-                                  fitter = fitter4, params = pars4up, 
-                                  debug = opts.debug))
+                                  targetMass = opts.mH, debug = opts.debug))
 
         pars4down = RooWjjFitterParams(pars4)
-        pars4down.cuts = pars4.cuts.replace('interferencenominal', 
-                                            'interferencedown')
+        if (opts.Nj == 2):
+            pars4down.cuts = pars4.cuts.replace('interferencenominal', 
+                                                'interferencedown')
         fitUtilsDown = RooWjjFitterUtils(pars4down)
         sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mHmorph, 
                                                      fitUtilsDown, iwt = 3)
@@ -261,9 +257,7 @@ everything else : same as zero
 
         gROOT.cd()
         morphedHists.append(morph(histbasis, histmorph, mHbasis, mHmorph, 
-                                  targetMass = opts.mH, mode = higgsMode,
-                                  fitter = fitter4, params = pars4down, 
-                                  debug = opts.debug))
+                                  targetMass = opts.mH, debug = opts.debug))
 
     foutput = TFile('H%i_%s_%iJets_Fit_Shapes.root' % (opts.mH, modeString,
                                                        opts.Nj), 'recreate')

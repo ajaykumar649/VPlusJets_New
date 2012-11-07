@@ -52,7 +52,7 @@ pars4.wHiggs = HWWSignalShapes.HiggsWidth[opts.mH]
 
 fitUtils = RooWjjFitterUtils(pars4)
 iwt = 0
-if (opts.mH > 450) and (opts.Nj == 2):
+if (opts.mH >= 500):
     iwt = 1
 sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils, iwt = iwt)
 
@@ -79,7 +79,9 @@ sigHists['HWW'].Print()
 nomIntegral = sigHists['HWW'].Integral()
 if iwt == 1:
     pars4up = RooWjjFitterParams(pars4)
-    pars4up.cuts = pars4.cuts.replace('interferencenominal', 'interferenceup')
+    if opts.Nj == 2:
+        pars4up.cuts = pars4.cuts.replace('interferencenominal', 
+                                          'interferenceup')
     fitUtilsUp = RooWjjFitterUtils(pars4up)
     sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, fitUtilsUp, 
                                                iwt = 2)
@@ -89,8 +91,9 @@ if iwt == 1:
     sigHistsUp['HWW'].Print()
     upIntegral = sigHistsUp['HWW'].Integral()
     pars4down = RooWjjFitterParams(pars4)
-    pars4down.cuts = pars4.cuts.replace('interferencenominal', 
-                                        'interferencedown')
+    if opts.Nj == 2:
+        pars4down.cuts = pars4.cuts.replace('interferencenominal', 
+                                            'interferencedown')
     fitUtilsDown = RooWjjFitterUtils(pars4down)
     sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
                                                  fitUtilsDown, iwt = 3)

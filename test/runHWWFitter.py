@@ -70,6 +70,7 @@ from ROOT import RooWjjMjjFitter, RooFitResult, RooWjjFitterUtils, \
      kBlue, TH1D, TMath, gDirectory, RooWjjFitterParams, kRed, kGray
 from math import sqrt
 import HWWSignalShapes
+import pulls
 
 if not opts.debug:
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
@@ -169,7 +170,8 @@ chi2Raw = theFitter.computeChi2(ndf2, False)
 mf = theFitter.stackedPlot()
 mf.SetName("Mjj_Stacked")
 ## sf = theFitter.residualPlot(mf, "h_background", "dibosonPdf", False)
-pf = theFitter.residualPlot(mf, "h_total", "", True)
+# pf = theFitter.residualPlot(mf, "h_total", "", True)
+pf = pulls.createPull(mf.getHist('theData'), mf.getCurve('h_total'))
 pf.SetName("Mjj_Pull")
 ## lf = theFitter.stackedPlot(True)
 
@@ -192,7 +194,14 @@ cs.Print('H{2}_Mjj_{0}_{1}jets_Stacked.png'.format(modeString, opts.Nj, opts.mH)
 #     assert(False)
 
 c4 = TCanvas("c4", "pull")
-pf.Draw()
+pf.Draw('ap')
+c4.SetGridy()
+c4.Update()
+pf.SetMinimum(-5.)
+pf.SetMaximum(5.)
+pf.GetXaxis().SetLimits(fitterPars.minMass, fitterPars.maxMass)
+pf.GetXaxis().SetTitle('m_{jj} (GeV)')
+pf.GetYaxis().SetTitle('pull (#sigma)')
 pyroot_logon.cmsPrelim(c4, fitterPars.intLumi/1000)
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj, opts.mH))
 c4.Print('H{2}_Mjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj, opts.mH))
@@ -369,7 +378,8 @@ fitter4.loadParameters(sigYieldFilename)
 mf4 = fitter4.stackedPlot(False, RooWjjMjjFitter.mlnujj)
 mf4.SetName("Mlvjj_Stacked")
 ## sf4 = fitter4.residualPlot(mf4, "h_background", "dibosonPdf", False)
-pf4 = fitter4.residualPlot(mf4, "h_total", "", True)
+# pf4 = fitter4.residualPlot(mf4, "h_total", "", True)
+pf4 = pulls.createPull(mf4.getHist('theData'), mf4.getCurve('h_total'))
 pf4.SetName("Mlvjj_Pull")
 lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 lf4.SetName("Mlvjj_log")
@@ -448,7 +458,14 @@ c4body2.Print('H{2}_Mlvjj_{0}_{1}jets_Stacked_log.png'.format(modeString,
                                                               opts.mH))
 
 c4body4 = TCanvas("c4body4", "4 body pull")
-pf4.Draw()
+pf4.Draw('ap')
+c4body4.SetGridy()
+c4body4.Update()
+pf4.SetMinimum(-5.)
+pf4.SetMaximum(5.)
+pf4.GetXaxis().SetLimits(pars4.minMass, pars4.maxMass)
+pf4.GetXaxis().SetTitle("m_{l#nujj} (GeV)")
+pf4.GetYaxis().SetTitle('pull (#sigma)')
 pyroot_logon.cmsPrelim(c4body4, pars4.intLumi/1000)
 c4body4.Update()
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj,

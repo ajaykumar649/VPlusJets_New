@@ -201,6 +201,7 @@ if fr:
     fr.Write('fr')
     sigPlot.Write()
     sigPlot2.Write()
+    fitter.ws.Write()
 
     sigFile.Close()
 
