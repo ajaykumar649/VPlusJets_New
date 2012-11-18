@@ -287,14 +287,14 @@ void ewk::JetTreeFiller::SetBranchSingle( int* x, std::string name)
 
 void ewk::JetTreeFiller::SetBranch( float* x, std::string name)
 {
-  tree_->Branch( name.c_str(), x, ( name+"[6]/F").c_str() );
+  tree_->Branch( name.c_str(), x, ( name+"[8]/F").c_str() );
   bnames.push_back( name );
 }
 
 
 void ewk::JetTreeFiller::SetBranch( int* x, std::string name)
 {
-  tree_->Branch( name.c_str(), x, ( name+"[6]/I").c_str() );
+  tree_->Branch( name.c_str(), x, ( name+"[8]/I").c_str() );
   bnames.push_back( name );
 }
 

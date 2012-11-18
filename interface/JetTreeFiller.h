@@ -71,7 +71,7 @@ namespace ewk {
     /// To be called once per event to fill the values for jets
     void fill(const edm::Event &iEvent);
 
-    static const int NUM_JET_MAX = 6;
+    static const int NUM_JET_MAX = 8;
 
   protected:
 
