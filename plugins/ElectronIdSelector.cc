@@ -164,7 +164,7 @@ void ElectronIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iS
 			 ele.pfIsolationVariables().photonIso  - 
 			 PI*0.4*0.4*fastJetRho) / pt;
 */
-   float EffArea = ElectronEffectiveArea::GetElectronEffectiveArea( ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03 , ele.eta() , ElectronEffectiveArea::kEleEAData2011);
+   float EffArea = ElectronEffectiveArea::GetElectronEffectiveArea( ElectronEffectiveArea::kEleGammaAndNeutralHadronIso03 , ele.eta() , ElectronEffectiveArea::kEleEAData2012);
    float pfIso03EA = (ele.pfIsolationVariables().chargedHadronIso + 
                       max(0.,ele.pfIsolationVariables().neutralHadronIso +
                       ele.pfIsolationVariables().photonIso  -
