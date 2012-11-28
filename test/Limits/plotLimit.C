@@ -19,25 +19,50 @@
 
 #include "hwwinputs.h"
 
-//#define LOGSCALE
+//#define LOGY
+
+//#define ADD7TEV
+#undef ADD7TEV
+
+#define YMAX 5.0
 
 ////CMS Preliminary label and lumi -- upper left corner
 void cmsLumi(bool prelim)
 {
-  const float LUMINOSITY = intlumipbinv * global_scale/1000.;
-  //const float LUMINOSITY = 5.1;
-  const float LUMINOSITY = 10.1;
+  //const float LUMINOSITY = intlumipbinv_el * global_scale/1000.;
+  const float LUMINOSITY = 5.1; // 5.2;
+  //const float LUMINOSITY = 10.1;
   TLatex latex;
   latex.SetNDC();
   latex.SetTextSize(0.04);
   latex.SetTextFont(42);
 
+#ifdef ADD7TEV
+  float lumiel=intlumipbinv_el+5020;
+  float lumimu=intlumipbinv_mu+5020;
+#else
+  float lumiel=intlumipbinv_el;
+  float lumimu=intlumipbinv_mu;
+#endif
+
   latex.SetTextAlign(31); // align right
-  //latex.DrawLatex(0.90,0.96,Form("#sqrt{s} = %d TeV",beamcomenergytev));
-  latex.DrawLatex(0.90,0.96,"#sqrt{s} = 7TeV/8TeV");
+
+#ifdef ADD7TEV
+  latex.DrawLatex(0.95,0.96,"#sqrt{s} = 7TeV/8TeV");
+#else
+  latex.DrawLatex(0.90,0.96,Form("#sqrt{s} = %d TeV",beamcomenergytev));
+#endif
+
   if (LUMINOSITY > 0.) {
     latex.SetTextAlign(11); // align left
-    latex.DrawLatex(0.5,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY));
+
+    if (lumiel==lumimu)
+      latex.DrawLatex(0.5,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}", LUMINOSITY));
+    else
+      latex.DrawLatex(0.4,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}(#mu)/%.1f fb^{-1}(#it{e})",
+				    (lumimu)/1000.,(lumiel)/1000.));
+
+    //latex.DrawLatex(0.4,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1}(#it{e})",LUMINOSITY));
     //latex.DrawLatex(0.45,0.96,Form("#scale[0.5]{#int} #font[12]{L} dt = %.1f fb^{-1} (scaled)", LUMINOSITY));
   }
   latex.SetTextAlign(11); // align left
@@ -108,10 +133,10 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
   mg->Draw("AH");
   //mg->GetXaxis()->SetRangeUser(0., double(npts));
 
-#ifdef LOGSCALE
+#ifdef LOGY
   mg->GetYaxis()->SetRangeUser(5e-2,40) ;
 #else
-  mg->GetYaxis()->SetRangeUser(0,6) ;
+  mg->GetYaxis()->SetRangeUser(0,YMAX) ;
 #endif
 
   //mg->Draw("A");
@@ -124,7 +149,7 @@ void plotLimit(TString limitFile = "limit-cfginfo.tab",
 
   gPad->SetGridy();
 
-#ifdef LOGSCALE
+#ifdef LOGY
   gPad->SetLogy();
 #endif
 
