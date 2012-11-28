@@ -396,7 +396,8 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
 	addToCard(card,shapehists[ichan],"background",
 		  Form("%s_backshape",channame.Data()),ichan,NUMCHAN,doshape);
 	addToCard(card,sighist,"signal","",ichan,NUMCHAN,doshape);
-      }
+
+      } // channel loop
 
       if (calcEstimatedLimit(card)) {
 	cfgtag = Form("lz%.3f_dkg%.2f",lambdaz+LAMBDAZ_INC/100.,deltaKappaGamma+dKG_INC/100.);

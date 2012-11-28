@@ -199,7 +199,7 @@ void makeTheoretUncert4Sig(int massgev,
 
   int imass2use = findMasspt2use(massgev);
 
-  cout << "Using mass " << masspts[imass2use] << "GeV for uncertainties."<<endl;
+  cout << "Using mass " << masspts[imass2use] << " GeV for uncertainties."<<endl;
 
   if (procname.Contains("qq") ) { // vbf process
 #if 0
