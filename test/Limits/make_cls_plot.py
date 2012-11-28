@@ -151,21 +151,21 @@ del canv
 finalPlot = TCanvas('final','limits',500,500)
 finalPlot.cd()
 
-limconts['+2s'].SetLineColor(ROOT.kGreen)
-limconts['+2s'].SetFillColor(ROOT.kGreen)
+limconts['+2s'].SetLineColor(ROOT.kYellow)
+limconts['+2s'].SetFillColor(ROOT.kYellow)
 limconts['+2s'].GetXaxis().SetLimits(-0.1,0.1)
 limconts['+2s'].Draw("ACF")
 
-limconts['+1s'].SetLineColor(ROOT.kYellow)
-limconts['+1s'].SetFillColor(ROOT.kYellow)
+limconts['+1s'].SetLineColor(ROOT.kGreen)
+limconts['+1s'].SetFillColor(ROOT.kGreen)
 limconts['+1s'].Draw("SAME CF")
 
-limconts['-1s'].SetLineColor(ROOT.kGreen)
-limconts['-1s'].SetFillColor(ROOT.kGreen)
+limconts['-1s'].SetLineColor(ROOT.kYellow)
+limconts['-1s'].SetFillColor(ROOT.kYellow)
 limconts['-1s'].Draw("SAME CF")
 
 limconts['-2s'].SetFillColor(ROOT.kWhite)
-limconts['-2s'].SetLineColor(ROOT.kGreen)
+limconts['-2s'].SetLineColor(ROOT.kYellow)
 limconts['-2s'].Draw("SAME CF")
 
 limconts['mean'].SetLineColor(ROOT.kBlack)
@@ -191,19 +191,20 @@ SMpoint = TGraph(1)
 SMpoint.SetPoint(1,0,0)
 SMpoint.Draw("SAME Po")
 
-smLabel = TPaveText(0,
-                    limconts['-2s'].GetYaxis().GetXmax()/8,
-                    limconts['-2s'].GetXaxis().GetXmax()/3.5,
-                    -limconts['-2s'].GetYaxis().GetXmax()/8)
-smLabel.SetFillStyle(0)
-smLabel.SetBorderSize(0)
-smLabel.AddText(' SM')
-smLabel.Draw()
+# smLabel = TPaveText(0,
+#                     limconts['-2s'].GetYaxis().GetXmax()/8,
+#                     limconts['-2s'].GetXaxis().GetXmax()/3.5,
+#                     -limconts['-2s'].GetYaxis().GetXmax()/8)
+# smLabel.SetFillStyle(0)
+# smLabel.SetBorderSize(0)
+# smLabel.AddText(' SM')
+# smLabel.Draw()
 
 legend = TLegend(0.212,0.686,0.554,0.917,"","NDC")
 legend.SetFillStyle(0)
 legend.SetBorderSize(0)
-legend.SetHeader("CMS Preliminary")
+#legend.SetHeader("CMS Preliminary")
+legend.SetHeader("CMS")
 legend.SetTextFont(42)
 
 legend.AddEntry(limconts['obs'],"Observed","L")
@@ -216,15 +217,15 @@ legend.Draw()
 text = TPaveText(0.516,0.720,0.915,0.951,"NDC")
 text.SetFillStyle(0)
 text.SetBorderSize(0)
-text.AddText("95% CLs Limit on "+"#bf{%s} and #bf{%s}"%(par1Latex,par2Latex))
+text.AddText("95% CL Limit on "+"#bf{%s} and #bf{%s}"%(par1Latex,par2Latex))
 text.AddText(0,0.35,"#intL dt= 5.0 fb^{-1}, #sqrt{s} = 7 TeV")
 text.Draw()
 
-text2 = TPaveText(0.155,0.199,0.974,0.244,"NDC")
-text2.SetFillStyle(0)
-text2.SetBorderSize(0)
-text2.AddText("aTGC values outside contour excluded")
-text2.Draw()
+# text2 = TPaveText(0.155,0.199,0.974,0.244,"NDC")
+# text2.SetFillStyle(0)
+# text2.SetBorderSize(0)
+# text2.AddText("Values outside contour excluded")
+# text2.Draw()
 
 text3 = TPaveText(0.506,0.699,0.905,0.758,"NDC")
 text3.SetFillStyle(0)
@@ -265,7 +266,9 @@ def make1DLimit(limits2d, par, parlatex, parmin, parmax, samples, boundScale, is
         bound = limits2d['-2s'][0].Interpolate(cutoff,0.0)
     else:
         bound = limits2d['-2s'][0].Interpolate(0.0,cutoff)
-    
+
+    print parmin, parmax, boundScale, bound
+
     for i in range(samples): 
         parval = parmin + i*parSize/samples
         
@@ -318,10 +321,10 @@ def make1DLimit(limits2d, par, parlatex, parmin, parmax, samples, boundScale, is
     limitplot.cd()
     limitplot.SetLogy()
 
-    limits1d['2s'][0].SetFillColor(ROOT.kGreen)
+    limits1d['2s'][0].SetFillColor(ROOT.kYellow)
     limits1d['2s'][0].Draw("A E3")
     
-    limits1d['1s'][0].SetFillColor(ROOT.kYellow)
+    limits1d['1s'][0].SetFillColor(ROOT.kGreen)
     limits1d['1s'][0].Draw("SAME E3")
     
     limits1d['mean'][0].SetLineStyle(2)
@@ -363,7 +366,7 @@ def make1DLimit(limits2d, par, parlatex, parmin, parmax, samples, boundScale, is
     textlim = TPaveText(0.357,0.197,0.754,0.246,"NDC")
     textlim.SetFillStyle(0)
     textlim.SetBorderSize(0)
-    textlim.AddText("%.2g < %s  < %.2g"%(lowerLimit,parlatex,upperLimit))
+    textlim.AddText("%.3f < %s  < %.3f"%(lowerLimit,parlatex,upperLimit))
     textlim.Draw()
     
     #lowLimitLine = TLine(lowerLimit,limits1d['2s'][0].GetYaxis().GetXmin()*0.75,
