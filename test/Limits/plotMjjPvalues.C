@@ -54,6 +54,8 @@ void plotMjjPvalues(std::string limitFile = "limitSummary.txt", bool prelim=fals
     if (nread == 0) { cout << "zero read" << endl; continue; }
     else if (nread == 7) {
 
+      r[i] /= 0.2132; // BR(W->lnu)
+
       cout << "obs["<<i<<"] = " << obs[i] << endl;
 
       if (obs[i]==0)    obs[i]   =1e-12;
@@ -98,7 +100,8 @@ void plotMjjPvalues(std::string limitFile = "limitSummary.txt", bool prelim=fals
   mg->SetName("");
   //  mg->SetTitle(";#sigma_{probe} / #sigma_{pred}; Signal Hypothesis P-value");
   // mg->SetTitle(";cross section #times BR(W#rightarrowl#nu) (pb); Signal p-value");
-  mg->SetTitle(";cross section #times BR(W#rightarrowl#nu) (pb); Signal CL_{s} value");
+  // mg->SetTitle(";cross section #times BR(W#rightarrowl#nu) (pb); Signal CL_{s} value");
+  mg->SetTitle("; dijet cross section (pb); Signal CL_{s} value");
 
   mg->Add(exp2sig, "E3");
   mg->Add(exp1sig, "E3");
@@ -109,7 +112,7 @@ void plotMjjPvalues(std::string limitFile = "limitSummary.txt", bool prelim=fals
   TCanvas *c1 = new TCanvas("c1","c1",450,400);
   float minYval = 5e-5;
   mg->Draw("AH");
-  mg->GetXaxis()->SetRangeUser(r[0], 4);
+  mg->GetXaxis()->SetRangeUser(r[0], 20);
   mg->GetYaxis()->SetRangeUser(minYval,1) ;
   //mg->Draw("A");
 #if 0
