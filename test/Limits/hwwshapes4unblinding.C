@@ -48,6 +48,8 @@ void writesig(TFile *allHistFile,
 
   assert(nbins);
 
+  bool iselectron = (channames[ichan][ELORMUCHAR] == 'e');
+
   TString name    = Form("ggH_%s_Mass_%d",channames[ichan],massgev);
   TH1D   *hggHout = new TH1D(name,name,nbins,xmin,xmax);
 
@@ -65,6 +67,8 @@ void writesig(TFile *allHistFile,
     
   const HdataPerMassPt& hd = it->second;
 
+  double intlumipbinv = (iselectron ? intlumipbinv_el:intlumipbinv_mu);
+
   // normalize signal histograms to their respective sigma x BR x lumi
   //double ovflwcor = hin->Integral(1,hin->GetNbinsX())/hin->Integral(0,hin->GetNbinsX()+1);
   double norm     = 
@@ -72,7 +76,7 @@ void writesig(TFile *allHistFile,
     //ovflwcor*
     global_scale* 
     intlumipbinv*
-    scaleBRforTau*
+    scaleBRforTau*   // because the twiki page does not include tau in the quoted BR for lvqq!
     hd.br2lnujj / 2; // DIV 2 because Jake divides Ngen by two!!
     
   printf("norm=%f * %f * %f\n", (hd.ggHcspb+hd.vbfcspb), intlumipbinv, hd.br2lnujj);
