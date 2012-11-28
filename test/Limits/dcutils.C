@@ -33,6 +33,7 @@ struct ShapeFiles_t {
 struct CardData_t {
   int nsigproc;
   int nbackproc;
+  std::set<TString> channels;
   ProcData_t data;   // data is identified separately as "observation"
   std::vector<ShapeFiles_t> shapespecs;
   std::deque<ProcData_t> processes; // push_front for signal, push_back for background

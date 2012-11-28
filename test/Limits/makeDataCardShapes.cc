@@ -105,11 +105,7 @@ CardData_t
 makeNewCard(TH1           *inhist,
 	    const TString& procname,
 	    const TString& systname,
-	    const int      imass,
-	    const bool     isinterp, // interpolated mass point
-	    const int      ichanref,
-	    const int      ichan,
-	    const int      nchan
+	    const int      ichanref
 	    )
 {
   CardData_t card;
@@ -119,51 +115,14 @@ makeNewCard(TH1           *inhist,
 
   cout << "\tmake new card ";
 
-  const pair<double,double> zeropair(0.0,0.0);
-
-  // all cards have these by default; these are the non-shape-based systematics
-  //
-  TString bckgrdsyst = Form("CMS_%s_norm_back_%dTeV",channames[ichanref],beamcomenergytev); // channel-dependent
-  TString signalsyst = Form("CMS_%s_eff_sig_%dTeV",channames[ichanref],beamcomenergytev);   // channel-dependent
-
-  char elormu = channames[ichanref][ELORMUCHAR];
-  //TString trigsyst   = "CMS_trigger_"+TString(elormu);
-  TString leptsyst   = "CMS_eff_"+TString(elormu);
-
-  card.systematics[bckgrdsyst]     = "lnN";
-  //card.systematics[trigsyst]       = "lnN"; // common across same-flavor channels
-  card.systematics[leptsyst]       = "lnN"; // common across same-flavor channels
-  card.systematics["lumi_8TeV"]    = "lnN"; // common across channels
-#ifdef ISHWW
-  card.systematics[signalsyst]     = "lnN";
-  card.systematics["pdf_gg"]       = "lnN"; // common across channels for ggF process
-#ifdef SEVENTEV
-  card.systematics["pdf_qqbar"]    = "lnN"; // common across channels for VBF process
-#endif
-  card.systematics["QCDscale_ggH"]    = "lnN"; // common across channels for ggF process 2j bin
-  card.systematics["QCDscale_ggH1in"] = "lnN"; // common across channels for ggF process 2j/3j bins
-  card.systematics["QCDscale_ggH2in"] = "lnN"; // common across channels for ggF process 3j bin
-  card.systematics["UEPS"]            = "lnN"; // common across channels for ggF process 2j/3j bins
-  card.systematics["interf_ggH"]      = "shape"; // common across channels for ggF process 2j/3j bins
-#ifdef SEVENTEV
-  card.systematics["QCDscale_qqH"]  = "lnN"; // common across channels for VBF process
-#endif
-  int massgev = isinterp ? interpolatedmasspts[imass] : masspts[imass];
-
-  if (massgev >= 300) {
-    // add "heavy Higgs" uncertainty
-    // https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HeavyHiggs
-    //card.systematics["theoryUncXS_HighMH"] = "lnN";
-  }
-#endif
-
   ProcData_t pd;
 
   pair<TString,double> channel;
 
-  pd.name        = procname;
-  channel.first  = channames[ichanref];
-  channel.second = inhist->Integral(); // the yield for this channel
+  TString channame = channames[ichanref];
+  pd.name          = procname;
+  channel.first    = channame;
+  channel.second   = inhist->Integral(); // the yield for this channel
 
   pd.channels.insert(channel);
 
@@ -181,91 +140,11 @@ makeNewCard(TH1           *inhist,
       assert(!systname.Length());     // don't expect to encounter shape systematic first.
 
       card.nsigproc++;
-
       pd.procindex = 1-card.nsigproc; /* process index for signal processes required to be distinct,
 					 as well as 0 or negative */
-
-      // insert signal lumi and xsec systematics now
-#ifdef ISHWW
-
-      // down/up pairs to put in card
-      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
-      
-      makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
-
-      if (procname.Contains("qq") ) { // VBF process
-	
-	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
-	
-      } else { // default gg fusion
-
-	pd.systrates["pdf_gg"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_ggH"].resize(nchan,zeropair);
-	pd.systrates["QCDscale_ggH1in"].resize(nchan,zeropair);
-	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
-	pd.systrates["UEPS"].resize(nchan,zeropair);
-	if (ichanref & 1) { // odd channel, 3jet bin
-	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
-	  pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
-	  pd.systrates["UEPS"][ichan]            = ueps1;
-	} else { // even channel, 2jet bin
-	  pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
-	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
-	  pd.systrates["UEPS"][ichan]            = ueps0;
-	}
-      }
-#if 0
-      if (massgev >= 300) {
-	// add "heavy Higgs" uncertainty
-	// https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HeavyHiggs
-	pair<double,double> highmassunc( 0.0, 1.0 + (1.5*pow(massgev/1000.,3)) );
-	
-	//pd.systrates["theoryUncXS_HighMH"].resize(nchan,highmassunc);
-      }
-#endif
-
-#endif //ISHWW
-
-      pair<double,double> lumipair(0.0, 1+siglumiunc);
-
-      pd.systrates["lumi_8TeV"].resize(nchan,lumipair);
-
-      //pd.systrates[trigsyst].resize(nchan,zeropair);
-      //pd.systrates[trigsyst][ichan].second = 1+sigtrigeffunc;
-      pd.systrates[leptsyst].resize(nchan,zeropair);
-      
-      pd.systrates[leptsyst][ichan].second = 1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
-
-#ifdef ISHWW
-      pd.systrates[signalsyst].resize(nchan,zeropair);
-      pd.systrates[signalsyst][ichan].second =
-#ifdef SEVENTEV
-	1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
-#else
-      1.0 + (sigselefferrpct8tev)/100.;
-#endif
-#endif //ISHWW
-
     } else {                                                        //background
       card.nbackproc++;
       pd.procindex = card.nbackproc;
-
-      int imass2use = findMasspt2use(massgev);
-    
-      if ( pd.name.Contains("kgr") ) {
-	pd.systrates[bckgrdsyst].resize(nchan,zeropair);
-	pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass2use*NUMCHAN+ichanref];
-      }
-
-      if (systname.Length()) {
-	card.systematics[systname] = "shape";
-
-	pd.systrates[systname].resize(nchan,zeropair); /* shape-based systematic,
-							  assume all channels uncorrelated,
-							  so all channels get factor 0.0, */
-	pd.systrates[systname][ichan].second = 1.0;     // except the current channel
-      }
     }
       
     card.processes.push_back(pd);
@@ -273,6 +152,7 @@ makeNewCard(TH1           *inhist,
 
   } // else not data
 
+  card.channels.insert(channame);
 
   return card;
 }                                                                   // makeNewCard
@@ -284,8 +164,6 @@ addToCard(CardData_t&    card,
 	  TH1           *inhist,   // input histogram
 	  const TString& procname, // process name 
 	  const TString& systname, // name of (shape) systematic applied
-	  const int      imass,    // mass index
-	  const bool     isinterp, // interpolated mass point
 	  const int      ichanref, // channel reference index
 	  const int      ichan,    // channel index
 	  const int      nchan     // number of channels in card
@@ -306,24 +184,10 @@ addToCard(CardData_t&    card,
 
   TString channame(channames[ichanref]);
 
+  card.channels.insert(channame);
+
   channel.first  = channame;
   channel.second = inhist->Integral();
-
-  TString bckgrdsyst = Form("CMS_%s_norm_back_%dTeV",channame.Data(),beamcomenergytev); // channel-dependent
-  TString signalsyst = Form("CMS_%s_eff_sig_%dTeV",channame.Data(),beamcomenergytev);   // channel-dependent
-
-  char elormu = channame[ELORMUCHAR];
-  //TString trigsyst   = "CMS_trigger_"+TString(elormu);
-  TString leptsyst   = "CMS_eff_"+TString(elormu);
-
-  card.systematics[bckgrdsyst]   = "lnN";
-#ifdef ISHWW
-  card.systematics[signalsyst]   = "lnN";
-#endif //ISHWW
-  //card.systematics[trigsyst]     = "lnN"; // common across same-flavor channels
-  card.systematics[leptsyst]     = "lnN"; // common across same-flavor channels
-
-  int massgev = isinterp ? interpolatedmasspts[imass] : masspts[imass];
   
   if( procname.Contains("data") )         // data observation
 
@@ -345,12 +209,6 @@ addToCard(CardData_t&    card,
 	   ) { // signal expectation
 
 
-    pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
-#ifdef ISHWW
-    makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
-#endif //ISHWW
-    pair<double,double> lumipair(0.0, 1+siglumiunc);
-
     map<TString,int>::iterator pit;
     pit = card.pname2index.find(procname);
     if (pit == card.pname2index.end()) {    // new signal process, first channel encountered
@@ -365,51 +223,6 @@ addToCard(CardData_t&    card,
 
       pd.channels.insert(channel);
 
-      pd.systrates["lumi_8TeV"].resize(nchan,lumipair);
-      //pd.systrates[trigsyst].resize(nchan,zeropair);
-      //pd.systrates[trigsyst][ichan].second = 1.0+sigtrigeffunc;
-      pd.systrates[leptsyst].resize(nchan,zeropair);
-      pd.systrates[leptsyst][ichan].second = 1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
-#ifdef ISHWW
-      pd.systrates[signalsyst].resize(nchan,zeropair);
-      pd.systrates[signalsyst][ichan].second = 
-#ifdef SEVENTEV
-	1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
-#else
-	1.0 + (sigselefferrpct8tev)/100.;
-#endif
-
-      if (procname.Contains("qq") ) {
-	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
-      } else {
-	pd.systrates["pdf_gg"].resize(nchan,pdfunc);
-	pd.systrates["QCDscale_ggH"].resize(nchan,zeropair);
-	pd.systrates["QCDscale_ggH1in"].resize(nchan,zeropair);
-	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
-	pd.systrates["UEPS"].resize(nchan,zeropair);
-	if (ichanref & 1) { // odd channel, 3jet bin
-	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
-	  pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
-	  pd.systrates["UEPS"][ichan]            = ueps1;
-	} else { // even channel, 2jet bin
-	  pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
-	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
-	  pd.systrates["UEPS"][ichan]            = ueps0;
-	}
-      }
-#if 0
-      if (massgev >= 300) {
-	// add "heavy Higgs" uncertainty
-	// https://twiki.cern.ch/twiki/bin/view/LHCPhysics/HeavyHiggs
-	pair<double,double> highmassunc( 0.0, 1.0 + (1.5*pow(massgev/1000.,3)) );
-	
-	//pd.systrates["theoryUncXS_HighMH"].resize(nchan,highmassunc);
-      }
-#endif
-
-#endif //ISHWW
-
       // put new signal in front, have to adjust the mapped indices for all the rest.
       // This maintains the proper ordering of processes in the datacard (for LandS)
       //
@@ -420,7 +233,7 @@ addToCard(CardData_t&    card,
 
       card.pname2index[pd.name] = 0;
 
-    } else {                                // another channel for signal, presumably
+    } else {                        // another channel for signal, or a shape systematic
 
       ProcData_t& pd = card.processes[pit->second];
       assert(pd.name.Length());             // process should exist here
@@ -451,54 +264,10 @@ addToCard(CardData_t&    card,
 
 	pd.channels.insert(channel);
 
-#if 0
-	// has this signal systematic been initialized for this process?
-	map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(trigsyst);
-	if (rit == pd.systrates.end()) { //  no
-	  pd.systrates[trigsyst].resize(nchan,zeropair);
-	}
-	pd.systrates[trigsyst][ichan].second   = 1.0 + sigtrigeffunc;
-#endif
-	// has this signal systematic been initialized for this process?
-	map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(leptsyst);
-	if (rit == pd.systrates.end()) { //  no
-	  pd.systrates[leptsyst].resize(nchan,zeropair);
-	}
-	pd.systrates[leptsyst][ichan].second = 1.0+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
-
-#ifdef ISHWW
-	// has this signal systematic been initialized for this process?
-	rit = pd.systrates.find(signalsyst);
-	if (rit == pd.systrates.end()) { //  no
-	  pd.systrates[signalsyst].resize(nchan,zeropair);
-	}
-	pd.systrates[signalsyst][ichan].second =
-#ifdef SEVENTEV
-	  1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
-#else
-	1.0 + (sigselefferrpct8tev)/100.;
-#endif
-	if (procname.Contains("qq") ) { // vbf process
-	  pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
-	  pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
-	} else {
-	  if (ichanref & 1) { // odd channel, 3jet bin
-	    pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
-	    pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
-	    pd.systrates["UEPS"][ichan]            = ueps1;
-	  } else { // even channel, 2jet bin
-	    pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
-	    pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
-	    pd.systrates["UEPS"][ichan]            = ueps0;
-	  }
-	}
-#endif //ISHWW
       } // nominal signal histo
     } // signal histo for another channel, or systematic
 
   } else {                               // background process
-
-    int imass2use = findMasspt2use(massgev);
 
     map<TString,int>::iterator pit;
     pit = card.pname2index.find(procname);
@@ -509,11 +278,6 @@ addToCard(CardData_t&    card,
       pd.name = procname;
       pd.procindex = card.nbackproc;
       pd.channels.insert(channel);
-
-      if ( pd.name.Contains("kgr") ) {
-	pd.systrates[bckgrdsyst].resize(nchan,zeropair);
-	pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass2use*NUMCHAN+ichanref];
-      }
 
       card.pname2index[pd.name] = (int)card.processes.size();
       card.processes.push_back(pd);
@@ -531,19 +295,175 @@ addToCard(CardData_t&    card,
 	assert(pd.name.Length());             // process should exist here
 	assert(!pd.name.CompareTo(procname)); // and be named the same
 	pd.channels.insert(channel);
-
-	if ( pd.name.Contains("kgr") ) {
-	  // has this background systematic been initialized for this process?
-	  map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(bckgrdsyst);
-	  if (rit == pd.systrates.end()) { //  no
-	    pd.systrates[bckgrdsyst].resize(nchan,zeropair);
-	  }
-	  pd.systrates[bckgrdsyst][ichan].second = backnormerr[imass2use*NUMCHAN+ichanref];
-	}
       }
     }
   }
 }                                                                     // addToCard
+
+//================================================================================
+
+void addSystematics(int massgev,
+		    CardData_t& card,
+		    const vector<int>& channellist)
+{
+  int nchan = (int)card.channels.size();
+
+  // per-channel systematics:
+  for (std::set<TString>::iterator it=card.channels.begin(); it!=card.channels.end(); it++) {
+    TString channame = *it;
+
+    // all cards have these by default; these are the non-shape-based systematics
+    //
+    TString bckgrdsyst = Form("CMS_%s_norm_back_%dTeV",channame.Data(),beamcomenergytev); // channel-dependent
+    TString signalsyst = Form("CMS_%s_eff_sig_%dTeV",channame.Data(),beamcomenergytev);   // channel-dependent
+
+    char elormu = channame[ELORMUCHAR];
+    //TString trigsyst   = "CMS_trigger_"+TString(elormu);
+    TString leptsyst   = "CMS_eff_"+TString(elormu);
+
+    card.systematics[bckgrdsyst]   = "lnN";
+#ifdef ISHWW
+    card.systematics[signalsyst]   = "lnN";
+#endif //ISHWW
+    //card.systematics[trigsyst]     = "lnN"; // common across same-flavor channels
+    card.systematics[leptsyst]     = "lnN"; // common across same-flavor channels
+  }
+
+  // common systematics
+  card.systematics["lumi_8TeV"]    = "lnN"; // common across channels
+
+#ifdef ISHWW
+  card.systematics["pdf_gg"]       = "lnN"; // common across channels for ggF process
+#ifdef SEVENTEV
+  card.systematics["pdf_qqbar"]    = "lnN"; // common across channels for VBF process
+#endif
+  card.systematics["QCDscale_ggH"]    = "lnN"; // common across channels for ggF process 2j bin
+  card.systematics["QCDscale_ggH1in"] = "lnN"; // common across channels for ggF process 2j/3j bins
+  card.systematics["QCDscale_ggH2in"] = "lnN"; // common across channels for ggF process 3j bin
+  card.systematics["UEPS"]            = "lnN"; // common across channels for ggF process 2j/3j bins
+  card.systematics["interf_ggH"]      = "shape"; // common across channels for ggF process 2j/3j bins
+#ifdef SEVENTEV
+  card.systematics["QCDscale_qqH"]  = "lnN"; // common across channels for VBF process
+#endif
+#endif // ISHWW
+
+  std::map<TString,int>::const_iterator it;
+  for (it=card.pname2index.begin(); it != card.pname2index.end(); it++) {
+    TString procname = it->first;
+    int index = it->second;
+
+    ProcData_t& pd = card.processes[index];
+
+    if( procname.Contains("data") ) return;
+
+    if( procname.Contains("ignal")
+#ifdef ISHWW
+	|| (procname.Contains("ggH") ||
+	    procname.Contains("qq") )
+#endif //ISHWW
+	) {                              // signal
+
+      // insert signal lumi and xsec systematics now
+#ifdef ISHWW
+
+      pair<double,double> lumipair(0.0, 1+siglumiunc);
+
+      pd.systrates["lumi_8TeV"].resize(nchan,lumipair);
+
+      // down/up pairs to put in card
+      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
+    
+      makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
+
+      if (procname.Contains("qq") ) { // VBF process
+	
+	pd.systrates["pdf_qqbar"].resize(nchan,pdfunc);
+	pd.systrates["QCDscale_qqH"].resize(nchan,scaleunc0);
+      
+      } else { // default gg fusion
+
+	pd.systrates["pdf_gg"].resize(nchan,pdfunc);
+	pd.systrates["QCDscale_ggH"].resize(nchan,zeropair);
+	pd.systrates["QCDscale_ggH1in"].resize(nchan,zeropair);
+	pd.systrates["QCDscale_ggH2in"].resize(nchan,zeropair);
+	pd.systrates["UEPS"].resize(nchan,zeropair);
+      }
+#endif //ISHWW
+
+      int ichan=-1;
+      for (int ichanref=0; ichanref<NUMCHAN; ichanref++) { //  depends on channames being lexically ordered!
+
+	if (card.channels.find(channames[ichanref]) == card.channels.end()) {
+	  cout << "...skipping."  << endl;
+	  continue;  // check if on the list of channels to be done
+	}
+      
+	ichan++;
+
+	char elormu = channames[ichanref][ELORMUCHAR];
+	//TString trigsyst   = "CMS_trigger_"+TString(elormu);
+	TString leptsyst   = "CMS_eff_"+TString(elormu);
+
+	if (ichanref & 1) { // odd channel, 3jet bin
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc2;
+	  pd.systrates["QCDscale_ggH2in"][ichan] = scaleunc3;
+	  pd.systrates["UEPS"][ichan]            = ueps1;
+	} else { // even channel, 2jet bin
+	  pd.systrates["QCDscale_ggH"][ichan]    = scaleunc0;
+	  pd.systrates["QCDscale_ggH1in"][ichan] = scaleunc1;
+	  pd.systrates["UEPS"][ichan]            = ueps0;
+	}
+
+	//pd.systrates[trigsyst].resize(nchan,zeropair);
+	//pd.systrates[trigsyst][ichan].second = 1+sigtrigeffunc;
+	if (!pd.systrates[leptsyst].size())
+	  pd.systrates[leptsyst].resize(nchan,zeropair);
+	pd.systrates[leptsyst][ichan].second = 1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc);
+
+#ifdef ISHWW
+	TString signalsyst = Form("CMS_%s_eff_sig_%dTeV",  channames[ichanref],beamcomenergytev);
+	if (!pd.systrates[signalsyst].size())
+	  pd.systrates[signalsyst].resize(nchan,zeropair);
+	pd.systrates[signalsyst][ichan].second =
+#ifdef SEVENTEV
+	  1.0 + (massgev < 500 ? sigselefferrpctlomass : sigselefferrpcthimass)/100.;
+#else
+	  1.0 + (sigselefferrpct8tev)/100.;
+#endif
+#endif //ISHWW
+
+      } // channel loop
+
+    } else {                                                        //background
+    
+      int imass2use = findMasspt2use(massgev);
+
+      int ichan=-1;
+      for (int ichanref=0; ichanref<NUMCHAN; ichanref++) { //  depends on channames being lexically ordered!
+
+	if (card.channels.find(channames[ichanref]) == card.channels.end()) {
+	  cout << "...skipping."  << endl;
+	  continue;  // check if on the list of channels to be done
+	}
+      
+	ichan++;
+
+	TString bckgrdsyst = Form("CMS_%s_norm_back_%dTeV",channames[ichanref],beamcomenergytev);
+    
+	if ( pd.name.Contains("kgr") ) {
+	  if (!pd.systrates[bckgrdsyst].size())
+	    pd.systrates[bckgrdsyst].resize(nchan,zeropair);
+	  int index = imass2use*NUMCHAN+ichanref;
+	  //cout << imass2use << " " << ichanref << " " << ichan << " " << index << endl;
+	  pd.systrates[bckgrdsyst][ichan].second = backnormerr[index];
+	}
+      } // channel loop
+
+    } // if is background
+
+  } // process loop
+
+}                                                                // addSystematics
 
 //================================================================================
 
@@ -606,18 +526,27 @@ makeDataCardContent(TFile *fp, map<int,CardData_t>& m_cards,
     map<int,CardData_t>::iterator it = m_cards.find(massgev);
     if (it == m_cards.end()) {                                    // new masspoint
 
-      m_cards[massgev] = makeNewCard(h1,procname,systname,
-				     imass,isinterp,ichanref,ichan,channellist.size());
+      CardData_t card  = makeNewCard(h1,procname,systname,ichanref);
+
+      m_cards[massgev] = card;
 
     } else {                                                 // existing masspoint
 
-      addToCard(it->second,h1,procname,systname,imass,isinterp,ichanref,ichan,channellist.size());
+      addToCard(it->second,h1,procname,systname,ichanref,ichan,channellist.size());
 
     } // existing masspoint
 
-
     cout  << endl;
   } // key loop
+
+
+  map<int,CardData_t>::iterator it;
+  for (it=m_cards.begin();
+       it!=m_cards.end();
+       it++) {
+    addSystematics(it->first, it->second,channellist);
+  }
+
 }                                                           // makeDataCardContent
 
 //================================================================================
