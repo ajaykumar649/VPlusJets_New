@@ -172,6 +172,131 @@ namespace ewk {
     float Met_Y;
     int Met_Id;
 
+    ///////////////////
+   
+    int tParton_Charge[2];
+    float tParton_px[2];
+    float tParton_py[2];
+    float tParton_pz[2];
+    float tParton_E[2];
+    float tParton_Pt[2];
+    float tParton_Et[2];
+    float tParton_Eta[2];
+    float tParton_Theta[2];
+    float tParton_Phi[2];
+    float tParton_Vx[2];
+    float tParton_Vy[2];
+    float tParton_Vz[2];
+    float tParton_Y[2];
+    int tParton_Id[2];
+
+    ///////////////////
+    float tLepton_px;
+    float tLepton_py;
+    float tLepton_pz;
+    float tLepton_E;
+    float tLepton_Pt;
+    float tLepton_Et;
+    float tLepton_Eta;
+    int   tLepton_Charge;
+    float tLepton_Theta;
+    float tLepton_Phi;
+    float tLepton_Vx;
+    float tLepton_Vy;
+    float tLepton_Vz;
+    float tLepton_Y;
+    int tLepton_Id;
+
+    ///////////////////
+    float tMet_px;
+    float tMet_py;
+    float tMet_pz;
+    float tMet_E;
+    float tMet_Pt;
+    float tMet_Et;
+    float tMet_Eta;
+    int   tMet_Charge;
+    float tMet_Theta;
+    float tMet_Phi;
+    float tMet_Vx;
+    float tMet_Vy;
+    float tMet_Vz;
+    float tMet_Y;
+    int tMet_Id;
+
+
+   ///////////////////
+    float tb_px;
+    float tb_py;
+    float tb_pz;
+    float tb_E;
+    float tb_Pt;
+    float tb_Et;
+    float tb_Eta;
+    int   tb_Charge;
+    float tb_Theta;
+    float tb_Phi;
+    float tb_Vx;
+    float tb_Vy;
+    float tb_Vz;
+    float tb_Y;
+    int tb_Id;
+
+
+   ///////////////////
+    float tbbar_px;
+    float tbbar_py;
+    float tbbar_pz;
+    float tbbar_E;
+    float tbbar_Pt;
+    float tbbar_Et;
+    float tbbar_Eta;
+    int   tbbar_Charge;
+    float tbbar_Theta;
+    float tbbar_Phi;
+    float tbbar_Vx;
+    float tbbar_Vy;
+    float tbbar_Vz;
+    float tbbar_Y;
+    int tbbar_Id;
+
+
+  ///////////////////
+    float Hb_px;
+    float Hb_py;
+    float Hb_pz;
+    float Hb_E;
+    float Hb_Pt;
+    float Hb_Et;
+    float Hb_Eta;
+    int   Hb_Charge;
+    float Hb_Theta;
+    float Hb_Phi;
+    float Hb_Vx;
+    float Hb_Vy;
+    float Hb_Vz;
+    float Hb_Y;
+    int Hb_Id;
+
+
+   ///////////////////
+    float Hbbar_px;
+    float Hbbar_py;
+    float Hbbar_pz;
+    float Hbbar_E;
+    float Hbbar_Pt;
+    float Hbbar_Et;
+    float Hbbar_Eta;
+    int   Hbbar_Charge;
+    float Hbbar_Theta;
+    float Hbbar_Phi;
+    float Hbbar_Vx;
+    float Hbbar_Vy;
+    float Hbbar_Vz;
+    float Hbbar_Y;
+    int Hbbar_Id;
+
+
 
 
   };

@@ -173,6 +173,121 @@ void ewk::MCTreeFiller::SetBranches()
   SetBranch( &Met_Y,              "Met_y" );
   SetBranch( &Met_Id,              "Met_Id" );
 
+ ////////////////////////////////////////////////////////
+  SetBranch( tParton_px,             "tParton_px[2]" );
+  SetBranch( tParton_py,             "tParton_py[2]" );
+  SetBranch( tParton_pz,             "tParton_pz[2]" );
+  SetBranch( tParton_E,              "tParton_E[2]" );
+  SetBranch( tParton_Pt,             "tParton_pt[2]" );
+  SetBranch( tParton_Et,             "tParton_et[2]" );
+  SetBranch( tParton_Eta,            "tParton_eta[2]" ); 
+  SetBranch( tParton_Theta,          "tParton_theta[2]" );    
+  SetBranch( tParton_Phi,            "tParton_phi[2]" );
+  SetBranch( tParton_Charge,         "tParton_charge[2]" );
+  SetBranch( tParton_Vx,             "tParton_vx[2]" );
+  SetBranch( tParton_Vy,             "tParton_vy[2]" );
+  SetBranch( tParton_Vz,             "tParton_vz[2]" );
+  SetBranch( tParton_Y,              "tParton_y[2]" );
+  SetBranch( tParton_Id,              "tParton_Id[2]" );
+
+
+ ////////////////////////////////////////////////////////
+  SetBranch( &tLepton_px,             "tLepton_px" );
+  SetBranch( &tLepton_py,             "tLepton_py" );
+  SetBranch( &tLepton_pz,             "tLepton_pz" );
+  SetBranch( &tLepton_E,              "tLepton_E" );
+  SetBranch( &tLepton_Pt,             "tLepton_pt" );
+  SetBranch( &tLepton_Et,             "tLepton_et" );
+  SetBranch( &tLepton_Eta,            "tLepton_eta" );    
+  SetBranch( &tLepton_Theta,          "tLepton_theta" );    
+  SetBranch( &tLepton_Phi,            "tLepton_phi" );
+  SetBranch( &tLepton_Charge,         "tLepton_charge" );
+  SetBranch( &tLepton_Vx,             "tLepton_vx" );
+  SetBranch( &tLepton_Vy,             "tLepton_vy" );
+  SetBranch( &tLepton_Vz,             "tLepton_vz" );
+  SetBranch( &tLepton_Y,              "tLepton_y" );
+  SetBranch( &tLepton_Id,              "tLepton_Id" );
+
+ ////////////////////////////////////////////////////////
+  SetBranch( &tMet_px,             "tMet_px" );
+  SetBranch( &tMet_py,             "tMet_py" );
+  SetBranch( &tMet_pz,             "tMet_pz" );
+  SetBranch( &tMet_E,              "tMet_E" );
+  SetBranch( &tMet_Pt,             "tMet_pt" );
+  SetBranch( &tMet_Et,             "tMet_et" );
+  SetBranch( &tMet_Eta,            "tMet_eta" );    
+  SetBranch( &tMet_Theta,          "tMet_theta" );    
+  SetBranch( &tMet_Phi,            "tMet_phi" );
+  SetBranch( &tMet_Charge,         "tMet_charge" );
+  SetBranch( &tMet_Vx,             "tMet_vx" );
+  SetBranch( &tMet_Vy,             "tMet_vy" );
+  SetBranch( &tMet_Vz,             "tMet_vz" );
+  SetBranch( &tMet_Y,              "tMet_y" );
+  SetBranch( &tMet_Id,              "tMet_Id" );
+
+  SetBranch( &tb_px,             "tb_px" );
+  SetBranch( &tb_py,             "tb_py" );
+  SetBranch( &tb_pz,             "tb_pz" );
+  SetBranch( &tb_E,              "tb_E" );
+  SetBranch( &tb_Pt,             "tb_pt" );
+  SetBranch( &tb_Et,             "tb_et" );
+  SetBranch( &tb_Eta,            "tb_eta" );
+  SetBranch( &tb_Theta,          "tb_theta" );
+  SetBranch( &tb_Phi,            "tb_phi" );
+  SetBranch( &tb_Charge,         "tb_charge" );
+  SetBranch( &tb_Vx,             "tb_vx" );
+  SetBranch( &tb_Vy,             "tb_vy" );
+  SetBranch( &tb_Vz,             "tb_vz" );
+  SetBranch( &tb_Y,              "tb_y" );
+  SetBranch( &tb_Id,              "tb_Id" );
+
+  SetBranch( &tbbar_px,             "tbbar_px" );
+  SetBranch( &tbbar_py,             "tbbar_py" );
+  SetBranch( &tbbar_pz,             "tbbar_pz" );
+  SetBranch( &tbbar_E,              "tbbar_E" );
+  SetBranch( &tbbar_Pt,             "tbbar_pt" );
+  SetBranch( &tbbar_Et,             "tbbar_et" );
+  SetBranch( &tbbar_Eta,            "tbbar_eta" );
+  SetBranch( &tbbar_Theta,          "tbbar_theta" );
+  SetBranch( &tbbar_Phi,            "tbbar_phi" );
+  SetBranch( &tbbar_Charge,         "tbbar_charge" );
+  SetBranch( &tbbar_Vx,             "tbbar_vx" );
+  SetBranch( &tbbar_Vy,             "tbbar_vy" );
+  SetBranch( &tbbar_Vz,             "tbbar_vz" );
+  SetBranch( &tbbar_Y,              "tbbar_y" );
+  SetBranch( &tbbar_Id,              "tbbar_Id" );
+
+  SetBranch( &Hb_px,             "Hb_px" );
+  SetBranch( &Hb_py,             "Hb_py" );
+  SetBranch( &Hb_pz,             "Hb_pz" );
+  SetBranch( &Hb_E,              "Hb_E" );
+  SetBranch( &Hb_Pt,             "Hb_pt" );
+  SetBranch( &Hb_Et,             "Hb_et" );
+  SetBranch( &Hb_Eta,            "Hb_eta" );
+  SetBranch( &Hb_Theta,          "Hb_theta" );
+  SetBranch( &Hb_Phi,            "Hb_phi" );
+  SetBranch( &Hb_Charge,         "Hb_charge" );
+  SetBranch( &Hb_Vx,             "Hb_vx" );
+  SetBranch( &Hb_Vy,             "Hb_vy" );
+  SetBranch( &Hb_Vz,             "Hb_vz" );
+  SetBranch( &Hb_Y,              "Hb_y" );
+  SetBranch( &Hb_Id,              "Hb_Id" );
+
+  SetBranch( &Hbbar_px,             "Hbbar_px" );
+  SetBranch( &Hbbar_py,             "Hbbar_py" );
+  SetBranch( &Hbbar_pz,             "Hbbar_pz" );
+  SetBranch( &Hbbar_E,              "Hbbar_E" );
+  SetBranch( &Hbbar_Pt,             "Hbbar_pt" );
+  SetBranch( &Hbbar_Et,             "Hbbar_et" );
+  SetBranch( &Hbbar_Eta,            "Hbbar_eta" );
+  SetBranch( &Hbbar_Theta,          "Hbbar_theta" );
+  SetBranch( &Hbbar_Phi,            "Hbbar_phi" );
+  SetBranch( &Hbbar_Charge,         "Hbbar_charge" );
+  SetBranch( &Hbbar_Vx,             "Hbbar_vx" );
+  SetBranch( &Hbbar_Vy,             "Hbbar_vy" );
+  SetBranch( &Hbbar_Vz,             "Hbbar_vz" );
+  SetBranch( &Hbbar_Y,              "Hbbar_y" );
+  SetBranch( &Hbbar_Id,              "Hbbar_Id" );
 
     
 }
@@ -281,13 +396,126 @@ for ( int i =0; i<2; i++){
   Met_Y               = -10.;
   Met_Id              = 0;
 
+for ( int i =0; i<2; i++){
+  tParton_px[i]              = -99999.;
+  tParton_py[i]              = -99999.;
+  tParton_pz[i]              = -99999.;
+  tParton_E[i]               = -1.;
+  tParton_Pt[i]              = -1.;
+  tParton_Et[i]              = -1.;
+  tParton_Eta[i]             = -10.;
+  tParton_Theta[i]           = -99999.;
+  tParton_Phi[i]             = -10.;
+  tParton_Vx[i]              = -10.;
+  tParton_Vy[i]              = -10.;
+  tParton_Vz[i]              = -10.;
+  tParton_Y[i]              =  -10.;
+  tParton_Id[i]              = 0;
+}
+
+  tLepton_px              = -99999.;
+  tLepton_py              = -99999.;
+  tLepton_pz              = -99999.;
+  tLepton_E               = -1.;
+  tLepton_Pt              = -1.;
+  tLepton_Et              = -1.;
+  tLepton_Eta             = -10.;
+  tLepton_Charge          = -10;
+  tLepton_Theta           = -99999.;
+  tLepton_Phi             = -10.;
+  tLepton_Vx              = -10.;
+  tLepton_Vy              = -10.;
+  tLepton_Vz              = -10.;
+  tLepton_Y               = -10.;
+  tLepton_Id              = 0;
+
+  tMet_px              = -99999.;
+  tMet_py              = -99999.;
+  tMet_pz              = -99999.;
+  tMet_E               = -1.;
+  tMet_Pt              = -1.;
+  tMet_Et              = -1.;
+  tMet_Eta             = -10.;
+  tMet_Charge          = -10;
+  tMet_Theta           = -99999.;
+  tMet_Phi             = -10.;
+  tMet_Vx              = -10.;
+  tMet_Vy              = -10.;
+  tMet_Vz              = -10.;
+  tMet_Y               = -10.;
+  tMet_Id              = 0;
+
+
+  tb_px              = -99999.;
+  tb_py              = -99999.;
+  tb_pz              = -99999.;
+  tb_E               = -1.;
+  tb_Pt              = -1.;
+  tb_Et              = -1.;
+  tb_Eta             = -10.;
+  tb_Charge          = -10;
+  tb_Theta           = -99999.;
+  tb_Phi             = -10.;
+  tb_Vx              = -10.;
+  tb_Vy              = -10.;
+  tb_Vz              = -10.;
+  tb_Y               = -10.;
+  tb_Id              = 0;
+
+
+  tbbar_px              = -99999.;
+  tbbar_py              = -99999.;
+  tbbar_pz              = -99999.;
+  tbbar_E               = -1.;
+  tbbar_Pt              = -1.;
+  tbbar_Et              = -1.;
+  tbbar_Eta             = -10.;
+  tbbar_Charge          = -10;
+  tbbar_Theta           = -99999.;
+  tbbar_Phi             = -10.;
+  tbbar_Vx              = -10.;
+  tbbar_Vy              = -10.;
+  tbbar_Vz              = -10.;
+  tbbar_Y               = -10.;
+  tbbar_Id              = 0;
+
+  Hb_px              = -99999.;
+  Hb_py              = -99999.;
+  Hb_pz              = -99999.;
+  Hb_E               = -1.;
+  Hb_Pt              = -1.;
+  Hb_Et              = -1.;
+  Hb_Eta             = -10.;
+  Hb_Charge          = -10;
+  Hb_Theta           = -99999.;
+  Hb_Phi             = -10.;
+  Hb_Vx              = -10.;
+  Hb_Vy              = -10.;
+  Hb_Vz              = -10.;
+  Hb_Y               = -10.;
+  Hb_Id              = 0;
+
+  
+  Hbbar_px              = -99999.;
+  Hbbar_py              = -99999.;
+  Hbbar_pz              = -99999.;
+  Hbbar_E               = -1.;
+  Hbbar_Pt              = -1.;
+  Hbbar_Et              = -1.;
+  Hbbar_Eta             = -10.;
+  Hbbar_Charge          = -10;
+  Hbbar_Theta           = -99999.;
+  Hbbar_Phi             = -10.;
+  Hbbar_Vx              = -10.;
+  Hbbar_Vy              = -10.;
+  Hbbar_Vz              = -10.;
+  Hbbar_Y               = -10.;
+  Hbbar_Id              = 0;
+
+
 
   // initialization done
 }
-
-
-
-
 
 
 
@@ -314,6 +542,24 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
   const reco::Candidate *Parton1=NULL;
   const reco::Candidate *Parton2=NULL;
   const reco::Candidate *Met=NULL;
+
+  const reco::Candidate *t=NULL;
+  const reco::Candidate *tbar=NULL;
+  const reco::Candidate *aH=NULL;
+
+//  const reco::Candidate *ab=NULL;
+//  const reco::Candidate *abbar=NULL;
+
+  const reco::Candidate *tb=NULL;
+  const reco::Candidate *tbbar=NULL;
+
+  const reco::Candidate *Hb=NULL;
+  const reco::Candidate *Hbbar=NULL;
+
+  const reco::Candidate *tMet=NULL;
+  const reco::Candidate *tLepton=NULL;
+  const reco::Candidate *tParton1=NULL;
+  const reco::Candidate *tParton2=NULL;
 
 
   for(size_t i = 0; i < nGen; ++ i) {
@@ -342,12 +588,119 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
     } // end ndaughter loop
   }// end genParticles loop
 
+
+
+
+//tth gen information
+
+
+
+ for(size_t i = 0; i < nGen; ++ i) {
+    aH = &((*genParticles)[i]);
+    t = &((*genParticles)[i]);
+    tbar = &((*genParticles)[i]);
+// asociated higgs
+    if( ((abs(aH->status())==3) && (abs(aH->pdgId())==25) )){
+        std::cout<<"tth    "<<aH->pdgId()<<std::endl;
+       size_t aHndau =0;
+    if(!(aH==NULL)) aHndau = aH->numberOfDaughters();
+//        std::cout<<"bbar    "<<aHndau<<std::endl;
+    if(aHndau<1) continue;
+    for(size_t k =0; k< aHndau-1; k++){
+//loop over higgs daughter
+      const reco::Candidate *g = aH->daughter( k );
+      if( !(g==NULL) && (g->pdgId()==5) ) {Hb=g;
+         std::cout<<"h decay b    "<<g->pdgId()<<std::endl;
+}
+      else if (!(g==NULL) && (g->pdgId()==-5)) {Hbbar=g;
+        std::cout<<" h decay bbar    "<<g->pdgId()<<std::endl;
+}
+}
+}
+
+//associated top 
+
+    if( ((abs(t->status())==3) && (t->pdgId()==6) )){
+       std::cout<<" associated top   "<<t->pdgId()<<std::endl;
+       size_t atndau =0;
+    if(!(t==NULL)) atndau = t->numberOfDaughters();
+//        std::cout<<"bbar    "<<aHndau<<std::endl;
+    if(atndau<1) continue;
+    for(size_t k =0; k< atndau-1; k++){
+//loop over associated top daughter
+      const reco::Candidate *p = t->daughter( k );
+      if (!(p==NULL) && (abs(p->pdgId())==5)) tb=p;
+      else if( !(p==NULL) && (p->pdgId()==24) ) {
+        std::cout<<"W    "<<p->pdgId()<<std::endl;
+        size_t tWndau =0;
+           tWndau = p->numberOfDaughters();
+           if(tWndau<1) continue;
+           for (size_t l =0; l<tWndau-1; l++){
+//loop over tW daughter
+           const reco::Candidate *g = p->daughter( l );
+        //std::cout<<" dau    "<<e->numberOfDaughters()<<std::endl;
+        std::cout<<" dau of tW   "<<g->pdgId()<<std::endl;
+           if( !(g==NULL)&& (abs(g->pdgId())<=4)){
+           tParton1 =g->daughter(0);
+           tParton2 =g->daughter(1);}
+           else if (!(g==NULL) && ((abs(g->pdgId())==12) ||(abs(g->pdgId())==14))) tMet =g;
+           else if (!(g==NULL) && ((abs(g->pdgId())==11) ||(abs(g->pdgId())==13))) tLepton =g;
+
+			}// loop over dau of tW
+
+		} // W condidate
+	} // loop over top daughter
+}// associated top
+
+// associated anti top
+
+    if( ((abs(tbar->status())==3) && (tbar->pdgId()==-6) )){
+	std::cout<<" associated anti top    "<<tbar->pdgId()<<std::endl;
+        size_t atbarndau =0;
+      	if(!(tbar==NULL)) atbarndau = tbar->numberOfDaughters();
+ 	//std::cout<<"bbar    "<<aHndau<<std::endl;
+    	if(atbarndau<1) continue;
+   	 for(size_t k =0; k< atbarndau-1; k++){
+	//loop over associated anti top daughter
+      	const reco::Candidate *q = tbar->daughter( k );
+      	if (!(q==NULL) && (q->pdgId()==-5)){ tbbar=q;
+        std::cout<<" anti top bbar    "<<q->pdgId()<<std::endl;}
+      	else if( !(q==NULL) && (q->pdgId()==-24) ) {
+        std::cout<<" anti top W    "<<q->pdgId()<<std::endl;
+       	size_t tbarWndau =0;
+        tbarWndau = q->numberOfDaughters();
+           if(tbarWndau<1) continue;
+           for (size_t l =0; l<tbarWndau-1; l++){
+//loop over tbarW daughter
+           const reco::Candidate *h = q->daughter( l );
+        //std::cout<<" dau    "<<e->numberOfDaughters()<<std::endl;
+        std::cout<<" dau of anti top W    "<<h->pdgId()<<std::endl;
+           if( !(h==NULL)&& (abs(h->pdgId())<=4)){
+           tParton1 =h->daughter(0);
+           tParton2 =h->daughter(1);}
+           else if (!(h==NULL) && ((abs(h->pdgId())==12) ||(abs(h->pdgId())==14))) tMet =h;
+           else if (!(h==NULL) && ((abs(h->pdgId())==11) ||(abs(h->pdgId())==13))) tLepton =h;
+
+ 				} //loop over dau of tbar W 	
+			}	// W conditate loop	
+
+		} // loop over tbar daughter
+	}// anti top
+
+
+}// gen Particles loop
+
+// tth info ends
+
+
+
+
 //;;;;;;;;;;;;;;;;;;;;;;;;;;;my stuff;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   for(size_t i = 0; i < nGen; ++ i) {
     H = &((*genParticles)[i]);
     if( !((abs(H->status())==3) && (abs(H->pdgId())==25) ))continue;
   //Higgs must decay to W
-	std::cout<<"hhhhhhhhhhhh    "<<H->pdgId()<<std::endl;
+//	std::cout<<"hhhhhhhhhhhh    "<<H->pdgId()<<std::endl;
     size_t Hndau =0;
     size_t Wndau =0;
     if(!(H==NULL)) Hndau = H->numberOfDaughters();
@@ -358,14 +711,14 @@ void ewk::MCTreeFiller::fill(const edm::Event& iEvent)
       const reco::Candidate *e = H->daughter( k );
       if( !(e==NULL) && (abs(e->pdgId())==24) ) {
 //if higgs dau is W
-        std::cout<<"WWWW    "<<e->pdgId()<<std::endl;
+  //      std::cout<<"WWWW    "<<e->pdgId()<<std::endl;
            Wndau = e->numberOfDaughters();
            if(Wndau<1) continue;
            for (size_t l =0; l<Wndau-1; l++){
 //loop over W daughter
            const reco::Candidate *f = e->daughter( l );
         //std::cout<<" dau    "<<e->numberOfDaughters()<<std::endl;
-        std::cout<<" dau    "<<f->pdgId()<<std::endl;
+    //    std::cout<<" dau    "<<f->pdgId()<<std::endl;
            if( !(f==NULL)&& (abs(f->pdgId())<=4)){ 
            Parton1 =e->daughter(0);
            Parton2 =e->daughter(1);}
@@ -393,6 +746,8 @@ if(H==NULL) return;
   H_Id = H->pdgId();
 
 } //nGen loop end
+
+
 
   ////////// lepton #1 quantities //////////////
   if( !(lepton1 == NULL) ) {
@@ -511,6 +866,164 @@ if(H==NULL) return;
     Met_Id              = Met->pdgId();
   }
 
+
+//tParton filling
+  if( !(tParton1 == NULL) ) {
+  
+    tParton_Charge[0]          = tParton1->charge();
+    tParton_Vx[0]              = tParton1->vx();
+    tParton_Vy[0]              = tParton1->vy();
+    tParton_Vz[0]              = tParton1->vz();
+    tParton_Y[0]               = tParton1->rapidity();
+    tParton_Theta[0]           = tParton1->theta();
+    tParton_Eta[0]             = tParton1->eta();
+    tParton_Phi[0]             = tParton1->phi();
+    tParton_E[0]               = tParton1->energy();
+    tParton_px[0]              = tParton1->px();
+    tParton_py[0]              = tParton1->py();
+    tParton_pz[0]              = tParton1->pz();
+    tParton_Pt[0]              = tParton1->pt();
+    tParton_Et[0]              = tParton1->et(); 
+    tParton_Id[0]              = tParton1->pdgId();
+}
+
+//tParton filling
+  if( !(tParton2 == NULL) ) {
+
+    tParton_Charge[1]          = tParton2->charge();
+    tParton_Vx[1]              = tParton2->vx();
+    tParton_Vy[1]              = tParton2->vy();
+    tParton_Vz[1]              = tParton2->vz();
+    tParton_Y[1]               = tParton2->rapidity();
+    tParton_Theta[1]           = tParton2->theta();
+    tParton_Eta[1]             = tParton2->eta();
+    tParton_Phi[1]             = tParton2->phi();
+    tParton_E[1]               = tParton2->energy();
+    tParton_px[1]              = tParton2->px();
+    tParton_py[1]              = tParton2->py();
+    tParton_pz[1]              = tParton2->pz();
+    tParton_Pt[1]              = tParton2->pt();
+    tParton_Et[1]              = tParton2->et();
+    tParton_Id[1]              = tParton2->pdgId();
+}
+
+//Lepton filling
+
+  if( !(tLepton == NULL) ) {
+    tLepton_Charge          = tLepton->charge();
+    tLepton_Vx              = tLepton->vx();
+    tLepton_Vy              = tLepton->vy();
+    tLepton_Vz              = tLepton->vz();
+    tLepton_Y               = tLepton->rapidity();
+    tLepton_Theta           = tLepton->theta();
+    tLepton_Eta             = tLepton->eta();
+    tLepton_Phi             = tLepton->phi();
+    tLepton_E               = tLepton->energy();
+    tLepton_px              = tLepton->px();
+    tLepton_py              = tLepton->py();
+    tLepton_pz              = tLepton->pz();
+    tLepton_Pt              = tLepton->pt();
+    tLepton_Et              = tLepton->et();
+    tLepton_Id              = tLepton->pdgId();
+  }
+
+
+//Met filling
+
+  if( !(tMet == NULL) ) {
+    tMet_Charge          = tMet->charge();
+    tMet_Vx              = tMet->vx();
+    tMet_Vy              = tMet->vy();
+    tMet_Vz              = tMet->vz();
+    tMet_Y               = tMet->rapidity();
+    tMet_Theta           = tMet->theta();
+    tMet_Eta             = tMet->eta();
+    tMet_Phi             = tMet->phi();
+    tMet_E               = tMet->energy();
+    tMet_px              = tMet->px();
+    tMet_py              = tMet->py();
+    tMet_pz              = tMet->pz();
+    tMet_Pt              = tMet->pt();
+    tMet_Et              = tMet->et();
+    tMet_Id              = tMet->pdgId();
+  }
+
+
+
+  if( !(tb == NULL) ) {
+    tb_Charge          = tb->charge();
+    tb_Vx              = tb->vx();
+    tb_Vy              = tb->vy();
+    tb_Vz              = tb->vz();
+    tb_Y               = tb->rapidity();
+    tb_Theta           = tb->theta();
+    tb_Eta             = tb->eta();
+    tb_Phi             = tb->phi();
+    tb_E               = tb->energy();
+    tb_px              = tb->px();
+    tb_py              = tb->py();
+    tb_pz              = tb->pz();
+    tb_Pt              = tb->pt();
+    tb_Et              = tb->et();
+    tb_Id              = tb->pdgId();
+  }
+
+
+ if( !(tbbar == NULL) ) {
+    tbbar_Charge          = tbbar->charge();
+    tbbar_Vx              = tbbar->vx();
+    tbbar_Vy              = tbbar->vy();
+    tbbar_Vz              = tbbar->vz();
+    tbbar_Y               = tbbar->rapidity();
+    tbbar_Theta           = tbbar->theta();
+    tbbar_Eta             = tbbar->eta();
+    tbbar_Phi             = tbbar->phi();
+    tbbar_E               = tbbar->energy();
+    tbbar_px              = tbbar->px();
+    tbbar_py              = tbbar->py();
+    tbbar_pz              = tbbar->pz();
+    tbbar_Pt              = tbbar->pt();
+    tbbar_Et              = tbbar->et();
+    tbbar_Id              = tbbar->pdgId();
+  }
+
+
+ if( !(Hb == NULL) ) {
+    Hb_Charge          = Hb->charge();
+    Hb_Vx              = Hb->vx();
+    Hb_Vy              = Hb->vy();
+    Hb_Vz              = Hb->vz();
+    Hb_Y               = Hb->rapidity();
+    Hb_Theta           = Hb->theta();
+    Hb_Eta             = Hb->eta();
+    Hb_Phi             = Hb->phi();
+    Hb_E               = Hb->energy();
+    Hb_px              = Hb->px();
+    Hb_py              = Hb->py();
+    Hb_pz              = Hb->pz();
+    Hb_Pt              = Hb->pt();
+    Hb_Et              = Hb->et();
+    Hb_Id              = Hb->pdgId();
+  }
+
+
+ if( !(Hbbar == NULL) ) {
+    Hbbar_Charge          = Hbbar->charge();
+    Hbbar_Vx              = Hbbar->vx();
+    Hbbar_Vy              = Hbbar->vy();
+    Hbbar_Vz              = Hbbar->vz();
+    Hbbar_Y               = Hbbar->rapidity();
+    Hbbar_Theta           = Hbbar->theta();
+    Hbbar_Eta             = Hbbar->eta();
+    Hbbar_Phi             = Hbbar->phi();
+    Hbbar_E               = Hbbar->energy();
+    Hbbar_px              = Hbbar->px();
+    Hbbar_py              = Hbbar->py();
+    Hbbar_pz              = Hbbar->pz();
+    Hbbar_Pt              = Hbbar->pt();
+    Hbbar_Et              = Hbbar->et();
+    Hbbar_Id              = Hbbar->pdgId();
+  }
 
 
 
