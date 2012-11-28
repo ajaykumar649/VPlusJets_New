@@ -7,12 +7,10 @@
 #define NUMMASSPTS 1
 const int masspts[NUMMASSPTS] = { 150 };
 
-#define NUMCHAN 4
+#define NUMCHAN 2
 
 const char *channames[NUMCHAN] = {
-  "elbtag",
   "elnobtag",
-  "mubtag",
   "munobtag",
 };
 
@@ -32,8 +30,8 @@ const float LAMBDAZ_MIN = -0.15;
 const float LAMBDAZ_MAX =  0.15;
 const float LAMBDAZ_INC = 0.005;
 
-const float dKG_MIN = -0.30;
-const float dKG_MAX =  0.30;
+const float dKG_MIN =  -0.40;
+const float dKG_MAX =  -0.30;
 const float dKG_INC = 0.01;
 
 // FILE/HISTO STRUCTURE: assumed same name objects contained in different files for the different inputs
@@ -44,9 +42,7 @@ const char *dir = ".";
 // ordered the same as the inputs
 //
 const char *inputfiles[NUMCHAN] = {
-  "el_btag.root",
   "el_noBtag.root",
-  "mu_btag.root",
   "mu_noBtag.root"
 };
 
