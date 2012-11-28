@@ -1,5 +1,13 @@
 #!/bin/bash
-TGTDIR=/uscms_data/d2/pdudero/SVN/hcg/ichep2012
+
+if [ $# -lt 1 ]
+then
+    echo "Usage: $0 <datacards>"
+    exit
+fi
+
+TGTDIR=/uscms_data/d2/pdudero/SVN/hcg/highmass-ichep2012/hwwlvqq
+#TGTDIR=/uscms_data/d2/pdudero/SVN/hcg/hcp2012/hwwlvqq
 
 BEAMENERGYTEV=8
 
