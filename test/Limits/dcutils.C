@@ -92,14 +92,14 @@ void fmtDataCardFile(int massgev,
   for (map<TString,double>::const_iterator it=cd.data.channels.begin();
        it != cd.data.channels.end();
        it++) {
-    fprintf(dcFile,"%12s",it->first.Data());
+    fprintf(dcFile,"%15s",it->first.Data());
   }
   fprintf(dcFile,"\nobservation                        ");
   for (map<TString,double>::const_iterator it=cd.data.channels.begin();
        it != cd.data.channels.end();
        it++) {
-    //fprintf(dcFile,"%12d",(int)it->second);
-    fprintf(dcFile,"%12.5f",it->second);
+    //fprintf(dcFile,"%15d",(int)it->second);
+    fprintf(dcFile,"%15.5f",it->second);
   }
   
   fprintf(dcFile,"\n--------------------\n");
@@ -136,19 +136,19 @@ void fmtDataCardFile(int massgev,
     for (map<TString,double>::const_iterator it=cd.processes[j].channels.begin();
 	 it != cd.processes[j].channels.end();
 	 it++)
-      fprintf(dcFile,"%12s",it->first.Data());
+      fprintf(dcFile,"%15s",it->first.Data());
   fprintf(dcFile,"\n");
   
   fprintf(dcFile,"process                            ");
   for (int j=0; j<=jmax; j++)
     for (int k=0; k<nbins; k++)
-      fprintf(dcFile,"%12s",cd.processes[j].name.Data());
+      fprintf(dcFile,"%15s",cd.processes[j].name.Data());
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"process                            ");
   for (int j=0; j<=jmax; j++)
     for (int k=0; k<nbins; k++)
-      fprintf(dcFile,"%12d",cd.processes[j].procindex);
+      fprintf(dcFile,"%15d",cd.processes[j].procindex);
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"rate                               ");
@@ -156,7 +156,7 @@ void fmtDataCardFile(int massgev,
     for (map<TString,double>::const_iterator it=cd.processes[j].channels.begin();
 	 it != cd.processes[j].channels.end();
 	 it++)
-      fprintf(dcFile,"%12.2f",max(it->second,0.001));
+      fprintf(dcFile,"%15.2f",max(it->second,0.001));
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"--------------------\n");
@@ -177,15 +177,15 @@ void fmtDataCardFile(int massgev,
       map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(sit->first);
       if (rit == pd.systrates.end()) {
 	for (int k=0; k<nbins; k++)
-	  fprintf(dcFile,"       -    ");
+	  fprintf(dcFile,"        -      ");
       } else {
 	const vector<pair<double,double> >& rates = rit->second;
 	for (int k=0; k<nbins; k++) {
 	  pair<double,double> rate = rates.at(k);
 	  if (rate.second == 0.0)        // expect the UP (second) to contain single-sided error values
-	    fprintf(dcFile,"       -    ");
+	    fprintf(dcFile,"        -      ");
 	  else if (rate.first == 0.0)
-	    fprintf(dcFile,"  %7.4g   ",rate.second);
+	    fprintf(dcFile,"  %10.4g   ",rate.second);
 	  else
 	    fprintf(dcFile," %g/%g ",rate.first,rate.second);
 	}
@@ -212,19 +212,19 @@ void fmtDataCardFile(int massgev,
        it != cd.processes[0].channels.end();
        it++)
     for (int j=0; j<=jmax; j++)
-      fprintf(dcFile,"%12s",it->first.Data());
+      fprintf(dcFile,"%15s",it->first.Data());
   fprintf(dcFile,"\n");
   
   fprintf(dcFile,"process                            ");
   for (int k=0; k<nbins; k++)
     for (int j=0; j<=jmax; j++)
-      fprintf(dcFile,"%12s",cd.processes[j].name.Data());
+      fprintf(dcFile,"%15s",cd.processes[j].name.Data());
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"process                            ");
   for (int k=0; k<nbins; k++)
     for (int j=0; j<=jmax; j++)
-      fprintf(dcFile,"%12d",cd.processes[j].procindex);
+      fprintf(dcFile,"%15d",cd.processes[j].procindex);
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"rate                               ");
@@ -238,7 +238,7 @@ void fmtDataCardFile(int massgev,
 	cerr << "couldn't find channel " << channame << " for process " << j << endl;
 	exit(-1);
       }
-      fprintf(dcFile,"%12.2f",max(it->second,0.001));
+      fprintf(dcFile,"%15.2f",max(it->second,0.001));
     }
   }
   fprintf(dcFile,"\n");
@@ -261,14 +261,14 @@ void fmtDataCardFile(int massgev,
 	const ProcData_t& pd = cd.processes[j];
 	map<TString,vector<pair<double,double> > >::const_iterator rit = pd.systrates.find(sit->first);
 	if (rit == pd.systrates.end()) {
-	  fprintf(dcFile,"       -    ");
+	  fprintf(dcFile,"        -      ");
 	} else {
 	  const vector<pair<double,double> >& rates = rit->second;
 	  pair<double,double> rate = rates.at(k);
 	  if (rate.second == 0.0)        // expect the UP (second) to contain single-sided error values
-	    fprintf(dcFile,"       -    ");
+	    fprintf(dcFile,"        -      ");
 	  else if (rate.first == 0.0)
-	    fprintf(dcFile,"  %7.4g   ",rate.second);
+	    fprintf(dcFile,"  %10.4g   ",rate.second);
 	  else
 	    fprintf(dcFile," %g/%g ",rate.first,rate.second);
 	}
