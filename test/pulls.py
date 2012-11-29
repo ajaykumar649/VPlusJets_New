@@ -42,3 +42,7 @@ def createPull(theData, curve, curveUp = None, curveDown = None):
         pullGraph.SetPointError(datapt, 0., 1.)
 
     return pullGraph
+
+
+if __name__ == '__main__':
+    pass
