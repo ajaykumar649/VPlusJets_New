@@ -19,18 +19,13 @@ class Wjj2DFitterPars:
     QCDcuts = ''
 
     # variables
-    var1 = 'Mass2j_PFCor'
-    v1nbins = 12
-    v1min = 55.
-    v1max = 150.
-    v1binEdges = [55.,60.,65.,70.,75.,80.,85.,95.,105.,115.,125.,135.,150.]
-
-    var2 = 'fit_mlvjj'
-    v2nbins = 20
-    v2min = 200.
-    v2max = 400.
-    v2binEdges = []
-    
+    var = ['Mass2j_PFCor', 'fit_mlvjj']
+    varRanges = { 'Mass2j_PFCor': (12, 55., 150., 
+                                   [55.,60.,65.,70.,75.,80.,85.,95.,105.,
+                                    115.,125.,135.,150.]),
+                  'fit_mlvjj': (20, 200., 400., [])
+                  }
+  
     # lumi
     integratedLumi = 3500.
 

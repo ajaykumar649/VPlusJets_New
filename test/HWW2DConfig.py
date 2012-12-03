@@ -7,46 +7,25 @@ import HWWSignalShapes
 #  4: n4BodyBins)
 mu2Pars = {
     170: ( "mva2j170mu", 0.500, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+           {'diboson':(7, 11),'top':(5, 2),'WpJ':(10, 10),'ggH':(6, 9)} ),
     180: ( "mva2j180mu", 0.600, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'ggH': (6, 9)} ),
     190: ( "mva2j190mu", 0.600, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'ggH': (6, 9)} ),
     200: ( "mva2j200mu", 0.600, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'ggH': (6, 9)} ),
     250: ( "mva2j250mu", 0.650, 200.0, 400.0, 20,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'ggH': (6, 9)} ),
     300: ( "mva2j300mu", 0.600, 240.0, 400.0, 16 ),
     # 350: ( "mva2j350mu", 0.600, 300.0, 780.0, 24 ),
     350: ( "mva2j350mu", 0.600, 250., 450., 20,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
+           {'diboson': (7, 11), 'top': (5, 12), 'WpJ': (10, 10), 'ggH': (6, 5)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22 ),
     500: ( "mva2j500mu", 0.500, 380.0, 740.0, 22,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
+           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'ggH': (6, 9)} ),
     550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22 ),
     600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22 ),
-    }
-mu3Pars = {
-    170: ( "mva3j170mu", 0.300, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
-    180: ( "mva3j180mu", 0.300, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
-    190: ( "mva3j190mu", 0.300, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'HWW': (6, 9)} ),
-    200: ( "mva3j200mu", 0.300, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
-    250: ( "mva3j250mu", 0.400, 200.0, 400.0, 20,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
-    300: ( "mva3j300mu", 0.600, 240.0, 400.0, 16,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
-    350: ( "mva3j350mu", 0.650, 300.0, 780.0, 24,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'HWW': (6, 9)} ),
-    400: ( "mva3j400mu", 0.500, 300.0, 780.0, 24 ),
-    450: ( "mva3j450mu", 0.550, 340.0, 780.0, 22 ),
-    500: ( "mva3j500mu", 0.650, 340.0, 780.0, 22 ),
-    550: ( "mva3j550mu", 0.500, 340.0, 780.0, 22 ),
-    600: ( "mva3j600mu", 0.600, 340.0, 780.0, 22 ),
     }
 el2Pars = {
     170: ( "mva2j170el", 0.300, 165.0, 250.0, 17 ),
@@ -56,26 +35,13 @@ el2Pars = {
     250: ( "mva2j250el", 0.650, 200.0, 400.0, 20 ),
     300: ( "mva2j300el", 0.600, 240.0, 400.0, 16 ),
     # 350: ( "mva2j350el", 0.600, 300.0, 780.0, 24 ),
-    350: ( "mva2j350el", 0.600, 250., 450., 20 ),
+    350: ( "mva2j350el", 0.600, 250., 450., 20 ,
+           {'diboson': (7, 11), 'top': (5, 2), 'WpJ': (10, 12), 'ggH': (6, 9)} ),
     400: ( "mva2j400el", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450el", 0.500, 340.0, 780.0, 22 ),
     500: ( "mva2j500el", 0.500, 340.0, 780.0, 22 ),
     550: ( "mva2j550el", 0.550, 340.0, 780.0, 22 ),
     600: ( "mva2j600el", 0.600, 340.0, 780.0, 22 ),
-    }
-el3Pars = {
-    170: ( "mva3j170el", 0.300, 165.0, 250.0, 17 ),
-    180: ( "mva3j180el", 0.300, 165.0, 250.0, 17 ),
-    190: ( "mva3j190el", 0.300, 165.0, 250.0, 17 ),
-    200: ( "mva3j200el", 0.400, 165.0, 250.0, 17 ),
-    250: ( "mva3j250el", 0.400, 200.0, 400.0, 20 ),
-    300: ( "mva3j300el", 0.500, 240.0, 400.0, 16 ),
-    350: ( "mva3j350el", 0.650, 300.0, 780.0, 24 ),
-    400: ( "mva3j400el", 0.600, 300.0, 780.0, 24 ),
-    450: ( "mva3j450el", 0.550, 340.0, 780.0, 22 ),
-    500: ( "mva3j500el", 0.600, 340.0, 780.0, 22 ),
-    550: ( "mva3j550el", 0.500, 340.0, 780.0, 22 ),
-    600: ( "mva3j600el", 0.600, 340.0, 780.0, 22 ),
     }
 
 def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
@@ -88,14 +54,13 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.initialParametersFile = initFile
 
     pars.backgrounds = ['diboson', 'WpJ', 'top']
-    if includeSignal:
-        pars.signals = ['HWW']
-    else:
-        pars.signals = []
+    pars.includeSignal = includeSignal
+    pars.signals = ['ggH']
     pars.yieldConstraints = { 'diboson' : 0.034, 'top' : 0.07 }
     #pars.yieldConstraints = {}
     #pars.constrainShapes = ['WpJ']
 
+    pars.Njets = Nj
     pars.mHiggs = mH
 
     modePars = mu2Pars
@@ -114,6 +79,12 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
 
     pars.cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % Nj + \
         '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
+
+    # veto boosted topology
+    pars.cuts += '&&(ggdboostedWevt==0)&&(W_pt<200.)'
+
+    # veto vbf
+    pars.cuts += '&&(vbf_event==0)'
 
     # you need a files entry and a models entry for each of the fit 
     # compoents in backgrounds and signals
@@ -152,57 +123,62 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
         ]
     pars.topModels = modePars[mH][5]['top']
 
-    ngen = HWWSignalShapes.NgenHiggs(mH, 'HWW')
-    pars.HWWFiles = [
-        (pars.MCDirectory + HWWSignalShapes.makeSignalFilename(mH, "HWW",
+    ngen = HWWSignalShapes.NgenHiggs(mH, 'ggH')
+    pars.ggHFiles = [
+        (pars.MCDirectory + HWWSignalShapes.makeSignalFilename(mH, "ggH",
                                                                isElectron),
          ngen[0], ngen[1]*ngen[2])
         ]
-    pars.HWWModels = modePars[mH][5]['HWW']
+    pars.ggHModels = modePars[mH][5]['ggH']
 
     pars.dibosonPlotting = {'color' : kAzure+8, 'title' : 'WW+WZ'}
     pars.WpJPlotting = { 'color' : kRed, 'title' : 'V+jets'}
     pars.topPlotting = {'color' : kGreen+2, 'title' : 'top'}
-    pars.HWWPlotting = {'color' : kBlue, 'title' : "H(%i) #rightarrow WW" % mH}
+    pars.ggHPlotting = {'color' : kBlue, 'title' : "ggH(%i) #rightarrow WW" % mH}
 
-    pars.var1 = 'Mass2j_PFCor'
-    pars.v1nbins = 17
-    pars.v1min = 50.
-    pars.v1max = 200.
-    #pars.v1binEdges = []
-    pars.v1binEdges = [50, 55.,60.,65.,70.,75.,80.,85.,95.,
-                       105.,115.,125.,135.,150.,165.,180.,200.]
+    pars.var = ['Mass2j_PFCor', 'fit_mlvjj']
+    pars.varRanges = {'Mass2j_PFCor': (25, 50., 200., []),
+                      'fit_mlvjj': (modePars[mH][4], modePars[mH][2], 
+                                    modePars[mH][3], [])
+                      }
+    pars.varTitles = {'Mass2j_PFCor': 'm_{jj}',
+                      'fit_mlvjj' : 'm_{l#nujj}'
+                      }
+    # pars.v1binEdges = [50, 55.,60.,65.,70.,75.,80.,85.,95.,
+    #                    105.,115.,125.,135.,150.,165.,180.,200.]
+    # pars.v1nbins = len(pars.v1binEdges)-1
 
-    pars.var2 = 'fit_mlvjj'
-    pars.v2nbins = modePars[mH][4]
-    pars.v2min = modePars[mH][2]
-    pars.v2max = modePars[mH][3]
-    pars.v2binEdges = []
-    
-    pars.integratedLumi = 9900.
+    pars.integratedLumi = 12000.
+
+    pars.binData = False
 
     return customizeElectrons(pars) if isElectron else \
         customizeMuons(pars)
 
 def customizeElectrons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root'
-    pars.backgrounds.append('multijet')
+    pars.DataFile = pars.MCDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_11p9invfb.root'
+    # pars.backgrounds.append('multijet')
 
-    pars.multijetFiles = [
-        (pars.MCDirectory + 'RDQCD_WenuJets_Isog0p3NoElMVA_1p6invfb.root',
-         1, 1)
-        ]
-    pars.multijetModels = (1, 0)
-    pars.multijetFraction = 0.0637
-    pars.yieldConstraints['multijet'] = 0.0637*0.5
-    pars.multijetPlotting = {'color' : kGray+1, 'title' : 'multijet'}
+    # pars.multijetFraction = 0.0637
+    # pars.multijetFiles = [
+    #     (pars.MCDirectory + 'RDQCD_WenuJets_Isog0p3NoElMVA_11p9invfb.root',
+    #      1, pars.multijetFraction/pars.integratedLumi)
+    #     ]
+    # pars.multijetModels = (11, 1)
+    # pars.yieldConstraints['multijet'] = 0.2
+    # pars.multijetPlotting = {'color' : kGray+1, 'title' : 'multijet'}
+
+    # pars.multijet_cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % pars.Njets
+    # pars.multijet_cuts += '&&(abs(JetPFCor_dphiMET[0])>0.8)' + \
+    #     '&&(W_electron_pt>35)' + \
+    #     '&&(W_electron_pfIsoEA>0.3)'
 
     pars.doEffCorrections = True
     pars.effToDo = ['lepton']
     pars.leptonEffFiles = {
-        'id': ["EffTable2012/scaleFactor-2012A-PromptReco-v1-GsfElectronToId.txt"],
-        'reco': ["EffTable2012/scaleFactor-2012A-PromptReco-v1-SCToElectron.txt"],
-        'HLT': ["EffTable2012/efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt"]
+        'id': ["EffTable2012/scaleFactor-Run2012ABC-GsfElectronToId.txt"],
+        'reco': ["EffTable2012/scaleFactor-Run2012ABC-SCToElectron.txt"],
+        'HLT': ["EffTable2012/efficiency-Run2012ABC-WP80ToHLTEle.txt"]
         }
     pars.lumiPerEpoch = [pars.integratedLumi]
 
@@ -210,13 +186,13 @@ def customizeElectrons(pars):
     return pars
 
 def customizeMuons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_9p9invfb.root'
+    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_12p0invfb.root'
 
     pars.doEffCorrections = True
     pars.effToDo = ['lepton']
     pars.leptonEffFiles = {
-        'id': ["EffTable2012/scaleFactor-2012A-PromptReco-v1-PFMM-RecoToIso.txt"],
-        'HLT': ["EffTable2012/efficiency-2012A-PromptReco-v1-PFMM-IsoToIsoMuHLT.txt"]
+        'id': ["EffTable2012/scaleFactor-Run2012ABC-RecoToIso.txt"],
+        'HLT': ["EffTable2012/efficiency-Run2012ABC-IsoToIsoMuHLT.txt"]
         }
     pars.lumiPerEpoch = [pars.integratedLumi]
 

@@ -1,6 +1,6 @@
 from RooWjj2DFitterUtils import Wjj2DFitterUtils
 from ROOT import RooWorkspace, RooAddPdf, RooAbsReal, RooFit, RooCmdArg, \
-    RooBinning, RooAbsData, RooHist, RooArgList, RooArgSet, \
+    RooBinning, RooAbsData, RooHist, RooArgList, RooArgSet, TFile, RooDataHist,\
     kRed, kBlue, kGreen, kYellow, kGray, kAzure, kCyan, gROOT, TLegend
 from math import sqrt
 from array import array
@@ -20,74 +20,105 @@ class Wjj2DFitter:
         self.ws = RooWorkspace('wjj2dfitter')
         self.utils = Wjj2DFitterUtils(self.pars)
 
-        var1 = self.ws.factory('%s[%f,%f]' % (self.pars.var1, self.pars.v1min, 
-                                              self.pars.v1max))
-        var1.setUnit('GeV')
-        try:
-            var1.SetTitle(self.pars.v1title)
-        except AttributeError:
-            var1.SetTitle('m_{jj}')
-        var1.setPlotLabel(var1.GetTitle())
-        if len(self.pars.v1binEdges) > 1:
-            v1binning = RooBinning(len(self.pars.v1binEdges) - 1, 
-                                   array('d', self.pars.v1binEdges),
-                                   '%sBinning' % self.pars.var1)
-            var1.setBinning(v1binning)
-            #var1.Print('v')
+        for v in self.pars.var:
+
+            var1 = self.ws.factory('%s[%f,%f]' % (v, 
+                                                  self.pars.varRanges[v][1], 
+                                                  self.pars.varRanges[v][2])
+                                   )
+            var1.setUnit('GeV')
+            try:
+                var1.SetTitle(self.pars.varTitles[v])
+            except AttributeError:
+                var1.SetTitle('m_{jj}')
+            var1.setPlotLabel(var1.GetTitle())
+            if len(self.pars.varRanges[v][3]) > 1:
+                vbinning = RooBinning(len(self.pars.varRanges[v][3]) - 1, 
+                                   array('d', self.pars.varRanges[v][3]),
+                                   '%sBinning' % v)
+                var1.setBinning(vbinning)
+            else:
+                var1.setBins(self.pars.varRanges[v][0])
+            var1.Print()
+        self.ws.defineSet('obsSet', ','.join(self.pars.var))
+
+    def loadWorkspaceFromFile(self, filename, wsname = 'w'):
+        print 'loading data workspace %s from file %s' % (wsname, filename)
+        fin = TFile.Open(filename)
+        other = fin.Get(wsname)
+
+        #pull unbinned data from other workspace
+        unbinnedData = other.data('data_unbinned')
+        if not unbinnedData:
+            unbinnedData = other.data('data_obs')
+
+        if self.pars.binData:
+            #bin and import data
+            unbinnedData.SetName('data_unbinned')
+            getattr(self.ws, 'import')(unbinnedData)
+            data = RooDataHist('data_obs', 'data_obs', other.set('obsSet'), 
+                               unbinnedData)
+            getattr(self.ws, 'import')(data)
         else:
-            var1.setBins(self.pars.v1nbins)
-        var2 = self.ws.factory('%s[%f,%f]' % (self.pars.var2, self.pars.v2min, 
-                                              self.pars.v2max))
-        var2.setUnit('GeV')
-        try:
-            var2.SetTitle(self.pars.v1title)
-        except AttributeError:
-            var2.SetTitle('m_{WW}')
-        var2.setPlotLabel(var2.GetTitle())
-        if len(self.pars.v2binEdges) > 1:
-            v2binning = RooBinning(len(self.pars.v2binEdges) - 1, 
-                                   array('d', self.pars.v2binEdges),
-                                   '%sBinning' % self.pars.var2)
-            var2.setBinning(v2binning)
-        else:
-            var2.setBins(self.pars.v2nbins)
-        self.ws.defineSet('obsSet', '%s,%s' % (self.pars.var1, self.pars.var2))
+            #just import data
+            unbinnedData.SetName('data_obs')
+            getattr(self.ws, 'import')(unbinnedData)
+
+        self.ws.Print()
     
     # put together a fitting model and return the pdf
     def makeFitter(self):
-        if self.ws.pdf('totalPdf'):
-            return self.ws.pdf('totalPdf')
+        if self.ws.pdf('total'):
+            return self.ws.pdf('total')
 
         compPdfs = []
-        compYields = []
         for component in self.pars.backgrounds:
             compFiles = getattr(self.pars, '%sFiles' % component)
             compModels = getattr(self.pars, '%sModels' % component)
-            for compPdf in self.makeComponentPdf(component, compFiles, 
-                                                 compModels):
-                compPdfs.append(compPdf[0])
-                compYields.append(compPdf[1])
-
+            compPdf = self.makeComponentPdf(component, compFiles, 
+                                            compModels)
+                
+            norm = self.ws.factory('prod::f_%s_norm' % component + \
+                                       '(n_%s[0.,1e6],' % component + \
+                                       '%s_norm[1.,-0.5,5.])' % component)
+            self.ws.var('n_%s' % component).setConstant(True)
+            compPdfs.append(
+                self.ws.factory('RooExtendPdf::%s_extended(%s,%s)' % \
+                                    (compPdf.GetName(), 
+                                     compPdf.GetName(),
+                                     norm.GetName())
+                                )
+                )
+                                    
+            
         for component in self.pars.signals:
             compFile = getattr(self.pars, '%sFiles' % component)
             compModels = getattr(self.pars, '%sModels' % component)
-            for compPdf in self.makeComponentPdf(component, compFiles,
-                                                 compModels):
-                compPdfs.append(compPdf[0])
-                self.ws.factory("expr::f_n_%s('@0*@1',n_%s,mu_%s[0.])" % \
-                                    (component, component, component)
-                                )
-                compPdf[1].setConstant(True)
-                self.ws.var('mu_%s' % component).setConstant(False)
-                compYields.append(self.ws.arg('f_n_%s' % component))
+            compPdf = self.makeComponentPdf(component, compFiles,
+                                            compModels)
+            norm = self.ws.factory(
+                "prod::f_%s_norm(n_%s[0., 1e6],r_%s[0.,-20.,20.])" % \
+                    (component, component, component)
+                )
+            self.ws.var('n_%s' % component).setConstant(True)
+            self.ws.var('r_%s' % component).setConstant(False)
+            pdf = self.ws.factory('RooExtendPdf::%s_extended(%s,%s)' % \
+                                      (compPdf.GetName(), 
+                                       compPdf.GetName(),
+                                       norm.GetName())
+                                  )
+            
+            if self.pars.includeSignal:
+                compPdfs.append(pdf)
 
         #print compPdfs
-        #print compYields
-        prodList = [ '%s*%s' % (compYields[idx].GetName(), pdf.GetName()) \
+        
+        prodList = [ '%s' % (pdf.GetName()) \
                          for (idx, pdf) in enumerate(compPdfs) ]
-        self.ws.factory('SUM::totalPdf(%s)' % (','.join(prodList)))
+        comps = RooArgList(self.ws.argSet(','.join(prodList)))
+        getattr(self.ws, 'import')(RooAddPdf('total', 'total', comps))
 
-        return self.ws.pdf('totalPdf')
+        return self.ws.pdf('total')
 
     # define the constraints on the yields, etc that will be part of the fit.
     def makeConstraints(self):
@@ -98,19 +129,18 @@ class Wjj2DFitter:
         constraints = []
         constrainedParameters = []
         for constraint in self.pars.yieldConstraints:
-            theYield = self.ws.var('n_%s' % constraint)
+            theYield = self.ws.var('%s_norm' % constraint)
             if not theYield.isConstant():
-                self.ws.factory('RooGaussian::%s_const(%s, %f, %f)' % \
+                self.ws.factory('RooGaussian::%s_const(%s, 1.0, %f)' % \
                                     (constraint, theYield.GetName(),
-                                     theYield.getVal(), 
-                                     theYield.getVal()*self.pars.yieldConstraints[constraint])
+                                     self.pars.yieldConstraints[constraint])
                                 )
                 constraints.append('%s_const' % constraint)
                 constrainedParameters.append(theYield.GetName())
 
         if hasattr(self.pars, 'constrainShapes'):
             for component in self.pars.constrainShapes:
-                pc = self.ws.pdf('%sPdf' % component).getParameters(self.ws.set('obsSet'))
+                pc = self.ws.pdf(component).getParameters(self.ws.set('obsSet'))
                 parIter = pc.createIterator()
                 par = parIter.Next()
                 while par:
@@ -125,6 +155,7 @@ class Wjj2DFitter:
                         constraints.append(theConst.GetName())
                         constrainedParameters.append(par.GetName())
                     par = parIter.Next()
+                pc.IsA().Destructor(pc)
 
         self.ws.defineSet('constraintSet', ','.join(constraints))
         self.ws.defineSet('constrainedSet', ','.join(constrainedParameters))
@@ -136,6 +167,7 @@ class Wjj2DFitter:
         if self.ws.var('n_multijet'):
             self.multijetExpected = self.ws.data('data_obs').sumEntries() * \
                 self.pars.multijetFraction
+            self.ws.var('n_multijet').setVal(self.multijetExpected)
 
     # fit the data using the pdf
     def fit(self):
@@ -191,20 +223,18 @@ class Wjj2DFitter:
 
     # determine the fitting model for each component and return them
     def makeComponentPdf(self, component, files, models):
-        if not self.ws.var('n_%s' % component):
-            self.ws.factory('n_%s[-1000, 1e6]' % component)
         if (models[0] == -1):
             thePdf = self.makeComponentHistPdf(component, files)
         elif (models[0] == -2):
             return self.makeComponentMorphingPdf(component, files)
         else:
             thePdf = self.makeComponentAnalyticPdf(component, models)
-        return [(thePdf, self.ws.var('n_%s' % component))]
+        return thePdf
             
     #create a simple 2D histogram pdf
     def makeComponentHistPdf(self, component, files):
-        if self.ws.pdf('%sPdf' % component):
-            return self.ws.pdf('%sPdf' % component)
+        if self.ws.pdf(component):
+            return self.ws.pdf(component)
 
         compHist = self.utils.newEmptyHist('hist%s' % component)
         sumYields = 0.
@@ -231,7 +261,7 @@ class Wjj2DFitter:
         print 'Number of expected %s events: %.1f' % (component, sumExpected)
         setattr(self, '%sExpected' % component, sumExpected)
 
-        return self.utils.Hist2Pdf(compHist, '%sPdf' % (component), 
+        return self.utils.Hist2Pdf(compHist, component, 
                                    self.ws, self.pars.order)
 
     # create a pdf using the "template morphing" technique
@@ -241,39 +271,47 @@ class Wjj2DFitter:
 
     # create a pdf using an analytic function.
     def makeComponentAnalyticPdf(self, component, models):
-        if self.ws.pdf('%sPdf' % (component)):
-            return self.ws.pdf('%sPdf' % (component))
+        if self.ws.pdf(component):
+            return self.ws.pdf(component)
 
         pdfList = []
         for (idx,model) in enumerate(models):
-            var = self.pars.var1 if idx==0 else self.pars.var2
+            var = self.pars.var[idx]
             pdfList.append(self.utils.analyticPdf(self.ws, var, model, 
-                                                  '%sPdf_%s' % \
+                                                  '%s_%s' % \
                                                       (component,var), 
                                                   '%s_%s'%(component,var)
                                                   )
                            )
         
         pdfList = [ pdf.GetName() for pdf in pdfList ]
-        self.ws.factory('PROD::%sPdf(%s)' % (component, ','.join(pdfList)))
+        if len(pdfList) > 1:
+            self.ws.factory('PROD::%s(%s)' % (component, ','.join(pdfList)))
+        else:
+            pdfList[0].SetName(component)
                         
-        return self.ws.pdf('%sPdf' % component)
+        return self.ws.pdf(component)
 
     def loadData(self, weight = False):
         if self.ws.data('data_obs'):
             return self.ws.data('data_obs')
 
-        data = self.utils.File2Dataset(self.pars.DataFile, 'data_obs', self.ws,
-                                       weighted = weight)
-        # if hasattr(self, 'relMultijet'):
-        #     self.multijetExpected = data.sumEntries()*self.relMultijet
-        #     self.multijetError = data.sumEntries()*self.relMultijetErr
+        unbinnedName = 'data_obs'
+        if self.pars.binData:
+            unbinnedName = 'data_unbinned'
+        data = self.utils.File2Dataset(self.pars.DataFile, unbinnedName, 
+                                       self.ws, weighted = weight)
+        if self.pars.binData:
+            data = RooDataHist('data_obs', 'data_obs', self.ws.set('obsSet'), 
+                               data)
+            getattr(self.ws, 'import')(data)
+            data = self.ws.data('data_obs')
 
         return data
 
     def stackedPlot(self, var, logy = False, pdfName = None):
         if not pdfName:
-            pdfName = 'totalPdf'
+            pdfName = 'total'
 
         xvar = self.ws.var(var)
 
@@ -294,7 +332,9 @@ class Wjj2DFitter:
 
         if nexp < 1:
             nexpt = data.sumEntries()
-        theComponents = self.pars.backgrounds + self.pars.signals
+        theComponents = self.pars.backgrounds
+        if self.pars.includeSignal:
+            theComponents += self.pars.signals
         # data.plotOn(sframe, RooFit.Invisible(),
         #             RooFit.Binning('%sBinning' % (var)))
         dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % var, xvar,
@@ -316,7 +356,7 @@ class Wjj2DFitter:
             if compList:
                 compSet = RooArgSet(compList)
                 compCmd = RooFit.Components(compSet)
-                removals = compList.selectByName('%sPdf*' % component)
+                removals = compList.selectByName('%s*' % component)
                 compList.remove(removals)
 
             sys.stdout.flush()
@@ -354,13 +394,10 @@ class Wjj2DFitter:
         else:
             flist = fname
 
-        obs = self.ws.argSet('%s,%s' % (self.pars.var1, self.pars.var2))
-        params = self.ws.pdf('totalPdf').getParameters(obs)
         for tmpName in flist:
             if len(tmpName) > 0:
                 print 'loading parameters from file',tmpName
-                params.readFromFile(tmpName)
-        params.IsA().Destructor(params)
+                self.ws.allVars().readFromFile(tmpName)
 
     def expectedFromPars(self):
         components = self.pars.signals + self.pars.backgrounds
@@ -377,14 +414,19 @@ class Wjj2DFitter:
         components = self.pars.signals + self.pars.backgrounds
         for component in components:
             theYield = self.ws.var('n_%s' % component)
+            theNorm = self.ws.var('%s_norm' % component)
             if hasattr(self, '%sExpected' % component):
                 theYield.setVal(getattr(self, '%sExpected' % component))
             else:
                 print 'no expected value for',component
                 theYield.setVal(Ndata/len(components))
+            if theNorm:
+                theNorm.setVal(1.0)
             if component in self.pars.yieldConstraints:
                 theYield.setError(theYield.getVal() * \
                                       self.pars.yieldConstraints[component])
+                if theNorm:
+                    theNorm.setError(self.pars.yieldConstraints[component])
             else:
                 theYield.setError(sqrt(theYield.getVal()))
             theYield.Print()
@@ -448,8 +490,8 @@ if __name__ == '__main__':
     fitter.ws.var('c_WpJ_fit_mlvjj').setError(0.01)
 
     #fitter.fit()
-    plot1 = fitter.stackedPlot(pars.var1)
-    plot2 = fitter.stackedPlot(pars.var2)
+    plot1 = fitter.stackedPlot(pars.var[0])
+    plot2 = fitter.stackedPlot(pars.var[1])
 
     plot1.Draw()
 

@@ -1,4 +1,4 @@
-NgenHWW = {# 160 : (109992,9.080,0.133),
+NgenggH = {# 160 : (109992,9.080,0.133),
            170 : (199986,11.218,0.141*1.5*2, 1.0),
            180 : (197496,9.8560,0.137*1.5*2, 1.00690568528),
            190 : (194504,8.7819,0.115*1.5*2, 1.00436986424),
@@ -55,8 +55,8 @@ HiggsWidth = {
 
 # modes = ['HWW', 'VBFHWW', 'HWWTauNu']
 # Ngens = [NgenHWW, NgenVBFHWW, NgenHWWTauNu]
-modes = ['HWW']
-Ngens = [NgenHWW]
+modes = ['ggH']
+Ngens = [NgenggH]
 
 Ngen = dict(zip(modes,Ngens))
 
@@ -66,13 +66,32 @@ Ngen = dict(zip(modes,Ngens))
 
 def makeSignalFilename(mH, mode, isElectron):
     
+    if mode == 'ggH':
+        mode = 'HWW' 
     filename = 'RD_%s_%sMH%i_CMSSW532_private.root' % \
         ('el' if isElectron else 'mu', mode, mH)
 
     return filename
 
+def findFloatInTable(mH, lines):
+    for line in lines:
+        if line[0] != '#':
+            tokens = line.split()
+            if (int(float(tokens[0])) == mH):
+                return float(tokens[1])
+
+def crossSection(mH, mode):
+    lines = open('Limits/%stable8tev.txt' % mode).readlines()
+    return findFloatInTable(mH, lines)
+
+def branchingRatio(mH):
+    lines = open('Limits/twikiBRtable.txt').readlines()
+    return findFloatInTable(mH, lines)*2*1.5
+
 def NgenHiggs(mH, mode):
-    return Ngen[mode][mH]
+    retVal = (Ngen[mode][mH][0], crossSection(mH, mode), branchingRatio(mH))
+    return retVal
+    # return Ngen[mode][mH]
 
 def makeHiggsHist(mH, pars, mode, fitUtils = None, cpw = True, iwt = 0):
 

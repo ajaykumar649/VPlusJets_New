@@ -2,7 +2,7 @@ import pyroot_logon
 from RooWjj2DFitterPars import Wjj2DFitterPars
 from ROOT import TH2D, TFile, gDirectory, TTreeFormula, RooDataHist, \
     RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet, RooRealVar, \
-    TRandom3, RooPowerLaw, RooClassFactory, gROOT, TClass
+    TRandom3, RooPowerLaw, RooClassFactory, gROOT, TClass, TH1D
 from array import array
 from EffLookupTable import EffLookupTable
 import random
@@ -38,39 +38,30 @@ class Wjj2DFitterUtils:
     # create a new empty 2D histogram with the appropriate binning
     def newEmptyHist(self, histName):
         newHist = None
-        if (len(self.pars.v1binEdges) > 1) and (len(self.pars.v2binEdges) > 1):
-            newHist = TH2D(histName, histName, 
-                           len(self.pars.v1binEdges)-1, 
-                           array('d', self.pars.v1binEdges),
-                           len(self.pars.v2binEdges)-1, 
-                           array('d', self.pars.v2binEges))
-        elif (len(self.pars.v1binEdges) > 1) and \
-                (len(self.pars.v2binEdges) < 2):
-            newHist = TH2D(histName, histName, 
-                           len(self.pars.v1binEdges)-1, 
-                           array('d', self.pars.v1binEdges),
-                           self.pars.v2nbins, self.pars.v2min, self.pars.v2max)
-        elif (len(self.pars.v1binEdges) < 2) and \
-                (len(self.pars.v2binEdges) > 1):
-            newHist = TH2D(histName, histName, 
-                           self.pars.v2nbins, self.pars.v1min, self.pars.v1max,
-                           len(self.pars.v2binEdges)-1, 
-                           array('d', self.pars.v2binEges))
-        else:
-            newHist = TH2D(histName, histName, 
-                           self.pars.v2nbins, self.pars.v1min, self.pars.v1max,
-                           self.pars.v2nbins, self.pars.v2min, self.pars.v2max)
+        histCmd = 'TH%iD(%s,%s' % (len(self.pars.var), histName, histName)
+        for v in self.pars.var:
+            if len(self.pars.varRanges[v][3]) > 1:
+                histCmd += ',%i,%s' % (len(self.pars.varRanges[v][3])-1,
+                                       "array('d', self.pars.varRanges[v][3])")
+            else:
+                histCmd += ',%i,%f,%f' % (self.pars.varRanges[v][0],
+                                          self.pars.varRanges[v][1],
+                                          self.pars.varRanges[v][2])
+        histCmd += ')'
+        print histCmd
+        newHist = eval(histCmd)
 
         return newHist
 
     # the cuts to be applied to any data
     def fullCuts(self):
-        theCut = '(%s>%0.3f)&&(%s<%0.3f)' % (self.pars.var1, self.pars.v1min,
-                                              self.pars.var1, self.pars.v1max)
-        theCut += '&&(%s>%0.3f)&&(%s<%0.3f)' % (self.pars.var2, self.pars.v2min,
-                                                self.pars.var2, self.pars.v2max)
         if len(self.pars.cuts) > 0:
-            theCut += '&&(%s)' % self.pars.cuts
+            theCut = '(%s)' % self.pars.cuts
+        else:
+            theCut = '(1==1)'
+        for v in self.pars.var:
+            theCut += '&&(%s>%0.3f)&&(%s<%0.3f)'%(v,self.pars.varRanges[v][1],
+                                                  v,self.pars.varRanges[v][2])
         return '(%s)' % theCut
             
     # generator function for looping over an event tree and applying the cuts
@@ -89,6 +80,7 @@ class Wjj2DFitterUtils:
         # get the right cuts
         if cutOverride:
             theCuts = cutOverride
+            print 'override cuts:',cutOverride
         elif noCuts:
             theCuts = ''
         else:
@@ -101,8 +93,9 @@ class Wjj2DFitterUtils:
         theList = gDirectory.Get('cuts_evtList')
 
         # create fomulae for the variables of interest
-        v1val = TTreeFormula('var1', self.pars.var1, theTree)
-        v2val = TTreeFormula('var2', self.pars.var2, theTree)
+        rowVs = []
+        for (i,v) in enumerate(self.pars.var):
+            rowVs.append(TTreeFormula('v%i' % i, v, theTree))
 
         # loop over the selected events calculate their weight and yield
         # the two variable values and the weight for each selected event.
@@ -128,32 +121,41 @@ class Wjj2DFitterUtils:
             #                         met_pt = theTree.event_met_pfmet, 
             #                         met_eta = 0.)
             if CPweight:
-                cpw = HiggsCPWeight(self.pars.mHiggs, theTree.W_H_mass_gen)
+                cpw = getattr(theTree, 'complexpolewtggH%i' % self.pars.mHiggs)
+                cpw /= getattr(theTree, 'avecomplexpolewtggH%i' % self.pars.mHiggs)
             else:
                 cpw = 1.
-            yield (v1val.EvalInstance(), v2val.EvalInstance(), effWgt, cpw)
+            row = [ v.EvalInstance() for v in rowVs ]
+            yield (row, effWgt, cpw)
 
         return
         
 
     # from a file fill a 2D histogram
     def File2Hist(self, fname, histName, noCuts = False, 
-                  cutOverride = None, CPweight = False):
+                  cutOverride = None, CPweight = False,
+                  doWeights = True):
         theHist = self.newEmptyHist(histName)
 
         print 'filename:',fname
-        doEffWgt = (self.pars.doEffCorrections and not cutOverride)
+        doEffWgt = (self.pars.doEffCorrections and not cutOverride \
+                        and doWeights)
         
-        for (v1val, v2val, effWgt, cpw) in self.TreeLoopFromFile(fname, 
-                                                                 noCuts, 
-                                                                 cutOverride,
-                                                                 CPweight):
+        for (row, effWgt, cpw) in self.TreeLoopFromFile(fname, 
+                                                        noCuts, 
+                                                        cutOverride,
+                                                        CPweight):
             #print 'entry:',v1val,v2val,effWgt
             if not doEffWgt:
                 effWgt = 1.0
             if CPweight:
                 effWgt *= cpw
-            theHist.Fill(v1val, v2val, effWgt)
+            if len(row) == 1:
+                theHist.Fill(row[0], effWgt)
+            elif len(row) == 2:
+                theHist.Fill(row[0], row[1], effWgt)
+            elif len(row) == 3:
+                theHist.Fill(row[0], row[1], row[2], effWgt)
 
         return theHist
 
@@ -162,12 +164,13 @@ class Wjj2DFitterUtils:
         if ws.pdf(pdfName):
             return ws.pdf(pdfName)
 
-        varList = RooArgList(ws.var(self.pars.var1), ws.var(self.pars.var2))
+        varList = RooArgList()
+        for v in self.pars.var:
+            varList.add(ws.var(v))
         newHist = RooDataHist(pdfName + '_hist', pdfName + '_hist',
                               varList, hist)
         
-        obsSet = RooArgSet(varList)
-        thePdf = RooHistPdf(pdfName, pdfName, obsSet, 
+        thePdf = RooHistPdf(pdfName, pdfName, ws.set('obsSet'), 
                             newHist, order)
         getattr(ws, 'import')(thePdf)
 
@@ -175,13 +178,11 @@ class Wjj2DFitterUtils:
 
     # from a file fill and return a RooDataSet
     def File2Dataset(self, fnames, dsName, ws, noCuts = False, 
-                     weighted = False, CPweight = False):
+                     weighted = False, CPweight = False, cutOverride = None):
         if ws.data(dsName):
             return ws.data(dsName)
 
-        v1 = ws.var(self.pars.var1)
-        v2 = ws.var(self.pars.var2)
-        cols = RooArgSet(v1, v2)
+        cols = RooArgSet(ws.set('obsSet'))
         if weighted:
             evtWgt = RooRealVar('evtWgt', 'evtWgt', 1.0)
             cols.add(evtWgt)
@@ -192,14 +193,18 @@ class Wjj2DFitterUtils:
         if not (type(fnames) == type([])):
             fnames = [fnames]
         for fname in fnames:
-            for (v1val, v2val, effWgt, cpw) in \
+            for (row, effWgt, cpw) in \
                     self.TreeLoopFromFile(fname, noCuts,
-                                          CPweight = CPweight):
-                v1.setVal(v1val)
-                v2.setVal(v2val)
+                                          CPweight = CPweight,
+                                          cutOverride = cutOverride):
+                inRange = True
+                for (i,v) in enumerate(self.pars.var):
+                    inRange = (inRange and ws.var(v).inRange(row[i], ''))
+                    cols.setRealValue(v, row[i])
                 if CPweight:
                     effWgt *= cpw
-                ds.add(cols, effWgt)
+                if inRange:
+                    ds.add(cols, effWgt)
 
         getattr(ws, 'import')(ds)
 
@@ -359,6 +364,33 @@ class Wjj2DFitterUtils:
                            (pdfName, var, idString, idString, idString, 
                             idString)
                        )
+        elif model == 11:
+            #3th order polynomial
+            ws.factory("RooChebychev::%s(%s,{a1_%s[-10,10],a2_%s[-10,10],a3_%s[-10,10]})" % \
+                           (pdfName, var, idString, idString, idString)
+                       )
+        elif model == 12:
+            # 2 parameter power law
+            ws.factory("power_%s[2, -30, 30]" % idString)
+            ws.factory("power2_%s[0, -20, 20]" % idString)
+            ws.factory("EXPR::%s('1./TMath::Power(@0,@1+@2*log(@0/@3))', %s, power_%s, power2_%s, 8000)" % \
+                           (pdfName, var, idString, idString)
+                       )
+        elif model == 13:
+            # gaussian + erf*exp
+            ws.factory("RooGaussian::%s_core" % pdfName + \
+                           "(%s, mean_%s_core[0,1000],sigma_%s_core[0,500])" %\
+                           (var, idString, idString)
+                       )
+            ws.factory("c_%s[-0.015, -10, 10]" % idString)
+            ws.factory("offset_%s[70, -100, 1000]" % idString)
+            ws.factory("width_%s[20, 0, 1000]" % idString)
+            ws.factory("RooErfExpPdf::%s_tail(%s, c_%s, offset_%s, width_%s)" %\
+                           (pdfName, var, idString, idString, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
+                       )
         else:
             # this is what will be returned if there isn't a model implemented
             # for a given model code.
@@ -387,9 +419,13 @@ if __name__ == '__main__':
     # gPad.WaitPrimitive()
 
     theWS = RooWorkspace()
-    theWS.factory('%s[%f,%f]' % (params.var1, params.v1min, params.v1max))
-    theWS.factory('%s[%f,%f]' % (params.var2, params.v2min, params.v2max))
-    theWS.defineSet('obsSet', '%s,%s' % (params.var1, params.var2))
+    theWS.factory('%s[%f,%f]' % (params.var[0], 
+                                 params.varRanges[params.var[0]][1], 
+                                 params.varRanges[params.var[0]][2]))
+    theWS.factory('%s[%f,%f]' % (params.var[1], 
+                                 params.varRanges[params.var[1]][1], 
+                                 params.varRanges[params.var[1]][2]))
+    theWS.defineSet('obsSet', ','.join(params.var))
 
     #theWS.Print()
     # utils.Hist2Pdf(dataHist, "H250SignalHist", theWS)
@@ -403,7 +439,7 @@ if __name__ == '__main__':
     print 
 
     for model in range(10):
-        utils.analyticPdf(theWS, params.var1, model, 'pdf_%i' % model,
-                          '%i_%s' % (model,params.var1))
+        utils.analyticPdf(theWS, params.var[0], model, 'pdf_%i' % model,
+                          '%i_%s' % (model,params.var[0]))
 
     theWS.Print()
