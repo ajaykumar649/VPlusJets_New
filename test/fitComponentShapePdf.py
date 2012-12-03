@@ -53,14 +53,17 @@ fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 data = None
 sumNExp = 0.
 weighted = True
+cutOverride = None
 if opts.component == 'multijet':
     weighted = False
+    cutOverride = pars.multijet_cuts
 cpw = False
-if opts.component == "HWW":
+if opts.component == "ggH":
     cpw = True
 for (ifile, (filename, ngen, xsec)) in enumerate(files):
     tmpData = fitter.utils.File2Dataset(filename, 'data%i' % ifile, fitter.ws,
-                                        weighted = weighted, CPweight = cpw)
+                                        weighted = weighted, CPweight = cpw,
+                                        cutOverride = cutOverride)
     tmpData.Print()
     expectedYield = xsec*pars.integratedLumi*tmpData.sumEntries()/ngen
     print filename,'A x eff: %.3g' % (tmpData.sumEntries()/ngen)
@@ -77,72 +80,72 @@ for (ifile, (filename, ngen, xsec)) in enumerate(files):
 
 print opts.component,'total expected yield: %.1f' % sumNExp
 
-sigPdf = fitter.makeComponentPdf(opts.component, files, models)[0][0]
+sigPdf = fitter.makeComponentPdf(opts.component, files, models)
 
-if fitter.ws.var('c_diboson_%s' % pars.var2):
-    fitter.ws.var('c_diboson_%s' % pars.var2).setVal(-0.012)
-if fitter.ws.var('c_diboson_%s_tail' % pars.var1):
-    fitter.ws.var('c_diboson_%s_tail' % pars.var1).setVal(-0.015)
-if fitter.ws.var('f_diboson_%s_core' % pars.var1):
-    fitter.ws.var('f_diboson_%s_core' % pars.var1).setVal(0.6)
-if fitter.ws.var('mean_diboson_%s_core' % pars.var1):
-    fitter.ws.var('mean_diboson_%s_core' % pars.var1).setVal(86)
-if fitter.ws.var('mean_diboson_%s_tail' % pars.var1):
-    fitter.ws.var('mean_diboson_%s_tail' % pars.var1).setVal(40)
-if fitter.ws.var('sigma_diboson_%s_core' % pars.var1):
-    fitter.ws.var('sigma_diboson_%s_core' % pars.var1).setVal(10)
-if fitter.ws.var('sigma_diboson_%s_tail' % pars.var1):
-    fitter.ws.var('sigma_diboson_%s_tail' % pars.var1).setVal(55)
-if fitter.ws.var('mean_top_%s_core' % pars.var1):
-    fitter.ws.var('mean_top_%s_core' % pars.var1).setVal(84.)
-if fitter.ws.var('mean_top_%s_tail' % pars.var1):
-    fitter.ws.var('mean_top_%s_tail' % pars.var1).setVal(130.)
-if fitter.ws.var('sigma_top_%s_core' % pars.var1):
-    fitter.ws.var('sigma_top_%s_core' % pars.var1).setVal(11.)
-if fitter.ws.var('sigma_top_%s_tail' % pars.var1):
-    fitter.ws.var('sigma_top_%s_tail' % pars.var1).setVal(40.)
-if fitter.ws.var('f_top_%s_core' % pars.var1):
-    fitter.ws.var('f_top_%s_core' % pars.var1).setVal(0.25)
-if fitter.ws.var('c_top_%s' % pars.var2):
-    fitter.ws.var('c_top_%s' % pars.var2).setVal(-0.01)
-if fitter.ws.var('c_WpJ_%s' % pars.var2):
-    fitter.ws.var('c_WpJ_%s' % pars.var2).setVal(-0.014)
-if fitter.ws.var('power_WpJ_%s' % pars.var1):
-    fitter.ws.var('power_WpJ_%s' % pars.var1).setVal(5.1)
-if fitter.ws.var('c_WpJ_%s' % pars.var1):
-    fitter.ws.var('c_WpJ_%s' % pars.var1).setVal(-0.02)
-if fitter.ws.var('offset_WpJ_%s' % pars.var1):
-    fitter.ws.var('offset_WpJ_%s' % pars.var1).setVal(65)
-if fitter.ws.var('width_WpJ_%s' % pars.var1):
-    fitter.ws.var('width_WpJ_%s' % pars.var1).setVal(25)
-if fitter.ws.var('c_HWW_%s_tail' % pars.var1):
-    fitter.ws.var('c_HWW_%s_tail' % pars.var1).setVal(-0.015)
-if fitter.ws.var('f_HWW_%s_core' % pars.var1):
-    fitter.ws.var('f_HWW_%s_core' % pars.var1).setVal(0.9)
-if fitter.ws.var('mean_HWW_%s_core' % pars.var1):
-    fitter.ws.var('mean_HWW_%s_core' % pars.var1).setVal(85)
-if fitter.ws.var('sigma_HWW_%s_core' % pars.var1):
-    fitter.ws.var('sigma_HWW_%s_core' % pars.var1).setVal(10)
-if fitter.ws.var('sigma_HWW_%s_tail' % pars.var1):
-    fitter.ws.var('sigma_HWW_%s_tail' % pars.var1).setVal(50)
-if fitter.ws.var('sigma_HWW_%s_core' % pars.var2):
-    fitter.ws.var('sigma_HWW_%s_core' % pars.var2).setVal(10)
-if fitter.ws.var('sigma_HWW_%s_tail' % pars.var2):
-    fitter.ws.var('sigma_HWW_%s_tail' % pars.var2).setVal(100)
-if fitter.ws.var('f_HWW_%s_core' % pars.var2):
-    fitter.ws.var('f_HWW_%s_core' % pars.var2).setVal(0.7)
-if fitter.ws.var('mean_HWW_%s' % pars.var1):
-    fitter.ws.var('mean_HWW_%s' % pars.var1).setVal(84)
-if fitter.ws.var('mean_HWW_%s' % pars.var2):
-    fitter.ws.var('mean_HWW_%s' % pars.var2).setVal(opts.mH)
-if fitter.ws.var('mean_HWW_%s_core' % pars.var2):
-    fitter.ws.var('mean_HWW_%s_core' % pars.var2).setVal(opts.mH)
-if fitter.ws.var('mean_HWW_%s_tail' % pars.var2):
-    fitter.ws.var('mean_HWW_%s_tail' % pars.var2).setVal(opts.mH)
-if fitter.ws.var('width_HWW_%s' % pars.var2):
-    fitter.ws.var('width_HWW_%s' % pars.var2).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
-if fitter.ws.var('resolution_HWW_%s_tail' % pars.var2):
-    fitter.ws.var('resolution_HWW_%s_tail' % pars.var2).setVal(opts.mH*0.11)
+if fitter.ws.var('c_diboson_%s' % pars.var[1]):
+    fitter.ws.var('c_diboson_%s' % pars.var[1]).setVal(-0.012)
+if fitter.ws.var('c_diboson_%s_tail' % pars.var[0]):
+    fitter.ws.var('c_diboson_%s_tail' % pars.var[0]).setVal(-0.015)
+if fitter.ws.var('f_diboson_%s_core' % pars.var[0]):
+    fitter.ws.var('f_diboson_%s_core' % pars.var[0]).setVal(0.6)
+if fitter.ws.var('mean_diboson_%s_core' % pars.var[0]):
+    fitter.ws.var('mean_diboson_%s_core' % pars.var[0]).setVal(86)
+if fitter.ws.var('mean_diboson_%s_tail' % pars.var[0]):
+    fitter.ws.var('mean_diboson_%s_tail' % pars.var[0]).setVal(40)
+if fitter.ws.var('sigma_diboson_%s_core' % pars.var[0]):
+    fitter.ws.var('sigma_diboson_%s_core' % pars.var[0]).setVal(10)
+if fitter.ws.var('sigma_diboson_%s_tail' % pars.var[0]):
+    fitter.ws.var('sigma_diboson_%s_tail' % pars.var[0]).setVal(55)
+if fitter.ws.var('mean_top_%s_core' % pars.var[0]):
+    fitter.ws.var('mean_top_%s_core' % pars.var[0]).setVal(84.)
+if fitter.ws.var('mean_top_%s_tail' % pars.var[0]):
+    fitter.ws.var('mean_top_%s_tail' % pars.var[0]).setVal(130.)
+if fitter.ws.var('sigma_top_%s_core' % pars.var[0]):
+    fitter.ws.var('sigma_top_%s_core' % pars.var[0]).setVal(11.)
+if fitter.ws.var('sigma_top_%s_tail' % pars.var[0]):
+    fitter.ws.var('sigma_top_%s_tail' % pars.var[0]).setVal(40.)
+if fitter.ws.var('f_top_%s_core' % pars.var[0]):
+    fitter.ws.var('f_top_%s_core' % pars.var[0]).setVal(0.25)
+if fitter.ws.var('c_top_%s' % pars.var[1]):
+    fitter.ws.var('c_top_%s' % pars.var[1]).setVal(-0.01)
+if fitter.ws.var('c_WpJ_%s' % pars.var[1]):
+    fitter.ws.var('c_WpJ_%s' % pars.var[1]).setVal(-0.014)
+if fitter.ws.var('power_WpJ_%s' % pars.var[0]):
+    fitter.ws.var('power_WpJ_%s' % pars.var[0]).setVal(5.1)
+if fitter.ws.var('c_WpJ_%s' % pars.var[0]):
+    fitter.ws.var('c_WpJ_%s' % pars.var[0]).setVal(-0.02)
+if fitter.ws.var('offset_WpJ_%s' % pars.var[0]):
+    fitter.ws.var('offset_WpJ_%s' % pars.var[0]).setVal(65)
+if fitter.ws.var('width_WpJ_%s' % pars.var[0]):
+    fitter.ws.var('width_WpJ_%s' % pars.var[0]).setVal(25)
+if fitter.ws.var('c_HWW_%s_tail' % pars.var[0]):
+    fitter.ws.var('c_HWW_%s_tail' % pars.var[0]).setVal(-0.015)
+if fitter.ws.var('f_HWW_%s_core' % pars.var[0]):
+    fitter.ws.var('f_HWW_%s_core' % pars.var[0]).setVal(0.9)
+if fitter.ws.var('mean_HWW_%s_core' % pars.var[0]):
+    fitter.ws.var('mean_HWW_%s_core' % pars.var[0]).setVal(85)
+if fitter.ws.var('sigma_HWW_%s_core' % pars.var[0]):
+    fitter.ws.var('sigma_HWW_%s_core' % pars.var[0]).setVal(10)
+if fitter.ws.var('sigma_HWW_%s_tail' % pars.var[0]):
+    fitter.ws.var('sigma_HWW_%s_tail' % pars.var[0]).setVal(50)
+if fitter.ws.var('sigma_HWW_%s_core' % pars.var[1]):
+    fitter.ws.var('sigma_HWW_%s_core' % pars.var[1]).setVal(10)
+if fitter.ws.var('sigma_HWW_%s_tail' % pars.var[1]):
+    fitter.ws.var('sigma_HWW_%s_tail' % pars.var[1]).setVal(100)
+if fitter.ws.var('f_HWW_%s_core' % pars.var[1]):
+    fitter.ws.var('f_HWW_%s_core' % pars.var[1]).setVal(0.7)
+if fitter.ws.var('mean_HWW_%s' % pars.var[0]):
+    fitter.ws.var('mean_HWW_%s' % pars.var[0]).setVal(84)
+if fitter.ws.var('mean_HWW_%s' % pars.var[1]):
+    fitter.ws.var('mean_HWW_%s' % pars.var[1]).setVal(opts.mH)
+if fitter.ws.var('mean_HWW_%s_core' % pars.var[1]):
+    fitter.ws.var('mean_HWW_%s_core' % pars.var[1]).setVal(opts.mH)
+if fitter.ws.var('mean_HWW_%s_tail' % pars.var[1]):
+    fitter.ws.var('mean_HWW_%s_tail' % pars.var[1]).setVal(opts.mH)
+if fitter.ws.var('width_HWW_%s' % pars.var[1]):
+    fitter.ws.var('width_HWW_%s' % pars.var[1]).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
+if fitter.ws.var('resolution_HWW_%s_tail' % pars.var[1]):
+    fitter.ws.var('resolution_HWW_%s_tail' % pars.var[1]).setVal(opts.mH*0.11)
 
 params = sigPdf.getParameters(data)
 parCopy = params.snapshot()
@@ -153,9 +156,14 @@ for filename in args:
 parCopy.IsA().Destructor(parCopy)
     
 if fitter.ws.var('npow_HWW_Mass2j_PFCor'):
-    fitter.ws.var('npow_HWW_Mass2j_PFCor').setConstant(False)
+    # fitter.ws.var('npow_HWW_Mass2j_PFCor').setConstant(False)
     # fitter.ws.var('alpha_HWW_Mass2j_PFCor').setVal(1.0)
     # fitter.ws.var('alpha_HWW_Mass2j_PFCor').setConstant(True)
+    pass
+
+if fitter.ws.var('npow_diboson_Mass2j_PFCor'):
+    fitter.ws.var('npow_diboson_Mass2j_PFCor').setConstant(False)
+    fitter.ws.var('npow_diboson_Mass2j_PFCor').setError(0.5)
 
 fitter.ws.Print()
 
@@ -165,11 +173,11 @@ fr = sigPdf.fitTo(data, RooFit.Save(),
                   RooFit.SumW2Error(False)
                   )
 
-c1 = TCanvas('c1', pars.var1)
-sigPlot = fitter.ws.var(pars.var1).frame(RooFit.Name('%s_Plot' % pars.var1))
-dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % pars.var1,
-                                      fitter.ws.var(pars.var1),
-                                      RooFit.Binning('%sBinning' % pars.var1))
+c1 = TCanvas('c1', pars.var[0])
+sigPlot = fitter.ws.var(pars.var[0]).frame(RooFit.Name('%s_Plot' % pars.var[0]))
+dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % pars.var[0],
+                                      fitter.ws.var(pars.var[0]),
+                                      RooFit.Binning('%sBinning' % pars.var[0]))
 theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
 theData.SetName('theData')
 theData.SetTitle('data')
@@ -181,9 +189,9 @@ sigPlot.GetYaxis().SetTitle('Events / GeV')
 sigPlot.Draw()
 c1.Update()
 
-c2 = TCanvas('c2', pars.var2)
-sigPlot2 = fitter.ws.var(pars.var2).frame(RooFit.Name('%s_Plot' % pars.var2))
-data.plotOn(sigPlot2, RooFit.Binning('%sBinning' % (pars.var2)),
+c2 = TCanvas('c2', pars.var[1])
+sigPlot2 = fitter.ws.var(pars.var[1]).frame(RooFit.Name('%s_Plot' % pars.var[1]))
+data.plotOn(sigPlot2, RooFit.Binning('%sBinning' % (pars.var[1])),
             RooFit.Name('theData'))
 sigPdf.plotOn(sigPlot2, RooFit.Name('fitCurve'))
 sigPlot2.Draw()
@@ -209,11 +217,12 @@ if fr:
         finalPars.setAttribAll('Constant', True)
     finalPars.writeToFile("%s.txt" % opts.bn)
 
-    paramsFile = open('%s.txt' % opts.bn, 'a')
-    paramsFile.write('n_%s = %.1f +/- %.1f\n' % (opts.component, sumNExp, 
-                                               TMath.Sqrt(sumNExp))
-                     )
-    paramsFile.close()
+    if opts.component != 'multijet':
+        paramsFile = open('%s.txt' % opts.bn, 'a')
+        paramsFile.write('n_%s = %.1f +/- %.1f C\n' % (opts.component, sumNExp, 
+                                                       TMath.Sqrt(sumNExp))
+                         )
+        paramsFile.close()
 
     ndf = fr.floatParsFinal().getSize()
     finalPars.IsA().Destructor(finalPars)

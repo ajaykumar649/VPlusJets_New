@@ -21,6 +21,9 @@ parser.add_option('--toy', dest='toy', action='store_true',
                   help='use pseudo-data instead of data file')
 parser.add_option('--toyOut', dest='toyOut', help='filename for toy output')
 parser.add_option('--seed', dest='seed', type='int', help='random seed')
+parser.add_option('--ws', dest='ws', 
+                  help='filename that contains workspace to be used cloned ' +\
+                      'for use')
 
 (opts, args) = parser.parse_args()
 
@@ -30,7 +33,9 @@ import pyroot_logon
 config = __import__(opts.modeConfig)
 import RooWjj2DFitter
 
-from ROOT import TCanvas, RooFit, RooLinkedListIter, TMath, RooRandom, TFile
+from ROOT import TCanvas, RooFit, RooLinkedListIter, TMath, RooRandom, TFile, \
+    RooDataHist
+import pulls
 
 if hasattr(opts, "seed") and (opts.seed >= 0):
     print "random seed:", opts.seed
@@ -40,6 +45,9 @@ pars = config.theConfig(Nj = opts.Nj, mH = opts.mH,
                         includeSignal = opts.includeSignal)
 
 fitter = RooWjj2DFitter.Wjj2DFitter(pars)
+
+if opts.ws:
+    fitter.loadWorkspaceFromFile(opts.ws)
 
 totalPdf = fitter.makeFitter()
 #fitter.loadData()
@@ -56,37 +64,43 @@ fitter.resetYields()
 # fitter.readParametersFromFile('HWW350Parameters.txt')
 
 startpars = totalPdf.getParameters(fitter.ws.set('obsSet'))
-fitter.ws.defineSet("initialPars", startpars)
+fitter.ws.defineSet("params", startpars)
+fitter.ws.saveSnapshot("initPars", startpars)
 
 if opts.toy:
     #generate toy dataset
     print 'Generated parameters'
-    fitter.ws.set('initialPars').Print('v')
+    fitter.ws.set('params').Print('v')
     fitter.ws.saveSnapshot("genPars", startpars)
 
-    data = totalPdf.generate(fitter.ws.set('obsSet'), RooFit.Name('data'),
+    data = totalPdf.generate(fitter.ws.set('obsSet'), RooFit.Name('data_obs'),
                              RooFit.Extended())
+    if fitter.pars.binData:
+        data = RooDataHist('data_obs', 'data_obs', fitter.ws.set('obsSet'),
+                           data)
+        data.Print('v')
     getattr(fitter.ws, 'import')(data)
 else:    
     data = fitter.loadData()
 
+fitter.setMultijetYield()
 data.Print()
 startpars.IsA().Destructor(startpars)
 
 fr = None
 fr = fitter.fit()
 
-plot1 = fitter.stackedPlot(pars.var1)
+plot1 = fitter.stackedPlot(pars.var[0])
 leg1 = RooWjj2DFitter.Wjj2DFitter.legend4Plot(plot1)
-plot2 = fitter.stackedPlot(pars.var2)
+plot2 = fitter.stackedPlot(pars.var[1])
 leg2 = RooWjj2DFitter.Wjj2DFitter.legend4Plot(plot2)
 
-c1 = TCanvas('c1', fitter.ws.var(pars.var1).GetTitle() + ' plot')
+c1 = TCanvas('c1', fitter.ws.var(pars.var[0]).GetTitle() + ' plot')
 plot1.Draw()
 leg1.Draw('same')
 c1.Update()
 
-c2 = TCanvas('c2', fitter.ws.var(pars.var2).GetTitle() + ' plot')
+c2 = TCanvas('c2', fitter.ws.var(pars.var[1]).GetTitle() + ' plot')
 plot2.Draw()
 leg2.Draw('same')
 c2.Update()
@@ -101,23 +115,42 @@ if fr:
         fitter.ws.set('constraintSet').getSize()
     fr.Print('v')
 
-print '%i free parameters in the fit' % ndf
-
 firstCurve1 = plot1.getObject(1)
 # firstCurve1.Print()
 
 chi2_1 = plot1.chiSquare(firstCurve1.GetName(), 'theData')*plot1.GetNbinsX()
+pull1 = pulls.createPull(plot1.getHist('theData'), firstCurve1)
 
 firstCurve2 = plot2.getObject(1)
 # firstCurve2.Print()
 
 chi2_2 = plot2.chiSquare(firstCurve2.GetName(), 'theData')*plot2.GetNbinsX()
+pull2 = pulls.createPull(plot2.getHist('theData'), firstCurve2)
 
 chi2 = chi2_1 + chi2_2
 ndf = plot1.GetNbinsX()+plot2.GetNbinsX()-ndf
 
-print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
-print 'chi2 probability: %.4g' % (TMath.Prob(chi2, ndf))
+cp1 = TCanvas("cp1", fitter.ws.var(pars.var[0]).GetTitle() + ' pull')
+pull1.Draw('ap')
+pull1.SetName(pars.var[0] + "_pull")
+cp1.SetGridy()
+cp1.Update()
+pull1.GetXaxis().SetLimits(pars.varRanges[pars.var[0]][1], 
+                           pars.varRanges[pars.var[0]][2])
+pull1.GetXaxis().SetTitle(fitter.ws.var(pars.var[0]).getTitle(True).Data())
+pull1.GetYaxis().SetTitle("pull (#sigma)")
+cp1.Update()
+
+cp2 = TCanvas("cp2", fitter.ws.var(pars.var[1]).GetTitle() + ' pull')
+pull2.Draw('ap')
+pull2.SetName(pars.var[1] + "_pull")
+cp2.SetGridy()
+cp2.Update()
+pull2.GetXaxis().SetLimits(pars.varRanges[pars.var[1]][1], 
+                           pars.varRanges[pars.var[1]][2])
+pull2.GetXaxis().SetTitle(fitter.ws.var(pars.var[1]).getTitle(True).Data())
+pull2.GetYaxis().SetTitle("pull (#sigma)")
+cp2.Update()
 
 if opts.toyOut:
     outFile = open(opts.toyOut, 'a', 1)
@@ -141,21 +174,38 @@ if opts.toyOut:
                       )
     outFile.write('\n')
     outFile.close()
-elif not opts.toy:
-    mode = 'muon'
-    if opts.isElectron:
-        mode = 'electron'
-    # freeze all parameters as a starting point for the combine debugging.
+
+mode = 'muon'
+if opts.isElectron:
+    mode = 'electron'
+
+if fr:
     for par in floatVars:
-        fitter.ws.var(par).setConstant(True)
+        # freeze all parameters as a starting point for the combine debugging.
+        #fitter.ws.var(par).setConstant(True)
 
-    output = TFile("HWWlnujjH%i_%s_%ijets_output.root" % (opts.mH, mode, 
-                                                          opts.Nj),
-                   "recreate")
+        floatVar = fitter.ws.var(par)
+        if fitter.ws.set('constrainedSet').contains(floatVar):
+            floatVar.setVal(1.0)
+            floatVar.setConstant(True)
+            floatVar.SetName(floatVar.GetName() + '_old')
+        floatVar.setRange(floatVar.getVal()-floatVar.getError()*5.,
+                          floatVar.getVal()+floatVar.getError()*5)
 
-    plot1.Write()
-    plot2.Write()
-    fitter.ws.SetName("w")
-    fitter.ws.Write()
-    output.Close()
-    
+output = TFile("HWWlnujjH%i_%s_%ijets_output.root" % (opts.mH, mode, 
+                                                      opts.Nj),
+               "recreate")
+
+plot1.Write()
+plot2.Write()
+pull1.Write()
+pull2.Write()
+fitter.ws.SetName("w")
+fitter.ws.Write()
+#fitter.ws.Print()
+output.Close()
+
+print '%i free parameters in the fit' % ndf
+print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
+print 'chi2 probability: %.4g' % (TMath.Prob(chi2, ndf))
+
