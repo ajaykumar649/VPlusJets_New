@@ -134,7 +134,9 @@
 //const TString inDataDir  = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
 // const TString inDataDir  = "/eos/uscms/store/user/smpjs/ntran/WWlnujj_53x/";
 //const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012/MergedNtuples/";
-const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
+//const TString inDataDir  = "/eos/uscms/store/user/lnujj/HCP2012METfix/MergedNtuples/";
+//const TString inDataDir  = "/uscmst1b_scratch/lpc1/3DayLifetime/weizountuple/";
+const TString inDataDir  = "/eos/uscms/store/user/lnujj/Moriond2013/MergedNtuples/";
 //const TString inDataDir  = "/uscmst1b_scratch/lpc1/3DayLifetime/jdamgov/HCPlnjj/MergedNtuples/";
 //const TString inDataDir  = "/uscmst1b_scratch/lpc1/3DayLifetime/weizountuple/";
 //const TString inQCDDir   = "/eos/uscms/store/user/lnujj/ICHEP12/MergedNtuples/";
@@ -1049,6 +1051,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    fChain->SetBranchStatus("JetPFCorVBFTag_Phi",    1);
    fChain->SetBranchStatus("JetPFCorVBFTag_E",    1);
    fChain->SetBranchStatus("JetPFCorVBFTag_bDiscriminator",    1);
+   fChain->SetBranchStatus("JetPFCorVBFTag_bDiscriminatorCSV",    1);
    // Drop gen jet information
    fChain->SetBranchStatus("*Gen*",    0);
    //fChain->SetBranchStatus("W_H_*",    0);  
@@ -1083,9 +1086,11 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    FILE *textfile = fopen(textfn,"w");
 
    Int_t   ggdevt   =0,   evtNJ     =0;
+   Int_t   ggdevtinclusive   =0; //For inclusive Jet Bin
 
    TBranch *branch_ggdevt= newtree->Branch("ggdevt",    &ggdevt,     "ggdevt/I");
    TBranch *branch_evtNJ = newtree->Branch("evtNJ",     &evtNJ,      "evtNJ/I");
+   TBranch *branch_ggdevtinclusive = newtree->Branch("ggdevtinclusive", &ggdevtinclusive, "ggdevtinclusive/I");
 
    Float_t fit_mu_px=0,   fit_mu_py =0,   fit_mu_pz=0,   fit_mu_e=0;
    Float_t fit_nv_px=0,   fit_nv_py =0,   fit_nv_pz=0,   fit_nv_e=0;
@@ -1528,6 +1533,15 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_vbf_wjj_ang_phia = newtree->Branch("vbf_wjj_ang_phia", &vbf_wjj_ang_phia,  "vbf_wjj_ang_phia/F");
    TBranch * branch_vbf_wjj_ang_phib = newtree->Branch("vbf_wjj_ang_phib", &vbf_wjj_ang_phib,  "vbf_wjj_ang_phib/F");
 
+   //Variables for the VBF topology of the di-boson events
+   Int_t vbf_diboson_event = 0;
+   Float_t vbf_diboson_dijetpt = -999, vbf_diboson_deltaeta_Wjj = -999, vbf_diboson_deltaphi_MET_leadingWjet = -999;
+
+   TBranch *branch_vbf_diboson_event      = newtree->Branch("vbf_diboson_event",  &vbf_diboson_event,   "vbf_diboson_event/I");
+   TBranch *branch_vbf_diboson_dijetpt   = newtree->Branch("vbf_diboson_dijetpt", &vbf_diboson_dijetpt, "vbf_diboson_dijetpt/F");
+   TBranch *branch_vbf_diboson_deltaeta_Wjj  = newtree->Branch("vbf_diboson_deltaeta_Wjj", &vbf_diboson_deltaeta_Wjj, "vbf_diboson_deltaeta_Wjj/F");
+   TBranch *branch_vbf_diboson_deltaphi_MET_leadingWjet  = newtree->Branch("vbf_diboson_deltaphi_MET_leadingWjet", &vbf_diboson_deltaphi_MET_leadingWjet, "vbf_diboson_deltaphi_MET_leadingWjet/F");
+
    //New Category for ttH analysis
    Int_t ttH_check_event = 0;
    Int_t ttH_event = 0, ttH_waj_id = -1, ttH_wbj_id = -1, ttH_toplvj_aj_id = -1, ttH_topjjj_aj_id = -1, ttH_dijetaj_id = -1, ttH_dijetbj_id = -1;
@@ -1761,10 +1775,13 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    ReadMVA2jdibnoqgmu mvaReader2jdibnoqgmu( DBnoqg_inputVarsMVA ); 
    ReadMVA3jdibnoqgmu mvaReader3jdibnoqgmu( DBnoqg_inputVarsMVA ); 
 
-   const char* vbf_inputVars[] = { "vbf_lvjj_pt", "vbf_lvjj_y", "W_muon_charge", "vbf_wjj_ang_ha", "vbf_wjj_ang_hb", "vbf_wjj_ang_hs", "vbf_wjj_ang_phi", "vbf_wjj_ang_phib", "vbf_jj_deta", "vbf_jj_m" };
+   //const char* vbf_inputVars[] = { "vbf_lvjj_pt", "vbf_lvjj_y", "W_muon_charge", "vbf_wjj_ang_ha", "vbf_wjj_ang_hb", "vbf_wjj_ang_hs", "vbf_wjj_ang_phi", "vbf_wjj_ang_phib", "vbf_jj_deta", "vbf_jj_m" };
+   const char* vbf_inputVars[] = { "vbf_lvjj_pt", "vbf_lvjj_y", "W_muon_charge", "vbf_wjj_ang_ha", "vbf_wjj_ang_hb", "vbf_wjj_ang_hs", "vbf_wjj_ang_phi", "vbf_wjj_ang_phib"};
    std::vector<std::string> vbf_inputVarsMVA;
-   for (int i=0; i<10; ++i) vbf_inputVarsMVA.push_back( vbf_inputVars[i] );
+   //for (int i=0; i<10; ++i) vbf_inputVarsMVA.push_back( vbf_inputVars[i] );
+   for (int i=0; i<8; ++i) vbf_inputVarsMVA.push_back( vbf_inputVars[i] );
    ReadMVAVBF170mu mvaReadervbf170mu( vbf_inputVarsMVA );
+   cout << "error 1" << endl;
    ReadMVAVBF180mu mvaReadervbf180mu( vbf_inputVarsMVA );
    ReadMVAVBF190mu mvaReadervbf190mu( vbf_inputVarsMVA );
    ReadMVAVBF200mu mvaReadervbf200mu( vbf_inputVarsMVA );
@@ -1988,7 +2005,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    const double btssv                 = 1.74;  // BTagging
    const double btcsvm                = 0.679; //CSVM
    const double btcsvl                = 0.244; //CSVL
-   const double VBF_MaxEta            = 4.5;   // VBF jet max eta
+   //const double VBF_MaxEta            = 4.5;   // VBF jet max eta
+   const double VBF_MaxEta            = 4.7;   // Loose VBF jet max eta to 4.7
    const double mtop                  = 172.5; //Top mass
    // Loop over all events
    Long64_t nbytes = 0, nb = 0;
@@ -2007,6 +2025,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       // Save variable initialization
       ggdevt    = 0;
       evtNJ     = 0;
+      ggdevtinclusive    = 0;
 
       fit_mu_px = 0; fit_mu_py = 0; fit_mu_pz = 0;  fit_mu_e  = 0; 
       fit_nv_px = 0; fit_nv_py = 0; fit_nv_pz = 0;  fit_nv_e  = 0; 
@@ -2092,6 +2111,10 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
 
       vbf_event = 0; vbf_aj_id = -1; vbf_bj_id = -1; vbf_waj_id = -1; vbf_wbj_id = -1;
       vbf_wjj_ang_ha   = 999; vbf_wjj_ang_hb = 999; vbf_wjj_ang_hs = 999; vbf_wjj_ang_phi = 999; vbf_wjj_ang_phia = 999; vbf_wjj_ang_phib = 999;
+
+      //VBF diboson event
+      vbf_diboson_event = 0;
+      vbf_diboson_deltaeta_Wjj = -999; vbf_diboson_deltaphi_MET_leadingWjet = -999; vbf_diboson_dijetpt = -999;
 
       //ttH initilization
       ttH_check_event = 0;
@@ -2375,6 +2398,15 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       if (isgengdevt) { ggdevt = 4;// Do the kinematic fit for all event!!!
          if ( JetPFCor_Pt[1] > Jpt && JetPFCor_Pt[2] < Jpt ) {ggdevt = 2;}
          if ( JetPFCor_Pt[2] > Jpt && JetPFCor_Pt[3] < Jpt ) {ggdevt = 3;}
+         //Add the inclusive Jet bin
+         for(size_t i = 0; i < jetsize; i++)
+         {
+             if(JetPFCor_Pt[i] > Jpt)
+              {
+                  ggdevtinclusive++;
+              }
+         }
+
          int Aj = 0, Bj = 1;    TLorentzVector ajp, bjp; 
          ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj]  );
          bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj]  );
@@ -2532,10 +2564,15 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             int nbnot = 0;
             int Aj    = -999;
             int Bj    = -999;
-            if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
+            /*if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
             if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
             if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
             if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
+            */
+            if (JetPFCor_bDiscriminatorCSV[0]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
+            if (JetPFCor_bDiscriminatorCSV[1]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
+            if (JetPFCor_bDiscriminatorCSV[2]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
+            if (JetPFCor_bDiscriminatorCSV[3]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
 
             if (nbjet==2 && nbnot==2 && Aj!=-999 && Bj!=-999){
                TLorentzVector  ajp, bjp; 
@@ -2555,11 +2592,17 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             int nbnot = 0;
             int Aj    = -999;
             int Bj    = -999;
-            if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
+            /*if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
             if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
             if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
             if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
             if (JetPFCor_bDiscriminator[4]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=4; if (nbnot==2) Bj=4;}
+            */
+            if (JetPFCor_bDiscriminatorCSV[0]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
+            if (JetPFCor_bDiscriminatorCSV[1]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
+            if (JetPFCor_bDiscriminatorCSV[2]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
+            if (JetPFCor_bDiscriminatorCSV[3]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
+            if (JetPFCor_bDiscriminatorCSV[4]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=4; if (nbnot==2) Bj=4;}
 
             if (nbjet==2 && nbnot==3 && Aj!=-999 && Bj!=-999){
                TLorentzVector  ajp, bjp; 
@@ -2604,7 +2647,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                   GroomedJet_numberjets = GroomedJet_numberjets + 1;
                }
 
-               if(JetPFCor_bDiscriminator[i] > btssv && tmpdelatR > 0.8)//Veto the AK5 jet in the CA8 jet cone
+               //if(JetPFCor_bDiscriminator[i] > btssv && tmpdelatR > 0.8)//Veto the AK5 jet in the CA8 jet cone
+               if(JetPFCor_bDiscriminatorCSV[i] > btcsvm && tmpdelatR > 0.8)//Veto the AK5 jet in the CA8 jet cone and Move to CSVM tagger
                {
                   GroomedJet_numberbjets = GroomedJet_numberbjets + 1;
                }
@@ -2724,6 +2768,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          TLorentzVector vbf_ajp(0,0,0,0), vbf_bjp(0,0,0,0);
          TLorentzVector wjj_ajp(0,0,0,0), wjj_bjp(0,0,0,0); 
          float best_detatagjj = 0; // float best_mtagjj =0;
+         float best_mjj = 0; // float best_mjj =0;
          int   n_excj =0, n_exfj = 0, n_gdjj = 0, jj_type = 0, tag_i_id = -1, tag_j_id = -1, wjj_a_id = -1, wjj_b_id = -1;
          for ( size_t i=0; i < jetsize*2; i++) {
             float i_rqpt= (i>5)?(30.0):(Jpt); if (runflag==1) i_rqpt= (i>5)?(25.0):(Jpt); if (runflag==2) i_rqpt= (i>5)?(20.0):(Jpt);
@@ -2731,27 +2776,35 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             float i_Eta = (i>5)?(JetPFCorVBFTag_Eta[i-6])           :(JetPFCor_Eta[i]);
             float i_Phi = (i>5)?(JetPFCorVBFTag_Phi[i-6])           :(JetPFCor_Phi[i]);
             float i_E   = (i>5)?(JetPFCorVBFTag_E[i-6])             :(JetPFCor_E[i]);
-            float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminator[i-6]):(JetPFCor_bDiscriminator[i]);
+            //float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminator[i-6]):(JetPFCor_bDiscriminator[i]);
+            float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminatorCSV[i-6]):(JetPFCor_bDiscriminatorCSV[i]);
             if (i_Pt>Jpt && fabs(i_Eta)<VBF_MaxEta) {  if (i>5) {n_exfj++;} else {n_excj++;} } // when count good jet, no btag!
-            if (i_Pt<i_rqpt || i_bD>btssv || fabs(i_Eta)>VBF_MaxEta) continue;
+            //if (i_Pt<i_rqpt || i_bD>btssv || fabs(i_Eta)>VBF_MaxEta) continue;
+            if (i_Pt<i_rqpt || i_bD>btcsvm || fabs(i_Eta)>VBF_MaxEta) continue;
             for (size_t j=i+1; j <jetsize*2; j++) {
                float j_rqpt= (j>5)?(30.0):(Jpt); if (runflag==1) j_rqpt= (i>5)?(25.0):(Jpt); if (runflag==2) j_rqpt= (i>5)?(20.0):(Jpt);
                float j_Pt  = (j>5)?(JetPFCorVBFTag_Pt[j-6])            :(JetPFCor_Pt[j]);
                float j_Eta = (j>5)?(JetPFCorVBFTag_Eta[j-6])           :(JetPFCor_Eta[j]);
                float j_Phi = (j>5)?(JetPFCorVBFTag_Phi[j-6])           :(JetPFCor_Phi[j]);
                float j_E   = (j>5)?(JetPFCorVBFTag_E[j-6])             :(JetPFCor_E[j]);
-               float j_bD  = (j>5)?(JetPFCorVBFTag_bDiscriminator[j-6]):(JetPFCor_bDiscriminator[j]);
-               if (j_Pt<j_rqpt || j_bD>btssv || fabs(j_Eta)>VBF_MaxEta) continue;
+               //float j_bD  = (j>5)?(JetPFCorVBFTag_bDiscriminator[j-6]):(JetPFCor_bDiscriminator[j]);
+               float j_bD  = (j>5)?(JetPFCorVBFTag_bDiscriminatorCSV[j-6]):(JetPFCor_bDiscriminatorCSV[j]); //Move to CSV
+               //if (j_Pt<j_rqpt || j_bD>btssv || fabs(j_Eta)>VBF_MaxEta) continue;
+               if (j_Pt<j_rqpt || j_bD>btcsvm || fabs(j_Eta)>VBF_MaxEta) continue;//Move to CSV working point
                // vbf tag jet pair
                TLorentzVector i_p, j_p;
                i_p.SetPtEtaPhiE(jess * i_Pt, i_Eta, i_Phi, jess * i_E  );
                j_p.SetPtEtaPhiE(jess * j_Pt, j_Eta, j_Phi, jess * j_E  );
 
                if ( (i_Eta*j_Eta)>0 )                                continue;     // 1.  have to be one forward, one backward
-               if ( (fabs(i_Eta-j_Eta)<3.5) || ((i_p+j_p).M()<300) ) continue;     // 2.  Tag pair delta eta>3.5, Mjj>300
+               //if ( (fabs(i_Eta-j_Eta)<3.5) || ((i_p+j_p).M()<300) ) continue;     // 2.  Tag pair delta eta>3.5, Mjj>300
+               if ( (fabs(i_Eta-j_Eta)<3.5) || ((i_p+j_p).M()<500) ) continue;     // 2.  MOve Tag pair delta eta>3.5, Mjj>500
                // if find more than one combinations
-               if ( (fabs(i_Eta-j_Eta)>best_detatagjj) ){                          // 3   Select best combination with maximum deta Eta
+               //if ( (fabs(i_Eta-j_Eta)>best_detatagjj) ){                          // 3   Select best combination with maximum deta Eta
+               if ( (i_p+j_p).M() > best_mjj ){                          // 3   Select best combination with maximum Mjj because of the bad angular resolution in the HF
                   best_detatagjj = fabs(i_Eta-j_Eta); n_gdjj++;
+                  best_mjj = (i_p+j_p).M();
+
                   tag_i_id = i; tag_j_id = j; vbf_ajp = i_p; vbf_bjp = j_p;
 
                   vbf_jj_e      = (i_p+j_p).E();
@@ -2791,6 +2844,21 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          }
 
          if (tag_i_id!=-1&&tag_j_id!=-1&&wjj_a_id!=-1&&wjj_b_id!=-1){            // 5.  Find two vbf jets and two W jets
+           
+            //Di-boson variables in the VBF topology
+            float tmpWjjeta  = fabs(JetPFCor_Eta[wjj_a_id] - JetPFCor_Eta[wjj_b_id]);
+            
+            float tmpleadingjet_dphiMET = fabs(getDeltaPhi(JetPFCor_Phi[wjj_a_id], b_nvp.Phi()));
+            
+            float tmpdijetpt = sqrt(JetPFCor_Pt[wjj_a_id]*JetPFCor_Pt[wjj_a_id]+ JetPFCor_Pt[wjj_b_id]*JetPFCor_Pt[wjj_b_id]+ 2*JetPFCor_Pt[wjj_a_id]*JetPFCor_Pt[wjj_b_id]*cos(JetPFCor_Phi[wjj_a_id]-JetPFCor_Phi[wjj_b_id]));
+            
+            //The following cuts are for the di-boson selection in the VBF topology
+            //Two additional Cuts are also considered when generating the plots and fit
+            //Two Wjj jet Pt > 35 and btag jet veto requirement 
+            if(tmpWjjeta < 1.5 && tmpleadingjet_dphiMET > 0.4 && tmpdijetpt > 20 )
+            {
+                vbf_diboson_event = 1;
+            }
 
             vbf_event = 1; vbf_aj_id = tag_i_id; vbf_bj_id = tag_j_id; vbf_waj_id = wjj_a_id; vbf_wbj_id = wjj_b_id;
 
@@ -2807,9 +2875,11 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                float i_rqpt= (i>5)?(30.0):(Jpt); if (runflag==1) i_rqpt= (i>5)?(25.0):(Jpt); if (runflag==2) i_rqpt= (i>5)?(20.0):(Jpt);
                float i_Pt  = (i>5)?(JetPFCorVBFTag_Pt[i-6]):(JetPFCor_Pt[i]);
                float i_Eta = (i>5)?(JetPFCorVBFTag_Eta[i-6]):(JetPFCor_Eta[i]); 
-               float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminator[i-6]):(JetPFCor_bDiscriminator[i]);
+               //float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminator[i-6]):(JetPFCor_bDiscriminator[i]);
+               float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminatorCSV[i-6]):(JetPFCor_bDiscriminatorCSV[i]);
 
-               if(i_Pt<i_rqpt || i_bD>btssv || fabs(i_Eta)>VBF_MaxEta) continue;
+               //if(i_Pt<i_rqpt || i_bD>btssv || fabs(i_Eta)>VBF_MaxEta) continue;
+               if(i_Pt<i_rqpt || i_bD>btcsvm || fabs(i_Eta)>VBF_MaxEta) continue;
 
                if( (i_Eta > (wjj_aj_bj_eta[0] + 0.001) && i_Eta < (wjj_aj_bj_eta[1] - 0.001)) || (i_Eta > (wjj_aj_bj_eta[2] + 0.001) && i_Eta < (wjj_aj_bj_eta[3] - 0.001))) // Real Eta differences 
                {
@@ -2852,6 +2922,11 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             vbf_lvjj_m      = (mup+b_nvp+wjj_ajp+wjj_bjp).M();
             vbf_lvjj_y      = (mup+b_nvp+wjj_ajp+wjj_bjp).Rapidity();
 
+            //Variabels used for the di-boson selection
+            vbf_diboson_dijetpt = tmpdijetpt;
+            vbf_diboson_deltaeta_Wjj = tmpWjjeta;
+            vbf_diboson_deltaphi_MET_leadingWjet = tmpleadingjet_dphiMET;
+
             double a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2;
             if (W_muon_charge < 0){
                calculateAngles(mup, b_nvp, wjj_ajp, wjj_bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
@@ -2881,8 +2956,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             vbf_mvaInputVal.push_back( vbf_wjj_ang_hs );
             vbf_mvaInputVal.push_back( vbf_wjj_ang_phi );
             vbf_mvaInputVal.push_back( vbf_wjj_ang_phib );
-            vbf_mvaInputVal.push_back( vbf_jj_deta );
-            vbf_mvaInputVal.push_back( vbf_jj_m );
+            //vbf_mvaInputVal.push_back( vbf_jj_deta );
+            //vbf_mvaInputVal.push_back( vbf_jj_m );
 
             mvavbf170mu = (float) mvaReadervbf170mu.GetMvaValue( vbf_mvaInputVal );
             mvavbf180mu = (float) mvaReadervbf180mu.GetMvaValue( vbf_mvaInputVal );
@@ -3234,6 +3309,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
 
       branch_ggdevt->Fill();
       branch_evtNJ ->Fill();
+      branch_ggdevtinclusive->Fill();
 
       branch_mu_px->Fill();
       branch_mu_py->Fill();
@@ -3517,6 +3593,12 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
       branch_vbf_wjj_ang_phi->Fill();
       branch_vbf_wjj_ang_phia->Fill();
       branch_vbf_wjj_ang_phib->Fill();
+      
+      //VBF di-boson Event
+      branch_vbf_diboson_event->Fill();
+      branch_vbf_diboson_deltaeta_Wjj->Fill();
+      branch_vbf_diboson_deltaphi_MET_leadingWjet->Fill();
+      branch_vbf_diboson_dijetpt->Fill();
 
       //Boosted W Fill
       branch_isgengdboostedWevt->Fill();
