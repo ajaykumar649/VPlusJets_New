@@ -141,16 +141,16 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
 
     applyJECToGroomedJets=cms.bool(True),
     doGroomedAK5 = cms.bool(True),
-    doGroomedAK7 = cms.bool(False),
+    doGroomedAK7 = cms.bool(True),
     doGroomedAK8 = cms.bool(False),
     doGroomedCA8 = cms.bool(True),
     doGroomedCA12 = cms.bool(False)
 )
 
 if isMC:
-    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("START53_V7E")
+    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("START53_V15")
 else:
-    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("GR_R_53_V10")
+    process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("FT_53_V10_AN3")
 
 
 
