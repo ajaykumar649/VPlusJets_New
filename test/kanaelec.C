@@ -1468,6 +1468,103 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    TBranch * branch_boostedW_wjj_ang_phia = newtree->Branch("boostedW_wjj_ang_phia", &boostedW_wjj_ang_phia,  "boostedW_wjj_ang_phia/F");
    TBranch * branch_boostedW_wjj_ang_phib = newtree->Branch("boostedW_wjj_ang_phib", &boostedW_wjj_ang_phib,  "boostedW_wjj_ang_phib/F");
 
+   //Event Flag for Boosted W Analysis With AK7
+   Int_t   ggdboostedWevt_ak7 =0;
+   TBranch *branch_ggdboostedWevt_ak7 = newtree->Branch("ggdboostedWevt_ak7", &ggdboostedWevt_ak7, "ggdboostedWevt_ak7/I"); 
+
+   Int_t   GroomedJet_numberbjets_ak7 = 0;
+   TBranch *branch_GroomedJet_numberbjets_ak7 = newtree->Branch("GroomedJet_numberbjets_ak7", &GroomedJet_numberbjets_ak7,"GroomedJet_numberbjets_ak7/I");
+
+   Int_t   GroomedJet_numberjets_ak7 = 0;
+   TBranch *branch_GroomedJet_numberjets_ak7 = newtree->Branch("GroomedJet_numberjets_ak7", &GroomedJet_numberjets_ak7,"GroomedJet_numberjets_ak7/I");
+
+   //lepton, MET angular information
+   Float_t GroomedJet_AK7_deltaR_lak7jet = -999, GroomedJet_AK7_deltaphi_METak7jet = -999, GroomedJet_AK7_deltaphi_Vak7jet = -999;
+   TBranch *branch_GroomedJet_AK7_deltaR_lak7jet = newtree->Branch("GroomedJet_AK7_deltaR_lak7jet", &GroomedJet_AK7_deltaR_lak7jet, "GroomedJet_AK7_deltaR_lak7jet/F");
+   TBranch *branch_GroomedJet_AK7_deltaphi_METak7jet = newtree->Branch("GroomedJet_AK7_deltaphi_METak7jet", &GroomedJet_AK7_deltaphi_METak7jet,"GroomedJet_AK7_deltaphi_METak7jet/F");
+   TBranch *branch_GroomedJet_AK7_deltaphi_Vak7jet = newtree->Branch("GroomedJet_AK7_deltaphi_Vak7jet", &GroomedJet_AK7_deltaphi_Vak7jet, "GroomedJet_AK7_deltaphi_Vak7jet/F");
+
+   //Some More Variables To be Added in the Reduced Tree Or used in the TMVA Training
+   Float_t GroomedJet_AK7_rcores01 = -1, GroomedJet_AK7_rcores02 = -1, GroomedJet_AK7_rcores03 = -1, GroomedJet_AK7_rcores04 = -1;
+   Float_t GroomedJet_AK7_rcores05 = -1, GroomedJet_AK7_rcores06 = -1, GroomedJet_AK7_rcores07 = -1, GroomedJet_AK7_rcores08 = -1;
+   Float_t GroomedJet_AK7_rcores09 = -1, GroomedJet_AK7_rcores10 = -1, GroomedJet_AK7_rcores11 = -1;
+
+   TBranch *branch_GroomedJet_AK7_rcores01 = newtree->Branch("GroomedJet_AK7_rcores01", &GroomedJet_AK7_rcores01, "GroomedJet_AK7_rcores01/F");
+   TBranch *branch_GroomedJet_AK7_rcores02 = newtree->Branch("GroomedJet_AK7_rcores02", &GroomedJet_AK7_rcores02, "GroomedJet_AK7_rcores02/F");
+   TBranch *branch_GroomedJet_AK7_rcores03 = newtree->Branch("GroomedJet_AK7_rcores03", &GroomedJet_AK7_rcores03, "GroomedJet_AK7_rcores03/F");
+   TBranch *branch_GroomedJet_AK7_rcores04 = newtree->Branch("GroomedJet_AK7_rcores04", &GroomedJet_AK7_rcores04, "GroomedJet_AK7_rcores04/F");
+   TBranch *branch_GroomedJet_AK7_rcores05 = newtree->Branch("GroomedJet_AK7_rcores05", &GroomedJet_AK7_rcores05, "GroomedJet_AK7_rcores05/F");
+   TBranch *branch_GroomedJet_AK7_rcores06 = newtree->Branch("GroomedJet_AK7_rcores06", &GroomedJet_AK7_rcores06, "GroomedJet_AK7_rcores06/F");
+   TBranch *branch_GroomedJet_AK7_rcores07 = newtree->Branch("GroomedJet_AK7_rcores07", &GroomedJet_AK7_rcores07, "GroomedJet_AK7_rcores07/F");
+   TBranch *branch_GroomedJet_AK7_rcores08 = newtree->Branch("GroomedJet_AK7_rcores08", &GroomedJet_AK7_rcores08, "GroomedJet_AK7_rcores08/F");
+   TBranch *branch_GroomedJet_AK7_rcores09 = newtree->Branch("GroomedJet_AK7_rcores09", &GroomedJet_AK7_rcores09, "GroomedJet_AK7_rcores09/F");
+   TBranch *branch_GroomedJet_AK7_rcores10 = newtree->Branch("GroomedJet_AK7_rcores10", &GroomedJet_AK7_rcores10, "GroomedJet_AK7_rcores10/F");
+   TBranch *branch_GroomedJet_AK7_rcores11 = newtree->Branch("GroomedJet_AK7_rcores11", &GroomedJet_AK7_rcores11, "GroomedJet_AK7_rcores11/F");
+
+   Float_t GroomedJet_AK7_ptcores01 = -1, GroomedJet_AK7_ptcores02 = -1, GroomedJet_AK7_ptcores03 = -1, GroomedJet_AK7_ptcores04 = -1;
+   Float_t GroomedJet_AK7_ptcores05 = -1, GroomedJet_AK7_ptcores06 = -1, GroomedJet_AK7_ptcores07 = -1, GroomedJet_AK7_ptcores08 = -1;
+   Float_t GroomedJet_AK7_ptcores09 = -1, GroomedJet_AK7_ptcores10 = -1, GroomedJet_AK7_ptcores11 = -1;
+
+   TBranch *branch_GroomedJet_AK7_ptcores01 = newtree->Branch("GroomedJet_AK7_ptcores01", &GroomedJet_AK7_ptcores01, "GroomedJet_AK7_ptcores01/F");
+   TBranch *branch_GroomedJet_AK7_ptcores02 = newtree->Branch("GroomedJet_AK7_ptcores02", &GroomedJet_AK7_ptcores02, "GroomedJet_AK7_ptcores02/F");
+   TBranch *branch_GroomedJet_AK7_ptcores03 = newtree->Branch("GroomedJet_AK7_ptcores03", &GroomedJet_AK7_ptcores03, "GroomedJet_AK7_ptcores03/F");
+   TBranch *branch_GroomedJet_AK7_ptcores04 = newtree->Branch("GroomedJet_AK7_ptcores04", &GroomedJet_AK7_ptcores04, "GroomedJet_AK7_ptcores04/F");
+   TBranch *branch_GroomedJet_AK7_ptcores05 = newtree->Branch("GroomedJet_AK7_ptcores05", &GroomedJet_AK7_ptcores05, "GroomedJet_AK7_ptcores05/F");
+   TBranch *branch_GroomedJet_AK7_ptcores06 = newtree->Branch("GroomedJet_AK7_ptcores06", &GroomedJet_AK7_ptcores06, "GroomedJet_AK7_ptcores06/F");
+   TBranch *branch_GroomedJet_AK7_ptcores07 = newtree->Branch("GroomedJet_AK7_ptcores07", &GroomedJet_AK7_ptcores07, "GroomedJet_AK7_ptcores07/F");
+   TBranch *branch_GroomedJet_AK7_ptcores08 = newtree->Branch("GroomedJet_AK7_ptcores08", &GroomedJet_AK7_ptcores08, "GroomedJet_AK7_ptcores08/F");
+   TBranch *branch_GroomedJet_AK7_ptcores09 = newtree->Branch("GroomedJet_AK7_ptcores09", &GroomedJet_AK7_ptcores09, "GroomedJet_AK7_ptcores09/F");
+   TBranch *branch_GroomedJet_AK7_ptcores10 = newtree->Branch("GroomedJet_AK7_ptcores10", &GroomedJet_AK7_ptcores10, "GroomedJet_AK7_ptcores10/F");
+   TBranch *branch_GroomedJet_AK7_ptcores11 = newtree->Branch("GroomedJet_AK7_ptcores11", &GroomedJet_AK7_ptcores11, "GroomedJet_AK7_ptcores11/F");
+
+   Float_t GroomedJet_AK7_planarflow01 = -1, GroomedJet_AK7_planarflow02 = -1, GroomedJet_AK7_planarflow03 = -1, GroomedJet_AK7_planarflow04 = -1;
+   Float_t GroomedJet_AK7_planarflow05 = -1, GroomedJet_AK7_planarflow06 = -1, GroomedJet_AK7_planarflow07 = -1, GroomedJet_AK7_planarflow08 = -1;
+   Float_t GroomedJet_AK7_planarflow09 = -1, GroomedJet_AK7_planarflow10 = -1, GroomedJet_AK7_planarflow11 = -1;
+
+   TBranch *branch_GroomedJet_AK7_planarflow01 = newtree->Branch("GroomedJet_AK7_planarflow01", &GroomedJet_AK7_planarflow01, "GroomedJet_AK7_planarflow01/F");
+   TBranch *branch_GroomedJet_AK7_planarflow02 = newtree->Branch("GroomedJet_AK7_planarflow02", &GroomedJet_AK7_planarflow02, "GroomedJet_AK7_planarflow02/F");
+   TBranch *branch_GroomedJet_AK7_planarflow03 = newtree->Branch("GroomedJet_AK7_planarflow03", &GroomedJet_AK7_planarflow03, "GroomedJet_AK7_planarflow03/F");
+   TBranch *branch_GroomedJet_AK7_planarflow04 = newtree->Branch("GroomedJet_AK7_planarflow04", &GroomedJet_AK7_planarflow04, "GroomedJet_AK7_planarflow04/F");
+   TBranch *branch_GroomedJet_AK7_planarflow05 = newtree->Branch("GroomedJet_AK7_planarflow05", &GroomedJet_AK7_planarflow05, "GroomedJet_AK7_planarflow05/F");
+   TBranch *branch_GroomedJet_AK7_planarflow06 = newtree->Branch("GroomedJet_AK7_planarflow06", &GroomedJet_AK7_planarflow06, "GroomedJet_AK7_planarflow06/F");
+   TBranch *branch_GroomedJet_AK7_planarflow07 = newtree->Branch("GroomedJet_AK7_planarflow07", &GroomedJet_AK7_planarflow07, "GroomedJet_AK7_planarflow07/F");
+   TBranch *branch_GroomedJet_AK7_planarflow08 = newtree->Branch("GroomedJet_AK7_planarflow08", &GroomedJet_AK7_planarflow08, "GroomedJet_AK7_planarflow08/F");
+   TBranch *branch_GroomedJet_AK7_planarflow09 = newtree->Branch("GroomedJet_AK7_planarflow09", &GroomedJet_AK7_planarflow09, "GroomedJet_AK7_planarflow09/F");
+   TBranch *branch_GroomedJet_AK7_planarflow10 = newtree->Branch("GroomedJet_AK7_planarflow10", &GroomedJet_AK7_planarflow10, "GroomedJet_AK7_planarflow10/F");
+   TBranch *branch_GroomedJet_AK7_planarflow11 = newtree->Branch("GroomedJet_AK7_planarflow11", &GroomedJet_AK7_planarflow11, "GroomedJet_AK7_planarflow11/F");
+
+   Float_t GroomedJet_AK7_mass_sensi_tr = -1, GroomedJet_AK7_mass_sensi_ft = -1, GroomedJet_AK7_mass_sensi_pr = -1;
+   TBranch *branch_GroomedJet_AK7_mass_sensi_tr = newtree->Branch("GroomedJet_AK7_mass_sensi_tr", &GroomedJet_AK7_mass_sensi_tr, "GroomedJet_AK7_mass_sensi_tr/F");
+   TBranch *branch_GroomedJet_AK7_mass_sensi_ft = newtree->Branch("GroomedJet_AK7_mass_sensi_ft", &GroomedJet_AK7_mass_sensi_ft, "GroomedJet_AK7_mass_sensi_ft/F");
+   TBranch *branch_GroomedJet_AK7_mass_sensi_pr = newtree->Branch("GroomedJet_AK7_mass_sensi_pr", &GroomedJet_AK7_mass_sensi_pr, "GroomedJet_AK7_mass_sensi_pr/F");
+
+   Float_t GroomedJet_AK7_qjetmassvolatility = -1;
+   TBranch *branch_GroomedJet_AK7_qjetmassvolatility = newtree->Branch("GroomedJet_AK7_qjetmassvolatility", &GroomedJet_AK7_qjetmassvolatility, "GroomedJet_AK7_qjetmassvolatility/F");
+
+   Float_t GroomedJet_AK7_prsubjet1ptoverjetpt = -1, GroomedJet_AK7_prsubjet2ptoverjetpt = -1;
+   Float_t GroomedJet_AK7_prsubjet1subjet2_deltaR = -1;
+
+   TBranch *branch_GroomedJet_AK7_prsubjet1ptoverjetpt = newtree->Branch("GroomedJet_AK7_prsubjet1ptoverjetpt", &GroomedJet_AK7_prsubjet1ptoverjetpt, "GroomedJet_AK7_prsubjet1ptoverjetpt/F");
+   TBranch *branch_GroomedJet_AK7_prsubjet2ptoverjetpt = newtree->Branch("GroomedJet_AK7_prsubjet2ptoverjetpt", &GroomedJet_AK7_prsubjet2ptoverjetpt, "GroomedJet_AK7_prsubjet2ptoverjetpt/F");
+   TBranch *branch_GroomedJet_AK7_prsubjet1subjet2_deltaR = newtree->Branch("GroomedJet_AK7_prsubjet1subjet2_deltaR", &GroomedJet_AK7_prsubjet1subjet2_deltaR, "GroomedJet_AK7_prsubjet1subjet2_deltaR/F");
+
+   Float_t boostedW_lvj_e_ak7 =-999,   boostedW_lvj_pt_ak7=-999,   boostedW_lvj_eta_ak7=-999,   boostedW_lvj_phi_ak7=-999,   boostedW_lvj_m_ak7=-999,   boostedW_lvj_y_ak7=-999;
+   TBranch *branch_boostedW_lvj_e_ak7    = newtree->Branch("boostedW_lvj_e_ak7",    &boostedW_lvj_e_ak7,     "boostedW_lvj_e_ak7/F");
+   TBranch *branch_boostedW_lvj_pt_ak7   = newtree->Branch("boostedW_lvj_pt_ak7",   &boostedW_lvj_pt_ak7,    "boostedW_lvj_pt_ak7/F");
+   TBranch *branch_boostedW_lvj_eta_ak7  = newtree->Branch("boostedW_lvj_eta_ak7",  &boostedW_lvj_eta_ak7,   "boostedW_lvj_eta_ak7/F");
+   TBranch *branch_boostedW_lvj_phi_ak7  = newtree->Branch("boostedW_lvj_phi_ak7",  &boostedW_lvj_phi_ak7,   "boostedW_lvj_phi_ak7/F");
+   TBranch *branch_boostedW_lvj_m_ak7    = newtree->Branch("boostedW_lvj_m_ak7",    &boostedW_lvj_m_ak7,     "boostedW_lvj_m_ak7/F");
+   TBranch *branch_boostedW_lvj_y_ak7    = newtree->Branch("boostedW_lvj_y_ak7",    &boostedW_lvj_y_ak7,     "boostedW_lvj_y_ak7/F");
+
+   Float_t boostedW_wjj_ang_ha_ak7   = 999, boostedW_wjj_ang_hb_ak7 = 999, boostedW_wjj_ang_hs_ak7 = 999, boostedW_wjj_ang_phi_ak7 = 999, boostedW_wjj_ang_phia_ak7 = 999, boostedW_wjj_ang_phib_ak7 = 999;
+
+   TBranch * branch_boostedW_wjj_ang_ha_ak7   = newtree->Branch("boostedW_wjj_ang_ha_ak7",   &boostedW_wjj_ang_ha_ak7,    "boostedW_wjj_ang_ha_ak7/F");
+   TBranch * branch_boostedW_wjj_ang_hb_ak7   = newtree->Branch("boostedW_wjj_ang_hb_ak7",   &boostedW_wjj_ang_hb_ak7,    "boostedW_wjj_ang_hb_ak7/F");
+   TBranch * branch_boostedW_wjj_ang_hs_ak7   = newtree->Branch("boostedW_wjj_ang_hs_ak7",   &boostedW_wjj_ang_hs_ak7,    "boostedW_wjj_ang_hs_ak7/F");
+   TBranch * branch_boostedW_wjj_ang_phi_ak7  = newtree->Branch("boostedW_wjj_ang_phi_ak7",  &boostedW_wjj_ang_phi_ak7,   "boostedW_wjj_ang_phi_ak7/F");
+   TBranch * branch_boostedW_wjj_ang_phia_ak7 = newtree->Branch("boostedW_wjj_ang_phia_ak7", &boostedW_wjj_ang_phia_ak7,  "boostedW_wjj_ang_phia_ak7/F");
+   TBranch * branch_boostedW_wjj_ang_phib_ak7 = newtree->Branch("boostedW_wjj_ang_phib_ak7", &boostedW_wjj_ang_phib_ak7,  "boostedW_wjj_ang_phib_ak7/F");
+
    //End Some More Variables To be Added in the Reduced Tree Or used in the TMVA Training
 
    Float_t vbf_jj_e =-999,   vbf_jj_pt =-999,   vbf_jj_eta=-999,  vbf_jj_phi =-999, vbf_jj_m =-999;   
@@ -2139,6 +2236,33 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
 
       boostedW_wjj_ang_ha = 999; boostedW_wjj_ang_hb = 999; boostedW_wjj_ang_hs = 999; boostedW_wjj_ang_phi = 999; boostedW_wjj_ang_phia = 999; boostedW_wjj_ang_phib = 999;
 
+      //AK7
+      ggdboostedWevt_ak7 = 0; GroomedJet_numberbjets_ak7 = 0; GroomedJet_numberjets_ak7 = 0;
+
+      GroomedJet_AK7_deltaR_lak7jet = -999; GroomedJet_AK7_deltaphi_METak7jet = -999; GroomedJet_AK7_deltaphi_Vak7jet = -999;
+
+      GroomedJet_AK7_rcores01 = -1; GroomedJet_AK7_rcores02 = -1; GroomedJet_AK7_rcores03 = -1; GroomedJet_AK7_rcores04 = -1;
+      GroomedJet_AK7_rcores05 = -1; GroomedJet_AK7_rcores06 = -1; GroomedJet_AK7_rcores07 = -1; GroomedJet_AK7_rcores08 = -1;
+      GroomedJet_AK7_rcores09 = -1; GroomedJet_AK7_rcores10 = -1; GroomedJet_AK7_rcores11 = -1;
+
+      GroomedJet_AK7_ptcores01 = -1; GroomedJet_AK7_ptcores02 = -1; GroomedJet_AK7_ptcores03 = -1; GroomedJet_AK7_ptcores04 = -1;
+      GroomedJet_AK7_ptcores05 = -1; GroomedJet_AK7_ptcores06 = -1; GroomedJet_AK7_ptcores07 = -1; GroomedJet_AK7_ptcores08 = -1;
+      GroomedJet_AK7_ptcores09 = -1; GroomedJet_AK7_ptcores10 = -1; GroomedJet_AK7_ptcores11 = -1;
+
+      GroomedJet_AK7_planarflow01 = -1; GroomedJet_AK7_planarflow02 = -1; GroomedJet_AK7_planarflow03 = -1; GroomedJet_AK7_planarflow04 = -1;
+      GroomedJet_AK7_planarflow05 = -1; GroomedJet_AK7_planarflow06 = -1; GroomedJet_AK7_planarflow07 = -1; GroomedJet_AK7_planarflow08 = -1;
+      GroomedJet_AK7_planarflow09 = -1; GroomedJet_AK7_planarflow10 = -1; GroomedJet_AK7_planarflow11 = -1;
+
+      GroomedJet_AK7_mass_sensi_tr = -1; GroomedJet_AK7_mass_sensi_ft = -1; GroomedJet_AK7_mass_sensi_pr = -1;
+
+      GroomedJet_AK7_qjetmassvolatility = -1;
+
+      GroomedJet_AK7_prsubjet1ptoverjetpt = -1; GroomedJet_AK7_prsubjet2ptoverjetpt = -1;
+      GroomedJet_AK7_prsubjet1subjet2_deltaR = -1;
+
+      boostedW_lvj_e_ak7=-999;   boostedW_lvj_pt_ak7=-999;   boostedW_lvj_eta_ak7=-999;   boostedW_lvj_phi_ak7=-999;   boostedW_lvj_m_ak7=-999;   boostedW_lvj_y_ak7=-999;
+
+      boostedW_wjj_ang_ha_ak7 = 999; boostedW_wjj_ang_hb_ak7 = 999; boostedW_wjj_ang_hs_ak7 = 999; boostedW_wjj_ang_phi_ak7 = 999; boostedW_wjj_ang_phia_ak7 = 999; boostedW_wjj_ang_phib_ak7 = 999;
 
       vbf_jj_e =-999;   vbf_jj_pt =-999;   vbf_jj_eta=-999;  vbf_jj_phi =-999; vbf_jj_m =-999;   
       vbf_aj_e =-999;   vbf_aj_pt =-999;   vbf_aj_eta=-999;  vbf_aj_phi =-999; vbf_aj_m =-999;   
@@ -2436,7 +2560,7 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          {
             if(JetPFCor_Pt[i] > Jpt)
             {
-              ggdevtinclusive++;
+               ggdevtinclusive++;
             }
          }
          int Aj = 0, Bj = 1;    TLorentzVector ajp, bjp; 
@@ -2597,10 +2721,10 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             int Aj    = -999;
             int Bj    = -999;
             /*if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
-            if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
-            if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
-            if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
-            */
+              if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
+              if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
+              if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
+             */
             if (JetPFCor_bDiscriminatorCSV[0]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
             if (JetPFCor_bDiscriminatorCSV[1]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
             if (JetPFCor_bDiscriminatorCSV[2]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
@@ -2625,11 +2749,11 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
             int Aj    = -999;
             int Bj    = -999;
             /*if (JetPFCor_bDiscriminator[0]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
-            if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
-            if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
-            if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
-            if (JetPFCor_bDiscriminator[4]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=4; if (nbnot==2) Bj=4;}
-            */
+              if (JetPFCor_bDiscriminator[1]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
+              if (JetPFCor_bDiscriminator[2]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
+              if (JetPFCor_bDiscriminator[3]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=3; if (nbnot==2) Bj=3;}
+              if (JetPFCor_bDiscriminator[4]>btssv) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=4; if (nbnot==2) Bj=4;}
+             */
             if (JetPFCor_bDiscriminatorCSV[0]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=0; if (nbnot==2) Bj=0;}
             if (JetPFCor_bDiscriminatorCSV[1]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=1; if (nbnot==2) Bj=1;}
             if (JetPFCor_bDiscriminatorCSV[2]>btcsvm) { nbjet++; } else { nbnot++; if (nbnot==1) Aj=2; if (nbnot==2) Bj=2;}
@@ -2789,6 +2913,143 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
 
          //Input For the TMVA Training And Classification TODO
 
+         //check the AK7 Jet Used in our Reduced Tree
+         TLorentzVector ak7jetp4;
+         ak7jetp4.SetPtEtaPhiE(GroomedJet_AK7_pt[0], GroomedJet_AK7_eta[0], GroomedJet_AK7_phi[0], GroomedJet_AK7_e[0]);
+         double deltaR_lak7jet = mup.DeltaR(ak7jetp4);
+         //double deltaphi_METak7jet = b_nvp.DeltaPhi(ak7jetp4);
+         double deltaphi_METak7jet = getDeltaPhi(b_nvp.Phi(),ak7jetp4.Phi());
+         //TLorentzVector wbosonp = mup + b_nvp;
+         //double deltaphi_Vak7jet = wbosonp.DeltaPhi(ak7jetp4);
+         double deltaphi_Vak7jet = getDeltaPhi(wbosonp.Phi(),ak7jetp4.Phi());
+
+         GroomedJet_AK7_deltaR_lak7jet = deltaR_lak7jet;
+         GroomedJet_AK7_deltaphi_METak7jet = deltaphi_METak7jet;
+         GroomedJet_AK7_deltaphi_Vak7jet = deltaphi_Vak7jet;
+
+         //Count the number of B tag jet, for ttbar and contral plots
+         for(int i = 0; i < numPFCorJets; i++)
+         {
+            if(JetPFCor_Pt[i] > Jpt)
+            {
+               TLorentzVector  ajp;
+               ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[i], JetPFCor_Eta[i], JetPFCor_Phi[i], jess * JetPFCor_E[i]  );
+
+               double tmpdelatR = ak7jetp4.DeltaR(ajp);
+
+               if(tmpdelatR > 0.7)//Veto the AK5 jet in the AK7 jet cone
+               {
+                  GroomedJet_numberjets_ak7 = GroomedJet_numberjets_ak7 + 1;
+               }
+
+               //if(JetPFCor_bDiscriminator[i] > btssv && tmpdelatR > 0.8)//Veto the AK5 jet in the AK7 jet cone
+               if(JetPFCor_bDiscriminatorCSV[i] > btcsvm && tmpdelatR > 0.8)//Veto the AK5 jet in the AK7 jet cone and Move to CSVM tagger
+               {
+                  GroomedJet_numberbjets_ak7 = GroomedJet_numberbjets_ak7 + 1;
+               }
+            }
+         }
+
+         if(deltaR_lak7jet > 1.0 && deltaphi_METak7jet > 0.4 && deltaphi_Vak7jet > 2.0) 
+         {
+            ggdboostedWevt_ak7 = 1;
+         }
+
+         GroomedJet_AK7_rcores01 = GroomedJet_AK7_rcores[0][0];
+         GroomedJet_AK7_ptcores01 = GroomedJet_AK7_ptcores[0][0];
+         GroomedJet_AK7_planarflow01 = GroomedJet_AK7_planarflow[0][0];
+
+         GroomedJet_AK7_rcores02 = GroomedJet_AK7_rcores[1][0];
+         GroomedJet_AK7_ptcores02 = GroomedJet_AK7_ptcores[1][0];
+         GroomedJet_AK7_planarflow02 = GroomedJet_AK7_planarflow[1][0];
+
+         GroomedJet_AK7_rcores03 = GroomedJet_AK7_rcores[2][0];
+         GroomedJet_AK7_ptcores03 = GroomedJet_AK7_ptcores[2][0];
+         GroomedJet_AK7_planarflow03 = GroomedJet_AK7_planarflow[2][0];
+
+         GroomedJet_AK7_rcores04 = GroomedJet_AK7_rcores[3][0];
+         GroomedJet_AK7_ptcores04 = GroomedJet_AK7_ptcores[3][0];
+         GroomedJet_AK7_planarflow04 = GroomedJet_AK7_planarflow[3][0];
+
+         GroomedJet_AK7_rcores05 = GroomedJet_AK7_rcores[4][0];
+         GroomedJet_AK7_ptcores05 = GroomedJet_AK7_ptcores[4][0];
+         GroomedJet_AK7_planarflow05 = GroomedJet_AK7_planarflow[4][0];
+
+         GroomedJet_AK7_rcores06 = GroomedJet_AK7_rcores[5][0];
+         GroomedJet_AK7_ptcores06 = GroomedJet_AK7_ptcores[5][0];
+         GroomedJet_AK7_planarflow06 = GroomedJet_AK7_planarflow[5][0];
+
+         GroomedJet_AK7_rcores07 = GroomedJet_AK7_rcores[6][0];
+         GroomedJet_AK7_ptcores07 = GroomedJet_AK7_ptcores[6][0];
+         GroomedJet_AK7_planarflow07 = GroomedJet_AK7_planarflow[6][0];
+
+         GroomedJet_AK7_rcores08 = GroomedJet_AK7_rcores[7][0];
+         GroomedJet_AK7_ptcores08 = GroomedJet_AK7_ptcores[7][0];
+         GroomedJet_AK7_planarflow08 = GroomedJet_AK7_planarflow[7][0];
+
+         GroomedJet_AK7_rcores09 = GroomedJet_AK7_rcores[8][0];
+         GroomedJet_AK7_ptcores09 = GroomedJet_AK7_ptcores[8][0];
+         GroomedJet_AK7_planarflow09 = GroomedJet_AK7_planarflow[8][0];
+
+         GroomedJet_AK7_rcores10 = GroomedJet_AK7_rcores[9][0];
+         GroomedJet_AK7_ptcores10 = GroomedJet_AK7_ptcores[9][0];
+         GroomedJet_AK7_planarflow10 = GroomedJet_AK7_planarflow[9][0];
+
+         GroomedJet_AK7_rcores11 = GroomedJet_AK7_rcores[10][0];
+         GroomedJet_AK7_ptcores11 = GroomedJet_AK7_ptcores[10][0];
+         GroomedJet_AK7_planarflow11 = GroomedJet_AK7_planarflow[10][0];
+
+         GroomedJet_AK7_mass_sensi_tr = GroomedJet_AK7_mass_tr[0]/GroomedJet_AK7_mass[0];
+         GroomedJet_AK7_mass_sensi_ft = GroomedJet_AK7_mass_ft[0]/GroomedJet_AK7_mass[0];
+         GroomedJet_AK7_mass_sensi_pr = GroomedJet_AK7_mass_pr[0]/GroomedJet_AK7_mass[0];
+
+         //QJet mass Volatility
+         Int_t qjetsizeak7 = 50;
+         double averagemsquareak7 = 0;
+         double averagemak7 = 0;
+         for(Int_t i = 0; i < qjetsizeak7; i++)
+         {
+            averagemsquareak7 = averagemsquareak7 + GroomedJet_AK7_qjetmass[i] * GroomedJet_AK7_qjetmass[i];
+            averagemak7 = averagemak7 + GroomedJet_AK7_qjetmass[i];
+         } 
+
+         averagemsquareak7 = averagemsquareak7 / qjetsizeak7;
+         averagemak7 = averagemak7 / qjetsizeak7;
+
+         GroomedJet_AK7_qjetmassvolatility = TMath::Sqrt(averagemsquareak7 - TMath::Power(averagemak7,2))/averagemak7;
+
+         TLorentzVector ak7subjet1p4;
+         TLorentzVector ak7subjet2p4;
+         TLorentzVector ak7prjetp4;
+
+         ak7subjet1p4.SetPxPyPzE(GroomedJet_AK7_prsubjet1_px[0],GroomedJet_AK7_prsubjet1_py[0],GroomedJet_AK7_prsubjet1_pz[0],GroomedJet_AK7_prsubjet1_e[0]);
+         ak7subjet2p4.SetPxPyPzE(GroomedJet_AK7_prsubjet2_px[0],GroomedJet_AK7_prsubjet2_py[0],GroomedJet_AK7_prsubjet2_pz[0],GroomedJet_AK7_prsubjet2_e[0]);
+         ak7prjetp4.SetPtEtaPhiE(GroomedJet_AK7_pt_pr[0],GroomedJet_AK7_eta_pr[0],GroomedJet_AK7_phi_pr[0],GroomedJet_AK7_e_pr[0]);
+
+         GroomedJet_AK7_prsubjet1ptoverjetpt = ak7subjet1p4.Pt()/ak7prjetp4.Pt();
+         GroomedJet_AK7_prsubjet2ptoverjetpt = ak7subjet2p4.Pt()/ak7prjetp4.Pt();
+
+         if((ak7subjet1p4.Pt() > 0.001) && (ak7subjet2p4.Pt() > 0.001)) //Avoid Too Samll Pt
+         {GroomedJet_AK7_prsubjet1subjet2_deltaR = ak7subjet1p4.DeltaR(ak7subjet2p4);}
+
+         //Angular Correlation For the Boosted W Analysis
+         boostedW_lvj_e_ak7      = (mup+b_nvp+ak7jetp4).E();
+         boostedW_lvj_pt_ak7     = (mup+b_nvp+ak7jetp4).Pt();
+         boostedW_lvj_eta_ak7    = (mup+b_nvp+ak7jetp4).Eta();
+         boostedW_lvj_phi_ak7    = (mup+b_nvp+ak7jetp4).Phi();
+         boostedW_lvj_m_ak7      = (mup+b_nvp+ak7jetp4).M();
+         boostedW_lvj_y_ak7      = (mup+b_nvp+ak7jetp4).Rapidity();
+
+         double tmpa_costheta1, tmpa_costheta2, tmpa_phi, tmpa_costhetastar, tmpa_phistar1, tmpa_phistar2;
+         //Use the Subjet in the Boosted W Analyisis
+         if (W_electron_charge < 0){
+            calculateAngles(mup, b_nvp, ak7subjet1p4, ak7subjet2p4, tmpa_costheta1, tmpa_costheta2, tmpa_phi, tmpa_costhetastar, tmpa_phistar1, tmpa_phistar2);
+         }
+         else{
+            calculateAngles(b_nvp, mup, ak7subjet1p4, ak7subjet2p4, tmpa_costheta1, tmpa_costheta2, tmpa_phi, tmpa_costhetastar, tmpa_phistar1, tmpa_phistar2);
+         }
+         boostedW_wjj_ang_ha_ak7 = tmpa_costheta1; boostedW_wjj_ang_hb_ak7 = fabs(tmpa_costheta2); boostedW_wjj_ang_hs_ak7 = tmpa_costhetastar;  boostedW_wjj_ang_phi_ak7 = tmpa_phi; boostedW_wjj_ang_phia_ak7 = tmpa_phistar1; boostedW_wjj_ang_phib_ak7 = tmpa_phistar2;
+
       }
       //###############End Boosted W Analysis########################################
 
@@ -2865,178 +3126,178 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
                   vbf_jj_type = jj_type;
                }
             }
-         }
-         if (tag_i_id!=-1&&tag_j_id!=-1){                                        // 4.  Find W->jj
-            for ( int i=0; i < (int) jetsize; i++) { // only loop over central jets
-               if (JetPFCor_Pt[i] < Jpt) continue;    // require central jet pT for W
-               if ( i!=tag_i_id&&i!=tag_j_id&&wjj_ajp.Pt()!=0 && wjj_bjp.Pt()==0 ) {int Bj = i;  wjj_bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj] ); wjj_b_id=Bj; }
-               if ( i!=tag_i_id&&i!=tag_j_id&&wjj_ajp.Pt()==0 && wjj_bjp.Pt()==0 ) {int Aj = i;  wjj_ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj] ); wjj_a_id=Aj; }
             }
-         }
-
-         if (tag_i_id!=-1&&tag_j_id!=-1&&wjj_a_id!=-1&&wjj_b_id!=-1){            // 5.  Find two vbf jets and two W jets
-
-            //Di-boson variables in the VBF topology
-            float tmpWjjeta  = fabs(JetPFCor_Eta[wjj_a_id] - JetPFCor_Eta[wjj_b_id]);
-
-            float tmpleadingjet_dphiMET = fabs(getDeltaPhi(JetPFCor_Phi[wjj_a_id], b_nvp.Phi()));
-
-            float tmpdijetpt = sqrt(JetPFCor_Pt[wjj_a_id]*JetPFCor_Pt[wjj_a_id]+ JetPFCor_Pt[wjj_b_id]*JetPFCor_Pt[wjj_b_id]+ 2*JetPFCor_Pt[wjj_a_id]*JetPFCor_Pt[wjj_b_id]*cos(JetPFCor_Phi[wjj_a_id]-JetPFCor_Phi[wjj_b_id]));
-
-            //The following cuts are for the di-boson selection in the VBF topology
-            //Two additional Cuts are also considered when generating the plots and fit
-            //Two Wjj jet Pt > 35 and btag jet veto requirement 
-            if(tmpWjjeta < 1.5 && tmpleadingjet_dphiMET > 0.4 && tmpdijetpt > 20 ) 
-            {
-               vbf_diboson_event = 1; 
+            if (tag_i_id!=-1&&tag_j_id!=-1){                                        // 4.  Find W->jj
+               for ( int i=0; i < (int) jetsize; i++) { // only loop over central jets
+                  if (JetPFCor_Pt[i] < Jpt) continue;    // require central jet pT for W
+                  if ( i!=tag_i_id&&i!=tag_j_id&&wjj_ajp.Pt()!=0 && wjj_bjp.Pt()==0 ) {int Bj = i;  wjj_bjp.SetPtEtaPhiE(jess * JetPFCor_Pt[Bj], JetPFCor_Eta[Bj], JetPFCor_Phi[Bj], jess * JetPFCor_E[Bj] ); wjj_b_id=Bj; }
+                  if ( i!=tag_i_id&&i!=tag_j_id&&wjj_ajp.Pt()==0 && wjj_bjp.Pt()==0 ) {int Aj = i;  wjj_ajp.SetPtEtaPhiE(jess * JetPFCor_Pt[Aj], JetPFCor_Eta[Aj], JetPFCor_Phi[Aj], jess * JetPFCor_E[Aj] ); wjj_a_id=Aj; }
+               }
             }
 
-            vector<double> wjj_aj_bj_eta;
-            wjj_aj_bj_eta.push_back(vbf_ajp.Eta());
-            wjj_aj_bj_eta.push_back(vbf_bjp.Eta());
-            wjj_aj_bj_eta.push_back(wjj_ajp.Eta());
-            wjj_aj_bj_eta.push_back(wjj_bjp.Eta());
+            if (tag_i_id!=-1&&tag_j_id!=-1&&wjj_a_id!=-1&&wjj_b_id!=-1){            // 5.  Find two vbf jets and two W jets
 
-            sort(wjj_aj_bj_eta.begin(), wjj_aj_bj_eta.end()); // Sort the Eta form smallest to largest
+               //Di-boson variables in the VBF topology
+               float tmpWjjeta  = fabs(JetPFCor_Eta[wjj_a_id] - JetPFCor_Eta[wjj_b_id]);
 
-            for(int i = 0; i < (int) jetsize * 2; ++i)
-            {
-               float i_rqpt= (i>5)?(30.0):(Jpt); if (runflag==1) i_rqpt= (i>5)?(25.0):(Jpt); if (runflag==2) i_rqpt= (i>5)?(20.0):(Jpt);
-               float i_Pt  = (i>5)?(JetPFCorVBFTag_Pt[i-6]):(JetPFCor_Pt[i]);
-               float i_Eta = (i>5)?(JetPFCorVBFTag_Eta[i-6]):(JetPFCor_Eta[i]);
-               //float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminator[i-6]):(JetPFCor_bDiscriminator[i]);
-               float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminatorCSV[i-6]):(JetPFCor_bDiscriminatorCSV[i]);
+               float tmpleadingjet_dphiMET = fabs(getDeltaPhi(JetPFCor_Phi[wjj_a_id], b_nvp.Phi()));
 
-               //if(i_Pt<i_rqpt || i_bD>btssv || fabs(i_Eta)>VBF_MaxEta) continue;
-               if(i_Pt<i_rqpt || i_bD>btcsvm || fabs(i_Eta)>VBF_MaxEta) continue;
+               float tmpdijetpt = sqrt(JetPFCor_Pt[wjj_a_id]*JetPFCor_Pt[wjj_a_id]+ JetPFCor_Pt[wjj_b_id]*JetPFCor_Pt[wjj_b_id]+ 2*JetPFCor_Pt[wjj_a_id]*JetPFCor_Pt[wjj_b_id]*cos(JetPFCor_Phi[wjj_a_id]-JetPFCor_Phi[wjj_b_id]));
 
-               if( (i_Eta > (wjj_aj_bj_eta[0] + 0.001) && i_Eta < (wjj_aj_bj_eta[1] - 0.001)) || (i_Eta > (wjj_aj_bj_eta[2] + 0.001) && i_Eta < (wjj_aj_bj_eta[3] - 0.001))) // Real Eta differences 
+               //The following cuts are for the di-boson selection in the VBF topology
+               //Two additional Cuts are also considered when generating the plots and fit
+               //Two Wjj jet Pt > 35 and btag jet veto requirement 
+               if(tmpWjjeta < 1.5 && tmpleadingjet_dphiMET > 0.4 && tmpdijetpt > 20 ) 
                {
-                  vbf_aj_bj_Wjj_jetnumber = vbf_aj_bj_Wjj_jetnumber + 1;
+                  vbf_diboson_event = 1; 
                }
 
-               if(i_Eta > (wjj_aj_bj_eta[1] + 0.001) && i_Eta < (wjj_aj_bj_eta[2] - 0.001)) //Real Eta Differences
+               vector<double> wjj_aj_bj_eta;
+               wjj_aj_bj_eta.push_back(vbf_ajp.Eta());
+               wjj_aj_bj_eta.push_back(vbf_bjp.Eta());
+               wjj_aj_bj_eta.push_back(wjj_ajp.Eta());
+               wjj_aj_bj_eta.push_back(wjj_bjp.Eta());
+
+               sort(wjj_aj_bj_eta.begin(), wjj_aj_bj_eta.end()); // Sort the Eta form smallest to largest
+
+               for(int i = 0; i < (int) jetsize * 2; ++i)
                {
-                  vbf_waj_wbj_jetnumber = vbf_waj_wbj_jetnumber + 1;
+                  float i_rqpt= (i>5)?(30.0):(Jpt); if (runflag==1) i_rqpt= (i>5)?(25.0):(Jpt); if (runflag==2) i_rqpt= (i>5)?(20.0):(Jpt);
+                  float i_Pt  = (i>5)?(JetPFCorVBFTag_Pt[i-6]):(JetPFCor_Pt[i]);
+                  float i_Eta = (i>5)?(JetPFCorVBFTag_Eta[i-6]):(JetPFCor_Eta[i]);
+                  //float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminator[i-6]):(JetPFCor_bDiscriminator[i]);
+                  float i_bD  = (i>5)?(JetPFCorVBFTag_bDiscriminatorCSV[i-6]):(JetPFCor_bDiscriminatorCSV[i]);
+
+                  //if(i_Pt<i_rqpt || i_bD>btssv || fabs(i_Eta)>VBF_MaxEta) continue;
+                  if(i_Pt<i_rqpt || i_bD>btcsvm || fabs(i_Eta)>VBF_MaxEta) continue;
+
+                  if( (i_Eta > (wjj_aj_bj_eta[0] + 0.001) && i_Eta < (wjj_aj_bj_eta[1] - 0.001)) || (i_Eta > (wjj_aj_bj_eta[2] + 0.001) && i_Eta < (wjj_aj_bj_eta[3] - 0.001))) // Real Eta differences 
+                  {
+                     vbf_aj_bj_Wjj_jetnumber = vbf_aj_bj_Wjj_jetnumber + 1;
+                  }
+
+                  if(i_Eta > (wjj_aj_bj_eta[1] + 0.001) && i_Eta < (wjj_aj_bj_eta[2] - 0.001)) //Real Eta Differences
+                  {
+                     vbf_waj_wbj_jetnumber = vbf_waj_wbj_jetnumber + 1;
+                  }
+
                }
 
+               vbf_lvwajbj_ajbj_dphi = ((mup+b_nvp+wjj_ajp+wjj_bjp).Phi() - (vbf_ajp + vbf_bjp).Phi()); //Two New Variables Added in the TMVA
+
+               vbf_lvwajbj_ajbj_deta = TMath::Abs((mup+b_nvp+wjj_ajp+wjj_bjp).Eta() - (vbf_ajp.Eta() + vbf_bjp.Eta())/2.0); //Two New Variables Added in the TMVA
+
+
+               vbf_event = 1; vbf_aj_id = tag_i_id; vbf_bj_id = tag_j_id; vbf_waj_id = wjj_a_id; vbf_wbj_id = wjj_b_id;
+
+               vbf_wjj_e      = (wjj_ajp+wjj_bjp).E();
+               vbf_wjj_pt     = (wjj_ajp+wjj_bjp).Pt();
+               vbf_wjj_eta    = (wjj_ajp+wjj_bjp).Eta();
+               vbf_wjj_phi    = (wjj_ajp+wjj_bjp).Phi();
+               vbf_wjj_m      = (wjj_ajp+wjj_bjp).M();
+
+               vbf_waj_e      = (wjj_ajp).E();
+               vbf_waj_pt     = (wjj_ajp).Pt();
+               vbf_waj_eta    = (wjj_ajp).Eta();
+               vbf_waj_phi    = (wjj_ajp).Phi();
+               vbf_waj_m      = (wjj_ajp).M();
+
+               vbf_wbj_e      = (wjj_bjp).E();
+               vbf_wbj_pt     = (wjj_bjp).Pt();
+               vbf_wbj_eta    = (wjj_bjp).Eta();
+               vbf_wbj_phi    = (wjj_bjp).Phi();
+               vbf_wbj_m      = (wjj_bjp).M();
+
+               vbf_lvjj_e      = (mup+b_nvp+wjj_ajp+wjj_bjp).E();
+               vbf_lvjj_pt     = (mup+b_nvp+wjj_ajp+wjj_bjp).Pt();
+               vbf_lvjj_eta    = (mup+b_nvp+wjj_ajp+wjj_bjp).Eta();
+               vbf_lvjj_phi    = (mup+b_nvp+wjj_ajp+wjj_bjp).Phi();
+               vbf_lvjj_m      = (mup+b_nvp+wjj_ajp+wjj_bjp).M();
+               vbf_lvjj_y      = (mup+b_nvp+wjj_ajp+wjj_bjp).Rapidity();
+
+               //Variabels used for the di-boson selection
+               vbf_diboson_dijetpt = tmpdijetpt;
+               vbf_diboson_deltaeta_Wjj = tmpWjjeta;
+               vbf_diboson_deltaphi_MET_leadingWjet = tmpleadingjet_dphiMET;
+
+               double a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2;
+               if (W_electron_charge < 0){
+                  calculateAngles(mup, b_nvp, wjj_ajp, wjj_bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
+               }
+               else{
+                  calculateAngles(b_nvp, mup, wjj_ajp, wjj_bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
+               }
+               vbf_wjj_ang_ha = a_costheta1; vbf_wjj_ang_hb = fabs(a_costheta2); vbf_wjj_ang_hs = a_costhetastar;  vbf_wjj_ang_phi = a_phi; vbf_wjj_ang_phia = a_phistar1; vbf_wjj_ang_phib = a_phistar2;
+
+               // count numbers
+               if (jj_type==0) {n_excj=n_excj-0; n_exfj=n_exfj-0;}
+               if (jj_type==1) {n_excj=n_excj-4; n_exfj=n_exfj-0;}
+               if (jj_type==2) {n_excj=n_excj-2; n_exfj=n_exfj-2;}
+               if (jj_type==3) {n_excj=n_excj-3; n_exfj=n_exfj-1;}
+               if (jj_type==4) {n_excj=n_excj-3; n_exfj=n_exfj-1;}
+               vbf_n_excj = n_excj;
+               vbf_n_exfj = n_exfj;
+               vbf_n_gdjj = n_gdjj;
+
+               // Write MVA variables
+               std::vector<double> vbf_mvaInputVal;
+               vbf_mvaInputVal.push_back( vbf_lvjj_pt );
+               vbf_mvaInputVal.push_back( vbf_lvjj_y );
+               vbf_mvaInputVal.push_back( W_electron_charge );   ///////different for electron and muon
+               vbf_mvaInputVal.push_back( vbf_wjj_ang_ha );
+               vbf_mvaInputVal.push_back( vbf_wjj_ang_hb );
+               vbf_mvaInputVal.push_back( vbf_wjj_ang_hs );
+               vbf_mvaInputVal.push_back( vbf_wjj_ang_phi );
+               vbf_mvaInputVal.push_back( vbf_wjj_ang_phib );
+               //vbf_mvaInputVal.push_back( vbf_jj_deta );
+               //vbf_mvaInputVal.push_back( vbf_jj_m );
+
+               mvavbf170el = (float) mvaReadervbf170el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf180el = (float) mvaReadervbf180el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf190el = (float) mvaReadervbf190el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf200el = (float) mvaReadervbf200el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf250el = (float) mvaReadervbf250el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf300el = (float) mvaReadervbf300el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf350el = (float) mvaReadervbf350el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf400el = (float) mvaReadervbf400el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf450el = (float) mvaReadervbf450el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf500el = (float) mvaReadervbf500el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf550el = (float) mvaReadervbf550el.GetMvaValue( vbf_mvaInputVal );
+               mvavbf600el = (float) mvaReadervbf600el.GetMvaValue( vbf_mvaInputVal );
+
             }
 
-            vbf_lvwajbj_ajbj_dphi = ((mup+b_nvp+wjj_ajp+wjj_bjp).Phi() - (vbf_ajp + vbf_bjp).Phi()); //Two New Variables Added in the TMVA
-
-            vbf_lvwajbj_ajbj_deta = TMath::Abs((mup+b_nvp+wjj_ajp+wjj_bjp).Eta() - (vbf_ajp.Eta() + vbf_bjp.Eta())/2.0); //Two New Variables Added in the TMVA
-
-
-            vbf_event = 1; vbf_aj_id = tag_i_id; vbf_bj_id = tag_j_id; vbf_waj_id = wjj_a_id; vbf_wbj_id = wjj_b_id;
-
-            vbf_wjj_e      = (wjj_ajp+wjj_bjp).E();
-            vbf_wjj_pt     = (wjj_ajp+wjj_bjp).Pt();
-            vbf_wjj_eta    = (wjj_ajp+wjj_bjp).Eta();
-            vbf_wjj_phi    = (wjj_ajp+wjj_bjp).Phi();
-            vbf_wjj_m      = (wjj_ajp+wjj_bjp).M();
-
-            vbf_waj_e      = (wjj_ajp).E();
-            vbf_waj_pt     = (wjj_ajp).Pt();
-            vbf_waj_eta    = (wjj_ajp).Eta();
-            vbf_waj_phi    = (wjj_ajp).Phi();
-            vbf_waj_m      = (wjj_ajp).M();
-
-            vbf_wbj_e      = (wjj_bjp).E();
-            vbf_wbj_pt     = (wjj_bjp).Pt();
-            vbf_wbj_eta    = (wjj_bjp).Eta();
-            vbf_wbj_phi    = (wjj_bjp).Phi();
-            vbf_wbj_m      = (wjj_bjp).M();
-
-            vbf_lvjj_e      = (mup+b_nvp+wjj_ajp+wjj_bjp).E();
-            vbf_lvjj_pt     = (mup+b_nvp+wjj_ajp+wjj_bjp).Pt();
-            vbf_lvjj_eta    = (mup+b_nvp+wjj_ajp+wjj_bjp).Eta();
-            vbf_lvjj_phi    = (mup+b_nvp+wjj_ajp+wjj_bjp).Phi();
-            vbf_lvjj_m      = (mup+b_nvp+wjj_ajp+wjj_bjp).M();
-            vbf_lvjj_y      = (mup+b_nvp+wjj_ajp+wjj_bjp).Rapidity();
-
-            //Variabels used for the di-boson selection
-            vbf_diboson_dijetpt = tmpdijetpt;
-            vbf_diboson_deltaeta_Wjj = tmpWjjeta;
-            vbf_diboson_deltaphi_MET_leadingWjet = tmpleadingjet_dphiMET;
-
-            double a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2;
-            if (W_electron_charge < 0){
-               calculateAngles(mup, b_nvp, wjj_ajp, wjj_bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
-            }
-            else{
-               calculateAngles(b_nvp, mup, wjj_ajp, wjj_bjp, a_costheta1, a_costheta2, a_phi, a_costhetastar, a_phistar1, a_phistar2);
-            }
-            vbf_wjj_ang_ha = a_costheta1; vbf_wjj_ang_hb = fabs(a_costheta2); vbf_wjj_ang_hs = a_costhetastar;  vbf_wjj_ang_phi = a_phi; vbf_wjj_ang_phia = a_phistar1; vbf_wjj_ang_phib = a_phistar2;
-
-            // count numbers
-            if (jj_type==0) {n_excj=n_excj-0; n_exfj=n_exfj-0;}
-            if (jj_type==1) {n_excj=n_excj-4; n_exfj=n_exfj-0;}
-            if (jj_type==2) {n_excj=n_excj-2; n_exfj=n_exfj-2;}
-            if (jj_type==3) {n_excj=n_excj-3; n_exfj=n_exfj-1;}
-            if (jj_type==4) {n_excj=n_excj-3; n_exfj=n_exfj-1;}
-            vbf_n_excj = n_excj;
-            vbf_n_exfj = n_exfj;
-            vbf_n_gdjj = n_gdjj;
-
-            // Write MVA variables
-            std::vector<double> vbf_mvaInputVal;
-            vbf_mvaInputVal.push_back( vbf_lvjj_pt );
-            vbf_mvaInputVal.push_back( vbf_lvjj_y );
-            vbf_mvaInputVal.push_back( W_electron_charge );   ///////different for electron and muon
-            vbf_mvaInputVal.push_back( vbf_wjj_ang_ha );
-            vbf_mvaInputVal.push_back( vbf_wjj_ang_hb );
-            vbf_mvaInputVal.push_back( vbf_wjj_ang_hs );
-            vbf_mvaInputVal.push_back( vbf_wjj_ang_phi );
-            vbf_mvaInputVal.push_back( vbf_wjj_ang_phib );
-            //vbf_mvaInputVal.push_back( vbf_jj_deta );
-            //vbf_mvaInputVal.push_back( vbf_jj_m );
-
-            mvavbf170el = (float) mvaReadervbf170el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf180el = (float) mvaReadervbf180el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf190el = (float) mvaReadervbf190el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf200el = (float) mvaReadervbf200el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf250el = (float) mvaReadervbf250el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf300el = (float) mvaReadervbf300el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf350el = (float) mvaReadervbf350el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf400el = (float) mvaReadervbf400el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf450el = (float) mvaReadervbf450el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf500el = (float) mvaReadervbf500el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf550el = (float) mvaReadervbf550el.GetMvaValue( vbf_mvaInputVal );
-            mvavbf600el = (float) mvaReadervbf600el.GetMvaValue( vbf_mvaInputVal );
-
-         }
-
-         // ========== txt for Dan
-         int * gdcjet  = new int[jetsize];
-         int * gdfjet  = new int[jetsize];
-         int   ngdcjet = 0, ngdfjet = 0;
-         for ( size_t ijet=0; ijet < jetsize; ++ijet) {
-            gdcjet[ijet] = 0;
-            gdfjet[ijet] = 0;
-            // Identify B Jet
-            if (JetPFCor_Pt[ijet]>Jpt                        &&
-                  JetPFCor_bDiscriminator[ijet]<btssv           ) {gdcjet[ijet] = 1; ngdcjet++;}
-            if (JetPFCorVBFTag_Pt[ijet]>Jpt                  &&
-                  JetPFCorVBFTag_bDiscriminator[ijet]<btssv    && 
-                  fabs(JetPFCorVBFTag_Eta[ijet])<VBF_MaxEta     ) {gdfjet[ijet] = 1; ngdfjet++;}
-         }
-         if (ngdcjet>1 && (ngdcjet+ngdfjet)>3) { // Good VBF event has N total jet >3 and N central jet >1
-            // ----- Output txt file for Dan -15 Lepton and -5 MET
-            fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
-                  -15.0, W_electron_pt, W_electron_eta, W_electron_phi, 0.0, 0.0, 0.0);
-            fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
-                  -5.0,  event_met_pfmet, event_met_pfmetPhi, event_met_pfmetsignificance, event_met_pfsumet, (double)event_nPV, 0.0); 
-            // ----- Output txt file for Dan Jet with pT > jetthreshold
+            // ========== txt for Dan
+            int * gdcjet  = new int[jetsize];
+            int * gdfjet  = new int[jetsize];
+            int   ngdcjet = 0, ngdfjet = 0;
             for ( size_t ijet=0; ijet < jetsize; ++ijet) {
-               if(gdcjet[ijet]==1) 
-                  fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
-                        JetPFCor_E[ijet], JetPFCor_Pt[ijet], JetPFCor_Eta[ijet], JetPFCor_Phi[ijet], JetPFCor_bDiscriminator[ijet], 0.0, 0.0 );
-               if(gdfjet[ijet]==1) 
-                  fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
-                        JetPFCorVBFTag_E[ijet], JetPFCorVBFTag_Pt[ijet], JetPFCorVBFTag_Eta[ijet], JetPFCorVBFTag_Phi[ijet], JetPFCorVBFTag_bDiscriminator[ijet], 0.0, 0.0 );
+               gdcjet[ijet] = 0;
+               gdfjet[ijet] = 0;
+               // Identify B Jet
+               if (JetPFCor_Pt[ijet]>Jpt                        &&
+                     JetPFCor_bDiscriminator[ijet]<btssv           ) {gdcjet[ijet] = 1; ngdcjet++;}
+               if (JetPFCorVBFTag_Pt[ijet]>Jpt                  &&
+                     JetPFCorVBFTag_bDiscriminator[ijet]<btssv    && 
+                     fabs(JetPFCorVBFTag_Eta[ijet])<VBF_MaxEta     ) {gdfjet[ijet] = 1; ngdfjet++;}
             }
-         }
-         // For VBF Analysis ! Currently Gd Event Selection same as Hww
+            if (ngdcjet>1 && (ngdcjet+ngdfjet)>3) { // Good VBF event has N total jet >3 and N central jet >1
+               // ----- Output txt file for Dan -15 Lepton and -5 MET
+               fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
+                     -15.0, W_electron_pt, W_electron_eta, W_electron_phi, 0.0, 0.0, 0.0);
+               fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
+                     -5.0,  event_met_pfmet, event_met_pfmetPhi, event_met_pfmetsignificance, event_met_pfsumet, (double)event_nPV, 0.0); 
+               // ----- Output txt file for Dan Jet with pT > jetthreshold
+               for ( size_t ijet=0; ijet < jetsize; ++ijet) {
+                  if(gdcjet[ijet]==1) 
+                     fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
+                           JetPFCor_E[ijet], JetPFCor_Pt[ijet], JetPFCor_Eta[ijet], JetPFCor_Phi[ijet], JetPFCor_bDiscriminator[ijet], 0.0, 0.0 );
+                  if(gdfjet[ijet]==1) 
+                     fprintf(textfile, "%12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f  %12.5f \n",
+                           JetPFCorVBFTag_E[ijet], JetPFCorVBFTag_Pt[ijet], JetPFCorVBFTag_Eta[ijet], JetPFCorVBFTag_Phi[ijet], JetPFCorVBFTag_bDiscriminator[ijet], 0.0, 0.0 );
+               }
+            }
+            // For VBF Analysis ! Currently Gd Event Selection same as Hww
          }
 
          //Next is for ttH Analysis
@@ -3623,7 +3884,7 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          branch_vbf_wjj_ang_phi->Fill();
          branch_vbf_wjj_ang_phia->Fill();
          branch_vbf_wjj_ang_phib->Fill();
-         
+
          //VBF di-boson Event
          branch_vbf_diboson_event->Fill();
          branch_vbf_diboson_deltaeta_Wjj->Fill();
@@ -3696,6 +3957,73 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
          branch_boostedW_wjj_ang_phi->Fill();
          branch_boostedW_wjj_ang_phia->Fill();
          branch_boostedW_wjj_ang_phib->Fill();
+
+         //AK7 Jet Algorithm
+         branch_ggdboostedWevt_ak7->Fill();
+         branch_GroomedJet_AK7_deltaR_lak7jet->Fill();
+         branch_GroomedJet_AK7_deltaphi_METak7jet->Fill();
+         branch_GroomedJet_AK7_deltaphi_Vak7jet->Fill();
+         branch_GroomedJet_numberbjets_ak7->Fill();
+         branch_GroomedJet_numberjets_ak7->Fill();
+         branch_GroomedJet_AK7_rcores01->Fill();
+         branch_GroomedJet_AK7_rcores02->Fill();
+         branch_GroomedJet_AK7_rcores03->Fill();
+         branch_GroomedJet_AK7_rcores04->Fill();
+         branch_GroomedJet_AK7_rcores05->Fill();
+         branch_GroomedJet_AK7_rcores06->Fill();
+         branch_GroomedJet_AK7_rcores07->Fill();
+         branch_GroomedJet_AK7_rcores08->Fill();
+         branch_GroomedJet_AK7_rcores09->Fill();
+         branch_GroomedJet_AK7_rcores10->Fill();
+         branch_GroomedJet_AK7_rcores11->Fill();
+
+         branch_GroomedJet_AK7_ptcores01->Fill();
+         branch_GroomedJet_AK7_ptcores02->Fill();
+         branch_GroomedJet_AK7_ptcores03->Fill();
+         branch_GroomedJet_AK7_ptcores04->Fill();
+         branch_GroomedJet_AK7_ptcores05->Fill();
+         branch_GroomedJet_AK7_ptcores06->Fill();
+         branch_GroomedJet_AK7_ptcores07->Fill();
+         branch_GroomedJet_AK7_ptcores08->Fill();
+         branch_GroomedJet_AK7_ptcores09->Fill();
+         branch_GroomedJet_AK7_ptcores10->Fill();
+         branch_GroomedJet_AK7_ptcores11->Fill();
+
+         branch_GroomedJet_AK7_planarflow01->Fill();
+         branch_GroomedJet_AK7_planarflow02->Fill();
+         branch_GroomedJet_AK7_planarflow03->Fill();
+         branch_GroomedJet_AK7_planarflow04->Fill();
+         branch_GroomedJet_AK7_planarflow05->Fill();
+         branch_GroomedJet_AK7_planarflow06->Fill();
+         branch_GroomedJet_AK7_planarflow07->Fill();
+         branch_GroomedJet_AK7_planarflow08->Fill();
+         branch_GroomedJet_AK7_planarflow09->Fill();
+         branch_GroomedJet_AK7_planarflow10->Fill();
+         branch_GroomedJet_AK7_planarflow11->Fill();
+
+         branch_GroomedJet_AK7_mass_sensi_tr->Fill();
+         branch_GroomedJet_AK7_mass_sensi_ft->Fill();
+         branch_GroomedJet_AK7_mass_sensi_pr->Fill();
+
+         branch_GroomedJet_AK7_qjetmassvolatility->Fill();
+
+         branch_GroomedJet_AK7_prsubjet1ptoverjetpt->Fill();
+         branch_GroomedJet_AK7_prsubjet2ptoverjetpt->Fill();
+         branch_GroomedJet_AK7_prsubjet1subjet2_deltaR->Fill();
+
+         branch_boostedW_lvj_e_ak7->Fill();
+         branch_boostedW_lvj_pt_ak7->Fill();
+         branch_boostedW_lvj_eta_ak7->Fill();
+         branch_boostedW_lvj_phi_ak7->Fill();
+         branch_boostedW_lvj_m_ak7->Fill();
+         branch_boostedW_lvj_y_ak7->Fill();
+
+         branch_boostedW_wjj_ang_ha_ak7->Fill();
+         branch_boostedW_wjj_ang_hb_ak7->Fill();
+         branch_boostedW_wjj_ang_hs_ak7->Fill();
+         branch_boostedW_wjj_ang_phi_ak7->Fill();
+         branch_boostedW_wjj_ang_phia_ak7->Fill();
+         branch_boostedW_wjj_ang_phib_ak7->Fill();
 
          //ttH Analysis
          branch_ttH_check_event->Fill();
