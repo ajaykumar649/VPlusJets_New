@@ -18,8 +18,8 @@ mu2Pars = {
            {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'ggH': (6, 9)} ),
     300: ( "mva2j300mu", 0.600, 240.0, 400.0, 16 ),
     # 350: ( "mva2j350mu", 0.600, 300.0, 780.0, 24 ),
-    350: ( "mva2j350mu", 0.600, 250., 450., 20,
-           {'diboson': (7, 11), 'top': (5, 12), 'WpJ': (10, 10), 'ggH': (6, 5)} ),
+    350: ( "mva2j350mu", 0.600, 250., 475., 15,
+           {'diboson': (7, 11), 'top': (13, 11), 'WpJ': (10, 14), 'ggH': (7, 5)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22 ),
     500: ( "mva2j500mu", 0.500, 380.0, 740.0, 22,
@@ -36,7 +36,7 @@ el2Pars = {
     300: ( "mva2j300el", 0.600, 240.0, 400.0, 16 ),
     # 350: ( "mva2j350el", 0.600, 300.0, 780.0, 24 ),
     350: ( "mva2j350el", 0.600, 250., 450., 20 ,
-           {'diboson': (7, 11), 'top': (5, 2), 'WpJ': (10, 12), 'ggH': (6, 9)} ),
+           {'diboson': (7, 11), 'top': (13, 11), 'WpJ': (10, 14), 'ggH': (7, 5)} ),
     400: ( "mva2j400el", 0.550, 300.0, 780.0, 24 ),
     450: ( "mva2j450el", 0.500, 340.0, 780.0, 22 ),
     500: ( "mva2j500el", 0.500, 340.0, 780.0, 22 ),
@@ -47,8 +47,8 @@ el2Pars = {
 def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
-    pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/ReducedTrees/'
-    #pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012/ReducedTrees/"
+    #pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/ReducedTrees/'
+    pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/Moriond2013/ReducedTrees/"
     #pars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/"
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
@@ -77,11 +77,21 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
         else:
             modePars = mu2Pars
 
-    pars.cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % Nj + \
+    # pars.cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % Nj + \
+    #     '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
+    pars.cuts = '(fit_status==0)&&(W_mt>30)' + \
         '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
+    
+    #btag veto
+    pars.btagVeto = False
+    for i in range(0, 6):
+        pars.cuts += '&&((abs(JetPFCor_Eta[%i])>2.4)||' % i + \
+            '(JetPFCor_Pt[%i]<30.)||' % i + \
+            '(JetPFCor_bDiscriminatorCSV[%i]<0.679))' % i
 
     # veto boosted topology
-    pars.cuts += '&&(ggdboostedWevt==0)&&(W_pt<200.)'
+    # pars.cuts += '&&(ggdboostedWevt==0)&&(W_pt<200.)'
+    pars.cuts += '&&(W_pt<200.)'
 
     # veto vbf
     pars.cuts += '&&(vbf_event==0)'
@@ -137,7 +147,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.ggHPlotting = {'color' : kBlue, 'title' : "ggH(%i) #rightarrow WW" % mH}
 
     pars.var = ['Mass2j_PFCor', 'fit_mlvjj']
-    pars.varRanges = {'Mass2j_PFCor': (25, 50., 200., []),
+    pars.varRanges = {'Mass2j_PFCor': (18, 50., 194., []),
                       'fit_mlvjj': (modePars[mH][4], modePars[mH][2], 
                                     modePars[mH][3], [])
                       }
@@ -148,7 +158,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     #                    105.,115.,125.,135.,150.,165.,180.,200.]
     # pars.v1nbins = len(pars.v1binEdges)-1
 
-    pars.integratedLumi = 12000.
+    pars.integratedLumi = 14000.
 
     pars.binData = False
 
@@ -186,7 +196,7 @@ def customizeElectrons(pars):
     return pars
 
 def customizeMuons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_12p0invfb.root'
+    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_14p0invfb.root'
 
     pars.doEffCorrections = True
     pars.effToDo = ['lepton']

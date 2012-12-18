@@ -115,6 +115,8 @@ if fr:
         fitter.ws.set('constraintSet').getSize()
     fr.Print('v')
 
+print '%i free parameters in the fit' % ndf
+
 firstCurve1 = plot1.getObject(1)
 # firstCurve1.Print()
 
@@ -205,7 +207,7 @@ fitter.ws.Write()
 #fitter.ws.Print()
 output.Close()
 
-print '%i free parameters in the fit' % ndf
+print '%i degrees of freedom' % ndf
 print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
 print 'chi2 probability: %.4g' % (TMath.Prob(chi2, ndf))
 

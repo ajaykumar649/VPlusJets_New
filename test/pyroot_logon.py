@@ -22,11 +22,26 @@ def cmsPrelim(canvas, lumi):
     cmsLabel(canvas, lumi, True)
 
 import os
+import atexit
+import readline
+import rlcompleter
+
+historyPath = os.path.expanduser("~/.pyhistory")
+
+def save_history(historyPath=historyPath):
+    import readline
+    readline.set_history_length(1000)
+    readline.write_history_file(historyPath)
+
+if os.path.exists(historyPath):
+    readline.read_history_file(historyPath)
+
+atexit.register(save_history)
 cmssw_base = os.environ['CMSSW_BASE']
 ## macroPath = gROOT.GetMacroPath()
 ## macroPath += os.environ['CMSSW_BASE'] + '/src/ElectroWeakAnalysis/VPlusJets/test:'
 ## gROOT.SetMacroPath(macroPath)
-del os
+del os, atexit, readline, rlcompleter, save_history, historyPath
 
 gROOT.SetStyle('Plain')
 gStyle.SetPadTickX(1)
@@ -77,12 +92,12 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
     output = pgrep.communicate()[0]
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
     if (pgrep.returncode == 0):
-        # roofitinc = output.split("=")[1].rstrip()
-        # # print roofitinc
-        # gROOT.GetInterpreter().AddIncludePath(roofitinc)
-        # roofitinc = '-I"' + roofitinc + '"'
-        # # print roofitinc
-        # gSystem.AddIncludePath(roofitinc)
+        roofitinc = output.split("=")[1].rstrip()
+        # print roofitinc
+        gROOT.GetInterpreter().AddIncludePath(roofitinc)
+        roofitinc = '-I"' + roofitinc + '"'
+        # print roofitinc
+        gSystem.AddIncludePath(roofitinc)
         print "done"
         gROOT.GetInterpreter().AddIncludePath(cmssw_base + '/src')
         gSystem.AddIncludePath('-I"' + cmssw_base + '/src"')

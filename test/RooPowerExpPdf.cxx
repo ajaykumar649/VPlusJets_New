@@ -69,7 +69,7 @@ double ExpIntegralE(double p, double x) {
     sum += term;
     ++k;
     //std::cout << "  term " << k << ": " << term << '\n';
-  } while ((TMath::Abs(term) > 1e-100)&&(k<1000));
+  } while ((TMath::Abs(term/sum) > 1e-9)&&(k<1000));
 
   double ret(TMath::Gamma(1-p)*(TMath::Power(x, p-1) - TMath::Exp(-x)*sum));
   //std::cout << "returns: " << ret << '\n';

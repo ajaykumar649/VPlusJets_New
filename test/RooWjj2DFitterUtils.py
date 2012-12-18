@@ -63,6 +63,16 @@ class Wjj2DFitterUtils:
             theCut += '&&(%s>%0.3f)&&(%s<%0.3f)'%(v,self.pars.varRanges[v][1],
                                                   v,self.pars.varRanges[v][2])
         return '(%s)' % theCut
+
+    def btagVeto(self, row, vbf = False):
+        jeti = 0
+        veto = False
+        while (jeti < 6) and (row.JetPFCor_Pt[jeti] >= 30.):
+            if (abs(row.JetPFCor_Eta[jeti]) < 2.4) and \
+                    (row.JetPFCor_bDiscriminatorCSV[jeti] > 0.898):
+                veto = True
+
+        return veto
             
     # generator function for looping over an event tree and applying the cuts
     def TreeLoopFromFile(self, fname, noCuts = False,
@@ -107,19 +117,23 @@ class Wjj2DFitterUtils:
             else:
                 lep_pt = theTree.W_muon_pt
                 lep_eta = theTree.W_muon_eta
-            jet_pt = []
-            jet_eta = []
-            for (idx, pt) in enumerate(theTree.JetPFCor_Pt):
-                if pt > 0:
-                    jet_pt.append(pt)
-                    jet_eta.append(theTree.JetPFCor_Eta[idx])
-            effWgt = theTree.puwt*theTree.effwt
+            # jet_pt = []
+            # jet_eta = []
+            # for (idx, pt) in enumerate(theTree.JetPFCor_Pt):
+            #     if pt > 0:
+            #         jet_pt.append(pt)
+            #         jet_eta.append(theTree.JetPFCor_Eta[idx])
 
             # effWgt = self.effWeight(lepton_pt = lep_pt, lepton_eta = lep_eta, 
             #                         #jet_pt = jet_pt, jet_eta,
             #                         mt_pt = theTree.W_mt, mt_eta = lep_eta,
             #                         met_pt = theTree.event_met_pfmet, 
             #                         met_eta = 0.)
+            if (hasattr(self.pars, 'btagVeto')) and (self.pars.btagVeto) and \
+                    self.btagVeto(theTree):
+                continue
+
+            effWgt = theTree.puwt*theTree.effwt
             if CPweight:
                 cpw = getattr(theTree, 'complexpolewtggH%i' % self.pars.mHiggs)
                 cpw /= getattr(theTree, 'avecomplexpolewtggH%i' % self.pars.mHiggs)
@@ -265,13 +279,13 @@ class Wjj2DFitterUtils:
                        )
         elif model==1:
             # power-law model
-            ws.factory("power_%s[-2., -10., 10.]" % idString)
+            ws.factory("power_%s[-2., -30., 30.]" % idString)
             ws.factory("RooPowerLaw::%s(%s, power_%s)" % \
                            (pdfName, var, idString)
                        )
         elif model== 2:
             # power law * exponential pdf
-            ws.factory("power_%s[5., -10., 10.]" % idString)
+            ws.factory("power_%s[5., -30., 30.]" % idString)
             ws.factory("c_%s[-0.015, -10, 10]" % idString)
             ws.factory("RooPowerExpPdf::%s(%s, c_%s, power_%s)" %\
                            (pdfName, var, idString, idString)
@@ -358,8 +372,8 @@ class Wjj2DFitterUtils:
             #erf * power law
             ws.factory("offset_%s[40, 0, 1000]" % idString)
             ws.factory("width_%s[10, 0, 1000]" % idString)
-            ws.factory("power_%s[2, -10, 10]" % idString)
-            ws.factory("power2_%s[0, -10, 10]" % idString)
+            ws.factory("power_%s[2, -30, 30]" % idString)
+            ws.factory("power2_%s[0, -20, 20]" % idString)
             ws.factory("EXPR::%s('(TMath::Erf((@0-@1)/@2)+1)/2./TMath::Power(@0,@3+@4*log(@0/@5))', %s, offset_%s, width_%s, power_%s, power2_%s, 8000)" % \
                            (pdfName, var, idString, idString, idString, 
                             idString)
@@ -390,6 +404,14 @@ class Wjj2DFitterUtils:
                        )
             ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
                            (pdfName, idString, pdfName, pdfName)
+                       )
+        elif model == 14:
+            #erf * power law
+            ws.factory("offset_%s[40, 0, 1000]" % idString)
+            ws.factory("width_%s[10, 0, 1000]" % idString)
+            ws.factory("power_%s[2, -30, 30]" % idString)
+            ws.factory("EXPR::%s('(TMath::Erf((@0-@1)/@2)+1)/2./TMath::Power(@0,@3)', %s, offset_%s, width_%s, power_%s)" % \
+                           (pdfName, var, idString, idString, idString)
                        )
         else:
             # this is what will be returned if there isn't a model implemented

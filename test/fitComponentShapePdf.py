@@ -118,34 +118,34 @@ if fitter.ws.var('offset_WpJ_%s' % pars.var[0]):
     fitter.ws.var('offset_WpJ_%s' % pars.var[0]).setVal(65)
 if fitter.ws.var('width_WpJ_%s' % pars.var[0]):
     fitter.ws.var('width_WpJ_%s' % pars.var[0]).setVal(25)
-if fitter.ws.var('c_HWW_%s_tail' % pars.var[0]):
-    fitter.ws.var('c_HWW_%s_tail' % pars.var[0]).setVal(-0.015)
-if fitter.ws.var('f_HWW_%s_core' % pars.var[0]):
-    fitter.ws.var('f_HWW_%s_core' % pars.var[0]).setVal(0.9)
-if fitter.ws.var('mean_HWW_%s_core' % pars.var[0]):
-    fitter.ws.var('mean_HWW_%s_core' % pars.var[0]).setVal(85)
-if fitter.ws.var('sigma_HWW_%s_core' % pars.var[0]):
-    fitter.ws.var('sigma_HWW_%s_core' % pars.var[0]).setVal(10)
-if fitter.ws.var('sigma_HWW_%s_tail' % pars.var[0]):
-    fitter.ws.var('sigma_HWW_%s_tail' % pars.var[0]).setVal(50)
-if fitter.ws.var('sigma_HWW_%s_core' % pars.var[1]):
-    fitter.ws.var('sigma_HWW_%s_core' % pars.var[1]).setVal(10)
-if fitter.ws.var('sigma_HWW_%s_tail' % pars.var[1]):
-    fitter.ws.var('sigma_HWW_%s_tail' % pars.var[1]).setVal(100)
-if fitter.ws.var('f_HWW_%s_core' % pars.var[1]):
-    fitter.ws.var('f_HWW_%s_core' % pars.var[1]).setVal(0.7)
-if fitter.ws.var('mean_HWW_%s' % pars.var[0]):
-    fitter.ws.var('mean_HWW_%s' % pars.var[0]).setVal(84)
-if fitter.ws.var('mean_HWW_%s' % pars.var[1]):
-    fitter.ws.var('mean_HWW_%s' % pars.var[1]).setVal(opts.mH)
-if fitter.ws.var('mean_HWW_%s_core' % pars.var[1]):
-    fitter.ws.var('mean_HWW_%s_core' % pars.var[1]).setVal(opts.mH)
-if fitter.ws.var('mean_HWW_%s_tail' % pars.var[1]):
-    fitter.ws.var('mean_HWW_%s_tail' % pars.var[1]).setVal(opts.mH)
-if fitter.ws.var('width_HWW_%s' % pars.var[1]):
-    fitter.ws.var('width_HWW_%s' % pars.var[1]).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
-if fitter.ws.var('resolution_HWW_%s_tail' % pars.var[1]):
-    fitter.ws.var('resolution_HWW_%s_tail' % pars.var[1]).setVal(opts.mH*0.11)
+if fitter.ws.var('c_ggH_%s_tail' % pars.var[0]):
+    fitter.ws.var('c_ggH_%s_tail' % pars.var[0]).setVal(-0.015)
+if fitter.ws.var('f_ggH_%s_core' % pars.var[0]):
+    fitter.ws.var('f_ggH_%s_core' % pars.var[0]).setVal(0.9)
+if fitter.ws.var('mean_ggH_%s_core' % pars.var[0]):
+    fitter.ws.var('mean_ggH_%s_core' % pars.var[0]).setVal(85)
+if fitter.ws.var('sigma_ggH_%s_core' % pars.var[0]):
+    fitter.ws.var('sigma_ggH_%s_core' % pars.var[0]).setVal(10)
+if fitter.ws.var('sigma_ggH_%s_tail' % pars.var[0]):
+    fitter.ws.var('sigma_ggH_%s_tail' % pars.var[0]).setVal(50)
+if fitter.ws.var('sigma_ggH_%s_core' % pars.var[1]):
+    fitter.ws.var('sigma_ggH_%s_core' % pars.var[1]).setVal(10)
+if fitter.ws.var('sigma_ggH_%s_tail' % pars.var[1]):
+    fitter.ws.var('sigma_ggH_%s_tail' % pars.var[1]).setVal(100)
+if fitter.ws.var('f_ggH_%s_core' % pars.var[1]):
+    fitter.ws.var('f_ggH_%s_core' % pars.var[1]).setVal(0.7)
+if fitter.ws.var('mean_ggH_%s' % pars.var[0]):
+    fitter.ws.var('mean_ggH_%s' % pars.var[0]).setVal(84)
+if fitter.ws.var('mean_ggH_%s' % pars.var[1]):
+    fitter.ws.var('mean_ggH_%s' % pars.var[1]).setVal(opts.mH)
+if fitter.ws.var('mean_ggH_%s_core' % pars.var[1]):
+    fitter.ws.var('mean_ggH_%s_core' % pars.var[1]).setVal(opts.mH)
+if fitter.ws.var('mean_ggH_%s_tail' % pars.var[1]):
+    fitter.ws.var('mean_ggH_%s_tail' % pars.var[1]).setVal(opts.mH)
+if fitter.ws.var('width_ggH_%s' % pars.var[1]):
+    fitter.ws.var('width_ggH_%s' % pars.var[1]).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
+if fitter.ws.var('resolution_ggH_%s_tail' % pars.var[1]):
+    fitter.ws.var('resolution_ggH_%s_tail' % pars.var[1]).setVal(opts.mH*0.11)
 
 params = sigPdf.getParameters(data)
 parCopy = params.snapshot()
@@ -155,14 +155,14 @@ for filename in args:
 
 parCopy.IsA().Destructor(parCopy)
     
-if fitter.ws.var('npow_HWW_Mass2j_PFCor'):
-    # fitter.ws.var('npow_HWW_Mass2j_PFCor').setConstant(False)
-    # fitter.ws.var('alpha_HWW_Mass2j_PFCor').setVal(1.0)
-    # fitter.ws.var('alpha_HWW_Mass2j_PFCor').setConstant(True)
+if fitter.ws.var('npow_ggH_Mass2j_PFCor'):
+    # fitter.ws.var('npow_ggH_Mass2j_PFCor').setConstant(False)
+    # fitter.ws.var('alpha_ggH_Mass2j_PFCor').setVal(1.0)
+    # fitter.ws.var('alpha_ggH_Mass2j_PFCor').setConstant(True)
     pass
 
 if fitter.ws.var('npow_diboson_Mass2j_PFCor'):
-    fitter.ws.var('npow_diboson_Mass2j_PFCor').setConstant(False)
+    fitter.ws.var('npow_diboson_Mass2j_PFCor').setConstant(True)
     fitter.ws.var('npow_diboson_Mass2j_PFCor').setError(0.5)
 
 fitter.ws.Print()
