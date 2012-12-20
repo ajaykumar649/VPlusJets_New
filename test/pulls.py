@@ -43,6 +43,10 @@ def createPull(theData, curve, curveUp = None, curveDown = None):
 
     return pullGraph
 
+def computeChi2(theData, curve):
+    pullGraph = createPull(theData, curve)
+    chi2 = 0.
+    for pnt in range(0, pullGraph.GetN()):
+        chi2 += pullGraph.GetY()[pnt]**2
 
-if __name__ == '__main__':
-    pass
+    return (chi2, pullGraph.GetN())
