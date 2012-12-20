@@ -1894,8 +1894,8 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    //EffTableLoader muIDEff(            fDir + "scaleFactor-2012A-PromptReco-v1-PFMM-RecoToIso.txt");
    //EffTableLoader muHLTEff(           fDir + "efficiency-2012A-PromptReco-v1-PFMM-IsoToIsoMuHLT.txt");
 
-   EffTableLoader muIDEff(            fDir + "scaleFactor-Run2012ABC-RecoToIso.txt");
-   EffTableLoader muHLTEff(           fDir + "efficiency-Run2012ABC-IsoToIsoMuHLT.txt");
+   EffTableLoader muIDEff(            fDir + "scaleFactor-Run2012ABCD-RecoToIso.txt");
+   EffTableLoader muHLTEff(           fDir + "efficiency-Run2012ABCD-IsoToIsoMuHLT.txt");
 
    //For Interference Correction
    LOTable interferencetableggH400;
@@ -1949,7 +1949,7 @@ void kanamuon::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    // S7 MC PU True profile - hardcoded, wow
    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupMCReweightingUtilities
    // TFile *dataFile_      = new TFile( "PileupHistogramGold_190456-196531_8TeV_PromptReco_Collisions12_true.root" );
-   TFile *dataFile_      = new TFile( "Data190389-200041_PileupHistogram.root" );
+   TFile *dataFile_      = new TFile( "Data190456-208686_PileupHistogram.root" );
    TH1F* PU_intended = new TH1F(  *(static_cast<TH1F*>(dataFile_->Get( "pileup" )->Clone() )) );
    TH1F* PU_generated = new TH1F("PU_generated","Generated pileup distribution (i.e., MC)",60,0.,60);
    Double_t Summer2012[60] = {
