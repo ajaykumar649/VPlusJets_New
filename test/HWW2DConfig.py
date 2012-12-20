@@ -7,10 +7,10 @@ import HWWSignalShapes
 #  4: n4BodyBins, 5: dictionary with tuples specifying the model for 
 #  each of the two components of the fit)
 mu2Pars = {
-    170: ( "mva2j170mu", 0.500, 165.0, 250.0, 17,
-           {'diboson':(7, 11),'top':(5, 2),'WpJ':(10, 10),'ggH':(6, 9)} ),
-    180: ( "mva2j180mu", 0.600, 165.0, 250.0, 17,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'ggH': (6, 9)} ),
+    170: ( "mva2j170mu", 0.500, 165.0, 245.0, 10,
+           {'diboson':(7, 11),'top':(13, 11),'WpJ':(10, 14),'ggH':(13, 5)} ),
+    180: ( "mva2j180mu", 0.600, 165.0, 245.0, 10,
+           {'diboson': (13, 11),'top':(13, 8),'WpJ':(10, 14),'ggH':(13, 5)} ),
     190: ( "mva2j190mu", 0.600, 165.0, 250.0, 17,
            {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 10), 'ggH': (6, 9)} ),
     200: ( "mva2j200mu", 0.600, 165.0, 250.0, 17,
@@ -49,7 +49,7 @@ el2Pars = {
 def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
-    #pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/ReducedTrees/'
+    # pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/ReducedTrees/'
     pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/Moriond2013/RD_includingDiboson/"
     # pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/"
     #pars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/"

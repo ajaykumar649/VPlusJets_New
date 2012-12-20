@@ -36,8 +36,11 @@ config = __import__(opts.modeConfig)
 import RooWjj2DFitter
 
 from ROOT import TCanvas, RooFit, RooLinkedListIter, TMath, RooRandom, TFile, \
-    RooDataHist, RooMsgService
+    RooDataHist, RooMsgService, TStopwatch
 import pulls
+
+timer = TStopwatch()
+timer.Start()
 
 if not opts.debug:
     RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
@@ -93,6 +96,10 @@ fitter.setMultijetYield()
 data.Print()
 startpars.IsA().Destructor(startpars)
 
+print 'Time elapsed: %.1f sec' % timer.RealTime()
+print 'CPU time used: %.1f sec' % timer.CpuTime()
+print 'starting fitting routine'
+timer.Continue()
 #fitter.ws.var('top_nrm').setConstant()
 fr = None
 fr = fitter.fit()
@@ -222,6 +229,9 @@ fitter.ws.SetName("w")
 fitter.ws.Write()
 #fitter.ws.Print()
 output.Close()
+
+print 'Time elapsed: %.1f sec' % timer.RealTime()
+print 'CPU time used: %.1f sec' % timer.CpuTime()
 
 print '%i degrees of freedom' % ndf
 print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
