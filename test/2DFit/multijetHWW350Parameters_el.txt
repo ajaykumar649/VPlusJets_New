@@ -1,0 +1,5 @@
+a1_multijet_Mass2j_PFCor =  0.074762 +/- 0.045255 C L(-10 - 10) 
+a2_multijet_Mass2j_PFCor =  0.11381 +/- 0.035578 C L(-10 - 10) 
+a3_multijet_Mass2j_PFCor = -0.149295 +/- 0.035536 C L(-10 - 10) 
+power_multijet_fit_mlvjj = -5.73114 +/- 0.15830 C L(-10 - 10) 
+//n_multijet = 125.0 +/- 11.2 C

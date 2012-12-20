@@ -19,6 +19,7 @@ class Wjj2DFitter:
         self.pars = pars
         self.ws = RooWorkspace('wjj2dfitter')
         self.utils = Wjj2DFitterUtils(self.pars)
+        self.useImportPars = False
 
         for v in self.pars.var:
 
@@ -42,7 +43,8 @@ class Wjj2DFitter:
             var1.Print()
         self.ws.defineSet('obsSet', ','.join(self.pars.var))
 
-    def loadWorkspaceFromFile(self, filename, wsname = 'w'):
+    def loadWorkspaceFromFile(self, filename, wsname = 'w', 
+                              getFloatPars = True):
         print 'loading data workspace %s from file %s' % (wsname, filename)
         fin = TFile.Open(filename)
         other = fin.Get(wsname)
@@ -64,7 +66,12 @@ class Wjj2DFitter:
             unbinnedData.SetName('data_obs')
             getattr(self.ws, 'import')(unbinnedData)
 
-        self.ws.Print()
+        if getFloatPars and other.loadSnapshot('fitPars'):
+            self.useImportPars = True
+            self.ws.saveSnapshot('importParams', other.set('floatingParams'), 
+                                 True)
+
+        # self.ws.Print()
     
     # put together a fitting model and return the pdf
     def makeFitter(self):
@@ -80,7 +87,7 @@ class Wjj2DFitter:
                 
             norm = self.ws.factory('prod::f_%s_norm' % component + \
                                        '(n_%s[0.,1e6],' % component + \
-                                       '%s_norm[1.,-0.5,5.])' % component)
+                                       '%s_nrm[1.,-0.5,5.])' % component)
             self.ws.var('n_%s' % component).setConstant(True)
             compPdfs.append(
                 self.ws.factory('RooExtendPdf::%s_extended(%s,%s)' % \
@@ -90,18 +97,18 @@ class Wjj2DFitter:
                                 )
                 )
                                     
-            
+        self.ws.factory('r_signal[0., -20., 20.]')
+        self.ws.var('r_signal').setConstant(False)
         for component in self.pars.signals:
             compFile = getattr(self.pars, '%sFiles' % component)
             compModels = getattr(self.pars, '%sModels' % component)
             compPdf = self.makeComponentPdf(component, compFiles,
                                             compModels)
             norm = self.ws.factory(
-                "prod::f_%s_norm(n_%s[0., 1e6],r_%s[0.,-20.,20.])" % \
-                    (component, component, component)
+                "prod::f_%s_norm(n_%s[0., 1e6],r_signal)" % \
+                    (component, component)
                 )
             self.ws.var('n_%s' % component).setConstant(True)
-            self.ws.var('r_%s' % component).setConstant(False)
             pdf = self.ws.factory('RooExtendPdf::%s_extended(%s,%s)' % \
                                       (compPdf.GetName(), 
                                        compPdf.GetName(),
@@ -129,7 +136,7 @@ class Wjj2DFitter:
         constraints = []
         constrainedParameters = []
         for constraint in self.pars.yieldConstraints:
-            theYield = self.ws.var('%s_norm' % constraint)
+            theYield = self.ws.var('%s_nrm' % constraint)
             if not theYield.isConstant():
                 self.ws.factory('RooGaussian::%s_const(%s, 1.0, %f)' % \
                                     (constraint, theYield.GetName(),
@@ -204,6 +211,8 @@ class Wjj2DFitter:
             constraintCmd = RooFit.Constrained()
             # constraintCmd = RooFit.ExternalConstraints(self.ws.set('constraintSet'))
 
+        if self.useImportPars:
+            self.ws.loadSnapshot('importParams')
         self.ws.Print()
 
         # for constraint in pars.constraints:
@@ -218,6 +227,8 @@ class Wjj2DFitter:
                           RooFit.Warnings(False),
                           constraintCmd)
         fr.Print()
+
+        
 
         return fr
 
@@ -332,7 +343,7 @@ class Wjj2DFitter:
 
         if nexp < 1:
             nexpt = data.sumEntries()
-        theComponents = self.pars.backgrounds
+        theComponents = list(self.pars.backgrounds)
         if self.pars.includeSignal:
             theComponents += self.pars.signals
         # data.plotOn(sframe, RooFit.Invisible(),
@@ -344,7 +355,7 @@ class Wjj2DFitter:
         #invData.Print('v')
         sframe.addPlotable(invData, 'pe', True, True)
         for (idx,component) in enumerate(theComponents):
-            print '\nplotting',component,'...'
+            print 'plotting',component,'...'
             if hasattr(self.pars, '%sPlotting' % (component)):
                 plotCharacteristics = getattr(self.pars, '%sPlotting' % \
                                                   (component))
@@ -355,7 +366,8 @@ class Wjj2DFitter:
             compCmd = RooCmdArg.none()
             if compList:
                 compSet = RooArgSet(compList)
-                compCmd = RooFit.Components(compSet)
+                if compSet.getSize() > 0:
+                    compCmd = RooFit.Components(compSet)
                 removals = compList.selectByName('%s*' % component)
                 compList.remove(removals)
 
@@ -382,6 +394,7 @@ class Wjj2DFitter:
             sframe.SetMaximum(1.0e6)
 
         sframe.GetYaxis().SetTitle('Events / GeV')
+        print
 
         return sframe
 
@@ -414,7 +427,7 @@ class Wjj2DFitter:
         components = self.pars.signals + self.pars.backgrounds
         for component in components:
             theYield = self.ws.var('n_%s' % component)
-            theNorm = self.ws.var('%s_norm' % component)
+            theNorm = self.ws.var('%s_nrm' % component)
             if hasattr(self, '%sExpected' % component):
                 theYield.setVal(getattr(self, '%sExpected' % component))
             else:

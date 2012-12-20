@@ -369,7 +369,7 @@ class Wjj2DFitterUtils:
                        )
             ws.var('width_%s' % idString).setConstant(True)
         elif model == 10:
-            #erf * power law
+            #erf * 2 parameter power law
             ws.factory("offset_%s[40, 0, 1000]" % idString)
             ws.factory("width_%s[10, 0, 1000]" % idString)
             ws.factory("power_%s[2, -30, 30]" % idString)
@@ -406,7 +406,7 @@ class Wjj2DFitterUtils:
                            (pdfName, idString, pdfName, pdfName)
                        )
         elif model == 14:
-            #erf * power law
+            #erf * simple power law
             ws.factory("offset_%s[40, 0, 1000]" % idString)
             ws.factory("width_%s[10, 0, 1000]" % idString)
             ws.factory("power_%s[2, -30, 30]" % idString)

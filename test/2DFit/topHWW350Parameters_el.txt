@@ -1,0 +1,10 @@
+a1_top_fit_mlvjj = -1.28833 +/- 0.0074506 C L(-10 - 10) 
+a2_top_fit_mlvjj =  0.40911 +/- 0.0095427 C L(-10 - 10) 
+a3_top_fit_mlvjj = -0.0475514 +/- 0.0081054 C L(-10 - 10) 
+c_top_Mass2j_PFCor = -0.0288780 +/- 0.0051537 C L(-10 - 10) 
+f_top_Mass2j_PFCor_core =  0.032524 +/- 0.0078928 C L(0 - 1) 
+mean_top_Mass2j_PFCor_core =  84.056 +/- 0.99691 C L(0 - 1000) 
+offset_top_Mass2j_PFCor =  116.58 +/- 24.928 C L(-100 - 1000) 
+sigma_top_Mass2j_PFCor_core =  5.3145 +/- 1.2852 C L(0 - 500) 
+width_top_Mass2j_PFCor =  65.129 +/- 6.5866 C L(0 - 1000) 
+n_top = 8005.3 +/- 89.5 C

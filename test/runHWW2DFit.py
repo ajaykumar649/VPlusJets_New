@@ -24,6 +24,8 @@ parser.add_option('--seed', dest='seed', type='int', help='random seed')
 parser.add_option('--ws', dest='ws', 
                   help='filename that contains workspace to be used cloned ' +\
                       'for use')
+parser.add_option('--debug', dest='debug', action='store_true', default=False,
+                  help='turn on extra debugging information')
 
 (opts, args) = parser.parse_args()
 
@@ -34,8 +36,11 @@ config = __import__(opts.modeConfig)
 import RooWjj2DFitter
 
 from ROOT import TCanvas, RooFit, RooLinkedListIter, TMath, RooRandom, TFile, \
-    RooDataHist
+    RooDataHist, RooMsgService
 import pulls
+
+if not opts.debug:
+    RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
 if hasattr(opts, "seed") and (opts.seed >= 0):
     print "random seed:", opts.seed
@@ -46,10 +51,11 @@ pars = config.theConfig(Nj = opts.Nj, mH = opts.mH,
 
 fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 
-if opts.ws:
-    fitter.loadWorkspaceFromFile(opts.ws)
-
 totalPdf = fitter.makeFitter()
+
+if opts.ws:
+    fitter.loadWorkspaceFromFile(opts.ws, getFloatPars = True)
+
 #fitter.loadData()
 fitter.readParametersFromFile()
 fitter.expectedFromPars()
@@ -87,6 +93,7 @@ fitter.setMultijetYield()
 data.Print()
 startpars.IsA().Destructor(startpars)
 
+#fitter.ws.var('top_nrm').setConstant()
 fr = None
 fr = fitter.fit()
 
@@ -110,6 +117,7 @@ ndf = 0
 if fr:
     floatVars = [ fr.floatParsFinal().at(i).GetName() \
                       for i in range(0, fr.floatParsFinal().getSize()) ]
+    fitter.ws.defineSet('floatingParams', ','.join(floatVars))
     fitter.ws.saveSnapshot("fitPars", ','.join(floatVars))
     ndf = fr.floatParsFinal().getSize() - \
         fitter.ws.set('constraintSet').getSize()
@@ -120,17 +128,17 @@ print '%i free parameters in the fit' % ndf
 firstCurve1 = plot1.getObject(1)
 # firstCurve1.Print()
 
-chi2_1 = plot1.chiSquare(firstCurve1.GetName(), 'theData')*plot1.GetNbinsX()
+(chi2_1, ndf_1) = pulls.computeChi2(plot1.getHist('theData'), firstCurve1)
 pull1 = pulls.createPull(plot1.getHist('theData'), firstCurve1)
 
 firstCurve2 = plot2.getObject(1)
 # firstCurve2.Print()
 
-chi2_2 = plot2.chiSquare(firstCurve2.GetName(), 'theData')*plot2.GetNbinsX()
+(chi2_2, ndf_2) = pulls.computeChi2(plot2.getHist('theData'), firstCurve2)
 pull2 = pulls.createPull(plot2.getHist('theData'), firstCurve2)
 
 chi2 = chi2_1 + chi2_2
-ndf = plot1.GetNbinsX()+plot2.GetNbinsX()-ndf
+ndf = ndf_1+ndf_2-ndf
 
 cp1 = TCanvas("cp1", fitter.ws.var(pars.var[0]).GetTitle() + ' pull')
 pull1.Draw('ap')
@@ -181,18 +189,26 @@ mode = 'muon'
 if opts.isElectron:
     mode = 'electron'
 
+WpJ_norm = fitter.ws.factory('WpJ_norm[1.0, -0.5, 5.]')
 if fr:
     for par in floatVars:
         # freeze all parameters as a starting point for the combine debugging.
         #fitter.ws.var(par).setConstant(True)
 
         floatVar = fitter.ws.var(par)
-        if fitter.ws.set('constrainedSet').contains(floatVar):
-            floatVar.setVal(1.0)
-            floatVar.setConstant(True)
-            floatVar.SetName(floatVar.GetName() + '_old')
+        # if fitter.ws.set('constrainedSet').contains(floatVar):
+        #     floatVar.setVal(1.0)
+        #     floatVar.setConstant(True)
+        #     floatVar.SetName(floatVar.GetName() + '_old')
+        if par == 'WpJ_nrm':
+            WpJ_norm.setVal(floatVar.getVal())
+            WpJ_norm.setError(floatVar.getError())
+            WpJ_norm.setRange(WpJ_norm.getVal()-WpJ_norm.getError()*5.,
+                              WpJ_norm.getVal()+WpJ_norm.getError()*5)
+            
         floatVar.setRange(floatVar.getVal()-floatVar.getError()*5.,
                           floatVar.getVal()+floatVar.getError()*5)
+
 
 output = TFile("HWWlnujjH%i_%s_%ijets_output.root" % (opts.mH, mode, 
                                                       opts.Nj),

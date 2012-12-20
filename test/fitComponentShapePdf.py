@@ -35,6 +35,8 @@ import HWWSignalShapes
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
     RooHist, TMath
 
+import pulls
+
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                         isElectron = opts.isElectron, initFile = args)
 
@@ -197,8 +199,10 @@ sigPdf.plotOn(sigPlot2, RooFit.Name('fitCurve'))
 sigPlot2.Draw()
 c2.Update()
 
-chi2_1 = sigPlot.chiSquare('fitCurve', 'theData')*sigPlot.GetNbinsX()
-chi2_2 = sigPlot2.chiSquare('fitCurve', 'theData')*sigPlot2.GetNbinsX()
+(chi2_1, ndf_1) = pulls.computeChi2(sigPlot.getHist('theData'),
+                                    sigPlot.getCurve('fitCurve'))
+(chi2_2, ndf_2) = pulls.computeChi2(sigPlot2.getHist('theData'),
+                                    sigPlot2.getCurve('fitCurve'))
 ndf = 0
 
 if fr:
@@ -231,7 +235,7 @@ params.IsA().Destructor(params)
 
 print '%i free parameters in the fit' % ndf
 chi2 = chi2_1 + chi2_2
-ndf = sigPlot.GetNbinsX()+sigPlot2.GetNbinsX()-ndf
+ndf = ndf_1+ndf_2-ndf
 
 print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
 print 'chi2 probability: %.4g' % (TMath.Prob(chi2, ndf))
