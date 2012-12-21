@@ -8,7 +8,7 @@ import HWWSignalShapes
 #  each of the two components of the fit)
 mu2Pars = {
     170: ( "mva2j170mu", 0.500, 165.0, 245.0, 10,
-           {'diboson':(7, 11),'top':(13, 11),'WpJ':(10, 14),'ggH':(13, 5)} ),
+           {'diboson':(13, 8),'top':(13, 8),'WpJ':(15, 10),'ggH':(5, 5)} ),
     180: ( "mva2j180mu", 0.600, 165.0, 245.0, 10,
            {'diboson': (13, 11),'top':(13, 8),'WpJ':(10, 14),'ggH':(13, 5)} ),
     190: ( "mva2j190mu", 0.600, 165.0, 250.0, 17,

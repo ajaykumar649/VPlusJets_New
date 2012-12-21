@@ -135,8 +135,13 @@ class Wjj2DFitterUtils:
 
             effWgt = theTree.puwt*theTree.effwt
             if CPweight:
-                cpw = getattr(theTree, 'complexpolewtggH%i' % self.pars.mHiggs)
-                cpw /= getattr(theTree, 'avecomplexpolewtggH%i' % self.pars.mHiggs)
+                if hasattr(theTree, 'complexpolewtggH%i' % self.pars.mHiggs):
+                    cpw = getattr(theTree, 
+                                  'complexpolewtggH%i' % self.pars.mHiggs)
+                    cpw /= getattr(theTree, 
+                                   'avecomplexpolewtggH%i' % self.pars.mHiggs)
+                else:
+                    cpw = HiggsCPWeight(self.pars.mHiggs, theTree.W_H_mass_gen)
             else:
                 cpw = 1.
             row = [ v.EvalInstance() for v in rowVs ]
@@ -412,6 +417,22 @@ class Wjj2DFitterUtils:
             ws.factory("power_%s[2, -30, 30]" % idString)
             ws.factory("EXPR::%s('(TMath::Erf((@0-@1)/@2)+1)/2./TMath::Power(@0,@3)', %s, offset_%s, width_%s, power_%s)" % \
                            (pdfName, var, idString, idString, idString)
+                       )
+        elif model == 15:
+            #erf * 2 parameter power law + exp
+            ws.factory("offset_%s[40, 0, 1000]" % idString)
+            ws.factory("width_%s[10, 0, 1000]" % idString)
+            ws.factory("power_%s[2, -30, 30]" % idString)
+            ws.factory("power2_%s[0, -20, 20]" % idString)
+            ws.factory("EXPR::%s_tail('(TMath::Erf((@0-@1)/@2)+1)/2./TMath::Power(@0,@3+@4*log(@0/@5))', %s, offset_%s, width_%s, power_%s, power2_%s, 8000)" % \
+                           (pdfName, var, idString, idString, idString, 
+                            idString)
+                       )
+            ws.factory('RooExponential::%s_core(%s,c_%s[-10,10])' % \
+                           (pdfName, var, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.1,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
                        )
         else:
             # this is what will be returned if there isn't a model implemented

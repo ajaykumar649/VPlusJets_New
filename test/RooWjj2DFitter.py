@@ -392,6 +392,8 @@ class Wjj2DFitter:
         if (logy):
             sframe.SetMinimum(0.01)
             sframe.SetMaximum(1.0e6)
+        else:
+            sframe.SetMaximum(sframe.GetMaximum()*1.25)
 
         sframe.GetYaxis().SetTitle('Events / GeV')
         print
