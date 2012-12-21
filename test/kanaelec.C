@@ -1924,7 +1924,7 @@ void kanaelec::Loop(TH1F* h_events, TH1F* h_events_weighted, int wda, int runfla
    //EffTableLoader eleRecoEff(       fDir + "scaleFactor-2012A-PromptReco-v1-SCToElectron.txt");
    //EffTableLoader eleHLTEff(        fDir + "efficiency-2012A_PromptReco_v1-WP80ToHLTEle.txt");
 
-   EffTableLoader eleIdEff(         fDir + "scaleFactor-Run2012ABC-GsfElectronToId.txt");
+   EffTableLoader eleIdEff(         fDir + "scaleFactor-Run2012ABCD-GsfElectronToId.txt");
    EffTableLoader eleRecoEff(       fDir + "scaleFactor-Run2012ABCD-SCToElectron.txt");
    EffTableLoader eleHLTEff(        fDir + "efficiency-Run2012ABCD-WP80ToHLTEle.txt");
    EffTableLoader eleJ30Eff(        fDir + "FullyEfficient.txt");
