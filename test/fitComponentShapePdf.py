@@ -19,6 +19,10 @@ parser.add_option('--electrons', dest='isElectron', action='store_true',
                   default=False, help='do electrons instead of muons')
 parser.add_option('--makeFree', dest='makeConstant', action='store_false',
                   default=True, help='make parameters free in output')
+parser.add_option('-i', '--interference', dest='interference', default=0, 
+                  type='int', help='ggH interference to use.  '+\
+                      '(0): none [default]  (1): nominal'+\
+                      '  (2): +1 sigma  (3): -1 sigma  ')
 
 (opts, args) = parser.parse_args()
 
@@ -60,12 +64,14 @@ if opts.component == 'multijet':
     weighted = False
     cutOverride = pars.multijet_cuts
 cpw = False
-if opts.component == "ggH":
+if (opts.component == "ggH") or (opts.component == 'qqH'):
     cpw = True
+#print 'interference option:',opts.interference
 for (ifile, (filename, ngen, xsec)) in enumerate(files):
     tmpData = fitter.utils.File2Dataset(filename, 'data%i' % ifile, fitter.ws,
                                         weighted = weighted, CPweight = cpw,
-                                        cutOverride = cutOverride)
+                                        cutOverride = cutOverride,
+                                        interference = opts.interference)
     tmpData.Print()
     expectedYield = xsec*pars.integratedLumi*tmpData.sumEntries()/ngen
     print filename,'A x eff: %.3g' % (tmpData.sumEntries()/ngen)
@@ -84,70 +90,70 @@ print opts.component,'total expected yield: %.1f' % sumNExp
 
 sigPdf = fitter.makeComponentPdf(opts.component, files, models)
 
-if fitter.ws.var('c_diboson_%s' % pars.var[1]):
-    fitter.ws.var('c_diboson_%s' % pars.var[1]).setVal(-0.012)
-if fitter.ws.var('c_diboson_%s_tail' % pars.var[0]):
-    fitter.ws.var('c_diboson_%s_tail' % pars.var[0]).setVal(-0.015)
-if fitter.ws.var('f_diboson_%s_core' % pars.var[0]):
-    fitter.ws.var('f_diboson_%s_core' % pars.var[0]).setVal(0.6)
-if fitter.ws.var('mean_diboson_%s_core' % pars.var[0]):
-    fitter.ws.var('mean_diboson_%s_core' % pars.var[0]).setVal(86)
-if fitter.ws.var('mean_diboson_%s_tail' % pars.var[0]):
-    fitter.ws.var('mean_diboson_%s_tail' % pars.var[0]).setVal(40)
-if fitter.ws.var('sigma_diboson_%s_core' % pars.var[0]):
-    fitter.ws.var('sigma_diboson_%s_core' % pars.var[0]).setVal(10)
-if fitter.ws.var('sigma_diboson_%s_tail' % pars.var[0]):
-    fitter.ws.var('sigma_diboson_%s_tail' % pars.var[0]).setVal(55)
-if fitter.ws.var('mean_top_%s_core' % pars.var[0]):
-    fitter.ws.var('mean_top_%s_core' % pars.var[0]).setVal(84.)
-if fitter.ws.var('mean_top_%s_tail' % pars.var[0]):
-    fitter.ws.var('mean_top_%s_tail' % pars.var[0]).setVal(130.)
-if fitter.ws.var('sigma_top_%s_core' % pars.var[0]):
-    fitter.ws.var('sigma_top_%s_core' % pars.var[0]).setVal(11.)
-if fitter.ws.var('sigma_top_%s_tail' % pars.var[0]):
-    fitter.ws.var('sigma_top_%s_tail' % pars.var[0]).setVal(40.)
-if fitter.ws.var('f_top_%s_core' % pars.var[0]):
-    fitter.ws.var('f_top_%s_core' % pars.var[0]).setVal(0.25)
-if fitter.ws.var('c_top_%s' % pars.var[1]):
-    fitter.ws.var('c_top_%s' % pars.var[1]).setVal(-0.01)
-if fitter.ws.var('c_WpJ_%s' % pars.var[1]):
-    fitter.ws.var('c_WpJ_%s' % pars.var[1]).setVal(-0.014)
-if fitter.ws.var('power_WpJ_%s' % pars.var[0]):
-    fitter.ws.var('power_WpJ_%s' % pars.var[0]).setVal(5.1)
-if fitter.ws.var('c_WpJ_%s' % pars.var[0]):
-    fitter.ws.var('c_WpJ_%s' % pars.var[0]).setVal(-0.02)
-if fitter.ws.var('offset_WpJ_%s' % pars.var[0]):
-    fitter.ws.var('offset_WpJ_%s' % pars.var[0]).setVal(65)
-if fitter.ws.var('width_WpJ_%s' % pars.var[0]):
-    fitter.ws.var('width_WpJ_%s' % pars.var[0]).setVal(25)
-if fitter.ws.var('c_ggH_%s_tail' % pars.var[0]):
-    fitter.ws.var('c_ggH_%s_tail' % pars.var[0]).setVal(-0.015)
-if fitter.ws.var('f_ggH_%s_core' % pars.var[0]):
-    fitter.ws.var('f_ggH_%s_core' % pars.var[0]).setVal(0.9)
-if fitter.ws.var('mean_ggH_%s_core' % pars.var[0]):
-    fitter.ws.var('mean_ggH_%s_core' % pars.var[0]).setVal(85)
-if fitter.ws.var('sigma_ggH_%s_core' % pars.var[0]):
-    fitter.ws.var('sigma_ggH_%s_core' % pars.var[0]).setVal(10)
-if fitter.ws.var('sigma_ggH_%s_tail' % pars.var[0]):
-    fitter.ws.var('sigma_ggH_%s_tail' % pars.var[0]).setVal(50)
-if fitter.ws.var('sigma_ggH_%s_core' % pars.var[1]):
-    fitter.ws.var('sigma_ggH_%s_core' % pars.var[1]).setVal(10)
-if fitter.ws.var('sigma_ggH_%s_tail' % pars.var[1]):
-    fitter.ws.var('sigma_ggH_%s_tail' % pars.var[1]).setVal(100)
-if fitter.ws.var('f_ggH_%s_core' % pars.var[1]):
-    fitter.ws.var('f_ggH_%s_core' % pars.var[1]).setVal(0.7)
-if fitter.ws.var('mean_ggH_%s' % pars.var[0]):
-    fitter.ws.var('mean_ggH_%s' % pars.var[0]).setVal(84)
-if fitter.ws.var('mean_ggH_%s' % pars.var[1]):
-    fitter.ws.var('mean_ggH_%s' % pars.var[1]).setVal(opts.mH)
-if fitter.ws.var('mean_ggH_%s_core' % pars.var[1]):
-    fitter.ws.var('mean_ggH_%s_core' % pars.var[1]).setVal(opts.mH)
-if fitter.ws.var('mean_ggH_%s_tail' % pars.var[1]):
-    fitter.ws.var('mean_ggH_%s_tail' % pars.var[1]).setVal(opts.mH)
-if fitter.ws.var('width_ggH_%s' % pars.var[1]):
-    fitter.ws.var('width_ggH_%s' % pars.var[1]).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
-if fitter.ws.var('resolution_ggH_%s_tail' % pars.var[1]):
-    fitter.ws.var('resolution_ggH_%s_tail' % pars.var[1]).setVal(opts.mH*0.11)
+# if fitter.ws.var('c_diboson_%s' % pars.var[1]):
+#     fitter.ws.var('c_diboson_%s' % pars.var[1]).setVal(-0.012)
+# if fitter.ws.var('c_diboson_%s_tail' % pars.var[0]):
+#     fitter.ws.var('c_diboson_%s_tail' % pars.var[0]).setVal(-0.015)
+# if fitter.ws.var('f_diboson_%s_core' % pars.var[0]):
+#     fitter.ws.var('f_diboson_%s_core' % pars.var[0]).setVal(0.6)
+# if fitter.ws.var('mean_diboson_%s_core' % pars.var[0]):
+#     fitter.ws.var('mean_diboson_%s_core' % pars.var[0]).setVal(86)
+# if fitter.ws.var('mean_diboson_%s_tail' % pars.var[0]):
+#     fitter.ws.var('mean_diboson_%s_tail' % pars.var[0]).setVal(40)
+# if fitter.ws.var('sigma_diboson_%s_core' % pars.var[0]):
+#     fitter.ws.var('sigma_diboson_%s_core' % pars.var[0]).setVal(10)
+# if fitter.ws.var('sigma_diboson_%s_tail' % pars.var[0]):
+#     fitter.ws.var('sigma_diboson_%s_tail' % pars.var[0]).setVal(55)
+# if fitter.ws.var('mean_top_%s_core' % pars.var[0]):
+#     fitter.ws.var('mean_top_%s_core' % pars.var[0]).setVal(84.)
+# if fitter.ws.var('mean_top_%s_tail' % pars.var[0]):
+#     fitter.ws.var('mean_top_%s_tail' % pars.var[0]).setVal(130.)
+# if fitter.ws.var('sigma_top_%s_core' % pars.var[0]):
+#     fitter.ws.var('sigma_top_%s_core' % pars.var[0]).setVal(11.)
+# if fitter.ws.var('sigma_top_%s_tail' % pars.var[0]):
+#     fitter.ws.var('sigma_top_%s_tail' % pars.var[0]).setVal(40.)
+# if fitter.ws.var('f_top_%s_core' % pars.var[0]):
+#     fitter.ws.var('f_top_%s_core' % pars.var[0]).setVal(0.25)
+# if fitter.ws.var('c_top_%s' % pars.var[1]):
+#     fitter.ws.var('c_top_%s' % pars.var[1]).setVal(-0.01)
+# if fitter.ws.var('c_WpJ_%s' % pars.var[1]):
+#     fitter.ws.var('c_WpJ_%s' % pars.var[1]).setVal(-0.014)
+# if fitter.ws.var('power_WpJ_%s' % pars.var[0]):
+#     fitter.ws.var('power_WpJ_%s' % pars.var[0]).setVal(5.1)
+# if fitter.ws.var('c_WpJ_%s' % pars.var[0]):
+#     fitter.ws.var('c_WpJ_%s' % pars.var[0]).setVal(-0.02)
+# if fitter.ws.var('offset_WpJ_%s' % pars.var[0]):
+#     fitter.ws.var('offset_WpJ_%s' % pars.var[0]).setVal(65)
+# if fitter.ws.var('width_WpJ_%s' % pars.var[0]):
+#     fitter.ws.var('width_WpJ_%s' % pars.var[0]).setVal(25)
+# if fitter.ws.var('c_ggH_%s_tail' % pars.var[0]):
+#     fitter.ws.var('c_ggH_%s_tail' % pars.var[0]).setVal(-0.015)
+# if fitter.ws.var('f_ggH_%s_core' % pars.var[0]):
+#     fitter.ws.var('f_ggH_%s_core' % pars.var[0]).setVal(0.9)
+# if fitter.ws.var('mean_ggH_%s_core' % pars.var[0]):
+#     fitter.ws.var('mean_ggH_%s_core' % pars.var[0]).setVal(85)
+# if fitter.ws.var('sigma_ggH_%s_core' % pars.var[0]):
+#     fitter.ws.var('sigma_ggH_%s_core' % pars.var[0]).setVal(10)
+# if fitter.ws.var('sigma_ggH_%s_tail' % pars.var[0]):
+#     fitter.ws.var('sigma_ggH_%s_tail' % pars.var[0]).setVal(50)
+# if fitter.ws.var('sigma_ggH_%s_core' % pars.var[1]):
+#     fitter.ws.var('sigma_ggH_%s_core' % pars.var[1]).setVal(10)
+# if fitter.ws.var('sigma_ggH_%s_tail' % pars.var[1]):
+#     fitter.ws.var('sigma_ggH_%s_tail' % pars.var[1]).setVal(100)
+# if fitter.ws.var('f_ggH_%s_core' % pars.var[1]):
+#     fitter.ws.var('f_ggH_%s_core' % pars.var[1]).setVal(0.7)
+# if fitter.ws.var('mean_ggH_%s' % pars.var[0]):
+#     fitter.ws.var('mean_ggH_%s' % pars.var[0]).setVal(84)
+# if fitter.ws.var('mean_ggH_%s' % pars.var[1]):
+#     fitter.ws.var('mean_ggH_%s' % pars.var[1]).setVal(opts.mH)
+# if fitter.ws.var('mean_ggH_%s_core' % pars.var[1]):
+#     fitter.ws.var('mean_ggH_%s_core' % pars.var[1]).setVal(opts.mH)
+# if fitter.ws.var('mean_ggH_%s_tail' % pars.var[1]):
+#     fitter.ws.var('mean_ggH_%s_tail' % pars.var[1]).setVal(opts.mH)
+# if fitter.ws.var('width_ggH_%s' % pars.var[1]):
+#     fitter.ws.var('width_ggH_%s' % pars.var[1]).setVal(HWWSignalShapes.HiggsWidth[opts.mH])
+# if fitter.ws.var('resolution_ggH_%s_tail' % pars.var[1]):
+#     fitter.ws.var('resolution_ggH_%s_tail' % pars.var[1]).setVal(opts.mH*0.11)
 
 params = sigPdf.getParameters(data)
 parCopy = params.snapshot()
@@ -175,35 +181,39 @@ fr = sigPdf.fitTo(data, RooFit.Save(),
                   RooFit.SumW2Error(False)
                   )
 
-c1 = TCanvas('c1', pars.var[0])
-sigPlot = fitter.ws.var(pars.var[0]).frame(RooFit.Name('%s_Plot' % pars.var[0]))
-dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % pars.var[0],
-                                      fitter.ws.var(pars.var[0]),
-                                      RooFit.Binning('%sBinning' % pars.var[0]))
-theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
-theData.SetName('theData')
-theData.SetTitle('data')
-sigPlot.addPlotable(theData, 'pe', False, True)
-sigPdf.plotOn(sigPlot, RooFit.Name('fitCurve'))
 
-sigPlot.GetYaxis().SetTitle('Events / GeV')
+cans = []
+plots = []
+chi2s = []
+ndfs = []
 
-sigPlot.Draw()
-c1.Update()
+for par in pars.var:
+    c1 = TCanvas('c1', par)
+    sigPlot = fitter.ws.var(par).frame(RooFit.Name('%s_Plot' % par))
+    dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % par,
+                                          fitter.ws.var(par),
+                                          RooFit.Binning('%sBinning' % par))
+    theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
+    theData.SetName('theData')
+    theData.SetTitle('data')
+    sigPlot.addPlotable(theData, 'pe', False, True)
+    sigPdf.plotOn(sigPlot, RooFit.Name('fitCurve'))
 
-c2 = TCanvas('c2', pars.var[1])
-sigPlot2 = fitter.ws.var(pars.var[1]).frame(RooFit.Name('%s_Plot' % pars.var[1]))
-data.plotOn(sigPlot2, RooFit.Binning('%sBinning' % (pars.var[1])),
-            RooFit.Name('theData'))
-sigPdf.plotOn(sigPlot2, RooFit.Name('fitCurve'))
-sigPlot2.Draw()
-c2.Update()
+    sigPlot.GetYaxis().SetTitle('Events / GeV')
 
-(chi2_1, ndf_1) = pulls.computeChi2(sigPlot.getHist('theData'),
-                                    sigPlot.getCurve('fitCurve'))
-(chi2_2, ndf_2) = pulls.computeChi2(sigPlot2.getHist('theData'),
-                                    sigPlot2.getCurve('fitCurve'))
+    sigPlot.Draw()
+    c1.Update()
+    cans.append(c1)
+    plots.append(sigPlot)
+    (chi2_1, ndf_1) = pulls.computeChi2(sigPlot.getHist('theData'),
+                                        sigPlot.getCurve('fitCurve'))
+    chi2s.append(chi2_1)
+    ndfs.append(ndf_1)
+
+
 ndf = 0
+print chi2s
+print ndfs
 
 if fr:
     fr.Print('v')
@@ -211,8 +221,8 @@ if fr:
 
     sigFile = TFile('%s.root' % opts.bn, 'recreate')
     fr.Write('fr')
-    sigPlot.Write()
-    sigPlot2.Write()
+    for plot in plots:
+        plot.Write()
     fitter.ws.Write()
 
     sigFile.Close()
@@ -234,8 +244,18 @@ if fr:
 params.IsA().Destructor(params)
 
 print '%i free parameters in the fit' % ndf
-chi2 = chi2_1 + chi2_2
-ndf = ndf_1+ndf_2-ndf
+chi2 = 0
+print 'chi2: (',
+for c in chi2s:
+    chi2 += c
+    if c != chi2s[-1]:
+        print '%.2f +' % c,
+    else:
+        print '%.2f )' % c,
+bins = 0
+for b in ndfs:
+    bins += b
+ndf = bins-ndf
 
-print 'chi2: (%.2f + %.2f)/%i = %.2f' % (chi2_1, chi2_2, ndf, (chi2/ndf))
+print '/%i = %.2f' % (ndf, (chi2/ndf))
 print 'chi2 probability: %.4g' % (TMath.Prob(chi2, ndf))

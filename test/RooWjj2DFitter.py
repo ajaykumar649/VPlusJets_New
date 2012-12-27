@@ -295,9 +295,10 @@ class Wjj2DFitter:
                                                   )
                            )
         
-        pdfList = [ pdf.GetName() for pdf in pdfList ]
+        pdfListNames = [ pdf.GetName() for pdf in pdfList ]
         if len(pdfList) > 1:
-            self.ws.factory('PROD::%s(%s)' % (component, ','.join(pdfList)))
+            self.ws.factory('PROD::%s(%s)' % \
+                                (component, ','.join(pdfListNames)))
         else:
             pdfList[0].SetName(component)
                         

@@ -76,7 +76,8 @@ class Wjj2DFitterUtils:
             
     # generator function for looping over an event tree and applying the cuts
     def TreeLoopFromFile(self, fname, noCuts = False,
-                         cutOverride = None, CPweight = False):
+                         cutOverride = None, CPweight = False, 
+                         interference = 0):
 
         # open file and get tree
         treeFile = TFile.Open(fname)
@@ -144,8 +145,19 @@ class Wjj2DFitterUtils:
                     cpw = HiggsCPWeight(self.pars.mHiggs, theTree.W_H_mass_gen)
             else:
                 cpw = 1.
+            if interference == 1:
+                iwt = getattr(theTree, 
+                              'interferencewtggH%i' % self.pars.mHiggs)
+            elif interference == 2:
+                iwt = getattr(theTree, 
+                              'interferencewt_upggH%i' % self.pars.mHiggs)
+            elif interference == 3:
+                iwt = getattr(theTree,
+                              'interferencewt_downggH%i' % self.pars.mHiggs)
+            else:
+                iwt = 1.
             row = [ v.EvalInstance() for v in rowVs ]
-            yield (row, effWgt, cpw)
+            yield (row, effWgt, cpw, iwt)
 
         return
         
@@ -153,22 +165,25 @@ class Wjj2DFitterUtils:
     # from a file fill a 2D histogram
     def File2Hist(self, fname, histName, noCuts = False, 
                   cutOverride = None, CPweight = False,
-                  doWeights = True):
+                  doWeights = True, interference = 0):
         theHist = self.newEmptyHist(histName)
 
         print 'filename:',fname
         doEffWgt = (self.pars.doEffCorrections and not cutOverride \
                         and doWeights)
         
-        for (row, effWgt, cpw) in self.TreeLoopFromFile(fname, 
-                                                        noCuts, 
-                                                        cutOverride,
-                                                        CPweight):
+        for (row, effWgt, cpw, iwt) in self.TreeLoopFromFile(fname, 
+                                                             noCuts, 
+                                                             cutOverride,
+                                                             CPweight,
+                                                             interference):
             #print 'entry:',v1val,v2val,effWgt
             if not doEffWgt:
                 effWgt = 1.0
             if CPweight:
                 effWgt *= cpw
+            if interference in [1,2,3]:
+                effWgt *= iwt
             if len(row) == 1:
                 theHist.Fill(row[0], effWgt)
             elif len(row) == 2:
@@ -197,31 +212,42 @@ class Wjj2DFitterUtils:
 
     # from a file fill and return a RooDataSet
     def File2Dataset(self, fnames, dsName, ws, noCuts = False, 
-                     weighted = False, CPweight = False, cutOverride = None):
+                     weighted = False, CPweight = False, cutOverride = None,
+                     interference = 0):
         if ws.data(dsName):
             return ws.data(dsName)
 
         cols = RooArgSet(ws.set('obsSet'))
+        # print 'interference weight flag:',interference
         if weighted:
             evtWgt = RooRealVar('evtWgt', 'evtWgt', 1.0)
             cols.add(evtWgt)
             ds = RooDataSet(dsName, dsName, cols, 'evtWgt')
+            print 'including weights for eff',
+            if CPweight:
+                print 'and CP weight',
+            if interference in [1,2,3]:
+                print 'and interference',
+            print
         else:
             ds = RooDataSet(dsName, dsName, cols)
             
         if not (type(fnames) == type([])):
             fnames = [fnames]
         for fname in fnames:
-            for (row, effWgt, cpw) in \
+            for (row, effWgt, cpw, iwt) in \
                     self.TreeLoopFromFile(fname, noCuts,
                                           CPweight = CPweight,
-                                          cutOverride = cutOverride):
+                                          cutOverride = cutOverride,
+                                          interference = interference):
                 inRange = True
                 for (i,v) in enumerate(self.pars.var):
                     inRange = (inRange and ws.var(v).inRange(row[i], ''))
                     cols.setRealValue(v, row[i])
                 if CPweight:
                     effWgt *= cpw
+                if interference in [1,2,3]:
+                    effWgt *= iwt
                 if inRange:
                     ds.add(cols, effWgt)
 
@@ -433,6 +459,26 @@ class Wjj2DFitterUtils:
                        )
             ws.factory("SUM::%s(f_%s_core[0.1,0,1] * %s_core, %s_tail)" % \
                            (pdfName, idString, pdfName, pdfName)
+                       )
+        elif model == 16:
+            #erf * simple power law + exp
+            ws.factory("offset_%s[40, 0, 1000]" % idString)
+            ws.factory("width_%s[10, 0, 1000]" % idString)
+            ws.factory("power_%s[2, -30, 30]" % idString)
+            ws.factory("EXPR::%s_tail('(TMath::Erf((@0-@1)/@2)+1)/2./TMath::Power(@0,@3)', %s, offset_%s, width_%s, power_%s)" % \
+                           (pdfName, var, idString, idString, idString)
+                       )
+            ws.factory('RooExponential::%s_core(%s,c_%s[-10,10])' % \
+                           (pdfName, var, idString)
+                       )
+            ws.factory("SUM::%s(f_%s_core[0.1,0,1] * %s_core, %s_tail)" % \
+                           (pdfName, idString, pdfName, pdfName)
+                       )
+        elif model == 17:
+            #4th order polynomial
+            ws.factory("RooChebychev::%s(%s,{a1_%s[-10,10],a2_%s[-10,10],a3_%s[-10,10],a4_%s[-10,10]})" % \
+                           (pdfName, var, idString, idString, idString, 
+                            idString)
                        )
         else:
             # this is what will be returned if there isn't a model implemented

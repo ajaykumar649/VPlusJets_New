@@ -92,8 +92,15 @@ Ngen = dict(zip(modes,Ngens))
 
 fnamePats = {
     'ggH': 'RD_%s_HWWMH%i_CMSSW532_private.root',
-    'qqH': 'RD_%s_HBFHWWMH%i_CMSSW532_private.root'
+    'qqH': 'RD_%s_VBFHWWMH%i_CMSSW532_private.root'
     }
+
+import os
+if not os.access('Limits/qqHtable8tev.txt', os.R_OK):
+    os.symlink('Limits/vbfHtable8tev.txt', 'Limits/qqHtable8tev.txt')
+# else:
+#     print 'link found'
+del os
 
 def makeSignalFilename(mH, mode, isElectron):
     
