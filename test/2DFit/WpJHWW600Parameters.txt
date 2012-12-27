@@ -1,0 +1,11 @@
+f_WpJ_Mass2j_PFCor_core =  0.66369 +/- 0.088343 L(0 - 1) 
+f_WpJ_fit_mlvjj_core =  0.0000000057859 +/- 0.0027558 L(0 - 1) 
+mean_WpJ_Mass2j_PFCor_core =  27.357 +/- 124.77 L(0 - 1000) 
+mean_WpJ_Mass2j_PFCor_tail =  58.824 +/- 3.5953 L(0 - 1000) 
+mean_WpJ_fit_mlvjj_core =  233.52 +/- 616.75 L(0 - 1000) 
+mean_WpJ_fit_mlvjj_tail =  287.54 +/- 27.189 L(0 - 1000) 
+sigma_WpJ_Mass2j_PFCor_core =  99.016 +/- 51.870 L(0 - 500) 
+sigma_WpJ_Mass2j_PFCor_tail =  14.325 +/- 3.2926 L(0 - 500) 
+sigma_WpJ_fit_mlvjj_core =  276.90 +/- 348.39 L(0 - 500) 
+sigma_WpJ_fit_mlvjj_tail =  80.891 +/- 8.5315 L(0 - 500) 
+n_WpJ = 21834.7 +/- 147.8 C

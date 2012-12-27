@@ -1,0 +1,12 @@
+alpha_ggH_Mass2j_PFCor =  1.8013 +/- 0.15741 C L(-5 - 5) 
+f_ggH_Mass2j_PFCor_core =  0.88639 +/- 0.014735 C L(0 - 1) 
+f_ggH_fit_mlvjj_core =  0.0070046 +/- 0.0061717 C L(0 - 1) 
+mean_ggH_Mass2j_PFCor =  81.988 +/- 0.27491 C L(0 - 1000) 
+mean_ggH_fit_mlvjj =  463.79 +/- 2.1444 C L(0 - 1000) 
+npow_ggH_Mass2j_PFCor =  2.0000 C L(-INF - +INF) 
+resolution_ggH_fit_mlvjj =  499.70 +/- 389.16 C L(0 - 500) 
+sigma_ggH_Mass2j_PFCor_core =  8.4175 +/- 0.25656 C L(0 - 500) 
+sigma_ggH_Mass2j_PFCor_tail =  67.036 +/- 10.848 C L(0 - 500) 
+sigma_ggH_fit_mlvjj_tail =  70.453 +/- 1.8405 C L(0 - 500) 
+width_ggH_fit_mlvjj =  93.000 C L(-INF - +INF) 
+n_ggH = 23.3 +/- 4.8 C

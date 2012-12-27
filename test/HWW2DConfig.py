@@ -26,10 +26,12 @@ mu2Pars = {
            {'diboson':(7, 11),'top':(9, 10),'WpJ':(13, 10),'ggH':(13, 5)} ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22,
            {'diboson':(7, 5),'top':(9, 3),'WpJ':(13, 10),'ggH':(13, 5)} ),
-    500: ( "mva2j500mu", 0.500, 380.0, 740.0, 22,
-           {'diboson': (7, 1), 'top': (5, 2), 'WpJ': (10, 1), 'ggH': (6, 9)} ),
-    550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22 ),
-    600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22 ),
+    500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22,
+           {'diboson': (7, 5), 'top': (9, 12), 'WpJ': (10, 10), 'ggH': (6, 5)} ),
+    550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22,
+           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (9, 10), 'ggH': (6, 9)} ),
+    600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22,
+           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (5, 5), 'ggH': (6, 9)} ),
     }
 el2Pars = {
     170: ( "mva2j170el", 0.300, 165.0, 250.0, 17 ),
@@ -52,8 +54,9 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars = Wjj2DFitterPars()
 
     # pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/ReducedTrees/'
-    pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/Moriond2013/RD_includingDiboson/"
-    # pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/"
+    # pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/Moriond2013/RD_includingDiboson/"
+    pars.MCDirectory = "/uscms_data/d2/andersj/Wjj/2012/data/Moriond2013/ReducedTrees/"
+    #pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/"
     #pars.MCDirectory = "/uscmst1b_scratch/lpc1/3DayLifetime/andersj/2012_data/"
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
@@ -163,8 +166,6 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     #                    105.,115.,125.,135.,150.,165.,180.,200.]
     # pars.v1nbins = len(pars.v1binEdges)-1
 
-    pars.integratedLumi = 15700.
-
     pars.binData = False
     # pars.binData = True
 
@@ -172,7 +173,9 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
         customizeMuons(pars)
 
 def customizeElectrons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_15p6invfb.root'
+    pars.DataFile = pars.MCDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_19p2invfb.root'
+    pars.integratedLumi = 19200
+
     # pars.backgrounds.append('multijet')
 
     # pars.multijetFraction = 0.0637
@@ -202,7 +205,8 @@ def customizeElectrons(pars):
     return pars
 
 def customizeMuons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_15p7invfb.root'
+    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_19p3invfb.root'
+    pars.integratedLumi = 19300
 
     pars.doEffCorrections = True
     pars.effToDo = ['lepton']
