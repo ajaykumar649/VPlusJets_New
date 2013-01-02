@@ -66,6 +66,8 @@ if opts.component == 'multijet':
 cpw = False
 if (opts.component == "ggH") or (opts.component == 'qqH'):
     cpw = True
+if (opts.component == 'qqH') and (opts.mH == 170):
+    cpw = False
 #print 'interference option:',opts.interference
 for (ifile, (filename, ngen, xsec)) in enumerate(files):
     tmpData = fitter.utils.File2Dataset(filename, 'data%i' % ifile, fitter.ws,
