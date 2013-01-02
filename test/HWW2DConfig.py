@@ -33,13 +33,17 @@ mu2Pars = {
            {'diboson':(7, 11),'top':(9, 10),'WpJ':(13, 10),
             'ggH':(13, 5),'qqH':(13, 5)} ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22,
-           {'diboson':(7, 5),'top':(9, 3),'WpJ':(13, 10),'ggH':(13, 5),'qqH':(13, 5)} ),
+           {'diboson':(7, 5),'top':(9, 3),'WpJ':(13, 10),'ggH':(13, 5),
+            'qqH':(13, 5)} ),
     500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22,
-           {'diboson': (7, 5), 'top': (9, 12), 'WpJ': (10, 10), 'ggH': (6, 5)} ),
+           {'diboson': (7, 5), 'top': (9, 12), 'WpJ': (10, 10), 'ggH': (6, 5),
+            'qqH': (6, 5)} ),
     550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22,
-           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (9, 10), 'ggH': (6, 9)} ),
+           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (9, 10), 'ggH': (6, 5),
+            'qqH': (6, 5)} ),
     600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22,
-           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (5, 5), 'ggH': (6, 9)} ),
+           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (5, 5), 'ggH': (13, 5),
+            'qqH': (6, 5)} ),
     }
 el2Pars = {
     170: ( "mva2j170el", 0.300, 165.0, 250.0, 17 ),
@@ -107,8 +111,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     #         '(JetPFCor_bDiscriminatorCSV[%i]<0.679))' % i
 
     # veto boosted topology
-    # pars.cuts += '&&(ggdboostedWevt==0)&&(W_pt<200.)'
-    pars.cuts += '&&(W_pt<200.)'
+    # if mH >= 600:
+    #     pars.cuts += '&&(W_pt<200.)'
 
     # veto vbf
     pars.cuts += '&&(vbf_event==0)'
@@ -157,6 +161,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
          ngen[0], ngen[1]*ngen[2])
         ]
     pars.ggHModels = modePars[mH][5]['ggH']
+    pars.ggHInterference = True
 
 
     ngen = HWWSignalShapes.NgenHiggs(mH, 'qqH')

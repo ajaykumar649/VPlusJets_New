@@ -351,7 +351,7 @@ class Wjj2DFitterUtils:
             ws.factory("RooCBShape::%s_core" % pdfName + \
                            "(%s, mean_%s[0,1000],sigma_%s_core[0,500]," %\
                            (var, idString, idString) + \
-                           "alpha_%s[2.,-5,5], npow_%s[2.])" %\
+                           "alpha_%s[2.,-10,10], npow_%s[2.])" %\
                            (idString, idString)
                        )
             ws.factory("RooGaussian::%s_tail" % pdfName + \
@@ -366,7 +366,7 @@ class Wjj2DFitterUtils:
             ws.factory("RooCBShape::%s_core" % pdfName + \
                            "(%s, mean_%s_core[0,1000],sigma_%s_core[0,500]," %\
                            (var, idString, idString) + \
-                           "alpha_%s[2.,-5,5], npow_%s[2.])" % \
+                           "alpha_%s[2.,-10,10], npow_%s[2.])" % \
                            (idString, idString)
                        )
             ws.factory("RooExponential::%s_tail" % pdfName + \

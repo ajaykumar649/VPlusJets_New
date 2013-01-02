@@ -37,7 +37,7 @@ import HWWSignalShapes
 #from RooWjj2DFitterUtils import Wjj2DFitterUtils
 
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
-    RooHist, TMath
+    RooHist, TMath, kRed, kDashed
 
 import pulls
 
@@ -88,7 +88,23 @@ for (ifile, (filename, ngen, xsec)) in enumerate(files):
 
 print opts.component,'total expected yield: %.1f' % sumNExp
 
-sigPdf = fitter.makeComponentPdf(opts.component, files, models)
+if opts.interference in [1,2,3]:
+    fitter.makeFitter()
+    # fitter.ws.Print()
+    if opts.interference == 1:
+        pdfName = '%s' % opts.component
+    elif opts.interference == 2:
+        pdfName = '%s_interf_%sUp' % (opts.component, opts.component)
+    elif opts.interference == 3:
+        pdfName = '%s_interf_%sDown' % (opts.component, opts.component)
+    print pdfName
+    sigPdf = fitter.ws.pdf(pdfName)
+    if sigPdf:
+        sigPdf.Print()
+    else:
+        print 'failed to fined pdf',pdfName
+else:
+    sigPdf = fitter.makeComponentPdf(opts.component, files, models)
 
 # if fitter.ws.var('c_diboson_%s' % pars.var[1]):
 #     fitter.ws.var('c_diboson_%s' % pars.var[1]).setVal(-0.012)
@@ -173,6 +189,9 @@ if fitter.ws.var('npow_diboson_Mass2j_PFCor'):
     fitter.ws.var('npow_diboson_Mass2j_PFCor').setConstant(True)
     fitter.ws.var('npow_diboson_Mass2j_PFCor').setError(0.5)
 
+if fitter.ws.var('npow_WpJ_Mass2j_PFCor'):
+    fitter.ws.var('npow_WpJ_Mass2j_PFCor').setConstant(False)
+
 fitter.ws.Print()
 
 
@@ -187,8 +206,8 @@ plots = []
 chi2s = []
 ndfs = []
 
-for par in pars.var:
-    c1 = TCanvas('c1', par)
+for (i,par) in enumerate(pars.var):
+    c1 = TCanvas('c%i' % i, par)
     sigPlot = fitter.ws.var(par).frame(RooFit.Name('%s_Plot' % par))
     dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % par,
                                           fitter.ws.var(par),
@@ -198,6 +217,10 @@ for par in pars.var:
     theData.SetTitle('data')
     sigPlot.addPlotable(theData, 'pe', False, True)
     sigPdf.plotOn(sigPlot, RooFit.Name('fitCurve'))
+    sigPdf.plotOn(sigPlot, RooFit.Name('fitTails'),
+                  RooFit.Components('*tail'),
+                  RooFit.LineColor(kRed),
+                  RooFit.LineStyle(kDashed))
 
     sigPlot.GetYaxis().SetTitle('Events / GeV')
 
@@ -212,8 +235,8 @@ for par in pars.var:
 
 
 ndf = 0
-print chi2s
-print ndfs
+# print chi2s
+# print ndfs
 
 if fr:
     fr.Print('v')
@@ -233,7 +256,13 @@ if fr:
 
     if opts.component != 'multijet':
         paramsFile = open('%s.txt' % opts.bn, 'a')
-        paramsFile.write('n_%s = %.1f +/- %.1f C\n' % (opts.component, sumNExp, 
+        compName = opts.component
+        if opts.interference == 2:
+            compName += '_interf_%sUp' % compName
+        elif opts.interference == 3:
+            compName += '_interf_%sDown' % compName
+
+        paramsFile.write('n_%s = %.1f +/- %.1f C\n' % (compName, sumNExp, 
                                                        TMath.Sqrt(sumNExp))
                          )
         paramsFile.close()

@@ -115,6 +115,20 @@ class Wjj2DFitter:
                                        norm.GetName())
                                   )
             
+            if (hasattr(self.pars, '%sInterference' % component)) and \
+                    getattr(self.pars, '%sInterference' % component):
+                getattr(self.ws, 'import') \
+                    (pdf, RooFit.RenameAllNodes('interf_%sUp' % component),
+                     RooFit.RenameAllVariablesExcept('interf_%sUp' % component,
+                                                     ','.join(self.pars.var)),
+                     RooFit.Silence()
+                     )
+                getattr(self.ws, 'import') \
+                    (pdf, RooFit.RenameAllNodes('interf_%sDown' % component),
+                     RooFit.RenameAllVariablesExcept('interf_%sDown'%component,
+                                                     ','.join(self.pars.var)),
+                     RooFit.Silence()
+                     )
             if self.pars.includeSignal:
                 compPdfs.append(pdf)
 
