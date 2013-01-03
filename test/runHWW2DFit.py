@@ -57,7 +57,7 @@ fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 totalPdf = fitter.makeFitter()
 
 if opts.ws:
-    fitter.loadWorkspaceFromFile(opts.ws, getFloatPars = True)
+    fitter.loadWorkspaceFromFile(opts.ws, getFloatPars = False)
 
 #fitter.loadData()
 fitter.readParametersFromFile()

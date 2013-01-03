@@ -23,25 +23,25 @@ mu2Pars = {
            {'diboson': (13, 11), 'top': (13, 10), 'WpJ': (10, 10), 
             'ggH': (13, 5), 'qqH': (7, 5)} ),
     300: ( "mva2j300mu", 0.600, 240.0, 400.0, 16,
-           {'diboson': (13, 11), 'top': (9, 10), 'WpJ': (10, 10), 
+           {'diboson': (13, 11), 'top': (9, 10), 'WpJ': (10, 12), 
             'ggH': (13, 5), 'qqH': (7, 5)} ),
     350: ( "mva2j350mu", 0.600, 250., 475., 15,
-           {'diboson': (7, 11),'top':(13, 11),'WpJ':(10, 14),
+           {'diboson': (7, 11),'top':(13, 11),'WpJ':(10, 12),
             'ggH':(13, 5),'qqH':(7, 5)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 600, 15,
-           {'diboson':(7, 11),'top':(9, 10),'WpJ':(10, 10),
+           {'diboson':(7, 11),'top':(9, 10),'WpJ':(10, 12),
             'ggH':(13, 5),'qqH':(7, 5)} ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22,
-           {'diboson':(7, 11),'top':(13, 12),'WpJ':(10, 10),
+           {'diboson':(7, 11),'top':(13, 12),'WpJ':(10, 12),
             'ggH':(13, 5),'qqH':(7, 5)} ),
     500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22,
-           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 10),
+           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 12),
             'ggH': (13, 5),'qqH': (7, 5)} ),
     550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22,
-           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 10),
+           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 12),
             'ggH': (13, 5),'qqH': (7, 5)} ),
     600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22,
-           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 10),
+           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 12),
             'ggH': (13, 5),'qqH': (7, 5)} ),
     }
 
@@ -71,6 +71,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/Moriond2013/ReducedTrees/'
     # pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/Moriond2013/RD_includingDiboson/"
     # pars.MCDirectory = "root://cmseos:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/"
+
+    pars.DataDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/Moriond2013/HWWTrees/'
     pars.isElectron = isElectron
     pars.initialParametersFile = initFile
 
@@ -197,7 +199,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
         customizeMuons(pars)
 
 def customizeElectrons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_19p2invfb.root'
+    pars.DataFile = pars.DataDirectory + 'RD_WenuJets_DataAllSingleElectronTrigger_GoldenJSON_19p2invfb.root'
     pars.integratedLumi = 19200
 
     # pars.backgrounds.append('multijet')
@@ -229,7 +231,7 @@ def customizeElectrons(pars):
     return pars
 
 def customizeMuons(pars):
-    pars.DataFile = pars.MCDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_19p3invfb.root'
+    pars.DataFile = pars.DataDirectory + 'RD_WmunuJets_DataAll_GoldenJSON_19p3invfb.root'
     pars.integratedLumi = 19300
 
     pars.doEffCorrections = True
