@@ -5,4 +5,4 @@ power_WpJ_Mass2j_PFCor =  1.6632 +/- 0.21132 L(-30 - 30)
 power_WpJ_fit_mlvjj =  6.7970 +/- 4.9211 L(-30 - 30) 
 width_WpJ_Mass2j_PFCor =  20.136 +/- 6.8614 L(0 - 1000) 
 width_WpJ_fit_mlvjj =  133.82 +/- 43.917 L(0 - 1000) 
-n_WpJ = 67758.8 +/- 260.3 C
+n_WpJ = 17991.1 +/- 260.3 C

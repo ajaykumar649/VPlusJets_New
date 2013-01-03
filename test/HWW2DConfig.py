@@ -29,20 +29,20 @@ mu2Pars = {
            {'diboson': (7, 11),'top':(13, 11),'WpJ':(10, 14),
             'ggH':(13, 5),'qqH':(7, 5)} ),
     400: ( "mva2j400mu", 0.550, 300.0, 600, 15,
-           {'diboson':(7, 11),'top':(9, 10),'WpJ':(13, 10),
-            'ggH':(13, 5),'qqH':(13, 5)} ),
+           {'diboson':(7, 11),'top':(9, 10),'WpJ':(10, 10),
+            'ggH':(13, 5),'qqH':(7, 5)} ),
     450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22,
-           {'diboson':(7, 5),'top':(9, 3),'WpJ':(13, 10),
-            'ggH':(13, 5),'qqH':(13, 5)} ),
+           {'diboson':(7, 11),'top':(13, 12),'WpJ':(10, 10),
+            'ggH':(13, 5),'qqH':(7, 5)} ),
     500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22,
-           {'diboson': (7, 5), 'top': (9, 12), 'WpJ': (10, 10),
-            'ggH': (13, 5),'qqH': (13, 5)} ),
+           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 10),
+            'ggH': (13, 5),'qqH': (7, 5)} ),
     550: ( "mva2j550mu", 0.550, 340.0, 780.0, 22,
-           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (9, 10),
-            'ggH': (13, 5),'qqH': (13, 5)} ),
+           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 10),
+            'ggH': (13, 5),'qqH': (7, 5)} ),
     600: ( "mva2j600mu", 0.650, 340.0, 780.0, 22,
-           {'diboson': (7, 5), 'top': (5, 12), 'WpJ': (5, 5),
-            'ggH': (13, 5),'qqH': (13, 5)} ),
+           {'diboson': (7, 12), 'top': (5, 12), 'WpJ': (10, 10),
+            'ggH': (13, 5),'qqH': (7, 5)} ),
     }
 
 el2Pars = {
@@ -98,8 +98,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
         else:
             modePars = mu2Pars
 
-    pars.cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % Nj + \
-        '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
+    pars.cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % Nj
+    pars.cuts += '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
     # pars.cuts = '(fit_status==0)&&(W_mt>30)' + \
     #     '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
     
@@ -130,7 +130,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
  
     pars.WpJFiles = [
         (pars.MCDirectory + 'RD_%s_WpJ_CMSSW532.root' % (flavorString),
-         18353019, 36257.2),
+         18353019+50768992, 36257.2),
         (pars.MCDirectory + 'RD_%s_ZpJ_CMSSW532.root' % (flavorString),
          30209426, 3503.71),
         ]
