@@ -110,13 +110,15 @@ plot2 = fitter.stackedPlot(pars.var[1])
 leg2 = RooWjj2DFitter.Wjj2DFitter.legend4Plot(plot2)
 
 c1 = TCanvas('c1', fitter.ws.var(pars.var[0]).GetTitle() + ' plot')
+plot1.addObject(leg1)
 plot1.Draw()
-leg1.Draw('same')
+#leg1.Draw('same')
 c1.Update()
 
 c2 = TCanvas('c2', fitter.ws.var(pars.var[1]).GetTitle() + ' plot')
+plot2.addObject(leg2)
 plot2.Draw()
-leg2.Draw('same')
+#leg2.Draw('same')
 c2.Update()
 
 ndf = 0
