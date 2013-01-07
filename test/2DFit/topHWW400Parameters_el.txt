@@ -1,0 +1,10 @@
+f_top_Mass2j_PFCor_core =  0.91910 +/- 0.0039072 C L(0 - 1) 
+mean_top_Mass2j_PFCor =  85.869 +/- 0.30390 C L(0 - 1000) 
+offset_top_fit_mlvjj =  77.786 +/- 104.03 C L(0 - 1000) 
+power2_top_fit_mlvjj =  1.3940 +/- 0.11808 C L(-20 - 20) 
+power_top_fit_mlvjj =  1.0124 +/- 0.36926 C L(-30 - 30) 
+resolution_top_Mass2j_PFCor =  52.280 +/- 0.49707 C L(0 - 500) 
+sigma_top_Mass2j_PFCor_tail =  7.1257 +/- 0.31718 C L(0 - 500) 
+width_top_Mass2j_PFCor =  15.000 C L(-INF - +INF) 
+width_top_fit_mlvjj =  122.92 +/- 545.41 C L(0 - 1000) 
+n_top = 9366.0 +/- 96.8 C

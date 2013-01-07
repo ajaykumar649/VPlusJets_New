@@ -1,0 +1,12 @@
+c_ggH_Mass2j_PFCor_interf_ggHUp = -0.0234997 +/- 0.0018468 C L(-10 - 10) 
+f_ggH_Mass2j_PFCor_core_interf_ggHUp =  0.79009 +/- 0.016102 C L(0 - 1) 
+f_ggH_fit_mlvjj_core_interf_ggHUp =  0.47822 +/- 0.043861 C L(0 - 1) 
+mean_ggH_Mass2j_PFCor_core_interf_ggHUp =  86.266 +/- 0.13763 C L(0 - 1000) 
+mean_ggH_fit_mlvjj_core_interf_ggHUp =  591.55 +/- 2.1729 C L(0 - 1000) 
+mean_ggH_fit_mlvjj_tail_interf_ggHUp =  516.67 +/- 8.0181 C L(0 - 1000) 
+offset_ggH_Mass2j_PFCor_interf_ggHUp =  72.465 +/- 2.7884 C L(-100 - 1000) 
+sigma_ggH_Mass2j_PFCor_core_interf_ggHUp =  7.5673 +/- 0.14244 C L(0 - 500) 
+sigma_ggH_fit_mlvjj_core_interf_ggHUp =  56.211 +/- 2.6850 C L(0 - 500) 
+sigma_ggH_fit_mlvjj_tail_interf_ggHUp =  123.06 +/- 5.0491 C L(0 - 500) 
+width_ggH_Mass2j_PFCor_interf_ggHUp =  18.144 +/- 3.0130 C L(0 - 1000) 
+n_ggH_interf_ggHUp = 102.3 +/- 10.1 C

@@ -1,0 +1,10 @@
+a1_diboson_fit_mlvjj = -1.43287 +/- 0.0065067 C L(-10 - 10) 
+a2_diboson_fit_mlvjj =  0.63405 +/- 0.0087833 C L(-10 - 10) 
+a3_diboson_fit_mlvjj = -0.177152 +/- 0.0076714 C L(-10 - 10) 
+alpha_diboson_Mass2j_PFCor =  1.3535 +/- 0.081647 C L(-10 - 10) 
+c_diboson_Mass2j_PFCor_tail = -0.00886310 +/- 0.00097570 C L(-10 - 10) 
+f_diboson_Mass2j_PFCor_core =  0.69081 +/- 0.014776 C L(0 - 1) 
+mean_diboson_Mass2j_PFCor_core =  85.909 +/- 0.16233 C L(0 - 1000) 
+npow_diboson_Mass2j_PFCor =  2.0000 +/- 0.50000 C L(-INF - +INF) 
+sigma_diboson_Mass2j_PFCor_core =  9.9292 +/- 0.18651 C L(0 - 500) 
+n_diboson = 1386.5 +/- 37.2 C
