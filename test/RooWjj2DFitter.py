@@ -370,7 +370,7 @@ class Wjj2DFitter:
         #invData.Print('v')
         sframe.addPlotable(invData, 'pe', True, True)
         for (idx,component) in enumerate(theComponents):
-            print 'plotting',component,'...'
+            print 'plotting',component,'...',
             if hasattr(self.pars, '%sPlotting' % (component)):
                 plotCharacteristics = getattr(self.pars, '%sPlotting' % \
                                                   (component))
@@ -386,18 +386,23 @@ class Wjj2DFitter:
                 removals = compList.selectByName('%s*' % component)
                 compList.remove(removals)
 
+            print 'events', self.ws.function('f_%s_norm' % component).getVal()
             sys.stdout.flush()
-            pdf.plotOn(sframe, RooFit.ProjWData(data),
-                       RooFit.DrawOption('LF'), RooFit.FillStyle(1001),
-                       RooFit.FillColor(plotCharacteristics['color']),
-                       RooFit.LineColor(plotCharacteristics['color']),
-                       RooFit.VLines(),
-                       #RooFit.Normalization(nexp, RooAbsReal.Raw),
-                       compCmd
-                       )
-            tmpCurve = sframe.getCurve()
-            tmpCurve.SetName(component)
-            tmpCurve.SetTitle(plotCharacteristics['title'])
+            if abs(self.ws.function('f_%s_norm' % component).getVal()) >= 1.:
+                pdf.plotOn(sframe, RooFit.ProjWData(data),
+                           RooFit.DrawOption('LF'), RooFit.FillStyle(1001),
+                           RooFit.FillColor(plotCharacteristics['color']),
+                           RooFit.LineColor(plotCharacteristics['color']),
+                           RooFit.VLines(),
+                           #RooFit.Normalization(nexp, RooAbsReal.Raw),
+                           compCmd
+                           )
+                tmpCurve = sframe.getCurve()
+                tmpCurve.SetName(component)
+                tmpCurve.SetTitle(plotCharacteristics['title'])
+                if 'visible' in plotCharacteristics:
+                    sframe.setInvisible(component, 
+                                        plotCharacteristics['visible'])
 
         theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
         theData.SetName('theData')
@@ -411,6 +416,7 @@ class Wjj2DFitter:
             sframe.SetMaximum(sframe.GetMaximum()*1.25)
 
         sframe.GetYaxis().SetTitle('Events / GeV')
+        dataHist.IsA().Destructor(dataHist)
         print
 
         return sframe

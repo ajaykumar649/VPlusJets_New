@@ -197,7 +197,9 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.dibosonPlotting = {'color' : kAzure+8, 'title' : 'WW+WZ'}
     pars.WpJPlotting = { 'color' : kRed, 'title' : 'V+jets'}
     pars.topPlotting = {'color' : kGreen+2, 'title' : 'top'}
-    pars.ggHPlotting = {'color' : kBlue, 'title' : "ggH(%i) #rightarrow WW" % mH}
+    pars.ggHPlotting = {'color' : kBlue, 'title' : "H(%i) #rightarrow WW" % mH}
+    pars.qqHPlotting = {'color' : kBlue, 'title' : "H(%i) #rightarrow WW" % mH,
+                        'visible' : True}
 
     pars.var = ['Mass2j_PFCor', 'fit_mlvjj']
     pars.varRanges = {'Mass2j_PFCor': (18, 50., 194., []),

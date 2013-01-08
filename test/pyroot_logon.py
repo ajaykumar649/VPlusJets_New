@@ -91,6 +91,7 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
     pscram.stdout.close()
     output = pgrep.communicate()[0]
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
+    gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
     if (pgrep.returncode == 0):
         roofitinc = output.split("=")[1].rstrip()
         # print roofitinc
