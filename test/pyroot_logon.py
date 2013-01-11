@@ -65,14 +65,14 @@ gStyle.SetFuncWidth(1)
 ##  Margins:
 gStyle.SetPadTopMargin(0.06)
 gStyle.SetPadBottomMargin(0.15)
-gStyle.SetPadLeftMargin(0.18) ## was 0.16
+gStyle.SetPadLeftMargin(0.20) ## was 0.16
 gStyle.SetPadRightMargin(0.06)## was 0.02
 
 gStyle.SetTitleColor(1, "XYZ")
 gStyle.SetTitleFont(42, "XYZ")
 gStyle.SetTitleSize(0.07, "XYZ")
 gStyle.SetTitleXOffset(0.9)
-gStyle.SetTitleYOffset(1.3) ## was 1.25
+gStyle.SetTitleYOffset(1.4) ## was 1.25
 
 ##  For the axis labels:
 gStyle.SetLabelColor(1, "XYZ")
@@ -115,3 +115,6 @@ if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
         print 'scram returned:',pscram.returncode,'grep:',pgrep.returncode
 
 print 'end of pyroot_logon'
+
+if __name__ == '__main__':
+    from ROOT import *

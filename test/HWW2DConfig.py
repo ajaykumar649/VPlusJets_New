@@ -31,7 +31,7 @@ mu2Pars = {
     400: ( "mva2j400mu", 0.550, 300.0, 600, 15,
            {'diboson':(7, 11),'top':(9, 10),'WpJ':(10, 12),
             'ggH':(13, 5),'qqH':(7, 5)} ),
-    450: ( "mva2j450mu", 0.600, 340.0, 780.0, 22,
+    450: ( "mva2j450mu", 0.600, 340.0, 740.0, 10,
            {'diboson':(7, 11),'top':(13, 12),'WpJ':(10, 12),
             'ggH':(13, 5),'qqH':(7, 5)} ),
     500: ( "mva2j500mu", 0.500, 340.0, 780.0, 22,
@@ -209,6 +209,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     pars.varTitles = {'Mass2j_PFCor': 'm_{jj}',
                       'fit_mlvjj' : 'm_{l#nujj}'
                       }
+    pars.exclude = {}
+    pars.blind = False
     # pars.v1binEdges = [50, 55.,60.,65.,70.,75.,80.,85.,95.,
     #                    105.,115.,125.,135.,150.,165.,180.,200.]
     # pars.v1nbins = len(pars.v1binEdges)-1

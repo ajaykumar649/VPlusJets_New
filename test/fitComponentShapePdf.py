@@ -37,9 +37,11 @@ import HWWSignalShapes
 #from RooWjj2DFitterUtils import Wjj2DFitterUtils
 
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
-    RooHist, TMath, kRed, kDashed
+    RooHist, TMath, kRed, kDashed, kOrange, RooMsgService
 
 import pulls
+
+RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                         isElectron = opts.isElectron, initFile = args)
@@ -89,6 +91,12 @@ for (ifile, (filename, ngen, xsec)) in enumerate(files):
         data.append(reducedData)
 
 print opts.component,'total expected yield: %.1f' % sumNExp
+hist2d = None
+if (len(pars.var) > 1):
+    hist2d = data.createHistogram(fitter.ws.var(pars.var[0]),
+                                  fitter.ws.var(pars.var[1]), '',
+                                  'hist2d')
+    print 'correlation between the first two observables:', hist2d.GetCorrelationFactor()
 
 if opts.interference in [1,2,3]:
     fitter.makeFitter()
@@ -208,26 +216,36 @@ plots = []
 chi2s = []
 ndfs = []
 
-for (i,par) in enumerate(pars.var):
+for (i,m) in enumerate(models):
+    par = pars.var[i]
     c1 = TCanvas('c%i' % i, par)
     sigPlot = fitter.ws.var(par).frame(RooFit.Name('%s_Plot' % par))
-    dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % par,
-                                          fitter.ws.var(par),
-                                          RooFit.Binning('%sBinning' % par))
-    theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
-    theData.SetName('theData')
-    theData.SetTitle('data')
-    sigPlot.addPlotable(theData, 'pe', False, True)
+    # dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % par,
+    #                                       fitter.ws.var(par),
+    #                                       RooFit.Binning('%sBinning' % par))
+    # theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
+    # theData.SetName('theData')
+    # theData.SetTitle('data')
+    # sigPlot.addPlotable(theData, 'pe', False, True)
+    data.plotOn(sigPlot, RooFit.Name('theData'),
+                RooFit.DataError(RooAbsData.SumW2))
+    sigPlot.getHist('theData').SetTitle('data')
+    if fr:
+        sigPdf.plotOn(sigPlot, 
+                      RooFit.VisualizeError(fr, 1, True),
+                      RooFit.FillColor(kOrange+1),
+                      RooFit.FillStyle(3001))
     sigPdf.plotOn(sigPlot, RooFit.Name('fitCurve'))
     sigPdf.plotOn(sigPlot, RooFit.Name('fitTails'),
                   RooFit.Components('*tail'),
                   RooFit.LineColor(kRed),
                   RooFit.LineStyle(kDashed))
 
-    sigPlot.GetYaxis().SetTitle('Events / GeV')
+    # sigPlot.GetYaxis().SetTitle('Events / GeV')
 
     sigPlot.Draw()
     c1.Update()
+    sigPlot.SetMinimum(1e-6)
     cans.append(c1)
     plots.append(sigPlot)
     (chi2_1, ndf_1) = pulls.computeChi2(sigPlot.getHist('theData'),
@@ -249,6 +267,8 @@ if fr:
     for plot in plots:
         plot.Write()
     fitter.ws.Write()
+    if hist2d:
+        hist2d.Write()
 
     sigFile.Close()
 

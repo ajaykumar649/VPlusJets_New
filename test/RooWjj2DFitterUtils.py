@@ -298,8 +298,7 @@ class Wjj2DFitterUtils:
         return eff
 
     # various analytic models that can be selected easily.
-    def analyticPdf(self, ws, var, model, pdfName, idString = None, 
-                    yieldVar = None):
+    def analyticPdf(self, ws, var, model, pdfName, idString = None):
         if ws.pdf(pdfName):
             return ws.pdf(pdfName)
 
@@ -479,6 +478,15 @@ class Wjj2DFitterUtils:
             ws.factory("RooChebychev::%s(%s,{a1_%s[-10,10],a2_%s[-10,10],a3_%s[-10,10],a4_%s[-10,10]})" % \
                            (pdfName, var, idString, idString, idString, 
                             idString)
+                       )
+        elif model == 18:
+            # QCD inspired power law
+            ws.factory("power_%s[2, -200, 200]" % idString)
+            ws.factory("power2_%s[0, -200, 200]" % idString)
+            p3 = ws.factory("power3_%s[0]" % idString)
+            p3.setConstant(False)
+            ws.factory("EXPR::%s('TMath::Power(1.-@0/@3,@4)/TMath::Power(@0/@3,@1+@2*log(@0/@3))', %s, power_%s, power2_%s, 8000, power3_%s)" % \
+                           (pdfName, var, idString, idString, idString)
                        )
         else:
             # this is what will be returned if there isn't a model implemented

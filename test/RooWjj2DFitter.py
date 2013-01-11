@@ -1,7 +1,8 @@
 from RooWjj2DFitterUtils import Wjj2DFitterUtils
 from ROOT import RooWorkspace, RooAddPdf, RooAbsReal, RooFit, RooCmdArg, \
     RooBinning, RooAbsData, RooHist, RooArgList, RooArgSet, TFile, RooDataHist,\
-    kRed, kBlue, kGreen, kYellow, kGray, kAzure, kCyan, gROOT, TLegend
+    kRed, kBlue, kGreen, kYellow, kGray, kAzure, kCyan, gROOT, TLegend, \
+    TBox, kBlack
 from math import sqrt
 from array import array
 import sys
@@ -21,6 +22,7 @@ class Wjj2DFitter:
         self.utils = Wjj2DFitterUtils(self.pars)
         self.useImportPars = False
 
+        self.rangeString = None
         for v in self.pars.var:
 
             var1 = self.ws.factory('%s[%f,%f]' % (v, 
@@ -41,18 +43,22 @@ class Wjj2DFitter:
             else:
                 var1.setBins(self.pars.varRanges[v][0])
             var1.Print()
+            if v in self.pars.exclude:
+                var1.setRange('lowSideband', var1.getMin(), 
+                              self.pars.exclude[v][0])
+                var1.setRange('highSideband', self.pars.exclude[v][1],
+                              var1.getMax())
+                self.rangeString = 'lowSideband,highSideband'
         self.ws.defineSet('obsSet', ','.join(self.pars.var))
 
-    def loadWorkspaceFromFile(self, filename, wsname = 'w', 
-                              getFloatPars = True):
-        print 'loading data workspace %s from file %s' % (wsname, filename)
-        fin = TFile.Open(filename)
-        other = fin.Get(wsname)
-
+    def loadDataFromWorkspace(self, other, cut = None):
         #pull unbinned data from other workspace
         unbinnedData = other.data('data_unbinned')
         if not unbinnedData:
             unbinnedData = other.data('data_obs')
+
+        if cut:
+            unbinnedData = unbinnedData.reduce(cut)
 
         if self.pars.binData:
             #bin and import data
@@ -65,6 +71,16 @@ class Wjj2DFitter:
             #just import data
             unbinnedData.SetName('data_obs')
             getattr(self.ws, 'import')(unbinnedData)
+        
+
+    def loadWorkspaceFromFile(self, filename, wsname = 'w', 
+                              getFloatPars = True):
+        print 'loading data workspace %s from file %s' % (wsname, filename)
+        fin = TFile.Open(filename)
+        other = fin.Get(wsname)
+
+        #pull unbinned data from other workspace
+        self.loadDataFromWorkspace(other)
 
         if getFloatPars and other.loadSnapshot('fitPars'):
             self.useImportPars = True
@@ -97,7 +113,7 @@ class Wjj2DFitter:
                                 )
                 )
                                     
-        self.ws.factory('r_signal[0., -20., 20.]')
+        self.ws.factory('r_signal[0., -200., 200.]')
         self.ws.var('r_signal').setConstant(False)
         for component in self.pars.signals:
             compFile = getattr(self.pars, '%sFiles' % component)
@@ -206,6 +222,7 @@ class Wjj2DFitter:
 
         self.readParametersFromFile()
 
+        self.resetYields()
         # print constraints, self.pars.yieldConstraints
         print '\nfit constraints'
         constIter = constraintSet.createIterator()
@@ -233,13 +250,18 @@ class Wjj2DFitter:
         #     self.ws.pdf(constraint).Print()
         # print
 
+        rangeCmd = RooCmdArg.none()
+        if self.rangeString:
+            rangeCmd = RooFit.Range(self.rangeString)
+
         print 'fitting ...'
         fr = fitter.fitTo(data, RooFit.Save(True),
                           RooFit.Extended(True),
                           RooFit.Minos(False),
                           RooFit.PrintEvalErrors(-1),
                           RooFit.Warnings(False),
-                          constraintCmd)
+                          constraintCmd,
+                          rangeCmd)
         fr.Print()
 
         
@@ -340,6 +362,7 @@ class Wjj2DFitter:
             pdfName = 'total'
 
         xvar = self.ws.var(var)
+        xvar.setRange('plotRange', xvar.getMin(), xvar.getMax())
 
         sframe = xvar.frame()
         sframe.SetName("%s_stacked" % var)
@@ -361,14 +384,13 @@ class Wjj2DFitter:
         theComponents = list(self.pars.backgrounds)
         if self.pars.includeSignal:
             theComponents += self.pars.signals
-        # data.plotOn(sframe, RooFit.Invisible(),
-        #             RooFit.Binning('%sBinning' % (var)))
-        dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % var, xvar,
-                                              RooFit.Binning('%sBinning' % var))
-        #dataHist.Scale(1., 'width')
-        invData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
-        #invData.Print('v')
-        sframe.addPlotable(invData, 'pe', True, True)
+        data.plotOn(sframe, RooFit.Invisible())
+        # dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % var, xvar,
+        #                                       RooFit.Binning('%sBinning' % var))
+        # #dataHist.Scale(1., 'width')
+        # invData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, False)
+        # #invData.Print('v')
+        # sframe.addPlotable(invData, 'pe', True, True)
         for (idx,component) in enumerate(theComponents):
             print 'plotting',component,'...',
             if hasattr(self.pars, '%sPlotting' % (component)):
@@ -389,12 +411,13 @@ class Wjj2DFitter:
             print 'events', self.ws.function('f_%s_norm' % component).getVal()
             sys.stdout.flush()
             if abs(self.ws.function('f_%s_norm' % component).getVal()) >= 1.:
-                pdf.plotOn(sframe, RooFit.ProjWData(data),
+                pdf.plotOn(sframe, #RooFit.ProjWData(data),
                            RooFit.DrawOption('LF'), RooFit.FillStyle(1001),
                            RooFit.FillColor(plotCharacteristics['color']),
                            RooFit.LineColor(plotCharacteristics['color']),
                            RooFit.VLines(),
-                           #RooFit.Normalization(nexp, RooAbsReal.Raw),
+                           RooFit.Range('plotRange'),
+                           RooFit.NormRange('plotRange'),
                            compCmd
                            )
                 tmpCurve = sframe.getCurve()
@@ -404,19 +427,31 @@ class Wjj2DFitter:
                     sframe.setInvisible(component, 
                                         plotCharacteristics['visible'])
 
-        theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
-        theData.SetName('theData')
-        theData.SetTitle('data')
-        sframe.addPlotable(theData, 'pe')
+        data.plotOn(sframe, RooFit.Name('theData'))
+        sframe.getHist('theData').SetTitle('data')
+        # theData = RooHist(dataHist, 1., 1, RooAbsData.SumW2, 1.0, True)
+        # theData.SetName('theData')
+        # theData.SetTitle('data')
+        # sframe.addPlotable(theData, 'pe')
 
         if (logy):
             sframe.SetMinimum(0.01)
             sframe.SetMaximum(1.0e6)
         else:
             sframe.SetMaximum(sframe.GetMaximum()*1.25)
+            pass
 
-        sframe.GetYaxis().SetTitle('Events / GeV')
-        dataHist.IsA().Destructor(dataHist)
+        if self.pars.blind and (var in self.pars.exclude):
+            blinder = TBox(self.pars.exclude[var][0], sframe.GetMinimum(),
+                           self.pars.exclude[var][1], sframe.GetMaximum())
+            # blinder.SetName('blinder')
+            # blinder.SetTitle('signal region')
+            blinder.SetFillColor(kBlack)
+            blinder.SetFillStyle(1001)
+            sframe.addObject(blinder)
+
+        #sframe.GetYaxis().SetTitle('Events / GeV')
+        # dataHist.IsA().Destructor(dataHist)
         print
 
         return sframe
@@ -493,8 +528,9 @@ class Wjj2DFitter:
                     objTitle = objName
                 dopts = plot.getDrawOptions(objName).Data()
                 # print 'obj:',theObj,'title:',objTitle,'opts:',dopts,'type:',type(dopts)
-                theLeg.AddEntry(theObj, objTitle, dopts)
-                entryCnt += 1
+                if theObj.IsA().InheritsFrom('TNamed'):
+                    theLeg.AddEntry(theObj, objTitle, dopts)
+                    entryCnt += 1
         theLeg.SetY1NDC(0.9 - 0.05*entryCnt - 0.005)
         theLeg.SetY1(theLeg.GetY1NDC())
         return theLeg

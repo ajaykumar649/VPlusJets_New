@@ -24,6 +24,8 @@ parser.add_option('--seed', dest='seed', type='int', help='random seed')
 parser.add_option('--ws', dest='ws', 
                   help='filename that contains workspace to be used cloned ' +\
                       'for use')
+parser.add_option('--reuse', dest='reuse', action='store_true', default=False,
+                  help='reuse the parameter values from the fit in ws.')
 parser.add_option('--debug', dest='debug', action='store_true', default=False,
                   help='turn on extra debugging information')
 
@@ -57,7 +59,7 @@ fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 totalPdf = fitter.makeFitter()
 
 if opts.ws:
-    fitter.loadWorkspaceFromFile(opts.ws, getFloatPars = False)
+    fitter.loadWorkspaceFromFile(opts.ws, getFloatPars = opts.reuse)
 
 #fitter.loadData()
 fitter.readParametersFromFile()
@@ -222,6 +224,10 @@ if fr:
 output = TFile("HWWlnujjH%i_%s_%ijets_output.root" % (opts.mH, mode, 
                                                       opts.Nj),
                "recreate")
+
+if fr:
+    fr.SetName('fit_result')
+    fr.Write()
 
 plot1.Write()
 plot2.Write()
