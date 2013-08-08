@@ -172,9 +172,9 @@ makeNewCard(double         yield,
 #ifdef ISHWW
 
       // down/up pairs to put in card
-      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
+      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1,interfggh; 
 
-      makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
+      makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1,interfggh);
 
       if (procname.Contains("qq") ) { // VBF process
 
@@ -307,9 +307,9 @@ addToCard(CardData_t&    card,
 #endif
 	   ) { // signal expectation
 
-    pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
+    pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1,interfggh; 
 #ifdef ISHWW
-    makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
+    makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1,interfggh);
 #endif
     pair<double,double> lumipair(0.0, 1+siglumiunc);
 

@@ -49,7 +49,8 @@ void makeTheoretUncert4Sig(int massgev,
 			   std::pair<double,double>& scaleunc2,
 			   std::pair<double,double>& scaleunc3,
 			   std::pair<double,double>& ueps0j,
-			   std::pair<double,double>& ueps1j);
+			   std::pair<double,double>& ueps1j,
+			   std::pair<double,double>& interfggh);
 #endif
 
 #endif // HWWUTILS_H

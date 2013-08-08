@@ -33,14 +33,14 @@ void readHxsTable(const TString& fname, double scale=1.0)
     int n = sscanf(str,"%d",&mHgev);
     HdataPerMassPt& hd = m_signals[mHgev];
     if (fname.Contains("vbf")) {
-      n += sscanf(str,"%*d %lf %*f %*f %lf %lf %lf %lf",
+      n += sscanf(str,"%*d %lf %lf %lf %lf %lf",
 		  &hd.vbfcspb,
 		  &hd.vbfscaleunchi,&hd.vbfscaleunclo,
 		  &hd.vbfpdfunchi,&hd.vbfpdfunclo
 		  );
       hd.vbfcspb       *= scale;
     } else {
-      n += sscanf(str,"%*d %lf %*f %*f %lf %lf %lf %lf",
+      n += sscanf(str,"%*d %lf %lf %lf %lf %lf",
 		  &hd.ggHcspb,
 		  &hd.ggHscaleunchi,&hd.ggHscaleunclo,
 		  &hd.ggHpdfunchi,&hd.ggHpdfunclo
@@ -160,7 +160,8 @@ void makeTheoretUncert4Sig(int massgev,
 			   pair<double,double>& scaleunc2,
 			   pair<double,double>& scaleunc3,
 			   pair<double,double>& ueps0j,
-			   pair<double,double>& ueps1j)
+			   pair<double,double>& ueps1j,
+			   pair<double,double>& interfggh)
 {
   std::map<int,HdataPerMassPt>::const_iterator it =  m_signals.find(massgev);
   if (it == m_signals.end()) {
@@ -205,18 +206,25 @@ void makeTheoretUncert4Sig(int massgev,
     scaleunc0.first  = 1.0 + (hd.ggHscaleunclo/100.0);
     scaleunc0.second = 1.0 + (hd.ggHscaleunchi/100.0);
 #else
+
     // this version takes the geometric mean of low and high to feed as single number
     pdfunc    = std::pair<double,double>(0.0, sqrt( (1.0+(hd.ggHpdfunchi/100.))/(1.0+(hd.ggHpdfunclo/100.))));
-    scaleunc0 = std::pair<double,double>(0.0, hd.qcdscale_ggh0j);
-    scaleunc1 = std::pair<double,double>(0.0, hd.qcdscale_ggh1in0j);
-    scaleunc2 = std::pair<double,double>(0.0, hd.qcdscale_ggh1in1j);
-    scaleunc3 = std::pair<double,double>(0.0, hd.qcdscale_ggh2in1j);
+    scaleunc0 = std::pair<double,double>(0.0, sqrt( (1.0+(hd.ggHscaleunchi/100.))/(1.0+(hd.ggHscaleunclo/100.)))); // for inclusive (0+) jet binning
+
+    // This is for exclusive jet binning
+    //scaleunc0 = std::pair<double,double>(0.0, hd.qcdscale_ggh0j);
+    //scaleunc1 = std::pair<double,double>(0.0, hd.qcdscale_ggh1in0j);
+    //scaleunc2 = std::pair<double,double>(0.0, hd.qcdscale_ggh1in1j);
+    //scaleunc3 = std::pair<double,double>(0.0, hd.qcdscale_ggh2in1j);
+
     ueps0j    = std::pair<double,double>(0.0, hd.ueps_0j);
     ueps1j    = std::pair<double,double>(0.0, hd.ueps_1j);
 #endif
     // add signal acceptance effect of PDF variation in quadrature:
     pdfunc.second = 1.0 + sqrt((pdfunc.second-1)*(pdfunc.second-1) +
 			       (ggsigaccptsyst[imass2use]-1)*(ggsigaccptsyst[imass2use]-1));
+    interfggh.first  = interfggH[imass2use].lo;
+    interfggh.second = interfggH[imass2use].hi;
   }
 
 }                                                         // makeTheoretUncert4Sig
