@@ -33,6 +33,8 @@ makeDataCardContent(TFile *fp,
 		    const TString& fname,
 		    int ichan,
 		    const TString& signame,
+		    const char *bakprochistonames[][3],
+		    int numbakproc,
 		    bool doshape)
 {
   Card *card;
@@ -53,7 +55,7 @@ makeDataCardContent(TFile *fp,
     cerr << "Fatal: Couldn't get data histogram from file for channel " << ichan << endl;
     exit(-1);
   }
-  for (int i=0; i<NUMBAKPROC; i++) {
+  for (int i=0; i<numbakproc; i++) {
     TH1 *backhist = (TH1 *)fp->Get(bakprochistonames[i][1]);
     if (!backhist) {
       cerr << "Warning: Couldn't get background histogram "<<bakprochistonames[i][1]<<" from file "<<fp->GetName() << endl;
@@ -129,13 +131,23 @@ makeDataCardContent(TFile *fp,
   card->addSystematic("PHES",     "signal",channame,1+phes_unc);
   card->addSystematic("pileup",   "signal",channame,1+pileup_unc);
 
+  for (int i=0; i<numbakproc; i++) {
+    const char *bakname=bakprochistonames[i][0];
+    if (!strcmp(bakprochistonames[i][2],"MC")) {
+      card->addSystematic(leptsyst,   bakname,channame,1+lepteff_unc);
+      card->addSystematic(trigsyst,   bakname,channame,1+trigeff_unc);
+      card->addSystematic("MET",      bakname,channame,1+met_unc);
+      card->addSystematic("lumi_8TeV",bakname,channame,1+lumi_unc);
+      card->addSystematic("JER",      bakname,channame,1+jer_unc);
+      card->addSystematic("JES",      bakname,channame,1+jes_unc);
+      card->addSystematic("PHES",     bakname,channame,1+phes_unc);
+      card->addSystematic("pileup",   bakname,channame,1+pileup_unc);
+    }
+  }
+
   /* DISABLE if no MVA applied, or otherwise not relevant:
    */
 //  card->addSystematic("mvaseleff_"+channame,"signal",channame,1+sigmvaseleffunc);
-
-  card->addSystematic("lumi_8TeV",zgamjet,channame,1+lumi_unc);
-  card->addSystematic("lumi_8TeV",ttbgam, channame,1+lumi_unc);
-  card->addSystematic("lumi_8TeV",sngltop,channame,1+lumi_unc);
 
   card->addSystematic(Wgamjetsyst, wgamjet,channame,1+wgamjet_unc[ichan]);
   card->addSystematic("Zgamjunc",  zgamjet,channame,1+zgamjet_unc);
@@ -173,12 +185,8 @@ void makeCards4SM(int ichan,
 
     cout << "Reading root input file " << fname << endl;
 
-    Card *card = makeDataCardContent(fp,fname,ichan,SMsigfmtstr,doshape);
-
-    //SM WZA/WWA treated as combined signal
-    card->addSystematic("lumi_8TeV","signal",channame,1+lumi_unc);
-    card->addSystematic("PDF",      "signal",channame,1+pdf_unc);
-    card->addSystematic("Scale",    "signal",channame,1+scale_unc);
+    Card *card = makeDataCardContent(fp,fname,ichan,SMsigfmtstr,
+				     bakprochistonamesSM,NUMBAKPROCSM,doshape);
 
 #if 0
     if (doshape) {
@@ -231,7 +239,8 @@ void makeCards4param(const char *parinfilename,
     //
     int parval = parpts[i];
     TString signame = Form(signalfmtstr,parinhistname,(parval<0?"m":""),abs(parval));
-    Card *card = makeDataCardContent(fp,fname,ichan,signame,doshape);
+    Card *card = makeDataCardContent(fp,fname,ichan,signame,
+				     bakprochistonamesAQGC,NUMBAKPROCAQGC,doshape);
 
     //SM WZA/WWA treated as separate backgrounds
     card->addSystematic("lumi_8TeV",wwgamsm,channame,1+lumi_unc);
@@ -273,11 +282,11 @@ makeDataCardFiles(bool doshape)
 {
   for (int ichan=0; ichan<NUMCHAN; ichan++) {
     
-//    makeCards4param("a0W","a0w",NUMA0WPTS,a0W_points,ichan,doshape);
-//    makeCards4param("aCW","aCw",NUMACWPTS,aCW_points,ichan,doshape);
+    makeCards4param("a0W","a0w",NUMA0WPTS,a0W_points,ichan,doshape);
+    makeCards4param("aCW","aCw",NUMACWPTS,aCW_points,ichan,doshape);
 //    makeCards4param("LT0","lt0",NUMLT0PTS,lt0_points,ichan,doshape);
 //    makeCards4param("K0W","K0W",NUMK0WPTS,K0W_points,ichan,doshape);
-    makeCards4param("KCW","KCW",NUMKCWPTS,KCW_points,ichan,doshape);
+//    makeCards4param("KCW","KCW",NUMKCWPTS,KCW_points,ichan,doshape);
 
 //    makeCards4SM(ichan, false); // never do shape limits for SM
 

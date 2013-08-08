@@ -112,9 +112,10 @@ const char *dir =
   //"/uscms/home/jfaulkn3/WWG/CMSSW_5_3_2_patch4/src/aQGC_limit/";
   //"/uscms_data/d2/jdamgov/NTuples_53X_MORIOND13/CMSSW_5_3_2_patch4/src/ElectroWeakAnalysis/VPlusJets/test/Utilities/aQGC_limit/";
   //".";
-  //"/uscms_data/d3/jfaulkn3/Limitsetter/CMSSW_6_1_1/src/ElectroWeakAnalysis/VPlusJets/test/Utilities/aQGC/Test";
+  //"/uscms_data/d3/jfaulkn3/Limitsetter/CMSSW_6_1_1/src/ElectroWeakAnalysis/VPlusJets/test/Utilities/aQGC/Test";//
   //"/uscms_data/d3/jfaulkn3/Limitsetter/CMSSW_6_1_1/src/ElectroWeakAnalysis/VPlusJets/test/Utilities/aQGC/Test/NewMethods/ROOTFiles/SM/";
-  "/uscms_data/d3/jfaulkn3/Limitsetter/CMSSW_6_1_1/src/ElectroWeakAnalysis/VPlusJets/test/Utilities/aQGC/Test/NewMethods/ROOTFiles/PhotonET/";
+  //"/uscms_data/d3/jfaulkn3/Limitsetter/CMSSW_6_1_1/src/ElectroWeakAnalysis/VPlusJets/test/Utilities/aQGC/Test/NewMethods/ROOTFiles/PhotonET/";
+  "wwgaminputdir";
 
 inline TString parinputfiles(int chan,const TString& par) {
   return "sim_"+TString(channames[chan>0])+"_"+par+"_WWA_PhotonEt.root";
@@ -151,16 +152,26 @@ const char *wzgamsm  = "WZgamSM";
 const char *wwgamsm  = "WWgamSM";
 const char *qcd      = "QCD";
 
-#define NUMBAKPROC 8
-const char *bakprochistonames[NUMBAKPROC][2] = {
-  {fkphoton, "th1fkdata"},
-  {ttbgam,   "th1Top"},
-  {sngltop,  "th1stop"},
-  {wgamjet,  "th1wajets"},
-  {zgamjet,  "th1zajets"},
-  {wwgamsm,  "th1wwa"},
-  {wzgamsm,  "th1wza"},
-  {qcd,      "th1qcd"},
+#define NUMBAKPROCAQGC 8
+const char *bakprochistonamesAQGC[NUMBAKPROCAQGC][3] = {
+  {fkphoton, "th1fkdata", "data"}, 
+  {ttbgam,   "th1Top",      "MC"}, 
+  {sngltop,  "th1stop",     "MC"}, 
+  {wgamjet,  "th1wajets", "data"}, 
+  {zgamjet,  "th1zajets",   "MC"}, 
+  {wwgamsm,  "th1wwa",      "MC"}, 
+  {wzgamsm,  "th1wza",      "MC"}, 
+  {qcd,      "th1qcd",    "data"},
+};
+
+#define NUMBAKPROCSM 6
+const char *bakprochistonamesSM[NUMBAKPROCSM][3] = {
+  {fkphoton, "th1fkdata", "data"},
+  {ttbgam,   "th1Top",      "MC"}, 
+  {sngltop,  "th1stop",     "MC"}, 
+  {wgamjet,  "th1wajets", "data"},
+  {zgamjet,  "th1zajets",   "MC"},
+  {qcd,      "th1qcd",	  "data"},
 };
 
 const char *signalfmtstr = "signal_%s_%s%d"; //%s(1)="a0w"|"aCw|lt0", %s(2)="m" for minus or "" for plus
