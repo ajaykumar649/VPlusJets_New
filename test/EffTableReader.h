@@ -1,7 +1,7 @@
 //  Adapted From:
 //----------------
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: EffTableReader.h,v 1.3 2009/05/28 05:22:53 ahunt Exp $
+// $Id: EffTableReader.h,v 1.1 2011/11/28 06:30:44 kalanand Exp $
 //-----------------------------------------------------------------------
 
 

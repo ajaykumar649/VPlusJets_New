@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 // Adapted From Following Description:
 // Original Author:  Fedor Ratnikov Nov 9, 2007
-// $Id: EffTableReader.cc,v 1.1 2011/11/28 06:30:44 kalanand Exp $
+// $Id: EffTableReader.cc,v 1.2 2012/10/15 19:44:06 andersj Exp $
 // Generic parameters for Jet corrections
 //----------------------------------------------------------------------------
 #include "EffTableReader.h"

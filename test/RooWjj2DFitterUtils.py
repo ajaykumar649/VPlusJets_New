@@ -369,7 +369,7 @@ class Wjj2DFitterUtils:
 
     # various analytic models that can be selected easily.
     def analyticPdf(self, ws, var, model, pdfName, idString = None, 
-                    auxModel = None):
+                    auxModel = None, systMult = None):
         if ws.pdf(pdfName):
             return ws.pdf(pdfName)
 
@@ -404,11 +404,16 @@ class Wjj2DFitterUtils:
         elif model==5:
             # a double gaussian
             self.analyticPdf(ws, var, 27, '%s_core' % pdfName,
-                             '%s_core' % idString, 84.)
+                             '%s_core' % idString, 84., systMult)
             self.analyticPdf(ws, var, 27, '%s_tail' % pdfName,
-                             '%s_tail' % idString, 100.)
-            ws.factory("SUM::%s(f_%s_core[0.5,0,1] * %s_core, %s_tail)" % \
-                           (pdfName, idString, pdfName, pdfName)
+                             '%s_tail' % idString, 100., systMult)
+            fcore = ws.factory("f_%s_core[0.5, 0, 1]" % idString)
+            if systMult:
+                fcore.setConstant()
+                kappa = ws.factory("RooPowerLaw::func_kappa_%s(kappa_%s[1.0], %s[0.])" % (fcore.GetName(), fcore.GetName(), systMult))
+                fcore = ws.factory("prod::func_%s(%s, %s)" % (fcore.GetName(), fcore.GetName(), kappa.GetName()))
+            ws.factory("SUM::%s(%s * %s_core, %s_tail)" % \
+                           (pdfName, fcore.GetName(), pdfName, pdfName)
                        )
         elif model==6:
             # a CB + gaussian with same means
@@ -633,8 +638,15 @@ class Wjj2DFitterUtils:
                 mean.setError(auxModel*0.15)
                 sigma.setVal(auxModel*0.15)
                 sigma.setError(auxModel*0.15*0.2)
-            ws.factory('RooGaussian::%s(%s,mean_%s,sigma_%s)' % \
-                       (pdfName, var, idString, idString))
+            if systMult:
+                mean.setConstant()
+                kappa_mean = ws.factory("RooPowerLaw::func_kappa_%s(kappa_%s[1.0], %s[0.])" % (mean.GetName(), mean.GetName(), systMult))
+                mean = ws.factory("prod::func_%s(%s, %s)" % (mean.GetName(), mean.GetName(), kappa_mean.GetName()))
+                sigma.setConstant()
+                kappa_sigma = ws.factory("RooPowerLaw::func_kappa_%s(kappa_%s[1.0], %s[0.])" % (sigma.GetName(), sigma.GetName(), systMult))
+                sigma = ws.factory("prod::func_%s(%s, %s)" % (sigma.GetName(), sigma.GetName(), kappa_sigma.GetName()))
+            ws.factory('RooGaussian::%s(%s,%s,%s)' % \
+                       (pdfName, var, mean.GetName(), sigma.GetName()))
         elif model == 28:
             # QCD inspired model with a erf turnon
             pdfErf = self.analyticPdf(ws, var, 25, '%s_turnon' % pdfName,

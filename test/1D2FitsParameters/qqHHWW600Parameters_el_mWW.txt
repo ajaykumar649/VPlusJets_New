@@ -1,0 +1,6 @@
+f_qqH_fit_mlvjj_core = 0.67688 +/- 0.13897 C L(-0.712835 - 2.0666)
+mean_qqH_fit_mlvjj_core = 608.26 +/- 4.3405 C L(564.859 - 651.668)
+mean_qqH_fit_mlvjj_tail = 557.25 +/- 22.766 C L(329.598 - 784.91)
+sigma_qqH_fit_mlvjj_core = 62.801 +/- 5.0948 C L(11.8526 - 113.749)
+sigma_qqH_fit_mlvjj_tail = 107.92 +/- 11.637 C L(-8.4526 - 224.286)
+n_qqH = 6.2 +/- 2.5 C

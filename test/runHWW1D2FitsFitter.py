@@ -122,6 +122,19 @@ fr = None
 fr = fitter.fit()
 
 plot1 = fitter.stackedPlot(pars.var[0])
+
+sigPdf = fitter.ws.pdf('ggH')
+n_sig = fitter.ws.var('n_ggH').getVal() + fitter.ws.var('n_qqH').getVal()
+sigScaler = 2.
+print "N HWW:", n_sig
+
+sigPdf.plotOn(plot1, RooFit.Range('plotRange'),
+              RooFit.NormRange('plotRange'),
+              RooFit.Normalization(n_sig*sigScaler, RooAbsReal.NumEvent),
+              RooFit.Name('signal_HWW'),
+              RooFit.LineColor(kBlue+2))
+plot1.getCurve().SetTitle("H(%i)#times%.0f" % (opts.mH, sigScaler))
+
 leg1 = RooWjj2DFitter.Wjj2DFitter.legend4Plot(plot1)
 
 c1 = TCanvas('c1', pars.var[0] + ' plot')
@@ -226,6 +239,11 @@ pars_mWW = HWW1D2FitsConfig_mWW.theConfig(opts.Nj, opts.mH,
                                           opts.isElectron, mWWArgs,
                                           True)
 pars_mWW.yieldConstraints['WpJ'] = fitter.ws.var('WpJ_nrm').getError()
+
+# add systematic errors multipliers to ggH signals
+if (opts.mH >= 400):
+    pars_mWW.ggHdoSystMult = True
+
 fitter_mWW = RooWjj2DFitter.Wjj2DFitter(pars_mWW)
 fitter_mWW.ws.SetName("w_mWW")
 totalPdf_mWW = fitter_mWW.makeFitter()
@@ -261,6 +279,18 @@ if fr_mWW.statusCodeHistory(0) != 0:
 
 plot_mWW = fitter_mWW.stackedPlot(pars_mWW.var[0])
 plot_mWW.SetName('%s_plot_stacked' % (pars_mWW.var[0]))
+sigPdf = fitter_mWW.ws.pdf('ggH')
+n_sig = fitter_mWW.ws.var('n_ggH').getVal() + fitter_mWW.ws.var('n_qqH').getVal()
+# sigScaler = 2.
+print "N HWW:", n_sig
+
+sigPdf.plotOn(plot_mWW, RooFit.Range('plotRange'),
+              RooFit.NormRange('plotRange'),
+              RooFit.Normalization(n_sig*sigScaler, RooAbsReal.NumEvent),
+              RooFit.Name('signal_HWW'),
+              RooFit.LineColor(kBlue+2))
+plot_mWW.getCurve().SetTitle("H(%i)#times%.0f" % (opts.mH, sigScaler))
+
 leg_mWW = RooWjj2DFitter.Wjj2DFitter.legend4Plot(plot_mWW)
 
 plot_mWW_withErrs = fitter_mWW.stackedPlot(pars_mWW.var[0])
@@ -277,6 +307,16 @@ totalPdf_mWW.plotOn(plot_mWW_withErrs,
 plot_mWW_withErrs.getCurve().SetTitle('Fit errors')
 errs = plot_mWW_withErrs.getCurve('fitErrors')
 (upper, lower) = pulls.splitErrCurve(errs)
+
+sigPdf.plotOn(plot_mWW_withErrs, RooFit.Range('plotRange'),
+              RooFit.NormRange('plotRange'),
+              RooFit.Normalization(n_sig*sigScaler, RooAbsReal.NumEvent),
+              RooFit.Name('signal_HWW'),
+              RooFit.LineColor(kBlue+2))
+plot_mWW_withErrs.getCurve().SetTitle("H(%i)#times%.0f" % (opts.mH, sigScaler))
+
+leg_mWW_withErrs = RooWjj2DFitter.Wjj2DFitter.legend4Plot(plot_mWW_withErrs)
+plot_mWW_withErrs.addObject(leg_mWW_withErrs)
 
 # errs.Print('v')
 # upper.Print('v')
@@ -449,11 +489,27 @@ if opts.obsLimit:
     print '%.0f%% CL lower limit' % (95.), limit['r_signal']['ok'],
     print ': %.4f' % (limit['r_signal']['lower'])
 
+fitter_mWW.ws.loadSnapshot('nullFitSnapshot')
+
 #freeze all parameters in place
 #params_mWW.setAttribAll('Constant', True)
 
+import SignalShapeSystematic
+
 allVars = fitter_mWW.ws.allVars()
 allVars.remove(fitter_mWW.ws.set('obsSet'))
+
+if opts.mH >= 400:
+    print "\nsetting systematic kappa parameters"
+    SignalShapeSystematic.SetSystematicAlphas(fitter_mWW.ws)
+    print
+
+    fitter_mWW.ws.var('interf_ggH').setConstant(False)
+
+    allVars.remove(fitter_mWW.ws.var('interf_ggH'))
+    allVars.remove(fitter_mWW.ws.var('interf_ggH_interf_ggHUp'))
+    allVars.remove(fitter_mWW.ws.var('interf_ggH_interf_ggHDown'))
+    
 varIter = allVars.createIterator()
 theVar = varIter.Next()
 while theVar:   
@@ -478,6 +534,7 @@ plot1.Write()
 pull1.Write()
 plot_mWW.Write()
 pull_mWW.Write()
+plot_mWW_withErrs.Write()
 bkgHisto.Write()
 bkgHisto_up.Write()
 bkgHisto_dwn.Write()

@@ -27,6 +27,8 @@ class Wjj2DFitterPars:
                   }
     exclude = {}
     blind = False
+    doSystMult = False
+    systMult = ''
     # varNames = {'GroomedJet_CA8_mass_pr[0]': 'GroomedJet_CA8_mass_pr' }
   
     # lumi
