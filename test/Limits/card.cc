@@ -180,8 +180,9 @@ void
 Card::addSystematic(const TString& systname,
 		    const TString& procname,
 		    const TString& channame,
-		    const double   unc,
-		    const TString& pdf)
+		    const double   unchi,
+		    const TString& pdf,
+		    const double   unclo)
 {
   cout<<"\taddSystematic "<<systname<<" to "<<procname<<endl;
 
@@ -199,7 +200,8 @@ Card::addSystematic(const TString& systname,
   int index = pit->second;
   ProcData_t& pd = processes_[index];
 
-  pd.systrates[systname+":"+channame].second = unc;
+  pd.systrates[systname+":"+channame].first  = unclo;
+  pd.systrates[systname+":"+channame].second = unchi;
 }                                                           // Card::addSystematic
 
 //================================================================================

@@ -56,8 +56,9 @@ class Card {
     addSystematic(const TString& systname,     // systematic name 
 		  const TString& procname,     // process name 
 		  const TString& channame,     // name of channel
-		  double         uncval,       // uncertainty expressed as 1 + fractional uncertainty
-		  const TString& pdf="lnN"
+		  double         uncvalhi,     // uncertainty expressed as 1 + fractional uncertainty
+		  const TString& pdf="lnN",
+		  double         uncvallo=0.0  // uncertainty expressed as 1 - fractional uncertainty
 		  );
 
   void

@@ -162,10 +162,12 @@ makeDataCardContent(TFile *fp,
     // 2. any systematic applied
     //
     TString procname(""),systname("");
-
     if (pdfname.EndsWith("Up")) { // This is a histogram with a systematic applied
+#if 0
       procname = TString(pdfname(0,pdfname.First('_')));
       systname = TString(pdfname(pdfname.First('_')+1,pdfname.Length()-pdfname.First('_')-3));
+#endif
+      ;
     } else
       procname = pdfname;
 
@@ -200,9 +202,13 @@ makeDataCardContent(TFile *fp,
 			    );
 
       // down/up pairs to put in card
-      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1; 
+      pair<double,double> pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1,interfggh; 
     
-      makeTheoretUncert4Sig(massgev,procname,pdfunc,scaleunc0,scaleunc1,scaleunc2,scaleunc3,ueps0,ueps1);
+      makeTheoretUncert4Sig(massgev,procname,
+			    pdfunc,
+			    scaleunc0,scaleunc1,scaleunc2,scaleunc3,
+			    ueps0,ueps1,
+			    interfggh);
 
       if (procname.Contains("qq") ) { // VBF process
 	
@@ -213,15 +219,22 @@ makeDataCardContent(TFile *fp,
 
 	card->addSystematic("pdf_gg",procname,channame,pdfunc.second);
 
+	card->addSystematic("interf_ggH",procname,channame,
+			    interfggh.second,"lnN",interfggh.first);
+
+#if 0
 	if (ichan & 1) { // odd channel, 3jet bin
 	  card->addSystematic("QCDscale_ggH1in",procname,channame,scaleunc2.second);
 	  card->addSystematic("QCDscale_ggH2in",procname,channame,scaleunc3.second);
 	  card->addSystematic("UEPS",procname,channame,ueps1.second);
 	} else { // even channel, 2jet bin
+#endif
 	  card->addSystematic("QCDscale_ggH",procname,channame,scaleunc0.second);
-	  card->addSystematic("QCDscale_ggH1in",procname,channame,scaleunc1.second);
-	  card->addSystematic("UEPS",procname,channame,ueps0.second);
+	  //card->addSystematic("QCDscale_ggH1in",procname,channame,scaleunc1.second);
+	  //card->addSystematic("UEPS",procname,channame,ueps0.second);
+#if 0
 	}
+#endif
       }
 #endif //ISHWW
 
@@ -234,7 +247,8 @@ makeDataCardContent(TFile *fp,
 	card->addSystematic(procname+"_constraint",procname,channame,constraint);
 	if (!procname.EqualTo("WpJ")) {
 	  card->addSystematic(leptsyst,procname,channame,
-			      1+sqrt(siglepteffunc*siglepteffunc + sigtrigeffunc*sigtrigeffunc));
+			      1+sqrt(siglepteffunc*siglepteffunc +
+				     sigtrigeffunc*sigtrigeffunc));
 	  card->addSystematic("lumi_8TeV",procname,channame,1+siglumiunc);
 	}
       }
