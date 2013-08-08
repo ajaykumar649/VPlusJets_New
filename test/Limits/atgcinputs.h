@@ -33,13 +33,13 @@ const float LAMBDAZ_MIN = -0.03;
 const float LAMBDAZ_MAX =  0.03;
 const float LAMBDAZ_INC = 0.001; //  61 pts
 
-const float dKG_MIN =  -0.15;
-const float dKG_MAX =   0.15;
-const float dKG_INC =   0.01;    // x31 pts
+const float dKG_MIN =  -0.12;
+const float dKG_MAX =   0.12;
+const float dKG_INC =   0.01;    // 25 pts
 
-const float dg1_MIN =  -0.10;
-const float dg1_MAX =   0.10;
-const float dg1_INC =   0.002;   // x101 pts
+const float dg1_MIN =  -0.05;
+const float dg1_MAX =   0.07;
+const float dg1_INC =   0.002;   // x61 pts
 
 // FILE/HISTO STRUCTURE: assumed same name objects contained in different files for the different inputs
 

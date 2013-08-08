@@ -28,7 +28,7 @@
 
 using namespace std;
 
-const float intlumifbinv = 19.2;
+const float intlumifbinv = 19.3;
 const int   beamcometev  = 8;
 
 //======================================================================
@@ -47,8 +47,8 @@ TString par2latex(const TString& parname)
 float parmin(const TString& parname)
 {
   if (parname.EqualTo("lz") )  return -0.03;
-  if (parname.EqualTo("dkg") ) return -0.15;
-  if (parname.EqualTo("dg1") ) return -0.1;
+  if (parname.EqualTo("dkg") ) return -0.12;
+  if (parname.EqualTo("dg1") ) return -0.05;
 
   return -999;
 }
@@ -58,8 +58,19 @@ float parmin(const TString& parname)
 float parmax(const TString& parname)
 {
   if (parname.EqualTo("lz") )  return 0.03;
-  if (parname.EqualTo("dkg") ) return 0.15;
-  if (parname.EqualTo("dg1") ) return 0.1;
+  if (parname.EqualTo("dkg") ) return 0.12;
+  if (parname.EqualTo("dg1") ) return 0.07;
+
+  return -999;
+}
+
+//======================================================================
+
+float parinc(const TString& parname)
+{
+  if (parname.EqualTo("lz") )  return 0.001;
+  if (parname.EqualTo("dkg") ) return 0.01;
+  if (parname.EqualTo("dg1") ) return 0.002;
 
   return -999;
 }
@@ -68,11 +79,8 @@ float parmax(const TString& parname)
 
 int parbins(const TString& parname)
 {
-  if (parname.EqualTo("lz") )  return 61;
-  if (parname.EqualTo("dkg") ) return 31;
-  if (parname.EqualTo("dg1") ) return 101;
-
-  return -999;
+  int parbins = 1 + ((parmax(parname)-parmin(parname))/parinc(parname));
+  return parbins;
 }
 
 //======================================================================
@@ -427,7 +435,8 @@ draw2DLimit(map<string,TList *>& m_contours,
 
   //curv->GetYaxis()->SetRangeUser(-1.25*curv->GetYaxis()->GetXmax(),
 	  			   //+2.0*curv->GetYaxis()->GetXmax());
-  curv->GetYaxis()->SetRangeUser(-0.1,0.15);
+  //curv->GetYaxis()->SetRangeUser(-0.1,0.15);
+  curv->GetYaxis()->SetRangeUser(parmin(par2),parmax(par2));
 
   curv->SetTitle();
   curv->GetXaxis()->SetTitle(par2latex(par1));
@@ -600,7 +609,8 @@ draw1DLimit(map<string,TGraph2D *> m_graphs,
   else
     bound = m_graphs["-2s"]->Interpolate(0.0,parcutoff);
 
-  // print parmin, parmax, boundScale, bound
+  printf ("par=%s, min=%f, max=%f, boundScale=%lf, bound=%lf, parcutoff=%lf\n",
+	  parname.Data(),parmin(parname), parmax(parname), boundScale, bound, parcutoff);
 
   int nnegpts=0,npospts=0;
   for (int i=0; i<npts; i++) {
@@ -633,7 +643,7 @@ draw1DLimit(map<string,TGraph2D *> m_graphs,
       upperLimitFound = true;
     }
 
-    if ( (m2s < bound) &&
+    if ( // (m2s < bound) &&
 	 (fabs(parval) > fabs(parcutoff))
        ) {
       //par1 observed limit
@@ -710,7 +720,7 @@ draw1DLimit(map<string,TGraph2D *> m_graphs,
   text1d->SetFillStyle(0);
   text1d->SetBorderSize(0);
   text1d->AddText(Form("95%% CL Limit on #bf{%s}",par2latex(parname).Data()));
-  text1d->AddText(0,0.35,"#intL dt= 19.2 fb^{-1}, #sqrt{s} = 8 TeV");
+  text1d->AddText(0,0.35,Form("#intL dt= %.1f fb^{-1}, #sqrt{s} = %d TeV", intlumifbinv,beamcometev));
   text1d->Draw();
     
   // text3.SetX1NDC(0.357);
@@ -811,9 +821,11 @@ void atgcplotLimit(const string& fileglob)
 #else
     TGraph2D *gr = m_graphs["-2s"];
     TH2D *h2 = new TH2D("h2d","h2d",
-			parbins(par1),parmin(par1),parmax(par1),
-			parbins(par2),parmin(par2),parmax(par2));
+			parbins(par1),parmin(par1)-parinc(par1)/2,parmax(par1)+parinc(par1)/2,
+			parbins(par2),parmin(par2)-parinc(par2)/2,parmax(par2)+parinc(par2)/2);
     h2->FillN(gr->GetN(),gr->GetX(),gr->GetY(),gr->GetZ());
+    h2->GetXaxis()->SetTitle(par2latex(par1));
+    h2->GetYaxis()->SetTitle(par2latex(par2));
     h2->Draw("COLZ TEXT");
 #endif
 
@@ -856,10 +868,10 @@ void atgcplotLimit(const string& fileglob)
   draw2DLimit(m_contours,par1,par2,plotprefix,legend);
 
   plotprefix=Form("%s_1dlimit_%s",par1.Data(),method.Data());
-  draw1DLimit(m_graphs,par1,plotprefix,1000,0.05,exclusion_limit,true,legend);
+  draw1DLimit(m_graphs,par1,plotprefix,1000,0.15,exclusion_limit,true,legend);
 
   plotprefix=Form("%s_1dlimit_%s",par2.Data(),method.Data());
-  draw1DLimit(m_graphs,par2,plotprefix,1000,0.02,exclusion_limit,false,legend);
+  draw1DLimit(m_graphs,par2,plotprefix,1000,0.15,exclusion_limit,false,legend);
 
 #endif
 }
