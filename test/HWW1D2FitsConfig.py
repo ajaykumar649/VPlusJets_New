@@ -8,13 +8,13 @@ import HWWSignalShapes
 #  each of the two components of the fit)
 mu2Pars = {
     170: ( "mva2j170mu", 0.550, 165.0, 245.0, 10,
-           {'diboson':(22, 8),'top':(13, 8),'WpJ':(15, 14),
+           {'diboson':(22, 8),'top':(13, 8),'WpJ':(10, 14),
             'ggH':(13, 5),'qqH':(13, 5)} ),
     180: ( "mva2j180mu", 0.750, 165.0, 245.0, 10,
-           {'diboson': (22, 11),'top':(13, 8),'WpJ':(15, 14),
+           {'diboson': (22, 11),'top':(13, 8),'WpJ':(10, 14),
             'ggH':(13, 5),'qqH':(13, 5)} ),
     190: ( "mva2j190mu", 0.750, 165.0, 245.0, 10,
-           {'diboson': (22, 11), 'top': (13, 8), 'WpJ': (15, 14), 
+           {'diboson': (22, 11), 'top': (13, 8), 'WpJ': (10, 14), 
             'ggH': (13, 5), 'qqH': (13, 5)} ),
     200: ( "mva2j200mu", 0.750, 165.0, 245.0, 10,
            {'diboson': (22, 11), 'top': (13, 8), 'WpJ': (10, 14), 
@@ -47,13 +47,13 @@ mu2Pars = {
 
 el2Pars = {
     170: ( "mva2j170el", 0.550, 165.0, 245.0, 10,
-           {'diboson':(22, 8),'top':(13, 8),'WpJ':(15, 14),
+           {'diboson':(22, 8),'top':(13, 8),'WpJ':(10, 14),
             'ggH':(13, 5),'qqH':(13, 5)} ),
     180: ( "mva2j180el", 0.750, 165.0, 245.0, 10,
-           {'diboson': (22, 11),'top':(13, 8),'WpJ':(15, 14),
+           {'diboson': (22, 11),'top':(13, 8),'WpJ':(10, 14),
             'ggH':(13, 5),'qqH':(13, 5)} ),
     190: ( "mva2j190el", 0.750, 165.0, 245.0, 10,
-           {'diboson': (22, 11), 'top': (13, 8), 'WpJ': (15, 14), 
+           {'diboson': (22, 11), 'top': (13, 8), 'WpJ': (10, 14), 
             'ggH': (13, 5), 'qqH': (13, 5)} ),
     200: ( "mva2j200el", 0.750, 165.0, 245.0, 10 ,
            {'diboson': (22, 11), 'top': (13, 8), 'WpJ': (10, 14), 
@@ -138,7 +138,7 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     #     pars.cuts += '&&(W_pt<200.)'
 
     # veto vbf
-    pars.cuts += '&&(vbf_event==0)'
+    # pars.cuts += '&&(vbf_event==0)'
 
     # you need a files entry and a models entry for each of the fit 
     # compoents in backgrounds and signals
@@ -200,8 +200,10 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
          ngen[0], ngen[1]*ngen[2])
         ]
     pars.ggHModels = [ modePars[mH][5]['ggH'][0] ]
+    pars.ggHdoSystMult = False
     if pars.mHiggs >= 400:
         pars.ggHInterference = True
+        pars.ggHSystMult = 'interf_ggH'
 
 
     ngen = HWWSignalShapes.NgenHiggs(mH, 'qqH')

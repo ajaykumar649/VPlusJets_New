@@ -1,0 +1,13 @@
+1D2FitsParameters/*.root
+1D2FitsParameters/*.png
+1D2FitsParameters/*~
+1D2FitsParameters/CVS
+Limits/*~
+Limits/CVS
+Limits/*.root
+Limits/*.log
+Limits/*.o
+Limits/*.exe
+EffTable2012/CVS
+EffTableDir/CVS
+EffTableDir/*.root

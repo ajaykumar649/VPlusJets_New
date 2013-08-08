@@ -1,4 +1,4 @@
-c_diboson_fit_mlvjj = -0.0108650 +/- 0.00068500 C L(-10 - 10) 
-offset_diboson_fit_mlvjj =  158.37 +/- 1.5449 C L(-100 - 1000) 
-width_diboson_fit_mlvjj =  24.000 +/- 4.0752 C L(0 - 1000) 
-n_diboson = 2811.4 +/- 53.0 C
+c_diboson_fit_mlvjj = -0.00933651 +/- 0.00079831 C L(-0.0173196 - -0.00135341)
+offset_diboson_fit_mlvjj = 162.55 +/- 1.4377 C L(148.173 - 176.928)
+width_diboson_fit_mlvjj = 14.843 +/- 3.7814 C L(-22.9718 - 52.6572)
+n_diboson = 1097.5 +/- 33.1 C

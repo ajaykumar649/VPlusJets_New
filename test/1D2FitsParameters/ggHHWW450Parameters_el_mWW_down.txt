@@ -1,0 +1,6 @@
+f_ggH_fit_mlvjj_core_interf_ggHDown = 0.73964 +/- 0.039069 C L(0.34895 - 1.13033)
+mean_ggH_fit_mlvjj_core_interf_ggHDown = 459.03 +/- 1.1942 C L(447.084 - 470.968)
+mean_ggH_fit_mlvjj_tail_interf_ggHDown = 447.86 +/- 9.2568 C L(355.291 - 540.427)
+sigma_ggH_fit_mlvjj_core_interf_ggHDown = 41.505 +/- 1.4965 C L(26.5408 - 56.47)
+sigma_ggH_fit_mlvjj_tail_interf_ggHDown = 103.34 +/- 7.3090 C L(30.2512 - 176.431)
+n_ggH_interf_ggHDown = 206.4 +/- 14.4 C

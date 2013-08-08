@@ -463,6 +463,13 @@ class Wjj2DFitter:
             return self.ws.pdf(component)
 
         pdfList = []
+        systMult = None
+        if ( hasattr(self.pars, '%sInterference' % component) and \
+             getattr(self.pars, '%sInterference' % component) and \
+             hasattr(self.pars, "%sdoSystMult" % component) and \
+             getattr(self.pars, "%sdoSystMult" % component) ):
+            systMult = getattr(self.pars, "%sSystMult" % component)
+
         for (idx,model) in enumerate(models):
             var = self.pars.var[idx]
             try:
@@ -481,7 +488,7 @@ class Wjj2DFitter:
             pdfList.append(self.utils.analyticPdf(self.ws, vName, model, 
                                                   '%s_%s'%(component,vName), 
                                                   '%s_%s'%(component,vName),
-                                                  auxModel
+                                                  auxModel, systMult
                                                   )
                            )
         

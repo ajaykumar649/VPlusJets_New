@@ -63,8 +63,10 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
     # ngen = HWWSignalShapes.NgenHiggs(mH, 'ggH')
     pars.ggHFiles = pars_mjj.ggHFiles
     pars.ggHModels = [ modePars[mH][5]['ggH'][1] ]
+    pars.ggHdoSystMult = False
     if pars.mHiggs >= 400:
         pars.ggHInterference = True
+        pars.ggHSystMult = 'interf_ggH'
 
     # ngen = HWWSignalShapes.NgenHiggs(mH, 'qqH')
     pars.qqHFiles = pars_mjj.qqHFiles
