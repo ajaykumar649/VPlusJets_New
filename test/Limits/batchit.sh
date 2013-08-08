@@ -7,5 +7,5 @@ cd $SRCDIR
 export SCRAM_ARCH=slc5_amd64_gcc472
 eval `scram runtime -sh`
 cd -
-
-$*
+echo "$*"
+`$*`
