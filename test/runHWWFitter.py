@@ -391,8 +391,8 @@ if (opts.mH >= 500):
 sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils, iwt = iwt)
 
 extraFactor = 2.
-otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
-SigVisual = TH1D(sigHists['HWW'])
+otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'ggH')
+SigVisual = TH1D(sigHists['ggH'])
 SigVisual.Print()
 SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)
@@ -540,8 +540,8 @@ h_total_down.Write()
 for mode in sigHists:
     sigHists[mode].Write()
 
-sigHists['HWW'].Print()
-nomIntegral = sigHists['HWW'].Integral()
+sigHists['ggH'].Print()
+nomIntegral = sigHists['ggH'].Integral()
 if iwt == 1:
     pars4up = RooWjjFitterParams(pars4)
     if (opts.Nj == 2):
@@ -550,11 +550,11 @@ if iwt == 1:
     fitUtilsUp = RooWjjFitterUtils(pars4up)
     sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, fitUtilsUp, 
                                                iwt = 2)
-    sigHistsUp['HWW'].SetName(sigHistsUp['HWW'].GetName() + '_up')
+    sigHistsUp['ggH'].SetName(sigHistsUp['ggH'].GetName() + '_up')
     ShapeFile.cd()
-    sigHistsUp['HWW'].Write()
-    sigHistsUp['HWW'].Print()
-    upIntegral = sigHistsUp['HWW'].Integral()
+    sigHistsUp['ggH'].Write()
+    sigHistsUp['ggH'].Print()
+    upIntegral = sigHistsUp['ggH'].Integral()
     pars4down = RooWjjFitterParams(pars4)
     if (opts.Nj == 2):
         pars4down.cuts = pars4.cuts.replace('interferencenominal', 
@@ -562,11 +562,11 @@ if iwt == 1:
     fitUtilsDown = RooWjjFitterUtils(pars4down)
     sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
                                                  fitUtilsDown, iwt = 3)
-    sigHistsDown['HWW'].SetName(sigHistsDown['HWW'].GetName() + '_down')
+    sigHistsDown['ggH'].SetName(sigHistsDown['ggH'].GetName() + '_down')
     ShapeFile.cd()
-    sigHistsDown['HWW'].Write()
-    sigHistsDown['HWW'].Print()
-    downIntegral = sigHistsDown['HWW'].Integral()
+    sigHistsDown['ggH'].Write()
+    sigHistsDown['ggH'].Print()
+    downIntegral = sigHistsDown['ggH'].Integral()
 
 # HiggsHist.Write()
 # VBFHiggsHist.Write()

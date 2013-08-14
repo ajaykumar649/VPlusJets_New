@@ -107,7 +107,8 @@ gStyle.SetNdivisions(505, "XYZ")
 
 if (gSystem.DynamicPathName("libFWCoreFWLite.so",True)):
     gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libMMozerpowhegweight.so")
-    res = gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
+    if os.access(os.path.expandvars("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so"), os.R_OK):
+        gSystem.Load("$CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
     gROOT.GetInterpreter().AddIncludePath(cmssw_base + '/src')
     gSystem.AddIncludePath('-I"' + cmssw_base + '/src"')
     if not RooFitInclude():

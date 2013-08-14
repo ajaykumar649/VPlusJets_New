@@ -29,6 +29,8 @@ parser.add_option('--electrons', dest='isElectron', action='store_true',
                   default=False, help='do electrons instead of muons')
 parser.add_option('--reuse', dest='reuse', action='store_true',
                   default=False, help='use previous fit to get data')
+parser.add_option('--mva', dest='mvaCut', type='float',
+                  help='override cut value for mva')
 (opts, args) = parser.parse_args()
 
 components = [ 'ggH', 'qqH', 'diboson', 'top', 'WpJ' ]
@@ -39,6 +41,9 @@ cmdBase = [ 'python', 'fitComponentShapePdf.py', '-b', '-j', '2',
             '-m', 'HWW1D2FitsConfig', '--mH', str(opts.mH) ]
 if opts.isElectron:
     cmdBase.append('--electrons')
+
+if hasattr(opts, "mvaCut") and opts.mvaCut:
+    cmdBase.extend(['--mva', str(opts.mvaCut)])
 
 for component in components:
     cmd = list(cmdBase) + [ '--comp', component, ]

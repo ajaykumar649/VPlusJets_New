@@ -19,6 +19,13 @@ def showCheck(f):
         print 'key:',key.GetName(),key.GetClassName()
         if key.GetClassName() == 'RooPlot':
             f.Get(key.GetName()).Draw()
+            c1.SetGridy(False)
+            c1.Update()
+            c1.WaitPrimitive()
+        if (key.GetClassName() == 'TGraphErrors') or \
+           (key.GetClassName() == 'TGraph'):
+            f.Get(key.GetName()).Draw('ap')
+            c1.SetGridy()
             c1.Update()
             c1.WaitPrimitive()
         key = kiter.Next()

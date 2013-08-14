@@ -58,6 +58,15 @@ class Wjj2DFitter:
                 var1.setRange('highSideband', self.pars.exclude[v][1],
                               var1.getMax())
                 self.rangeString = 'lowSideband,highSideband'
+
+            if hasattr(self.pars, 'plotRanges'):
+                var1.setRange('plotRange', self.pars.plotRanges[v][1],
+                              self.pars.plotRanges[v][2])
+                var1.setBins(self.pars.plotRanges[v][0], 'plotBins')
+            else:
+                var1.setRange('plotRange', var1.getMin(), var1.getMax())
+                var1.setBins(var1.getBins(), 'plotBins')
+
         self.ws.defineSet('obsSet', ','.join(obs))
 
     def loadDataFromWorkspace(self, other, cut = None):
@@ -524,15 +533,16 @@ class Wjj2DFitter:
 
         xvar = self.ws.var(var)
         nbins = xvar.getBins()
-        if hasattr(self.pars, 'plotRanges'):
-            xvar.setRange('plotRange', self.pars.plotRanges[var][1],
-                          self.pars.plotRanges[var][2])
-            xvar.setBins(self.pars.plotRanges[var][0], 'plotBins')
-        else:
-            xvar.setRange('plotRange', xvar.getMin(), xvar.getMax())
-            xvar.setBins(nbins, 'plotBins')
+        # if hasattr(self.pars, 'plotRanges') and not xvar.hasRange('plotRange'):
+        #     xvar.setRange('plotRange', self.pars.plotRanges[var][1],
+        #                   self.pars.plotRanges[var][2])
+        #     xvar.setBins(self.pars.plotRanges[var][0], 'plotBins')
+        # elif not xvar.hasRange('plotRange'):
+        #     xvar.setRange('plotRange', xvar.getMin(), xvar.getMax())
+        #     xvar.setBins(nbins, 'plotBins')
 
-        sframe = xvar.frame()
+        sframe = xvar.frame(RooFit.Range('plotRange'),
+                            RooFit.Bins(xvar.getBins('plotBins')))
         sframe.SetName("%s_stacked" % var)
         pdf = self.ws.pdf(pdfName)
 

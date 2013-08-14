@@ -31,6 +31,8 @@ parser.add_option('--limit', dest='doLimit', type='int',
 parser.add_option('--obsLimit', dest='obsLimit', action='store_true',
                   default=False,
                   help='calculate observed limit too')
+parser.add_option('--mva', dest='mvaCut', type='float',
+                  help='override cut value for mva')
 
 (opts, args) = parser.parse_args()
 
@@ -58,6 +60,10 @@ if hasattr(opts, "seed") and (opts.seed >= 0):
     print "random seed:", opts.seed
     RooRandom.randomGenerator().SetSeed(opts.seed)
 
+mvaCutOverride = None
+if hasattr(opts, "mvaCut"):
+    mvaCutOverride = opts.mvaCut
+
 mjjArgs = []
 sideArgs = []
 mWWArgs = []
@@ -72,7 +78,7 @@ for arg in args:
 print mjjArgs
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                         isElectron = opts.isElectron, initFile = mjjArgs,
-                        includeSignal = False)
+                        includeSignal = False, MVACutOverride = mvaCutOverride)
 
 fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 fitter.ws.SetName("w_mjj")

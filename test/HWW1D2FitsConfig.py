@@ -84,7 +84,8 @@ el2Pars = {
             'ggH': (13, 5),'qqH': (7, 5)} ),
     }
 
-def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
+def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True,
+              MVACutOverride = None):
     pars = Wjj2DFitterPars()
 
     pars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/Moriond2013/ReducedTrees/'
@@ -124,7 +125,10 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
 
     pars.cuts = '(ggdevt==%i)&&(fit_status==0)&&(W_mt>30)' % Nj
     pars.cuts = '(fit_status==0)&&(W_mt>30)'
-    pars.cuts += '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
+    if MVACutOverride:
+        pars.cuts += '&&(%s>%.3f)' % (modePars[mH][0], MVACutOverride)
+    else:
+        pars.cuts += '&&(%s>%.3f)' % (modePars[mH][0], modePars[mH][1])
     
     #btag veto
     pars.btagVeto = False

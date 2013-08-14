@@ -618,7 +618,7 @@ class Wjj2DFitterUtils:
             width = ws.factory("width_%s[5, 0, 1000]" % idString)
             width.setVal(offset.getVal()*0.2)
             width.setError(width.getVal()*0.2)
-            factoryStatement = "RooErfPdf::%s(%s, offset_%s, width_%s)"%\
+            factoryStatement = "RooErfPdf::%s(%s, offset_%s, width_%s, 1)"%\
                                (pdfName, var, idString, idString)
             ws.factory(factoryStatement)
         elif model == 26:
@@ -718,6 +718,25 @@ class Wjj2DFitterUtils:
             factoryString = factoryString[:-1] + ')'
             print factoryString
             ws.factory(factoryString)
+        elif model == 33:
+            # erf model turning off
+            offset = ws.factory("offset_%s[500, -100, 1000]" % idString)
+            offset.setVal(ws.var(var).getMax())
+            offset.setError(offset.getVal()*0.2)
+            width = ws.factory("width_%s[50, 0, 1000]" % idString)
+            width.setVal(offset.getVal()*0.2)
+            width.setError(width.getVal()*0.2)
+            factoryStatement = "RooErfPdf::%s(%s, offset_%s, width_%s, -1)"%\
+                               (pdfName, var, idString, idString)
+            ws.factory(factoryStatement)
+        elif model == 34:
+            #erf turn off * 2 parameter power law
+            pdfErf = self.analyticPdf(ws, var, 33, '%s_turnoff' % pdfName,
+                                      idString)
+            pdfPower = self.analyticPdf(ws, var, 12, '%s_power' % pdfName,
+                                        idString)
+            ws.factory("PROD::%s(%s,%s)" % (pdfName, pdfErf.GetName(),
+                                            pdfPower.GetName()))
         elif model== 108:
             # expA+expB
             cA = ws.factory("cA_%s[-0.05,-1.0,0.0]" % idString)

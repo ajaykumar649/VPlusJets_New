@@ -26,7 +26,7 @@ NgenVBF = {
     200 : (197352,0),
     250 : (199788,0),
     300 : (196485,0),
-    350 : (197515,0),
+    350 : (197515,0,0.099*1.5*2, 1.05195969977),
     400 : (190587,0),
     450 : (199306,0),
     500 : (199205,0),
@@ -149,9 +149,8 @@ def makeHiggsHist(mH, pars, mode, fitUtils = None, cpw = True, iwt = 0):
     higgsDir = pars.MCDirectory
 
     if pars.includeMuons:
-        thehist = fitUtils.File2Hist(higgsDir + \
-                                         'mu_%sMH%i_CMSSW532_private.root' % \
-                                         (mode, mH),
+        fname = makeSignalFilename(mH, mode, False)
+        thehist = fitUtils.File2Hist(higgsDir[:-3] + fname,
                                      '%s%i_mu' % (mode, mH), False, 1, False,
                                      1, "", cpw, iwt)
         hist.Add(thehist)
@@ -174,9 +173,9 @@ def GenHiggsHists(pars, mH, utils = None, cpw = True, iwt = 0):
     for mode in modes:
         tmpHist = makeHiggsHist(mH, pars, mode, utils, cpw, iwt)
         if type(Ngen[mode][mH]) == type(2):
-            tmpHist.Scale(1/float(Ngen[mode][mH]/2), 'width')
+            tmpHist.Scale(1/float(Ngen[mode][mH]), 'width')
         else:
-            tmpHist.Scale(1/float(Ngen[mode][mH][0]*(Ngen[mode][mH][3] if cpw else 1.0)/2.), 
+            tmpHist.Scale(1/float(Ngen[mode][mH][0]*(Ngen['ggH'][mH][3] if cpw else 1.0)), 
                           'width')
         hists.append(tmpHist)
         
