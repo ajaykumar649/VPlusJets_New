@@ -1,4 +1,5 @@
-from ROOT import RooStats, Double, RooArgSet, RooFit, RooDataHist, TH1F, gPad
+from ROOT import RooStats, Double, RooArgSet, RooFit, RooDataHist, TH1F, gPad, \
+     TMath
 from array import array
 
 # profiled likelihood limit
@@ -85,10 +86,8 @@ def expectedPlcLimit(obs_, poi_, model, ws, ntoys = 30, CL = 0.95,
 
     limits = []
 
-    upperLimits = TH1F("upperLimits_%s" % poi_.GetName(),
-                       "", 100, poi_.getMin(), poi_.getMax())
-    lowerLimits = TH1F("lowerLimits_%s" % poi_.GetName(),
-                       "", 100, poi_.getMin(), poi_.getMax())
+    upperLimits = []
+    lowerLimits = []
     probs = array('d', [0.022, 0.16, 0.5, 0.84, 0.978])
     upperQs = array('d', [0.]*len(probs))
     lowerQs = array('d', [0.]*len(probs))
@@ -108,23 +107,31 @@ def expectedPlcLimit(obs_, poi_, model, ws, ntoys = 30, CL = 0.95,
 
         #print limits[-1]
         if limits[-1][poi_.GetName()]['ok'] and \
-            ((poi_.getMax()-limits[-1][poi_.GetName()]['upper']) > 0.001*poi_.getMax()):
-            upperLimits.Fill(limits[-1][poi_.GetName()]['upper'])
+               ((poi_.getMax()-limits[-1][poi_.GetName()]['upper']) > 0.001*poi_.getMax()):
+            upperLimits.append(limits[-1][poi_.GetName()]['upper'])
         if limits[-1][poi_.GetName()]['ok'] and \
-            ((limits[-1][poi_.GetName()]['lower']-poi_.getMin()) > 0.001*abs(poi_.getMin())):
-            lowerLimits.Fill(limits[-1][poi_.GetName()]['lower'])
+               ((limits[-1][poi_.GetName()]['lower']-poi_.getMin()) > 0.001*abs(poi_.getMin())):
+            lowerLimits.append(limits[-1][poi_.GetName()]['lower'])
 
         toyData.IsA().Destructor(toyData)
 
-    upperLimits.GetQuantiles(len(probs), upperQs, probs)
+    upperLimits.sort()
+    upperArray = array('d', upperLimits)
+    TMath.Quantiles(len(upperLimits), len(probs), upperArray, upperQs,
+                    probs)
+    # upperLimits.GetQuantiles(len(probs), upperQs, probs)
     # upperLimits.Print()
-    print 'expected upper limit quantiles using %i toys: ['%(upperLimits.GetEntries()),
+    print 'expected upper limit quantiles using %i toys: [' % len(upperLimits),
     for q in upperQs:
         print '%0.4f' % q,
     print ']'
-    lowerLimits.GetQuantiles(len(probs), lowerQs, probs)
+
+    lowerLimits.sort()
+    lowerArray = array('d', lowerLimits)
+    TMath.Quantiles(len(lowerLimits), len(probs), lowerArray, lowerQs, probs)
+    # lowerLimits.GetQuantiles(len(probs), lowerQs, probs)
     # lowerLimits.Print()
-    print 'expected lower limit quantiles using %i toys: [' % (lowerLimits.GetEntries()),
+    print 'expected lower limit quantiles using %i toys: [' % len(lowerLimits),
     for q in lowerQs:
         print '%0.4f' % q,
     print ']'
@@ -132,7 +139,7 @@ def expectedPlcLimit(obs_, poi_, model, ws, ntoys = 30, CL = 0.95,
                  'upperErr' : sqrt((upperQs[2]-upperQs[1])*(upperQs[3]-upperQs[2])),
                  'lower' : lowerQs[2],
                  'lowerErr' : sqrt((lowerQs[2]-lowerQs[1])*(lowerQs[3]-lowerQs[2])),
-                 'ntoys': upperLimits.GetEntries(),
+                 'ntoys': len(limits),
                  'upperQuantiles': upperQs,
                  'lowerQuantiles': lowerQs,
                  'quantiles': probs

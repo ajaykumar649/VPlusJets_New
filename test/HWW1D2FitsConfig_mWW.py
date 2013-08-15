@@ -4,9 +4,10 @@ import HWWSignalShapes
 import HWW1D2FitsConfig
 from HWW1D2FitsConfig import mu2Pars, el2Pars
 
-def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True):
+def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True,
+              MVACutOverride = None):
     pars_mjj = HWW1D2FitsConfig.theConfig(Nj, mH, isElectron, [], 
-                                          includeSignal)
+                                          includeSignal, MVACutOverride)
     pars = Wjj2DFitterPars()
 
     pars.MCDirectory = pars_mjj.MCDirectory

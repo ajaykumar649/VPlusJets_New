@@ -65,10 +65,6 @@ if hasattr(opts, "mvaCut"):
 
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                         isElectron = opts.isElectron, initFile = args)
-if mvaCutOverride:
-    pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                            isElectron = opts.isElectron, initFile = args,
-                            MVACutOverride = mvaCutOverride)
 if opts.btag:
     pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                             isElectron = opts.isElectron, initFile = args,
@@ -76,6 +72,10 @@ if opts.btag:
 else:
     pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                             isElectron = opts.isElectron, initFile = args)
+if mvaCutOverride:
+    pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+                            isElectron = opts.isElectron, initFile = args,
+                            MVACutOverride = mvaCutOverride)
 
 
 files = getattr(pars, '%sFiles' % opts.component)
