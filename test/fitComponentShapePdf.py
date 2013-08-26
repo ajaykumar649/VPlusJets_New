@@ -328,6 +328,18 @@ for (i,m) in enumerate(models):
     chi2s.append(chi2_1)
     ndfs.append(ndf_1)
 
+    residuals = pulls.createResid(sigPlot.getHist('theData'),
+                                  sigPlot.getCurve('fitCurve'))
+    plots.append(residuals)
+    residuals.SetName('%s_Residuals' % par)
+    c3 = TCanvas('c%i_residual' % i, par + ' residual')
+    c3.SetGridy()
+    residuals.Draw('ap')
+    residuals.GetXaxis().SetLimits(fitter.ws.var(par).getMin(),
+                                   fitter.ws.var(par).getMax())
+    c3.Update()
+    cans.append(c3)
+
     pull = pulls.createPull(sigPlot.getHist('theData'),
                             sigPlot.getCurve('fitCurve'))
     plots.append(pull)
@@ -335,8 +347,10 @@ for (i,m) in enumerate(models):
     c2 = TCanvas('c%i_pull' % i, par + ' pull')
     c2.SetGridy()
     pull.Draw('ap')
+    pull.GetXaxis().SetLimits(fitter.ws.var(par).getMin(),
+                              fitter.ws.var(par).getMax())
+    c2.Update()
     cans.append(c2)
-    
 
     c1.Print('%s_compFit.png' % opts.bn)
 #    c1.Print('%s_compFit.pdf' % opts.bn)
