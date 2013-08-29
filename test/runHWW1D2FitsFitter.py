@@ -186,8 +186,8 @@ blinder2 = None
 if blinder:
     blinder2 = TBox(pars.exclude[pars.var[0]][0], pull1.GetYaxis().GetXmin(),
                     pars.exclude[pars.var[0]][1], pull1.GetYaxis().GetXmax())
-    blinder2.SetFillColor(kBlack)
-    blinder2.SetFillStyle(1001)
+    blinder2.SetFillColor(blinder.GetFillColor())
+    blinder2.SetFillStyle(blinder.GetFillStyle())
 
 if blinder2:
     #blinder2.Print()
@@ -268,13 +268,72 @@ params_mWW = totalPdf_mWW.getParameters(fitter_mWW.ws.set('obsSet'))
 
 predictedPars = params_mWW.snapshot()
 
+params_mWW.Print("v")
+#fitter_mWW.ws.Print()
+
+#compute limits
+import limits
+from array import array
+
+upperHist = None
+
+fitter_mWW.ws.var('r_signal').setRange(-3., 9.)
+fitter_mWW.ws.var('r_signal').setConstant(False)
+full_pdf = fitter_mWW.makeConstrainedFitter()
+if not full_pdf:
+    full_pdf = totalPdf_mWW
+
+if opts.doLimit:
+    # parIter = params_mWW.createIterator()
+    # p = parIter.Next()
+    # while p:
+    #     if p.GetName()[-4:] == '_nrm':
+    #         p.setVal(1.0)
+    #         p.setRange(-1., 5.)
+    #     p = parIter.Next()
+    (expectedLimit, toys) = \
+                    limits.expectedPlcLimit(fitter_mWW.ws.var(pars_mWW.var[0]),
+                                            fitter_mWW.ws.var('r_signal'),
+                                            full_pdf, fitter_mWW.ws,
+                                            ntoys = opts.doLimit,
+                                            binData = pars_mWW.binData)
+
+    upperHist = TH1F('upperHist', 'upper limit hist', 50,
+                     fitter_mWW.ws.var('r_signal').getMin(),
+                     fitter_mWW.ws.var('r_signal').getMax())
+    uppers = []
+    for toy in toys:
+        #print toy
+        if (toy['r_signal']['ok']) and \
+           (toy['r_signal']['upper'] < (fitter_mWW.ws.var('r_signal').getMax()-0.02)):
+            upperHist.Fill(toy['r_signal']['upper'])
+            uppers.append(toy['r_signal']['upper'])
+            
+    qs = array('d', [0.]*5)
+    probs = array('d', [0.022, 0.16, 0.5, 0.84, 0.978])
+    uppers.sort()
+    uppersArray = array('d', uppers)
+    #upperHist.Print()
+        
+    print 'expected 95%% CL upper limit: %0.4f +/- %0.4f' % \
+          (expectedLimit['upper'], expectedLimit['upperErr'])
+    c_upper = TCanvas('c_upper', 'toy upper limits')
+    upperHist.Draw()
+    c_upper.Update()
+
+    TMath.Quantiles(len(uppers), len(qs), uppersArray, qs, probs)
+    # nquants = upperHist.GetQuantiles(len(qs), qs, probs)
+    print 'sensible expected 95%% CL upper limit quantiles for %i toys: [' % len(uppers),
+    for q in qs:
+        print '%.4f,' % q,
+    print ']'
+    print 'expected 95%% CL lower limit: %0.4f +/- %0.4f' % \
+          (expectedLimit['lower'], expectedLimit['lowerErr'])
+
 fitter_mWW.ws.var('r_signal').setVal(0.0)
 fitter_mWW.ws.var('r_signal').setConstant(True)
 fitter_mWW.ws.var('r_signal').setError(0.1)
 fitter_mWW.ws.var('r_signal').setRange(-0.5, 5.)
-
-params_mWW.Print("v")
-#fitter_mWW.ws.Print()
 
 fr_mWW = None
 fr_mWW = fitter_mWW.fit()
@@ -331,8 +390,8 @@ plot_mWW_withErrs.addObject(leg_mWW_withErrs)
 c_mWW = TCanvas('c_mWW', pars_mWW.var[0] + ' plot')
 plot_mWW.addObject(leg_mWW)
 plot_mWW.Draw()
-if blinder:
-    plot_mWW.setInvisible('theData', True)
+# if blinder:
+#     plot_mWW.setInvisible('theData', True)
 c_mWW.Update()
 
 c_mWW_err = TCanvas('c_mWW_err', 'with errors')
@@ -370,18 +429,10 @@ while p:
     p = parIter.Next()
 
 
-#compute limits
-import limits
-from array import array
-
-fitter_mWW.ws.var('r_signal').setRange(-3., 9.)
-full_pdf = fitter_mWW.ws.pdf('totalFit_const')
-if not full_pdf:
-    full_pdf = totalPdf_mWW
-
 bkgHisto = full_pdf.createHistogram("HWW%snujj_bkg" % mode,
                                     fitter_mWW.ws.var(pars_mWW.var[0]))
 bkgHisto.Scale(full_pdf.expectedEvents(fitter_mWW.ws.set('obsSet'))/bkgHisto.Integral())
+bkgHisto.Print()
 bkgHisto.SetName("HWW%snujj_bkg" % mode)
 # c_debug = TCanvas('c_debug', 'debug')
 bkgHisto_up = fitter_mWW.utils.newEmptyHist(
@@ -443,57 +494,10 @@ dataHisto = RooAbsData.createHistogram(fitter_mWW.ws.data('data_obs'),
 dataHisto.SetMarkerStyle(20)
 dataHisto.SetName('HWW%snujj_data_obs' % mode)
 dataHisto.Draw('same')
+dataHisto.Print()
 c_bkg.Update()
 
 fitter_mWW.ws.saveSnapshot('nullFitSnapshot', fitter_mWW.ws.allVars())
-
-upperHist = None
-if opts.doLimit:
-    parIter = params_mWW.createIterator()
-    p = parIter.Next()
-    while p:
-        if p.GetName()[-4:] == '_nrm':
-            p.setVal(1.0)
-            p.setRange(-1., 5.)
-        p = parIter.Next()
-    (expectedLimit, toys) = \
-                    limits.expectedPlcLimit(fitter_mWW.ws.var(pars_mWW.var[0]),
-                                            fitter_mWW.ws.var('r_signal'),
-                                            full_pdf, fitter_mWW.ws,
-                                            ntoys = opts.doLimit,
-                                            binData = pars_mWW.binData)
-
-    upperHist = TH1F('upperHist', 'upper limit hist', 50,
-                     fitter_mWW.ws.var('r_signal').getMin(),
-                     fitter_mWW.ws.var('r_signal').getMax())
-    uppers = []
-    for toy in toys:
-        #print toy
-        if (toy['r_signal']['ok']) and \
-           (toy['r_signal']['upper'] < (fitter_mWW.ws.var('r_signal').getMax()-0.02)):
-            upperHist.Fill(toy['r_signal']['upper'])
-            uppers.append(toy['r_signal']['upper'])
-            
-    qs = array('d', [0.]*5)
-    probs = array('d', [0.022, 0.16, 0.5, 0.84, 0.978])
-    uppers.sort()
-    uppersArray = array('d', uppers)
-    #upperHist.Print()
-        
-    print 'expected 95%% CL upper limit: %0.4f +/- %0.4f' % \
-          (expectedLimit['upper'], expectedLimit['upperErr'])
-    c_upper = TCanvas('c_upper', 'toy upper limits')
-    upperHist.Draw()
-    c_upper.Update()
-
-    TMath.Quantiles(len(uppers), len(qs), uppersArray, qs, probs)
-    # nquants = upperHist.GetQuantiles(len(qs), qs, probs)
-    print 'sensible expected 95%% CL upper limit quantiles for %i toys: [' % len(uppers),
-    for q in qs:
-        print '%.4f' % q,
-    print ']'
-    print 'expected 95%% CL lower limit: %0.4f +/- %0.4f' % \
-          (expectedLimit['lower'], expectedLimit['lowerErr'])
 
 fitter_mWW.ws.loadSnapshot('nullFitSnapshot')
 

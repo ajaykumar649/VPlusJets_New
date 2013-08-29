@@ -737,6 +737,26 @@ class Wjj2DFitterUtils:
                                         idString)
             ws.factory("PROD::%s(%s,%s)" % (pdfName, pdfErf.GetName(),
                                             pdfPower.GetName()))
+        elif model == 35:
+            #erf turn off * 1 parameter power law
+            pdfErf = self.analyticPdf(ws, var, 33, '%s_turnoff' % pdfName,
+                                      idString)
+            pdfPower = self.analyticPdf(ws, var, 1, '%s_power' % pdfName,
+                                        idString)
+            ws.factory("PROD::%s(%s,%s)" % (pdfName, pdfErf.GetName(),
+                                            pdfPower.GetName()))
+        elif model== 36:
+            # erf (turn off) * exponential pdf
+            ws.factory("c_%s[-0.015, -10, 10]" % idString)
+            offset = ws.factory("offset_%s[70, -100, 1000]" % idString)
+            width = ws.factory("width_%s[20, 0, 1000]" % idString)
+            offset.setVal(ws.var(var).getMin())
+            offset.setError(offset.getVal()*0.2)
+            width.setVal(offset.getVal()*0.2)
+            width.setError(width.getVal()*0.2)
+            ws.factory("RooErfExpPdf::%s(%s, c_%s, offset_%s, width_%s, -1)" %\
+                       (pdfName, var, idString, idString, idString)
+                       )
         elif model== 108:
             # expA+expB
             cA = ws.factory("cA_%s[-0.05,-1.0,0.0]" % idString)

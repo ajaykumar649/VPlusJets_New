@@ -44,6 +44,9 @@ runA1D2FitsFit.py
 run1D2FitsShapeFits.py
 runHiggsNewMu.csh
 runHiggsNewEl.csh
+runHiggsNewShapesMu.csh
+runHiggsNewShapesEl.csh
+runHiggsNewFitMu.csh
+runHiggsNewFitEl.csh
 plotHWWplots.py
 checkFits.py
-runAMassPointMu.csh

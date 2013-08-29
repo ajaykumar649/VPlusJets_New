@@ -270,6 +270,30 @@ class Wjj2DFitter:
 
         return self.ws.set('constraintSet')
 
+    # make the constrained fitter
+    def makeConstrainedFitter(self):
+        if self.ws.pdf('totalFit_const'):
+            return self.ws.pdf('totalFit_const')
+
+        constraintSet = self.makeConstraints()
+        fitter = self.makeFitter()
+
+        print '\nfit constraints'
+        constIter = constraintSet.createIterator()
+        constraint = constIter.Next()
+        constraints = []
+        while constraint:
+            constraint.Print()
+            constraints.append(constraint.GetName())
+            constraint = constIter.Next()
+
+        if constraintSet.getSize() > 0:
+            constraints.append(fitter.GetName())
+            fitter = self.ws.factory('PROD::totalFit_const(%s)' % \
+                                     (','.join(constraints))
+                                     )
+        return fitter
+
     # fit the data using the pdf
     def fit(self, keepParameterValues = False):
         print 'construct fit pdf ...'
@@ -287,23 +311,10 @@ class Wjj2DFitter:
 
         self.resetYields()
         # print constraints, self.pars.yieldConstraints
-        print '\nfit constraints'
-        constIter = constraintSet.createIterator()
-        constraint = constIter.Next()
-        constraints = []
-        while constraint:
-            constraint.Print()
-            constraints.append(constraint.GetName())
-            constraint = constIter.Next()
             
         constraintCmd = RooCmdArg.none()
         if constraintSet.getSize() > 0:
-            constraints.append(fitter.GetName())
-            fitter = self.ws.pdf('totalFit_const')
-            if not fitter:
-                fitter = self.ws.factory('PROD::totalFit_const(%s)' % \
-                                             (','.join(constraints))
-                                         )
+            fitter = self.makeConstrainedFitter()
             constraintCmd = RooFit.Constrained()
             # constraintCmd = RooFit.ExternalConstraints(self.ws.set('constraintSet'))
 
@@ -652,6 +663,8 @@ class Wjj2DFitter:
                 print 'excluded',excluded,self.pars.exclude
                 print 'hiding data points'
             sframe.setInvisible('theData', True)
+        else:
+            sframe.setInvisible('theData', False)
 
         #sframe.GetYaxis().SetTitle('Events / GeV')
         # dataHist.IsA().Destructor(dataHist)
