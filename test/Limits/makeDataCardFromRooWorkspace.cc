@@ -123,7 +123,7 @@ makeDataCardContent(TFile *fp,
     exit(-1);
   }
 
-  card = new Card(-1,"data_obs",channame,"",false);
+  card = new Card(w->data("data_obs")->sumEntries(),"data_obs",channame,"",false);
 
   cout<<endl;
 
