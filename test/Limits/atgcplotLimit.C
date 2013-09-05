@@ -35,7 +35,7 @@ const int   beamcometev  = 8;
 
 TString par2latex(const TString& parname)
 {
-  if (parname.EqualTo("lz") )  return "#lambda";
+  if (parname.EqualTo("lZ") )  return "#lambda";
   if (parname.EqualTo("dkg") ) return "#Delta#kappa_{#gamma}";
   if (parname.EqualTo("dg1") ) return "#Delta G1";
 
@@ -46,7 +46,7 @@ TString par2latex(const TString& parname)
 
 float parmin(const TString& parname)
 {
-  if (parname.EqualTo("lz") )  return -0.03;
+  if (parname.EqualTo("lZ") )  return -0.03;
   if (parname.EqualTo("dkg") ) return -0.12;
   if (parname.EqualTo("dg1") ) return -0.05;
 
@@ -57,8 +57,8 @@ float parmin(const TString& parname)
 
 float parmax(const TString& parname)
 {
-  if (parname.EqualTo("lz") )  return 0.03;
-  if (parname.EqualTo("dkg") ) return 0.12;
+  if (parname.EqualTo("lZ") )  return 0.03;
+  if (parname.EqualTo("dkg") ) return 0.2;
   if (parname.EqualTo("dg1") ) return 0.07;
 
   return -999;
@@ -68,7 +68,7 @@ float parmax(const TString& parname)
 
 float parinc(const TString& parname)
 {
-  if (parname.EqualTo("lz") )  return 0.001;
+  if (parname.EqualTo("lZ") )  return 0.001;
   if (parname.EqualTo("dkg") ) return 0.01;
   if (parname.EqualTo("dg1") ) return 0.002;
 
@@ -223,9 +223,16 @@ int  getBands(TFile *file, int doSyst, int whichChannel,
 void fillGraphsFromFiles( const TString& par1,
 			  const TString& par2,
 			  const vector<TString>& fnames,
-			  const vector<string>&  keys,
+			  vector<string>&  keys,
 			  map<string,TGraph2D *>& m_graphs)
 {
+  keys.push_back("-2s");
+  keys.push_back("-1s");
+  keys.push_back("median");
+  keys.push_back("+1s");
+  keys.push_back("+2s");
+  keys.push_back("obs");
+
   for (int i=0; i<6; i++) {
     m_graphs[keys[i]] = new TGraph2D();
     m_graphs[keys[i]]->SetName(Form("graph2D%s",keys[i].c_str()));
@@ -297,8 +304,16 @@ void fillGraphsFromFiles( const TString& par1,
 //======================================================================
 
 void fillGraphsFromTextTables( const TString& fname,
+			       vector<string>&  keys,
 			       map<string,TGraph2D *>& m_graphs)
 {
+  keys.push_back("-2s");
+  keys.push_back("-1s");
+  keys.push_back("median");
+  keys.push_back("+1s");
+  keys.push_back("+2s");
+  keys.push_back("obs");
+
   m_graphs["obs"] = new TGraph2D(fname,"%lg %lg %lg %*lg %*lg %*lg %*lg %*lg");
   m_graphs["obs"]->SetName("graph2Dobs");
 
@@ -316,6 +331,8 @@ void fillGraphsFromTextTables( const TString& fname,
 
   m_graphs["+2s"] = new TGraph2D(fname,"%lg %lg %*lg %lg %*lg %*lg %*lg %*lg");
   m_graphs["+2s"]->SetName("graph2D+2s");
+
+  TCanvas *canv = new TCanvas("dummy2","dummy2",500,500);
 }                                            // fillGraphsFromTextTables
 
 //======================================================================
@@ -323,9 +340,17 @@ void fillGraphsFromTextTables( const TString& fname,
 void fillGraphsFromFilesAsymp( const TString& par1,
 			       const TString& par2,
 			       const vector<TString>& fnames,
-			       const vector<string>&  keys,
+			       vector<string>&  keys,
 			       map<string,TGraph2D *>& m_graphs)
 {
+  keys.push_back("-2s");
+  keys.push_back("-1s");
+  keys.push_back("median");
+  keys.push_back("+1s");
+  keys.push_back("+2s");
+  keys.push_back("obs");
+
+
   for (int i=0; i<6; i++) {
     m_graphs[keys[i]] = new TGraph2D();
     m_graphs[keys[i]]->SetName(Form("graph2D%s",keys[i].c_str()));
@@ -370,53 +395,133 @@ void fillGraphsFromFilesAsymp( const TString& par1,
 
 //======================================================================
 
+void fillGraphsFromFilesDeltaNLL( const TString& par1name,
+				  const TString& par2name,
+				  const vector<TString>& fnames,
+				  vector<string>&  keys,
+				  map<string,TGraph2D *>& m_graphs)
+{
+  keys.push_back("exp68");
+  keys.push_back("exp95");
+  keys.push_back("exp99");
+  keys.push_back("obs95");
+
+  TGraph2D *grobs = new TGraph2D();
+  TGraph2D *grexp = new TGraph2D();
+
+  m_graphs["obs95"] = grobs;
+  m_graphs["exp95"] = grexp;
+
+  grobs->SetName("graph2Dobs95");
+  grexp->SetName("graph2Dexp95");
+
+  Int_t nobs=0, nexp=0;
+
+  for( size_t i=0; i<fnames.size(); i++) {
+    
+    TFile *f = new TFile(fnames[i]);
+    TTree *t = (TTree *) f->Get("limit");
+
+    if (!t) { 
+      std::cerr<<"TFile "<<f->GetName()<<" does not contain the tree"<<std::endl;
+      return;
+    }
+    cout << fnames[i] << " has limit tree with " << t->GetEntries() << " entries." << endl;
+
+    Float_t deltaNLL, par1, par2;
+    Int_t iToy;
+
+    t->SetBranchAddress("iToy", &iToy);
+    t->SetBranchAddress("deltaNLL", &deltaNLL);
+    t->SetBranchAddress(par1name, &par1);
+    t->SetBranchAddress(par2name, &par2);
+
+    for (size_t j = 0, n = t->GetEntries(); j < n; ++j) {
+      t->GetEntry(j);
+      printf ("%d\r",j);
+      if( !iToy)             grobs->SetPoint(nobs++,par1,par2,2*deltaNLL);
+      else if (iToy == -1)   grexp->SetPoint(nexp++,par1,par2,2*deltaNLL);
+      else {
+	cerr << "Unexpected value for iToy, = " << iToy << endl;
+	exit(-1);
+      }
+    } // tree entry loop
+
+    f->Close();
+    delete f;
+
+  } // file loop
+  cout << endl;
+
+  m_graphs["exp68"] = (TGraph2D*)grexp->Clone("graph2Dexp68");
+  m_graphs["exp99"] = (TGraph2D*)grexp->Clone("graph2Dexp99");
+
+#if 0
+  TCanvas *canv = new TCanvas("tester","tester",500,500);
+  cout << grexp->GetN()<<" points. " <<endl;
+  grexp->Draw("TRI"); // cont 5z list");
+#endif
+}                                         // fillGraphsFromFilesDeltaNLL
+
+//======================================================================
+
 void collectContours(map<string,TGraph2D *>& m_graphs,
 		     const vector<string>&  keys,
-		     map<string,TList *>& m_contours,
-		     double contourval)
+		     map<string,double>& m_contourlevels,
+		     map<string,TList *>& m_contours)
 {
+  cout << "CollectContours" << endl;
+
   TCanvas *canv = new TCanvas("dummy","dummy",100,100);
-  //m_graphs["+2s"]->Draw("cont 5z list");
   //canv->Divide(3,2);
 
-  //process TGraph2Ds into contours at z=contourval
-  for (int i=0; i<6; i++) {
-    m_graphs[keys[i]]->GetHistogram()->SetContour(1,&contourval);
+  //process TGraph2Ds into contours at levels m_contourlevels
+  for (size_t i=0; i<keys.size(); i++) {
+    double clev = m_contourlevels[keys[i]];
+    m_graphs[keys[i]]->GetHistogram()->SetContour(1, &clev);
     //canv->cd(i+1);
-    m_graphs[keys[i]]->Draw("cont 2z list");
-    canv->Update();
-        
+    cout << "drawing... " << endl;
+
+    m_graphs[keys[i]]->Draw("CONT LIST"); // it's stupid, but only "CONT" will generate the list
+    gPad->Update();
+
     TObjArray *contours = (TObjArray *)gROOT->GetListOfSpecials()->FindObject("contours");
     assert(contours);
-    TList *contLevel = (TList*)contours->At(0);
-    printf("%s: Contour has %d Graphs\n", keys[i].c_str(), contLevel->GetSize());
 
     TList *newlist = 0;
-    if (contLevel->GetSize()) {
-      newlist = new TList();
-      assert(contLevel->First());
-      TGraph *curv = (TGraph*)(contLevel->First());
+    for (int ci=0; ci<contours->GetEntriesFast(); ci++) {
+      TList *contLevel = (TList*)contours->At(ci);
+      printf("%s: Contour %d has %d Graphs\n", keys[i].c_str(), ci, contLevel->GetSize());
 
-      for (int j=0; j<contLevel->GetSize(); j++) {
-	newlist->Add((TGraph *)(curv->Clone()));
-	curv=(TGraph *)(contLevel->After(curv));
+      if (contLevel->GetSize()) {
+	assert(contLevel->First());
+	if (!newlist) newlist = new TList();
+	TGraph *curv = (TGraph*)(contLevel->First());
+
+	for (int j=0; j<contLevel->GetSize(); j++) {
+	  newlist->Add((TGraph *)(curv->Clone()));
+	  curv=(TGraph *)(contLevel->After(curv));
+	}
       }
+    } // contour loop
 
-      //cout << "Inserting contour list for "<< keys[i] << " newlist="<<newlist<<endl;
-    }
+    cout << "Inserting contour list for "<< keys[i] << " newlist="<<newlist<<endl;
     m_contours[keys[i]] = newlist;
-  }
+
+  } // key loop
+
   //delete canv;
 }                                                     // collectContours
 
 //======================================================================
+// "Brazilian Flag" style
 
 void
-draw2DLimit(map<string,TList *>& m_contours,
-	    const TString& par1,
-	    const TString& par2,
-	    const TString& plotprefix,
-	    TLegend *legend)
+draw2DLimitBFstyle(map<string,TList *>& m_contours,
+		     const TString& par1,
+		     const TString& par2,
+		     const TString& plotprefix,
+		     TLegend *legend)
 {
 
   //from here we build the two-dimensional aTGC limit
@@ -569,7 +674,146 @@ draw2DLimit(map<string,TList *>& m_contours,
   finalPlot->Print(Form("%s.eps",plotprefix.Data()));
   finalPlot->Print(Form("%s.png",plotprefix.Data()));
 
-}                                                         // draw2Dlimit
+}                                                  // draw2DlimitBFstyle
+
+//======================================================================
+
+void
+draw2DLimitContours(map<string,TList *>& m_contours,
+		    const TString& par1,
+		    const TString& par2,
+		    const TString& plotprefix,
+		    TLegend *legend)
+{
+
+  //from here we build the two-dimensional aTGC limit
+
+  TCanvas *finalPlot = new TCanvas("final","limits",500,500);
+  finalPlot->cd();
+
+  cout << "Drawing expected 68%" << endl;
+
+  TList *contLevel = m_contours["exp68"];
+  TGraph *curv;
+
+  assert(contLevel);
+
+  curv = (TGraph*)(contLevel->First());
+
+  curv->GetXaxis()->SetLimits(parmin(par1),parmax(par1));
+  curv->GetYaxis()->SetRangeUser(parmin(par2),parmax(par2));
+
+  curv->SetTitle();
+  curv->GetXaxis()->SetTitle(par2latex(par1));
+  curv->GetXaxis()->SetTitleFont(42);
+  curv->GetYaxis()->SetTitle(par2latex(par2));
+  curv->GetYaxis()->SetTitleFont(42);
+  curv->GetYaxis()->SetTitleOffset(1.20);
+
+  for (int i=0; i<contLevel->GetSize(); i++) {
+    assert(curv);
+    curv->SetLineColor(kBlue);
+    curv->SetLineWidth(2);
+    curv->SetLineStyle(9);
+    if (!i) {
+      curv->Draw("AC");
+      legend->AddEntry(curv,"Expected 68% C.L.","L");
+    } else 
+      curv->Draw("SAME C");
+    curv=(TGraph *)(contLevel->After(curv));
+  }
+
+  cout << "Drawing expected 95%" << endl;
+  
+  contLevel = m_contours["exp95"];
+
+  curv = (TGraph*)(contLevel->First());
+
+  for (int i=0; i<contLevel->GetSize(); i++) {
+    curv->SetLineColor(kGreen);
+    curv->SetLineWidth(2);
+    curv->SetLineStyle(9);
+    curv->Draw("SAME C");
+    if (!i) legend->AddEntry(curv,"Expected 95% C.L.","L");
+    curv=(TGraph *)(contLevel->After(curv));
+  }
+
+  cout << "Drawing expected 99%" << endl;
+
+  contLevel = m_contours["exp99"];
+  curv = (TGraph*)(contLevel->First());
+  for (int i=0; i<contLevel->GetSize(); i++) {
+    curv->SetLineColor(kRed);
+    curv->SetLineWidth(2);
+    curv->SetLineStyle(9);
+    curv->Draw("SAME C");
+    if (!i) legend->AddEntry(curv,"Expected 99% C.L.","L");
+    curv=(TGraph *)(contLevel->After(curv));
+  }
+
+  cout << "Drawing obs95" << endl;
+  
+  contLevel = m_contours["obs95"];
+
+  curv = (TGraph*)(contLevel->First());
+
+  for (int i=0; i<contLevel->GetSize(); i++) {
+    curv->Draw("SAME C");
+    curv->SetLineWidth(2);
+    if (!i) legend->AddEntry(curv,"Observed 95% C.L.","L");
+    curv=(TGraph *)(contLevel->After(curv));
+  }
+
+  
+  TGraph *SMpoint = new TGraph(1);
+  SMpoint->SetPoint(1,0,0);
+  SMpoint->Draw("SAME Po");
+  
+  // smLabel = TPaveText(0,
+  //                     m_contours["-2s"]->GetYaxis()->GetXmax()/8,
+  //                     m_contours["-2s"]->GetXaxis()->GetXmax()/3->5,
+  //                     -m_contours["-2s"]->GetYaxis()->GetXmax()/8);
+  // smLabel->SetFillStyle(0);
+  // smLabel->SetBorderSize(0);
+  // smLabel->AddText(" SM");
+  // smLabel->Draw();
+
+  legend->Draw();
+
+  TPaveText *text = new TPaveText(0.516,0.720,0.915,0.951,"NDC");
+  text->SetFillStyle(0);
+  text->SetBorderSize(0);
+  text->AddText(Form("95%% CL Limit on %s and %s",par2latex(par1).Data(),par2latex(par2).Data()));
+  text->AddText(0,0.35,Form("#intL dt= %.1f fb^{-1}, #sqrt{s} = %d TeV",intlumifbinv,beamcometev));
+  text->Draw();
+
+  // text2 = TPaveText(0.155,0.199,0.974,0.244,"NDC");
+  // text2->SetFillStyle(0);
+  // text2->SetBorderSize(0);
+  // text2->AddText("Values outside contour excluded");
+  // text2->Draw();
+
+  //text3 = TPaveText(0.506,0.699,0.905,0.758,"NDC");
+  //text3->SetFillStyle(0);
+  //text3->SetBorderSize(0);
+  //text3->AddText(options.flavorText);
+  //text3->Draw();    
+  
+  gPad->SetGrid(1,1);
+
+  finalPlot->RedrawAxis();
+  finalPlot->ResetAttPad();
+  finalPlot->Update();
+
+  finalPlot->Draw();
+  finalPlot->Update();
+  finalPlot->Modified();
+  finalPlot->Update();
+  finalPlot->Print(Form("%s.pdf",plotprefix.Data()));
+  finalPlot->Print(Form("%s.eps",plotprefix.Data()));
+  finalPlot->Print(Form("%s.png",plotprefix.Data()));
+
+}                                                 // draw2DlimitContours
 
 //======================================================================
 
@@ -781,11 +1025,11 @@ void atgcplotLimit(const string& fileglob)
 
   // get names of coupling parameters from root filename
   //
-  if (fnames[0].Contains("lz")) {       par1 = TString("lz");
-    if (fnames[0].Contains("dkg"))      par2 = TString("dkg");
-    else if (fnames[0].Contains("dg1")) par2 = TString("dg1");
-  } else if  (fnames[0].Contains("dkg") &&
-	      fnames[0].Contains("dg1")) {
+  if (fnames[0].Contains("lz",TString::kIgnoreCase)) {       par1 = TString("lZ");
+    if (fnames[0].Contains("dkg",TString::kIgnoreCase))      par2 = TString("dkg");
+    else if (fnames[0].Contains("dg1",TString::kIgnoreCase)) par2 = TString("dg1");
+  } else if  (fnames[0].Contains("dkg",TString::kIgnoreCase) &&
+	      fnames[0].Contains("dg1",TString::kIgnoreCase)) {
     par1 = TString("dkg");
     par2 = TString("dg1");
   } 
@@ -797,25 +1041,31 @@ void atgcplotLimit(const string& fileglob)
   TString method("Other");
   if (fnames[0].Contains("Asymptotic"))
     method = TString("asympCLs");
+  else if (fnames[0].Contains("MultiDimFit"))
+    method = TString("deltaNLL");
 
   cout << "Plotting " << par2 << " versus " << par1 << ", method = " << method << endl;
 
   vector<string> keys;
-  keys.push_back("-2s");
-  keys.push_back("-1s");
-  keys.push_back("median");
-  keys.push_back("+1s");
-  keys.push_back("+2s");
-  keys.push_back("obs");
-
+  map<string,double> m_contourlevels;
   map<string,TGraph2D *> m_graphs;
 
-  if (method.EqualTo("asympCLs"))
-    fillGraphsFromFilesAsymp(par1,par2,fnames,keys,m_graphs);
-  else if (fnames.size() == 1) {
-    fillGraphsFromTextTables(fnames[0],m_graphs);
-
-    TCanvas *canv = new TCanvas("dummy2","dummy2",500,500);
+  if (method.EqualTo("asympCLs")) {
+    fillGraphsFromFilesAsymp   (par1,par2,fnames,keys,m_graphs);
+    for (size_t i=0; i<keys.size(); i++)
+      m_contourlevels[keys[i]] = 1;
+  }
+  if (method.EqualTo("deltaNLL")) {
+    fillGraphsFromFilesDeltaNLL(par1,par2,fnames,keys,m_graphs);
+    m_contourlevels["exp68"] = 2.3;
+    m_contourlevels["exp95"] = 5.99;
+    m_contourlevels["exp99"] = 9.21;
+    m_contourlevels["obs95"] = 5.99;
+  }
+  else if (fnames.size() == 1) {  
+    fillGraphsFromTextTables          (fnames[0],keys,m_graphs);
+    for (size_t i=0; i<keys.size(); i++)
+      m_contourlevels[keys[i]] = 0.05;
 #if 0
     m_graphs["-2s"]->Draw("COLZ TEXT");
 #else
@@ -828,11 +1078,13 @@ void atgcplotLimit(const string& fileglob)
     h2->GetYaxis()->SetTitle(par2latex(par2));
     h2->Draw("COLZ TEXT");
 #endif
+  }  else {
+    fillGraphsFromFiles        (par1,par2,fnames,keys,m_graphs);
+    for (size_t i=0; i<keys.size(); i++)
+      m_contourlevels[keys[i]] = 1;
+  }
 
-  }  else
-    fillGraphsFromFiles(par1,par2,fnames,keys,m_graphs);
-
-  //return;
+  // return;
 
   // for limit in limits:
   //   limits[limit]->Print()
@@ -853,8 +1105,7 @@ void atgcplotLimit(const string& fileglob)
 
   map<string,TList *> m_contours;
 
-  double exclusion_limit = fnames.size()==1? 0.05 : 1;
-  collectContours(m_graphs,keys,m_contours,exclusion_limit);
+  collectContours(m_graphs,keys,m_contourlevels,m_contours);
 
   TLegend *legend = new TLegend(0.212,0.686,0.554,0.917,"","NDC");
   legend->SetFillStyle(0);
@@ -865,13 +1116,17 @@ void atgcplotLimit(const string& fileglob)
 
   TString plotprefix=Form("%s_%s_2dlimit_%s",par1.Data(),par2.Data(),method.Data());
 
-  draw2DLimit(m_contours,par1,par2,plotprefix,legend);
+  if (method.EqualTo("deltaNLL"))
+    draw2DLimitContours(m_contours,par1,par2,plotprefix,legend);
+  else
+    draw2DLimitBFstyle(m_contours,par1,par2,plotprefix,legend);
 
+#if 0
   plotprefix=Form("%s_1dlimit_%s",par1.Data(),method.Data());
   draw1DLimit(m_graphs,par1,plotprefix,1000,0.15,exclusion_limit,true,legend);
 
   plotprefix=Form("%s_1dlimit_%s",par2.Data(),method.Data());
   draw1DLimit(m_graphs,par2,plotprefix,1000,0.15,exclusion_limit,false,legend);
-
+#endif
 #endif
 }

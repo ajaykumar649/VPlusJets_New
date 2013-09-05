@@ -8,12 +8,12 @@
 const int masspts[NUMMASSPTS] = { 150 };
 
 #define NUMCHAN 2
-#define ELORMUCHAR 0
+#define ELORMUCHAR 9
 
 const char *channames[NUMCHAN] = {
-  "elboosted",
+  "WVsemilepElboosted",
   //"eldijet",
-  "muboosted",
+  "WVsemilepMuboosted",
   //"mudijet",
 };
 
@@ -46,20 +46,12 @@ const float dg1_INC =   0.002;   // x61 pts
 //const char *dir = "/uscms_data/d2/kalanand/junk/vplusjets/CMSSW_4_2_8/src/ElectroWeakAnalysis/VPlusJets/test/TGC/";
 const char *dir = ".";
 
-// ordered the same as the inputs
-//
-const char *inputfiles[NUMCHAN] = {
-  "el_boosted.root",
-  //"el_dijet.root",
-  "mu_boosted.root",
-  //"mu_dijet.root",
-};
-
 const char *signalfmtstr_lzvsdkg  = "lambdaZ_%.3f_deltaKappaGamma_%.3f";
 const char *signalfmtstr_lzvsdg1  = "lambdaZ_%.3f_deltaG1_%.3f";
 const char *signalfmtstr_dkgvsdg1 = "deltaKappaGamma_%.3f_deltaG1_%.3f";
 
-const char *dataobjname = "data_obs";
-const char *bkgdobjname = "background";
+const char *dataobjname   = "data_obs";
+const char *bkgdobjprefix = "bkg";
+const char *signame       = "WWgammaZ";
 
 #endif // _ATGCINPUTS_H
