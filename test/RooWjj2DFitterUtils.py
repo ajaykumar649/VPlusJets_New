@@ -749,8 +749,8 @@ class Wjj2DFitterUtils:
             # erf (turn off) * exponential pdf
             ws.factory("c_%s[-0.015, -10, 10]" % idString)
             offset = ws.factory("offset_%s[70, -100, 1000]" % idString)
-            width = ws.factory("width_%s[20, 0, 1000]" % idString)
-            offset.setVal(ws.var(var).getMin())
+            width = ws.factory("width_%s[20, 0, 10000]" % idString)
+            offset.setVal(ws.var(var).getMax())
             offset.setError(offset.getVal()*0.2)
             width.setVal(offset.getVal()*0.2)
             width.setError(width.getVal()*0.2)

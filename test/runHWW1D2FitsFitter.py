@@ -545,6 +545,8 @@ while theVar:
 extraTag = ''
 if opts.includeSignal:
     extraTag = '_withSignal'
+if mvaCutOverride:
+    extraTag += '_mvaCut' + str(mvaCutOverride)
 output = TFile("HWW%ilnujj_%s_%ijets_1D2Fit%s_output.root" % \
                    (opts.mH,mode, opts.Nj, extraTag),
                "recreate")

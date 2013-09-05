@@ -50,3 +50,4 @@ runHiggsNewFitMu.csh
 runHiggsNewFitEl.csh
 plotHWWplots.py
 checkFits.py
+fixErfParams.py

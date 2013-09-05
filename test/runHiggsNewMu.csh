@@ -1,2 +1,2 @@
-source runHiggsNewShapeMu.csh
-source runHiggsNewFitMu.csh
+source runHiggsNewShapesMu.csh $*
+source runHiggsNewFitMu.csh $*
