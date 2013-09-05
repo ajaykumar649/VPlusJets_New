@@ -19,6 +19,8 @@ parser.add_option('--sig', dest='sig', action='store_true',
                   default=False, help='include signal hypothesis in fit')
 parser.add_option('--expLimit', type='int', default=0, dest='limit',
                   help='number of toys for expected limit, 0 is off')
+parser.add_option('--mva', dest='mvaCut', type='float',
+                  help='override cut value for mva')
 (opts, args) = parser.parse_args()
 
 import os
@@ -28,6 +30,9 @@ commonCmd = [ 'python', 'runHWW1D2FitsFitter.py', '-b', '-j', str(2),
               '--mH', str(opts.mH) , '--obsLimit']
 if opts.limit:
     commonCmd += ['--limit', str(opts.limit)]
+
+if hasattr(opts, "mvaCut") and opts.mvaCut:
+    commonCmd.extend(['--mva', str(opts.mvaCut)])
 
 if opts.reuse:
     flavor = 'electron' if opts.isElectron else 'muon'

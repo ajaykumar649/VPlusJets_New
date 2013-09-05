@@ -191,6 +191,7 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
   Float_t         interferencewt(1.0);
   Float_t effwt;
   Float_t puwt;
+  Float_t cpwt;
 
   TTreeFormula poi("poi", params_.var, theTree);
 
@@ -219,8 +220,13 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
     theTree->SetBranchAddress("puwt", &puwt);
   }
 
-  if (CPweights)
+  if (CPweights) {
     theTree->SetBranchAddress("W_H_mass_gen", &W_H_mass_gen);
+    theTree->SetBranchAddress(TString::Format("complexpolewtggH%i",
+					      int(params_.mHiggs)),
+			      &cpwt);
+  } else
+    cpwt = 1.;
 
   switch (interfereWgt) {
   case 1:
@@ -257,7 +263,8 @@ TH1 * RooWjjFitterUtils::File2Hist(TString fname,
       evtWgt = effwt*puwt;
     }
     if ((CPweights) && (params_.mHiggs > 0)) {
-      evtWgt *= getCPweight(params_.mHiggs, params_.wHiggs, W_H_mass_gen);
+      // evtWgt *= getCPweight(params_.mHiggs, params_.wHiggs, W_H_mass_gen);
+      evtWgt *= cpwt;
     }
     if (interfereWgt) {
       evtWgt *= interferencewt;

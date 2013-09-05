@@ -17,23 +17,26 @@ class RooErfPdf : public RooAbsPdf {
 public:
   RooErfPdf() {} ; 
   RooErfPdf(const char *name, const char *title,
-	      RooAbsReal& _x,
-	      RooAbsReal& _turnOn,
-	      RooAbsReal& _width);
+	    RooAbsReal& _x,
+	    RooAbsReal& _turnOn,
+	    RooAbsReal& _width,
+	    int _onOff = 1);
   RooErfPdf(const RooErfPdf& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new RooErfPdf(*this,newname); }
   inline virtual ~RooErfPdf() { }
 
   Int_t getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars, const char* rangeName=0) const ;
   Double_t analyticalIntegral(Int_t code, const char* rangeName=0) const ;
+  virtual void	printMultiline(ostream& os, Int_t contents, Bool_t verbose = kFALSE, TString indent = "") const ;
 
 protected:
 
-  double indefIntegral(double val) const ;
+  double indefErfIntegral(double val) const ;
 
   RooRealProxy x ;
   RooRealProxy turnOn ;
   RooRealProxy width ;
+  int onOff;
   
   Double_t evaluate() const ;
 

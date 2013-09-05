@@ -1,7 +1,14 @@
 def createPull(theData, curve, curveUp = None, curveDown = None):
+    return createResid(theData, curve, curveUp, curveDown, True)
+        
+def createResid(theData, curve, curveUp = None, curveDown = None,
+                normalize = False):
     from ROOT import TGraphErrors, TMath
 
     pullGraph = TGraphErrors(theData.GetN())
+
+
+    # print 'normalize',normalize
 
     for datapt in range(0, theData.GetN()):
         binmin = theData.GetX()[datapt] - theData.GetEXlow()[datapt]
@@ -32,14 +39,19 @@ def createPull(theData, curve, curveUp = None, curveDown = None):
                                   + diffDown**2)
 
         pull = 0.
-        if errN > 0:
-            pull = (binN - curveN)/errN
+        if normalize:
+            if (errN > 0):
+                pull = (binN - curveN)/errN
+                errN = 1.
+        elif not normalize:
+            pull = binN - curveN
 
         # print 'bin: (', binmin, ',', binmax, ') N:', binN, '+/-', errN,
         # print 'curve N:', curveN
+        # print 'pull:', pull, 'errN:',errN
 
         pullGraph.SetPoint(datapt, theData.GetX()[datapt], pull)
-        pullGraph.SetPointError(datapt, 0., 1.)
+        pullGraph.SetPointError(datapt, 0., errN)
 
     return pullGraph
 

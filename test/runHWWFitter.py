@@ -381,6 +381,10 @@ mf4.SetName("Mlvjj_Stacked")
 # pf4 = fitter4.residualPlot(mf4, "h_total", "", True)
 pf4 = pulls.createPull(mf4.getHist('theData'), mf4.getCurve('h_total'))
 pf4.SetName("Mlvjj_Pull")
+rf4 = pulls.createResid(mf4.getHist('theData'), mf4.getCurve('h_total'))
+rf4.SetName("Mlvjj_Residuals")
+
+(chi2_4, ndf_4) = pulls.computeChi2(mf4.getHist('theData'), mf4.getCurve('h_total'))
 lf4 = fitter4.stackedPlot(True, RooWjjMjjFitter.mlnujj)
 lf4.SetName("Mlvjj_log")
 
@@ -391,8 +395,8 @@ if (opts.mH >= 500):
 sigHists = HWWSignalShapes.GenHiggsHists(pars4, opts.mH, fitUtils, iwt = iwt)
 
 extraFactor = 2.
-otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'HWW')
-SigVisual = TH1D(sigHists['HWW'])
+otherdata = HWWSignalShapes.NgenHiggs(opts.mH, 'ggH')
+SigVisual = TH1D(sigHists['ggH'])
 SigVisual.Print()
 SigVisual.SetName('SigVisual')
 SigVisual.SetLineColor(kBlue)
@@ -473,6 +477,20 @@ c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.pdf'.format(modeString, opts.Nj,
 c4body4.Print('H{2}_Mlvjj_{0}_{1}jets_Pull.png'.format(modeString, opts.Nj,
                                                        opts.mH))
 
+c4body5 = TCanvas("c4body5", "4 body residual")
+rf4.Draw('ap')
+c4body5.SetGridy()
+c4body5.Update()
+rf4.GetXaxis().SetLimits(pars4.minMass, pars4.maxMass)
+rf4.GetXaxis().SetTitle("m_{l#nujj} (GeV)")
+rf4.GetYaxis().SetTitle('residual events / (GeV)')
+pyroot_logon.cmsPrelim(c4body5, pars4.intLumi/1000)
+c4body5.Update()
+c4body5.Print('H{2}_Mlvjj_{0}_{1}jets_Residual.pdf'.format(modeString, opts.Nj,
+                                                           opts.mH))
+c4body5.Print('H{2}_Mlvjj_{0}_{1}jets_Residual.png'.format(modeString, opts.Nj,
+                                                           opts.mH))
+
 sbf = cWpJ.FindObject("SideBandPlot")
 print sbf
 if not sbf:
@@ -540,8 +558,8 @@ h_total_down.Write()
 for mode in sigHists:
     sigHists[mode].Write()
 
-sigHists['HWW'].Print()
-nomIntegral = sigHists['HWW'].Integral()
+sigHists['ggH'].Print()
+nomIntegral = sigHists['ggH'].Integral()
 if iwt == 1:
     pars4up = RooWjjFitterParams(pars4)
     if (opts.Nj == 2):
@@ -550,11 +568,11 @@ if iwt == 1:
     fitUtilsUp = RooWjjFitterUtils(pars4up)
     sigHistsUp = HWWSignalShapes.GenHiggsHists(pars4up, opts.mH, fitUtilsUp, 
                                                iwt = 2)
-    sigHistsUp['HWW'].SetName(sigHistsUp['HWW'].GetName() + '_up')
+    sigHistsUp['ggH'].SetName(sigHistsUp['ggH'].GetName() + '_up')
     ShapeFile.cd()
-    sigHistsUp['HWW'].Write()
-    sigHistsUp['HWW'].Print()
-    upIntegral = sigHistsUp['HWW'].Integral()
+    sigHistsUp['ggH'].Write()
+    sigHistsUp['ggH'].Print()
+    upIntegral = sigHistsUp['ggH'].Integral()
     pars4down = RooWjjFitterParams(pars4)
     if (opts.Nj == 2):
         pars4down.cuts = pars4.cuts.replace('interferencenominal', 
@@ -562,11 +580,14 @@ if iwt == 1:
     fitUtilsDown = RooWjjFitterUtils(pars4down)
     sigHistsDown = HWWSignalShapes.GenHiggsHists(pars4down, opts.mH, 
                                                  fitUtilsDown, iwt = 3)
-    sigHistsDown['HWW'].SetName(sigHistsDown['HWW'].GetName() + '_down')
+    sigHistsDown['ggH'].SetName(sigHistsDown['ggH'].GetName() + '_down')
     ShapeFile.cd()
-    sigHistsDown['HWW'].Write()
-    sigHistsDown['HWW'].Print()
-    downIntegral = sigHistsDown['HWW'].Integral()
+    sigHistsDown['ggH'].Write()
+    sigHistsDown['ggH'].Print()
+    downIntegral = sigHistsDown['ggH'].Integral()
+
+print '4 body chi2/ndf: %.3f/%i = %.3f' % (chi2_4, ndf_4 -1, chi2_4/(ndf_4-1.))
+print 'chi2 prob: %.4g' % TMath.Prob(chi2_4, ndf_4-1)
 
 # HiggsHist.Write()
 # VBFHiggsHist.Write()
@@ -577,6 +598,7 @@ mf.Write()
 pf.Write()
 mf4.Write()
 pf4.Write()
+rf4.Write()
 lf4.Write()
 sbf.Write()
 

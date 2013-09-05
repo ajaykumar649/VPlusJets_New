@@ -37,6 +37,8 @@ parser.add_option('--ws', dest='ws', help='filename to get data from instead' +\
                   ' reading from source ntuples again.')
 parser.add_option('--btag', dest='btag', action='store_true',
                   default=False, help='Use b-tagged selection.')
+parser.add_option('--mva', dest='mvaCut', type='float',
+                  help='override cut value for mva')
 
 (opts, args) = parser.parse_args()
 
@@ -57,6 +59,10 @@ import pulls
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
+mvaCutOverride = None
+if hasattr(opts, "mvaCut"):
+    mvaCutOverride = opts.mvaCut
+
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                         isElectron = opts.isElectron, initFile = args)
 if opts.btag:
@@ -66,6 +72,10 @@ if opts.btag:
 else:
     pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                             isElectron = opts.isElectron, initFile = args)
+if mvaCutOverride:
+    pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+                            isElectron = opts.isElectron, initFile = args,
+                            MVACutOverride = mvaCutOverride)
 
 
 files = getattr(pars, '%sFiles' % opts.component)
@@ -273,7 +283,9 @@ ndfs = []
 for (i,m) in enumerate(models):
     par = obs[i]
     c1 = TCanvas('c%i' % i, par)
-    sigPlot = fitter.ws.var(par).frame(RooFit.Name('%s_Plot' % par))
+    sigPlot = fitter.ws.var(par).frame(RooFit.Name('%s_Plot' % par),
+                                       RooFit.Range('plotRange'),
+                                       RooFit.Bins(fitter.ws.var(par).getBins('plotBins')))
     # dataHist = RooAbsData.createHistogram(data,'dataHist_%s' % par,
     #                                       fitter.ws.var(par),
     #                                       RooFit.Binning('%sBinning' % par))
@@ -319,6 +331,7 @@ for (i,m) in enumerate(models):
     pull = pulls.createPull(sigPlot.getHist('theData'),
                             sigPlot.getCurve('fitCurve'))
     plots.append(pull)
+    pull.SetName('%s_Pulls' % par)
     c2 = TCanvas('c%i_pull' % i, par + ' pull')
     c2.SetGridy()
     pull.Draw('ap')

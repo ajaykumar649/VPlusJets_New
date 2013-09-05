@@ -10,8 +10,9 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     fitterPars = RooWjjFitterParams()
     fitterPars.smoothingOrder = 1
     # fitterPars.MCDirectory = "root://cmseos.fnal.gov:1094//eos/uscms/store/user/lnujj/HCP2012METfix/ReducedTrees/RD_"
-    fitterPars.MCDirectory = "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_"
+    # fitterPars.MCDirectory = "/uscms_data/d1/andersj/Wjj/2012/data/ReducedTrees/RD_"
 
+    fitterPars.MCDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/Moriond2013/ReducedTrees/RD_'
     fitterPars.WpJDirectory = fitterPars.MCDirectory
     if (len(mcdir) > 0):
         fitterPars.WpJDirectory = mcdir
@@ -20,11 +21,13 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     #fitterPars.QCDDirectory = 'root://cmseos:1094//eos/uscms/store/user/lnujj/2012_RDTrees_PAT/'
     fitterPars.initParamsFile = initFile
     # fitterPars.constraintParamsFile = "HWWConstraints2Jets.txt";
-    fitterPars.DataDirectory = fitterPars.MCDirectory
+    # fitterPars.DataDirectory = fitterPars.MCDirectory
     # fitterPars.DataDirectory = "/uscms_data/d1/andersj/Wjj/2012/data/ICHEP2012/ReducedTrees/RD_"
+    fitterPars.DataDirectory = '/uscms_data/d2/andersj/Wjj/2012/data/Moriond2013/HWWTrees/RD_'
     #fitterPars.muonData = 'SingleMu_0p56fb_Golden.root'
     #fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_5p1invfb.root'
-    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_12p0invfb.root'
+    # fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_12p0invfb.root'
+    fitterPars.muonData = 'WmunuJets_DataAll_GoldenJSON_19p3invfb.root'
     fitterPars.includeMuons = True    
     #fitterPars.electronData = 'WenuJets_DataSingleElectron_GoldenJSON_2012_xxpxinvfb.root'
     #fitterPars.electronData = 'WenuJets_DataAllSingleElectronTrigger_GoldenJSON_5p1invfb.root'
@@ -36,7 +39,7 @@ def theConfig(Nj, mcdir = '', initFile = ''):
     #fitterPars.minMass = 50.
     fitterPars.maxMass = 200.
     fitterPars.nbins = 17
-    fitterPars.intLumi = 12000
+    fitterPars.intLumi = 19200.
     # fitterPars.intLumi = 3500.
     # fitterPars.intLumi = 539.385+21.297
     # fitterPars.intLumi = 297.848+21.297+48.465

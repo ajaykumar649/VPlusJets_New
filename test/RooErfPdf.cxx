@@ -16,33 +16,39 @@
 
 ClassImp(RooErfPdf) 
 
- RooErfPdf::RooErfPdf(const char *name, const char *title, 
-                        RooAbsReal& _x,
-                        RooAbsReal& _turnOn,
-                        RooAbsReal& _width) :
-   RooAbsPdf(name,title), 
-   x("x","x",this,_x),
-   turnOn("turnOn","turnOn",this,_turnOn),
-   width("width","width",this,_width)
- { 
- } 
+RooErfPdf::RooErfPdf(const char *name, const char *title, 
+		     RooAbsReal& _x,
+		     RooAbsReal& _turnOn,
+		     RooAbsReal& _width,
+		     int _onOff) : RooAbsPdf(name,title), 
+  x("x","x",this,_x),
+  turnOn("turnOn","turnOn",this,_turnOn),
+  width("width","width",this,_width),
+  onOff(_onOff)
+{ 
+  if (_onOff < 0)
+    onOff = -1;
+  else
+    onOff = 1;
+} 
 
 
- RooErfPdf::RooErfPdf(const RooErfPdf& other, const char* name) :  
-   RooAbsPdf(other,name), 
-   x("x",this,other.x),
-   turnOn("turnOn",this,other.turnOn),
-   width("width",this,other.width)
- { 
- } 
+RooErfPdf::RooErfPdf(const RooErfPdf& other, const char* name) :  
+  RooAbsPdf(other,name), 
+  x("x",this,other.x),
+  turnOn("turnOn",this,other.turnOn),
+  width("width",this,other.width),
+  onOff(other.onOff)
+{ 
+} 
 
 
 
  Double_t RooErfPdf::evaluate() const 
  { 
    // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
-   return (TMath::Erf((x-turnOn)/width)+1.)/2. ; 
- } 
+   return (1.+onOff*TMath::Erf((x-turnOn)/width))*0.5 ; 
+ }
 
 
 
@@ -68,15 +74,23 @@ ClassImp(RooErfPdf)
 
    if (code==1) {
      
-     return  indefIntegral(x.max(rangeName))-indefIntegral(x.min(rangeName));
+     return  0.5*(x.max(rangeName)-x.min(rangeName) + 
+		  onOff*(indefErfIntegral(x.max(rangeName)) - 
+			 indefErfIntegral(x.min(rangeName))));
    } 
    return 0 ; 
  } 
 
 
-double RooErfPdf::indefIntegral(double val) const {
+double RooErfPdf::indefErfIntegral(double val) const {
   static double const rootpi = TMath::Sqrt(TMath::Pi());
-  return 0.5*(val-turnOn)*TMath::Erf((val-turnOn)/width) + 
-    0.5*width/rootpi*TMath::Exp(-(val-turnOn)*(val-turnOn)/width/width) + 
-    0.5*val ;
+  return (val-turnOn)*TMath::Erf((val-turnOn)/width) + 
+    width/rootpi*TMath::Exp(-(val-turnOn)*(val-turnOn)/width/width);
+}
+
+void RooErfPdf::printMultiline(ostream& os, Int_t contents, 
+			       Bool_t verbose, TString indent) const {
+  RooAbsPdf::printMultiline(os, contents,verbose,indent);
+  os << indent << "--- RooErfPdf --" << '\n';
+  os << indent << "onOff: " << onOff << endl;
 }

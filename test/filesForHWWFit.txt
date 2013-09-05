@@ -45,3 +45,5 @@ run1D2FitsShapeFits.py
 runHiggsNewMu.csh
 runHiggsNewEl.csh
 plotHWWplots.py
+checkFits.py
+runAMassPointMu.csh

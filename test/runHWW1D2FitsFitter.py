@@ -31,6 +31,8 @@ parser.add_option('--limit', dest='doLimit', type='int',
 parser.add_option('--obsLimit', dest='obsLimit', action='store_true',
                   default=False,
                   help='calculate observed limit too')
+parser.add_option('--mva', dest='mvaCut', type='float',
+                  help='override cut value for mva')
 
 (opts, args) = parser.parse_args()
 
@@ -58,6 +60,10 @@ if hasattr(opts, "seed") and (opts.seed >= 0):
     print "random seed:", opts.seed
     RooRandom.randomGenerator().SetSeed(opts.seed)
 
+mvaCutOverride = None
+if hasattr(opts, "mvaCut"):
+    mvaCutOverride = opts.mvaCut
+
 mjjArgs = []
 sideArgs = []
 mWWArgs = []
@@ -72,7 +78,7 @@ for arg in args:
 print mjjArgs
 pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
                         isElectron = opts.isElectron, initFile = mjjArgs,
-                        includeSignal = False)
+                        includeSignal = False, MVACutOverride = mvaCutOverride)
 
 fitter = RooWjj2DFitter.Wjj2DFitter(pars)
 fitter.ws.SetName("w_mjj")
@@ -443,6 +449,13 @@ fitter_mWW.ws.saveSnapshot('nullFitSnapshot', fitter_mWW.ws.allVars())
 
 upperHist = None
 if opts.doLimit:
+    parIter = params_mWW.createIterator()
+    p = parIter.Next()
+    while p:
+        if p.GetName()[-4:] == '_nrm':
+            p.setVal(1.0)
+            p.setRange(-1., 5.)
+        p = parIter.Next()
     (expectedLimit, toys) = \
                     limits.expectedPlcLimit(fitter_mWW.ws.var(pars_mWW.var[0]),
                                             fitter_mWW.ws.var('r_signal'),
@@ -450,18 +463,21 @@ if opts.doLimit:
                                             ntoys = opts.doLimit,
                                             binData = pars_mWW.binData)
 
-    upperHist = TH1F('upperHist', 'upper limit hist',
-                     50,
+    upperHist = TH1F('upperHist', 'upper limit hist', 50,
                      fitter_mWW.ws.var('r_signal').getMin(),
                      fitter_mWW.ws.var('r_signal').getMax())
+    uppers = []
     for toy in toys:
         #print toy
         if (toy['r_signal']['ok']) and \
            (toy['r_signal']['upper'] < (fitter_mWW.ws.var('r_signal').getMax()-0.02)):
             upperHist.Fill(toy['r_signal']['upper'])
+            uppers.append(toy['r_signal']['upper'])
             
     qs = array('d', [0.]*5)
     probs = array('d', [0.022, 0.16, 0.5, 0.84, 0.978])
+    uppers.sort()
+    uppersArray = array('d', uppers)
     #upperHist.Print()
         
     print 'expected 95%% CL upper limit: %0.4f +/- %0.4f' % \
@@ -470,9 +486,12 @@ if opts.doLimit:
     upperHist.Draw()
     c_upper.Update()
 
-    nquants = upperHist.GetQuantiles(len(qs), qs, probs)
-    print 'sensible expected 95%% CL upper limit:',
-    print qs
+    TMath.Quantiles(len(uppers), len(qs), uppersArray, qs, probs)
+    # nquants = upperHist.GetQuantiles(len(qs), qs, probs)
+    print 'sensible expected 95%% CL upper limit quantiles for %i toys: [' % len(uppers),
+    for q in qs:
+        print '%.4f' % q,
+    print ']'
     print 'expected 95%% CL lower limit: %0.4f +/- %0.4f' % \
           (expectedLimit['lower'], expectedLimit['lowerErr'])
 
