@@ -22,98 +22,84 @@ Some important constants are set at the top of the file.
 
 using namespace std;
 
+#include "RooWorkspace.h"
+#include "RooDataHist.h"
+#include "RooATGCSemiAnalyticPdf.h"
 #include "card.h"
 #include "atgcinputs.h"
 
 
 //================================================================================
-#if 0
-bool calcEstimatedLimit(const Card& card)
-{
-  double totback = 0.0, totsig=0.0;
-
-  std::map<TString,int>::const_iterator it;
-  for (it= card.pname2index.begin(); it != card.pname2index.end(); it++)  {
-    const ProcData_t& pd = card.processes[it->second];
-    std::map<TString,double>::const_iterator itchan;
-    if (pd.procindex > 0) { // background
-      for (itchan = pd.channels.begin(); itchan != pd.channels.end(); itchan++)
-	totback += itchan->second;
-    } else {
-      for (itchan = pd.channels.begin(); itchan != pd.channels.end(); itchan++) {
-	if (itchan->second < 0.005) {
-	  cerr << "signal contribution for channel " << itchan->first << " is too small, skipping" << endl;
-	  return false;
-	}
-	totsig += itchan->second;
-      }
-    }
-  }
-
-  double estlimit = 1.92 * sqrt(totback)/totsig;
-
-  printf("%7.1f %7.2f %5.2f %5.2f\n", 
-	 totback,totsig,estlimit,estlimit*3);
-
-  return (true);
-}                                                            // calcEstimatedLimit
-#endif
-
-//================================================================================
 
 Card *
-makeDataCardContent(TFile *fp,
-		    const TString& channame,
-		    const TString& signame)
+makeDataCardContent(const TString& fname,
+		    const TString& channame)
 {
   Card *card;
 
-  TH1 *datahist;
-  TH1 *backhist;
-  TH1 *shapehist;
+  RooWorkspace *w = (RooWorkspace *)gDirectory->Get(channame);
 
-  char elormu = channame[ELORMUCHAR];
+  RooDataHist *backhist;
+  RooDataHist *shapehist;
+  RooDataHist *sighist;
+  RooDataHist *datahist;
+
+  char elormu = tolower(channame[ELORMUCHAR]);
   TString leptsyst   = "CMS_eff_"+TString(elormu);
   TString trigsyst   = "CMS_trigger_"+TString(elormu);
   TString sigXSsyst  = "sigUncXS";
 
-  datahist = (TH1 *)fp->Get(dataobjname);
+  TString bkgprocname = TString(bkgdobjprefix)+"_"+channame;
+
+  datahist = (RooDataHist *)w->data(dataobjname);
   if (!datahist) {
-    cerr << "Couldn't get data histogram from file for channel " << channame << endl;
+    cerr << "Couldn't find "<<dataobjname<<" histogram in workspace " << channame << endl;
     exit(-1);
   }
 
-  backhist = (TH1 *)fp->Get(bkgdobjname);
+  backhist = (RooDataHist *)w->obj(bkgprocname);
   if (!backhist) {
-    cerr << "Couldn't get background histogram from file for channel " << channame << endl;
+    cerr << "Couldn't find "<<bkgprocname<<" histogram in workspace " << channame << endl;
     exit(-1);
   }
 
-  TString shapesystname = Form("%s_backshape",channame.Data());
+  TString shapesystname = channame+"_backshape";
 
-  shapehist = (TH1 *)fp->Get("background_"+shapesystname+"Up");
+  shapehist = (RooDataHist *)w->obj(TString(bkgdobjprefix)+"_"+shapesystname+"Up");
   if (!shapehist) {
-    cerr << "Couldn't get background shapeUp histogram from file for channel " << channame << endl;
+    cerr << "Couldn't find background backshapeUp histogram in workspace " << channame << endl;
     exit(-1);
   }
 
-  TH1 *sighist = (TH1 *)fp->Get(signame);
+  // The sigpdfname is the name of the object that we tell combine to use,
+  // but the integral (signal yield) comes from sighist (default SM value)
+  // 
+  TString sigpdfname = TString("ATGCPdf_")+signame+TString("_")+channame;
+  TString sighistname = TString("SM_")+channame+TString("_rawshape");
+  sighist = (RooDataHist *)w->obj(sighistname);
 
   if (!sighist) {
-    cerr<<"Couldn't get signal histogram "<<signame<<" from file for channel "<<channame<<endl;
+    cerr<<"Couldn't find signal histogram "<<sighistname<<" in workspace "<<channame<<endl;
     //exit(-1);
     return NULL;
   }
 
-  card = new Card(-1,dataobjname,channame,"",false);
-  card->addProcessChannel(sighist->Integral(),"signal",channame,"",true);
-  card->addProcessChannel(backhist->Integral(),bkgdobjname,channame,shapesystname,false);
+  card = new Card(datahist->sumEntries(),dataobjname,channame,"",false);
+  card->addProcessChannel(sighist->sumEntries(),signame,channame,"",true);
+  card->addProcessChannel(backhist->sumEntries(),bkgprocname,channame,shapesystname,false);
 
   // (non-shape) Systematics:
-  card->addSystematic(leptsyst,"signal",channame,1+siglepteffunc);
-  card->addSystematic(trigsyst,"signal",channame,1+sigtrigeffunc);
-  card->addSystematic("lumi_8TeV","signal",channame,1+siglumiunc);
-  card->addSystematic("sigXSsyst","signal",channame,1+signal_xs_unc);
+  card->addSystematic(leptsyst,signame,channame,1+siglepteffunc);
+  card->addSystematic(trigsyst,signame,channame,1+sigtrigeffunc);
+  card->addSystematic("lumi_8TeV",signame,channame,1+siglumiunc);
+  card->addSystematic("sigXSsyst",signame,channame,1+signal_xs_unc);
+
+  // assumes the channel filenames are in the same order as the channels!!
+  card->addShapesFile(ShapesFile_t("data_obs",channame,fname,channame+":data_obs"));
+  card->addShapesFile(ShapesFile_t(signame,channame,fname,channame+":"+sigpdfname));
+  card->addShapesFile(ShapesFile_t(bkgprocname,channame,fname,
+				   channame+":"+bkgprocname,
+				   channame+":"+bkgdobjprefix+"_$SYSTEMATIC"));
 
   return card;
 }                                                           // makeDataCardContent
@@ -121,11 +107,12 @@ makeDataCardContent(TFile *fp,
 //================================================================================
 
 void
-makeDataCardFiles(bool doshape) // int argc, char*argv[])
+makeDataCardFiles(const char *rootfn,
+		  const char *nametag)
 {
   TFile *fp;
 
-  TString fname;
+  TString cfgtag(nametag);
 
 #if 0
   if (argc != NUMCHAN+1) {
@@ -134,126 +121,27 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
   }
 #endif
 
-  for (int ichan=0; ichan<NUMCHAN; ichan++) {
-    fname = TString(dir)+"/"+TString(inputfiles[ichan]); // TString(argv[ichan+1]);
-    fp = new TFile(fname);
+  int ichan = (rootfn[0]=='m'); // 0=false=electron, 1=true=muon
 
-    TString channame(channames[ichan]);
+  TString fname(rootfn);
+  fp = new TFile(fname);
 
-    if (fp->IsZombie()) {
-      cerr << "Couldn't open file " << fname << endl;
-      exit(-1);
-    }
+  TString channame(channames[ichan]);
 
-    cout << "Reading root input file " << fname << endl;
+  if (fp->IsZombie()) {
+    cerr << "Couldn't open file " << fname << endl;
+    exit(-1);
+  }
 
-    // loop through objects in the input root file and find histograms
-    // that are shape inputs into the limit setting data card
-    //
-    for (float lambdaz=LAMBDAZ_MIN;
-	 lambdaz<=LAMBDAZ_MAX+LAMBDAZ_INC/1000;
-	 lambdaz+= LAMBDAZ_INC) {
+  cout << "Reading root input file " << fname << endl;
 
-      //float deltaKappaGamma=0;
-      for (float deltaKappaGamma=dKG_MIN;
-	   deltaKappaGamma<=dKG_MAX+dKG_INC/1000;
-	   deltaKappaGamma += dKG_INC) {
+  Card *card = makeDataCardContent(fname,channame);
 
-	//+INC/1000 to avoid truncation
-	TString cfgtag = Form(signalfmtstr_lzvsdkg,
-			      lambdaz+LAMBDAZ_INC/1000.,
-			      deltaKappaGamma+dKG_INC/1000.);
-	TString signame = "signal_"+cfgtag;
-
-	Card *card = makeDataCardContent(fp,channame,signame);
-
-	//if (calcEstimatedLimit(card))
-	if (card)
-	{
-	  // assumes the channel filenames are in the same order as the channels!!
-	  card->addShapesFile(ShapesFile_t("data_obs",channame,fname,"data_obs"));
-	  card->addShapesFile(ShapesFile_t("signal",channame,fname,signame));
-	  card->addShapesFile(ShapesFile_t("background",channame,fname,
-					   "background","background_$SYSTEMATIC"));
-
-	  //+INC/1000 to avoid truncation
-	  cfgtag = Form("lz_%.3f_dkg_%.2f_%s",
-			lambdaz+LAMBDAZ_INC/1000.,
-			deltaKappaGamma+dKG_INC/1000.,
-			channame.Data());
-	  TString dcardname("./datacard_"+cfgtag+".txt");
-	  card->Print(dcardname);
-	}
-      } // dKG loop
-
-      for (float deltaG1=dg1_MIN;
-	   deltaG1<=dg1_MAX+dg1_INC/1000;
-	   deltaG1 += dg1_INC) {
-
-	//+INC/1000 to avoid truncation
-	TString cfgtag = Form(signalfmtstr_lzvsdg1,
-			      lambdaz+LAMBDAZ_INC/1000.,
-			      deltaG1+dg1_INC/1000.);
-	TString signame = "signal_"+cfgtag;
-	
-	Card *card = makeDataCardContent(fp,channame,signame);
-
-	//if (calcEstimatedLimit(card))
-	if (card)
-	{
-	  // assumes the channel filenames are in the same order as the channels!!
-	  card->addShapesFile(ShapesFile_t("data_obs",channame,fname,"data_obs"));
-	  card->addShapesFile(ShapesFile_t("signal",channame,fname,signame));
-	  card->addShapesFile(ShapesFile_t("background",channame,fname,
-					   "background","background_$SYSTEMATIC"));
-	  //+INC/1000 to avoid truncation
-	  cfgtag = Form("lz_%.3f_dg1_%.3f_%s",
-			lambdaz+LAMBDAZ_INC/1000.,
-			deltaG1+dg1_INC/1000.,
-			channame.Data());
-	  TString dcardname("./datacard_"+cfgtag+".txt");
-	  card->Print(dcardname);
-	}
-      } // dg1 loop
-    } // lambdaz loop
-
-
-    for (float deltaKappaGamma=dKG_MIN;
-	 deltaKappaGamma<=dKG_MAX+dKG_INC/1000;
-	 deltaKappaGamma += dKG_INC)
-    { 
-      for (float deltaG1=dg1_MIN;
-	   deltaG1<=dg1_MAX+dg1_INC/1000;
-	   deltaG1 += dg1_INC) { 
-	//+INC/1000 to avoid truncation
-	TString cfgtag = Form(signalfmtstr_dkgvsdg1,
-			      deltaKappaGamma+dKG_INC/1000.,
-			      deltaG1+dg1_INC/1000.
-			      );
-	TString signame = "signal_"+cfgtag;
-
-	Card *card = makeDataCardContent(fp,channame,signame);
-
-	//if (calcEstimatedLimit(card))
-	if (card)
-	{
-	  // assumes the channel filenames are in the same order as the channels!!
-	  card->addShapesFile(ShapesFile_t("data_obs",channame,fname,"data_obs"));
-	  card->addShapesFile(ShapesFile_t("signal",channame,fname,signame));
-	  card->addShapesFile(ShapesFile_t("background",channame,fname,
-					   "background","background_$SYSTEMATIC"));
-
-	  //+INC/1000 to avoid truncation
-	  cfgtag = Form("dkg_%.2f_dg1_%.3f_%s",
-			deltaKappaGamma+dKG_INC/1000.,
-			deltaG1+dg1_INC/1000.,
-			channame.Data());
-	  TString dcardname("./datacard_"+cfgtag+".txt");
-	  card->Print(dcardname);
-	}
-      } // dg1 loop
-    } // dKG loop
-  } // channel loop
+  if (card)
+  {
+    TString dcardname("./datacard_8TeV_ATGC_"+channame+"_"+cfgtag+".txt");
+    card->Print(dcardname);
+  }
 
 }                                                             // makeDataCardFiles
 
@@ -263,23 +151,17 @@ makeDataCardFiles(bool doshape) // int argc, char*argv[])
 #define DEBUG 1
 
 int main(int argc, char* argv[]) {
-
-#if 0
-  if (argc<2) {
-    printf("Usage: %s [do-cut-and-count]\n",argv[0]);
+  if (argc != 3) {
+    printf("Usage: %s rootfile nametag\n",argv[0]);
     return 1;
   }
-#endif
 #ifdef DEBUG
   for (int i=0; i<argc; i++) printf("%s ", argv[i]);
   printf ("\n");
 #endif
 
-  // exactly one arg is nominal,
-  // more than one means suppress shape info in the card
-  // for a cut-and-count limit
-  //
-  makeDataCardFiles(argc <= 1);
+  makeDataCardFiles(argv[1], argv[2]);
+
   return 0;
 }
 #endif

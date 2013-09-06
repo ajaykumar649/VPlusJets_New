@@ -272,14 +272,14 @@ void Card::Print(const TString& dcardname)
   for (map<TString,double>::const_iterator it=data_.channels.begin();
        it != data_.channels.end();
        it++) {
-    fprintf(dcFile,"%15s",it->first.Data());
+    fprintf(dcFile,"%15s ",it->first.Data());
   }
   fprintf(dcFile,"\nobservation                        ");
   for (map<TString,double>::const_iterator it=data_.channels.begin();
        it != data_.channels.end();
        it++) {
-    //fprintf(dcFile,"%15d",(int)it->second);
-    fprintf(dcFile,"%15.5f",it->second);
+    //fprintf(dcFile,"%15d ",(int)it->second);
+    fprintf(dcFile,"%15.5f ",it->second);
   }
   
   fprintf(dcFile,"\n--------------------\n");
@@ -316,19 +316,19 @@ void Card::Print(const TString& dcardname)
     for (map<TString,double>::const_iterator it=processes_[j].channels.begin();
 	 it != processes_[j].channels.end();
 	 it++)
-      fprintf(dcFile,"%15s",it->first.Data());
+      fprintf(dcFile,"%15s ",it->first.Data());
   fprintf(dcFile,"\n");
   
   fprintf(dcFile,"process                            ");
   for (int j=0; j<=jmax; j++)
     for (int k=0; k<nbins; k++)
-      fprintf(dcFile,"%15s",processes_[j].name.Data());
+      fprintf(dcFile,"%15s ",processes_[j].name.Data());
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"process                            ");
   for (int j=0; j<=jmax; j++)
     for (int k=0; k<nbins; k++)
-      fprintf(dcFile,"%15d",processes_[j].procindex);
+      fprintf(dcFile,"%15d ",processes_[j].procindex);
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"rate                               ");
@@ -336,7 +336,7 @@ void Card::Print(const TString& dcardname)
     for (map<TString,double>::const_iterator it=processes_[j].channels.begin();
 	 it != processes_[j].channels.end();
 	 it++)
-      fprintf(dcFile,"%15.2f",max(it->second,0.001));
+      fprintf(dcFile,"%15.2f ",max(it->second,0.001));
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"--------------------\n");
@@ -394,19 +394,19 @@ void Card::Print(const TString& dcardname)
        it != processes_[0].channels.end();
        it++)
     for (int j=0; j<=jmax; j++)
-      fprintf(dcFile,"%15s",it->first.Data());
+      fprintf(dcFile,"%15s ",it->first.Data());
   fprintf(dcFile,"\n");
   
   fprintf(dcFile,"process                            ");
   for (int k=0; k<nbins; k++)
     for (int j=0; j<=jmax; j++)
-      fprintf(dcFile,"%15s",processes_[j].name.Data());
+      fprintf(dcFile,"%15s ",processes_[j].name.Data());
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"process                            ");
   for (int k=0; k<nbins; k++)
     for (int j=0; j<=jmax; j++)
-      fprintf(dcFile,"%15d",processes_[j].procindex);
+      fprintf(dcFile,"%15d ",processes_[j].procindex);
   fprintf(dcFile,"\n");
 
   fprintf(dcFile,"rate                               ");
@@ -420,7 +420,7 @@ void Card::Print(const TString& dcardname)
 	cerr << "couldn't find channel " << channame << " for process " << j << endl;
 	exit(-1);
       }
-      fprintf(dcFile,"%15.2f",it->second);
+      fprintf(dcFile,"%15.2f ",it->second);
     }
   }
   fprintf(dcFile,"\n");

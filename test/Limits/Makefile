@@ -1,4 +1,4 @@
-CXXFLAGS := `root-config --cflags` -O2 -g -Wall -DMAIN -I${ROOFITSYS}/include
+CXXFLAGS := `root-config --cflags` -O2 -g -Wall -DMAIN -I${ROOFITSYS}/include -I${LOCALRT}/src/HiggsAnalysis/CombinedLimit/interface
 
 LDFLAGS := `root-config --libs` -L${ROOFITSYS}/lib -L${CMSSW_BASE}/lib/${SCRAM_ARCH} -lRooFitCore -lHiggsAnalysisCombinedLimit
 
@@ -24,7 +24,7 @@ makeDataCardFromTable.exe: makeDataCardFromTable.o
 	${CXX} -g -o $@ $^  ${LDFLAGS}
 
 makeDataCardFromRooWorkspace.exe: makeDataCardFromRooWorkspace.o card.o hwwutils.o
-	${CXX} -g -o $@ $^  ${LDFLAGS}
+	${CXX} -g -o $@ $^ ${LDFLAGS}
 
 makeDataCardShapes4tgc.exe: makeDataCardShapes4tgc.o card.o
 	${CXX} -g -o $@ $^  ${LDFLAGS}
