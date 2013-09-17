@@ -267,7 +267,8 @@ fitter.ws.Print()
 fr = None
 if models[0] >= 0:
     fr = sigPdf.fitTo(data, RooFit.Save(), 
-                      RooFit.SumW2Error(False)
+                      RooFit.SumW2Error(False),
+                      # RooFit.InitialHesse(True)
                       )
 
 

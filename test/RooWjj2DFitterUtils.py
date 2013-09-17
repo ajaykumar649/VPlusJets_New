@@ -3,7 +3,7 @@ from RooWjj2DFitterPars import Wjj2DFitterPars
 from ROOT import TH2D, TFile, gDirectory, TTreeFormula, RooDataHist, \
     RooHistPdf, RooArgList, RooArgSet, RooFit, RooDataSet, RooRealVar, \
     TRandom3, RooPowerLaw, RooClassFactory, gROOT, TClass, TH1D, \
-    RooChebyshevPDF, TH1F
+    RooChebyshevPDF, TH1F, RooExpPoly
 from array import array
 from EffLookupTable import EffLookupTable
 import random
@@ -709,7 +709,7 @@ class Wjj2DFitterUtils:
             factoryString = 'SUM::%s(' % (pdfName)
             for i in range(0, auxModel):
                 pdf = ws.factory(
-                    'RooExponential::%s_%i(%s,c_%s_%i[0.012,-10,10])' % \
+                    'RooExponential::%s_%i(%s,c_%s_%i[-0.012,-10,10])' % \
                     (pdfName, i, var, idString, i))
                 f = ws.factory('f_%i[%.3f,0.,1.]' % (i, 1./auxModel))
                 if i < (auxModel-1):
@@ -757,6 +757,24 @@ class Wjj2DFitterUtils:
             ws.factory("RooErfExpPdf::%s(%s, c_%s, offset_%s, width_%s, -1)" %\
                        (pdfName, var, idString, idString, idString)
                        )
+        elif model == 37:
+            # exponentiated polynomial of degree given by auxModel
+            coefList = RooArgList()
+            coefNames = []
+            for i in range(1,auxModel+1):
+                coefNames.append('c_%i_%s' % (i, idString))
+                c1 = ws.factory('%s[1e-5, -1, 1]' % coefNames[-1])
+                if i == 1:
+                    c1.setRange(-1., 1.)
+                    c1.setVal(-0.01)
+                c1.setError(c1.getVal()*0.1)
+                if i > 2:
+                    c1.setVal(0.)
+                coefList.add(c1)
+            # ws.factory("RooExpPoly::%s(%s,{%s})" % (pdfName, var,
+            #                                             ','.join(coefNames)))
+            ep = RooExpPoly(pdfName, pdfName, ws.var(var), coefList)
+            getattr(ws, 'import')(ep)
         elif model== 108:
             # expA+expB
             cA = ws.factory("cA_%s[-0.05,-1.0,0.0]" % idString)

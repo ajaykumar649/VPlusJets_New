@@ -57,6 +57,8 @@ def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True,
  
     pars.WpJFiles = pars_mjj.WpJFiles
     pars.WpJModels = [ modePars[mH][5]['WpJ'][1] ]
+    if (len(modePars[mH][5]['WpJ']) > 3):
+        pars.WpJAuxModels = [ modePars[mH][5]['WpJ'][3] ]
 
     pars.topFiles = pars_mjj.topFiles
     pars.topModels = [ modePars[mH][5]['top'][1] ]
