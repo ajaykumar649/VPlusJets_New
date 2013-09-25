@@ -84,6 +84,7 @@ Double_t RooExpPoly::analyticalIntegral(Int_t code,
 	     TMath::Exp(coef1*x.min(rangeName)))/coef1;
     if (coefs.getSize() > 1) {
       coef2 = dynamic_cast<RooAbsReal *>(coefs.at(1))->getVal();
+      double absrootc2(TMath::Sqrt(TMath::Abs(coef2)));
       if (coef2 != 0) {
 	// std::cout << "coef1: " << coef1 << " coef2: " << coef2 << '\n';
 	RooComplex c1(coef1, 0); RooComplex c2(coef2, 0);
@@ -91,17 +92,28 @@ Double_t RooExpPoly::analyticalIntegral(Int_t code,
 			  RooComplex(0,TMath::Sqrt(-1*coef2)));
 	RooComplex zmax = c1*0.5/rootc2 + rootc2*x.max(rangeName);
 	RooComplex zmin = c1*0.5/rootc2 + rootc2*x.min(rangeName);
-	RooComplex zval_max = 
-	  erfi(zmax)*0.5*rootpi*TMath::Exp(-coef1*coef1/4./coef2)/rootc2;
-	RooComplex zval_min = erfi(zmin)*0.5*rootpi*TMath::Exp(-coef1*coef1/4./coef2)/rootc2;
+	double erfimax((coef2 > 0) ? erfi(zmax).re() : erfi(zmax).im());
+	double erfimin((coef2 > 0) ? erfi(zmin).re() : erfi(zmin).im());
+	// if (coef2 < 0) {
+	//   erfimax = TMath::Erf(absrootc2*x.max(rangeName) - 
+	// 		       coef1*0.5/absrootc2);
+	//   erfimin = TMath::Erf(absrootc2*x.min(rangeName) - 
+	// 		       coef1*0.5/absrootc2);
+	//   // std::cout << "erfimax: " << erfimax << '\n'
+	//   // 	    << "erfimin: " << erfimin << '\n';
+	// }
+	double zval_max(erfimax*0.5*rootpi*
+			TMath::Exp(-coef1*coef1/4./coef2)/absrootc2);
+	double zval_min(erfimin*0.5*rootpi*
+			TMath::Exp(-coef1*coef1/4./coef2)/absrootc2);
 	// std::cout << "c1: "; c1.Print();
 	// std::cout << "c2: "; c2.Print();
 	// std::cout << "rootc2: "; rootc2.Print();
 	// std::cout << "zmax: "; zmax.Print();
-	// std::cout << "zval_max: "; zval_max.Print();
+	// std::cout << "zval_max: " << zval_max << '\n';
 	// std::cout << "zmin: "; zmin.Print();
-	// std::cout << "zval_min: "; zval_min.Print();
-	val = zval_max.re() - zval_min.re();
+	// std::cout << "zval_min: " << zval_min << '\n';
+	val = zval_max - zval_min;
       }
     }
   }
@@ -115,9 +127,9 @@ RooComplex RooExpPoly::erfi(RooComplex z) {
   RooComplex zsq(z*z);
   RooComplex ret(1,0);
   // std::cout << "z: "; z.Print();
-  if (z.im() > 10.)
+  if (z.im() > 5.)
     ret =  RooComplex(0., 1.);
-  else if (z.im() < -10.)
+  else if (z.im() < -5.)
     ret =  RooComplex(0.,-1.);
   else {
     RooComplex w(RooMath::ComplexErrFunc(z));

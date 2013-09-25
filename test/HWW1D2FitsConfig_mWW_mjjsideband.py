@@ -19,16 +19,10 @@ def theConfig(**kwargs):
     pars.lumiPerEpoch = pars_mjj.lumiPerEpoch
 
     pars.isElectron = kwargs['isElectron']
-    if ('initFile' in kwargs):
-        pars.initialParametersFile = kwargs['initFile']
-    else:
-        pars.inititalParametersFile = []
+    pars.initialParametersFile = kwargs['initFile']
 
     pars.backgrounds = pars_mjj.backgrounds
-    if ('includeSignal' in kwargs):
-        pars.includeSignal = kwargs['includeSignal']
-    else:
-        pars.includeSignal = False
+    pars.includeSignal = kwargs['includeSignal']
     pars.signals = pars_mjj.signals
     pars.yieldConstraints = pars_mjj.yieldConstraints
     #pars.yieldConstraints = {}
@@ -38,7 +32,7 @@ def theConfig(**kwargs):
     pars.mHiggs = kwargs['mH']
 
     modePars = mu2Pars
-    if pars.isElectron:
+    if isElectron:
         flavorString = 'el'
         if pars.Njets == 3:
             modePars = el3Pars
@@ -55,17 +49,6 @@ def theConfig(**kwargs):
     
     regionLow = pars_mjj.exclude[pars_mjj.var[0]][0]
     regionHigh = pars_mjj.exclude[pars_mjj.var[0]][1]
-    region = "signal"
-    try:
-        regionLow = modePars[pars.mHiggs][6][kwargs['sideband']][0]
-        regionHigh = modePars[pars.mHiggs][6][kwargs['sideband']][1]
-        region = kwargs['sideband']
-    except KeyError:
-        pass
-    pars.regionLow = regionLow
-    pars.regionHigh = regionHigh
-    pars.region = region
-    print pars_mjj.var[0],'region:',region,'(%f, %f)' % (regionLow, regionHigh)
     pars.cuts = pars_mjj.cuts
     pars.cuts += '&&(%s>%.0f)&&(%s<%.0f)' % \
         (pars_mjj.var[0], regionLow,

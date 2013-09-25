@@ -20,7 +20,7 @@ parser.add_option('--electrons', dest='isElectron', action='store_true',
 parser.add_option('--makeFree', dest='makeConstant', action='store_false',
                   default=True, help='make parameters free in output')
 parser.add_option('--sideband', dest='sb', type='int',
-                  default=0, help='use sideband model instead')
+                  default=0, help='use sideband dataset and model instead')
 parser.add_option('--signal', dest='sig', action='store_true',
                   default=False, help='use signal model instead')
 parser.add_option('--alternateModel', dest='altModel', action='store_true',
@@ -39,6 +39,8 @@ parser.add_option('--btag', dest='btag', action='store_true',
                   default=False, help='Use b-tagged selection.')
 parser.add_option('--mva', dest='mvaCut', type='float',
                   help='override cut value for mva')
+parser.add_option('--rateSyst', dest='RateSyst', type='int', 
+                  help='do a rate systematic in region of +/- 10% of mH')
 
 (opts, args) = parser.parse_args()
 
@@ -50,32 +52,46 @@ config = __import__(opts.modeConfig)
 #import VBF2DConfig
 import RooWjj2DFitter
 import HWWSignalShapes
-#from RooWjj2DFitterUtils import Wjj2DFitterUtils
 
 from ROOT import RooFit, TCanvas, RooArgSet, TFile, RooAbsReal, RooAbsData, \
     RooHist, TMath, kRed, kDashed, kOrange, RooMsgService, RooDataSet
+
+from array import array
 
 import pulls
 
 RooMsgService.instance().setGlobalKillBelow(RooFit.WARNING)
 
+configArgs = {'Nj': opts.Nj, 'mH': opts.mH, 'isElectron': opts.isElectron,
+              'initFile' : args}
 mvaCutOverride = None
-if hasattr(opts, "mvaCut"):
+if hasattr(opts, "mvaCut") and (opts.mvaCut != None):
     mvaCutOverride = opts.mvaCut
+    configArgs['MVACutOverride'] = opts.mvaCut
 
-pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                        isElectron = opts.isElectron, initFile = args)
+sb = None
+if opts.sb > 0:
+    sb = 'high'
+    configArgs['sideband'] = sb
+elif opts.sb < 0:
+    sb = 'low'
+    configArgs['sideband'] = sb
+
+# pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+#                         isElectron = opts.isElectron, initFile = args)
 if opts.btag:
-    pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                            isElectron = opts.isElectron, initFile = args,
-                            btagged = opts.btag)
-else:
-    pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                            isElectron = opts.isElectron, initFile = args)
-if mvaCutOverride:
-    pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                            isElectron = opts.isElectron, initFile = args,
-                            MVACutOverride = mvaCutOverride)
+    # pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+    #                         isElectron = opts.isElectron, initFile = args,
+    #                         btagged = opts.btag)
+    configArgs['btagged'] = opts.btag
+# else:
+#     pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+#                             isElectron = opts.isElectron, initFile = args)
+# if mvaCutOverride:
+#     pars = config.theConfig(Nj = opts.Nj, mH = opts.mH, 
+#                             isElectron = opts.isElectron, initFile = args,
+#                             MVACutOverride = mvaCutOverride)
+pars = config.theConfig(**configArgs)
 
 
 files = getattr(pars, '%sFiles' % opts.component)
@@ -89,8 +105,8 @@ if opts.altModel:
     print 'will fit the alternate model'
     models = getattr(pars, '%sModelsAlt' % opts.component)
     convModels  = getattr(pars, '%sConvModelsAlt' % opts.component)
-if opts.sb:
-    pars.cuts = pars.SidebandCuts
+# if opts.sb:
+#     pars.cuts = pars.SidebandCuts
 compName = opts.component
 morphingPdf = False
 if models[0] == -2:
@@ -208,8 +224,12 @@ if opts.interference in [1,2,3]:
         print 'failed to fined pdf',pdfName
 else:
     sigPdf = fitter.makeComponentPdf(compName, files, models, opts.altModel, convModels)
-    if opts.sb and fitter.ws.pdf('%s_%s_side' % (compName,pars.var[0])):
-        sigPdf = fitter.ws.pdf('%s_%s_side' % (compName,pars.var[0]))
+    if sb:
+        sbPdf = fitter.ws.pdf('%s_%s_%s' % (compName,pars.var[0],sb))
+        if sbPdf:
+            sigPdf = sbPdf
+            sigPdf.getParameters(data).setAttribAll('Constant', False)
+        sigPdf.Print()
     elif opts.sig and fitter.ws.pdf('%s_%s_sig' % (compName,pars.var[0])):
         sigPdf = fitter.ws.pdf('%s_%s_sig' % (compName,pars.var[0]))
 
@@ -360,27 +380,29 @@ mode = 'muon'
 if opts.isElectron:
     mode = 'electron'
 
-## lgnd = TLegend(0.65, 0.72, 0.92, 0.89, '', 'NDC')
-## lgnd.AddEntry('fitCurve', '%s fit pdf' % opts.component, 'l')
-## lgnd.AddEntry('theData','%s MC' % opts.component,'p')
-## lgnd.Draw('same')
-
-## if pars.btagSelection:
-##     if pars.boostedSelection:
-##         c1.SaveAs("DibosonBoostedBtaglnuJ_%s_%s_%ijets.png" % (opts.component, mode, opts.Nj))
-##     else:
-##         c1.SaveAs("DibosonBtaglnujj_%s_%s_%ijets.png" % (opts.component, mode, opts.Nj))
-## else:
-##     if pars.boostedSelection:
-##         c1.SaveAs("DibosonBoostedlnuJ_%s_%s_%ijets.png" % (opts.component, mode, opts.Nj))
-##     else:
-##         c1.SaveAs("Dibosonlnujj_%s_%s_%ijets.png" % (opts.component, mode, opts.Nj))
-
 ndf = 0
-# print chi2s
-# print ndfs
 
 finalPars = params.snapshot()
+
+if fr and (opts.RateSyst):
+    var = fitter.ws.var(obs[0])
+    var.setRange("SystSignal", opts.mH*0.9, opts.mH*1.1)
+    sigPdfInt = sigPdf.createIntegral(fitter.ws.set('obsSet'),
+                                      fitter.ws.set('obsSet'))
+    sigPdfInt_sig = sigPdf.createIntegral(fitter.ws.set('obsSet'),
+                                          fitter.ws.set('obsSet'),
+                                          'SystSignal')
+    fracs = [sigPdfInt_sig.getVal()/sigPdfInt.getVal()]
+    while len(fracs) < opts.RateSyst:
+        params.assignValueOnly(fr.randomizePars())
+        frac = sigPdfInt_sig.getVal()/sigPdfInt.getVal()
+        if (frac > 0) and (frac < 1):
+            fracs.append(sigPdfInt_sig.getVal()/sigPdfInt.getVal())
+
+    farray = array('d', fracs)
+    print 'yield in signal region around %i: %.4f +/- %.4f' % \
+        (opts.mH, TMath.Mean(len(farray),farray), 
+         TMath.RMS(len(farray), farray))
 
 sigFile = TFile('%s.root' % opts.bn, 'recreate')
 if fr:
