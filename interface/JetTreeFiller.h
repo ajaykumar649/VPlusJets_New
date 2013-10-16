@@ -38,7 +38,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
+//#include "ElectroWeakAnalysis/VPlusJets/interface/QGLikelihoodCalculator.h"
+#include "QuarkGluonTagger/EightTeV/interface/QGLikelihoodCalculator.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -66,7 +67,8 @@ namespace ewk {
 
 
     /// Destructor, does nothing 
-      ~JetTreeFiller() {delete qglikeli;};
+//      ~JetTreeFiller() {delete qglikeli;};
+      ~JetTreeFiller() {};
 
 
 
@@ -101,8 +103,10 @@ namespace ewk {
     template<typename T1> 
       void fillEnergyFractionsPFjets(const T1& pfjet, int iJet);
 
-    void fillQGLH(int iJet, float fastjet_rho, 
-		  std::vector<reco::PFCandidatePtr> pfCandidates);
+    void fillQGLH(float);  
+//    void fillQGLH(int iJet, float fastjet_rho,
+//		  std::vector<reco::PFCandidatePtr> pfCandidates);
+
 
     template<typename T1>
       void fillPileUpJetID ( const edm::Handle<edm::View<T1> > &);
@@ -146,6 +150,7 @@ namespace ewk {
 	edm::InputTag mInputMetMVA;
     edm::InputTag mInputBoson;
     edm::InputTag sourceByValue;
+
   	bool runoverAOD;
 	std::string bTagger;
     // 'mutable' because we will fill it from a 'const' method
@@ -233,6 +238,8 @@ namespace ewk {
     float PFrmsCands[NUM_JET_MAX];
     float PFptD[NUM_JET_MAX];
     float PFqgLikelihood[NUM_JET_MAX];
+
+    float qgl_out[NUM_JET_MAX];
 
     float V2jMassMVAMET;
     float V2jMass;
