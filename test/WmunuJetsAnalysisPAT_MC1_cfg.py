@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = False
+isMC = True
 
 process = cms.Process("demo")
 
@@ -35,6 +35,12 @@ process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')
 #process.QGTagger.useCHS  = cms.untracked.bool(True) 
 #process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
 
+#from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
+#process.srcJetsforRho_lepIso = process.kt6PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+#process.srcJetsforRho_lepIso.Rho_EtaMax = cms.double(2.5)
+
+   #srcJetsforRho = cms.string("kt6PFJetsPFlow"),                               
+    #srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"), 
 
 ##----- Global tag: conditions database ------------
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -80,8 +86,8 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
-#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
+       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
 ) )
 
 
@@ -110,6 +116,9 @@ process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
     minNumberPhotons = cms.untracked.int32(0)
 )
 process.RequireTwoJetsORboostedVStep = process.AllPassFilter.clone()
+
+
+
 
 
 ##-------- Save V+jets trees --------
@@ -170,10 +179,11 @@ process.TFileService = cms.Service(
 
 
 
-process.QGTagger.srcJets = cms.InputTag('selectedPatJetsPFlow')
+#process.QGTagger.srcJets = cms.InputTag('ak5PFJets')
+process.QGTagger.srcJets = cms.InputTag('ak5PFJetsLooseId')
 process.QGTagger.isPatJet  = cms.untracked.bool(True) 
-#process.QGTagger.useCHS  = cms.untracked.bool(True) 
-#process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
+process.QGTagger.useCHS  = cms.untracked.bool(True) 
+process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
 
 
 
@@ -223,7 +233,7 @@ process.myseq = cms.Sequence(
 ##    process.btagging * 
     process.TagJetPath *
     process.PFJetPath *
-    process.QuarkGluonTagger *
+#    process.QuarkGluonTagger *
     process.RequireTwoJetsORboostedV *
     process.RequireTwoJetsORboostedVStep
     )
@@ -243,4 +253,4 @@ else:
 ##process.myseq.remove ( process.RequireTwoJets)  
 
 #process.outpath.remove(process.out)
-process.p = cms.Path( process.myseq  * process.VplusJets)
+process.p = cms.Path( process.myseq  * process.QuarkGluonTagger * process.VplusJets)

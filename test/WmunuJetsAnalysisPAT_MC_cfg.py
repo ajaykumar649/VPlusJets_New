@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = False
+isMC = True
 
 process = cms.Process("demo")
 
@@ -15,6 +15,13 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("Configuration.StandardSequences.Generator_cff")
+
+#process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+#process.printTree = cms.EDAnalyzer("ParticleListDrawer",
+#  maxEventsToPrint = cms.untracked.int32(1),
+#  printVertex = cms.untracked.bool(False),
+#  src = cms.InputTag("genParticles")
+#)
 
 
 ##----- Detector geometry : some of these needed for b-tag -------
@@ -35,6 +42,12 @@ process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')
 #process.QGTagger.useCHS  = cms.untracked.bool(True) 
 #process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
 
+#from RecoJets.Configuration.RecoPFJets_cff import kt6PFJets
+#process.srcJetsforRho_lepIso = process.kt6PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+#process.srcJetsforRho_lepIso.Rho_EtaMax = cms.double(2.5)
+
+   #srcJetsforRho = cms.string("kt6PFJetsPFlow"),                               
+    #srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"), 
 
 ##----- Global tag: conditions database ------------
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -53,7 +66,7 @@ else:
     process.GlobalTag.globaltag = 'START53_V7E::All'
 
 OutputFileName = "WmunuJetAnalysisntuple.root"
-numEventsToRun = -1
+numEventsToRun = 100
 ############################################
 ########################################################################################
 ########################################################################################
@@ -80,8 +93,19 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
 #       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/weizou/VBF_HToWWToLAndTauNuQQ_M-300_8TeV-powheg-pythia6/SQWaT_PAT_53X_Summer12_v2/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_10_1_EFR.root',
+#       '/store/temp/user/lnujj/PatTuples_8TeV_53X/Supplemental/ilyao/W4JetsToLNu_TuneZ2Star_8TeV-madgraph/SQWaT_PAT_53X_W4JetsToLNu_TuneZ2Star_8TeV-madgraph/402ec72c9517e76360adc5ca179e6efb/pat_53x_test_v03_1000_1_9Ws.root',
+#       '/store/user/lnujj/PatTuples_8TeV_53X/ajkumar/W4JetsToLNu_TuneZ2Star_8TeV-madgraph/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_1003_0_YFd.root',
+
+
+
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
+#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/ajkumar/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/SQWaT_PAT_TT_Mtt1000toinf/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_100_1_Li1.root',
+       '/store/user/lnujj/PatTuples_8TeV_53X-v1/weizou/TTH_HToBB_M-125_8TeV-pythia6/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_100_1_Pej.root',
+
 ) )
 
 
@@ -112,10 +136,13 @@ process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
 process.RequireTwoJetsORboostedVStep = process.AllPassFilter.clone()
 
 
+
+
+
 ##-------- Save V+jets trees --------
 process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis", 
     jetType = cms.string("PF"),
-  #  srcPFCor = cms.InputTag("selectedPatJetsPFlow"),
+    #srcPFCor = cms.InputTag("selectedPatJetsPFlow"),
     srcPFCor = cms.InputTag("ak5PFJetsLooseId"),
     srcPhoton = cms.InputTag("photons"),
     IsoValPhoton = cms.VInputTag(cms.InputTag('phoPFIso:chIsoForGsfEle'),
@@ -168,12 +195,17 @@ process.TFileService = cms.Service(
     closeFileFast = cms.untracked.bool(False)
 )
 
-
-
+#process.QGTagger.srcJets = cms.InputTag('ak5PFJets')
 process.QGTagger.srcJets = cms.InputTag('selectedPatJetsPFlow')
 process.QGTagger.isPatJet  = cms.untracked.bool(True) 
-#process.QGTagger.useCHS  = cms.untracked.bool(True) 
+process.QGTagger.useCHS  = cms.untracked.bool(True) 
 #process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
+process.QGTagger.srcRho     = cms.InputTag('kt6PFJetsPFlow','rho')
+process.QGTagger.srcRhoIso     = cms.InputTag('kt6PFJetsPFlow','rho')
+#process.QGTagger.srcRhoIso1 = process.QGTagger.srcRhoIso.clone()
+#process.QGTagger.srcRhoIso1 = process.QGTagger.srcRhoIso1(rParam = 0.6, doRhoFastjet = True )
+#process.QGTagger.srcRhoIso1 = process.QGTagger.srcRhoIso1.Rho_EtaMax = cms.double(2.5)
+#process.QGTagger.srcRhoIso     = cms.InputTag('kt6PFJetsPFlow','rho')
 
 
 
@@ -223,7 +255,7 @@ process.myseq = cms.Sequence(
 ##    process.btagging * 
     process.TagJetPath *
     process.PFJetPath *
-    process.QuarkGluonTagger *
+#    process.QuarkGluonTagger *
     process.RequireTwoJetsORboostedV *
     process.RequireTwoJetsORboostedVStep
     )
@@ -238,9 +270,11 @@ else:
     process.myseq.remove ( process.GenJetPath)
     process.myseq.remove ( process.TagJetPath)
 
+process.QuarkGluonTagger.remove( process.kt6PFJetsQG )
+process.QuarkGluonTagger.remove( process.kt6PFJetsIsoQG )
 
 ##---- if do not want to require >= 2 jets then disable that filter ---
 ##process.myseq.remove ( process.RequireTwoJets)  
 
 #process.outpath.remove(process.out)
-process.p = cms.Path( process.myseq  * process.VplusJets)
+process.p = cms.Path( process.myseq * process.goodOfflinePrimaryVerticesQG * process.QuarkGluonTagger * process.VplusJets)

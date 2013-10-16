@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import pprint
-isMC = False
+isMC = True
 
 process = cms.Process("demo")
 
@@ -19,7 +19,9 @@ process.load("Configuration.StandardSequences.Generator_cff")
 
 ##----- Detector geometry : some of these needed for b-tag -------
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+##process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
@@ -27,13 +29,6 @@ process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 
 ##----- B-tags --------------
 process.load("RecoBTag.Configuration.RecoBTag_cff")
-
-#//.....QGL:....
-process.load('QuarkGluonTagger.EightTeV.QGTagger_RecoJets_cff')  
-#process.QGTagger.srcJets = cms.InputTag(ak5PFJets)
-#process.QGTagger.isPatJet  = cms.untracked.bool(True) 
-#process.QGTagger.useCHS  = cms.untracked.bool(True) 
-#process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
 
 
 ##----- Global tag: conditions database ------------
@@ -52,14 +47,14 @@ if not isMC:
 else:
     process.GlobalTag.globaltag = 'START53_V7E::All'
 
-OutputFileName = "WmunuJetAnalysisntuple.root"
+OutputFileName = "WenuJetAnalysisntuple.root"
 numEventsToRun = -1
 ############################################
 ########################################################################################
 ########################################################################################
 
-##---------  W-->munu Collection ------------
-process.load("ElectroWeakAnalysis.VPlusJets.WmunuCollectionsPAT_cfi")
+##---------  W-->enu Collection ------------
+process.load("ElectroWeakAnalysis.VPlusJets.WenuCollectionsPAT_cfi")
 
 ##---------  Jet Collection ----------------
 process.load("ElectroWeakAnalysis.VPlusJets.JetCollectionsPAT_cfi")
@@ -67,7 +62,6 @@ process.load("ElectroWeakAnalysis.VPlusJets.JetCollectionsPAT_cfi")
 ##---------  Vertex and track Collections -----------
 process.load("ElectroWeakAnalysis.VPlusJets.TrackCollections_cfi")
 #
-
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(numEventsToRun)
@@ -80,17 +74,17 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) 
 #process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound')
 #)
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(
-       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleMu/SQWaT_PAT_53X_2012B-13Jul2012-v1_part1v3/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_0_BNS.root'
-#       '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
+    '/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/WJetsToLNu_TuneZ2Star_8TeV-madgraph-tarball/SQWaT_PAT_53X_Summer12_v1/829f288d768dd564418efaaf3a8ab9aa/pat_53x_test_v03_995_1_wBa.root'
+    #'/store/user/lnujj/PatTuples_8TeV_53X-v1/jdamgov/SingleElectron/SQWaT_PAT_53X_Run2012A-recover-06Aug2012-v1/3e4086321697e2c39c90dad08848274b/pat_53x_test_v03_data_9_1_IaF.root'
 ) )
 
 
 
 
 ##-------- Electron events of interest --------
-process.HLTMu =cms.EDFilter("HLTHighLevel",
+process.HLTEle =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring('HLT_IsoMu24_*','HLT_IsoMu30_*'),
+     HLTPaths = cms.vstring('HLT_Ele27_*','HLT_Ele32_*'),
      eventSetupPathsKey = cms.string(''),
      andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
      throw = cms.bool(False) # throw exception on unknown path names
@@ -105,7 +99,7 @@ process.RequireTwoJetsORboostedV = cms.EDFilter("JetsORboostedV",
     minNumber = cms.untracked.int32(2),
     maxNumber = cms.untracked.int32(100),
     srcJets = cms.InputTag("ak5PFJetsLooseIdAll"),
-    srcVectorBoson = cms.InputTag("bestWmunu"),
+    srcVectorBoson = cms.InputTag("bestWToEnu"),
     minVpt = cms.untracked.double(100.),
     minNumberPhotons = cms.untracked.int32(0)
 )
@@ -123,18 +117,17 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
                                  cms.InputTag('phoPFIso:nhIsoForGsfEle'),
                                                            ),
     srcPFCorVBFTag = cms.InputTag("ak5PFJetsLooseIdVBFTag"), 
-    srcVectorBoson = cms.InputTag("bestWmunu"),
+    srcVectorBoson = cms.InputTag("bestWToEnu"),
     VBosonType     = cms.string('W'),
-    LeptonType     = cms.string('muon'),                          
+    LeptonType     = cms.string('electron'),                          
     TreeName    = cms.string('WJet'),
     srcPrimaryVertex = cms.InputTag("goodOfflinePrimaryVertices"),                               
     runningOverMC = cms.bool(isMC),			
     runningOverAOD = cms.bool(False),			
-#    srcMet = cms.InputTag("patType1CorrectedPFMet"),
-    srcMet = cms.InputTag("patMetShiftCorrected"), # type1 + shift corrections
+    srcMet = cms.InputTag("patMetShiftCorrected"),
     srcMetMVA = cms.InputTag("pfMEtMVA"),
     srcGen  = cms.InputTag("ak5GenJets"),
-    srcMuons  = cms.InputTag("selectedPatMuonsPFlow"),
+    srcElectrons  = cms.InputTag("selectedPatElectronsPFlow"),
     srcBeamSpot  = cms.InputTag("offlineBeamSpot"),
     srcCaloMet  = cms.InputTag("patMETs"),
     srcgenMet  = cms.InputTag("genMetTrue"),
@@ -144,8 +137,6 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     srcJetsforRho_lepIso = cms.string("kt6PFJetsForIsolation"),       
     srcJetsforRhoCHS = cms.string("kt6PFJetsChsPFlow"),
     srcJetsforRho_lepIsoCHS = cms.string("kt6PFJetsChsForIsolationPFlow"),
-    srcFlavorByValue = cms.InputTag("ak5tagJet"),
-    bTagger=cms.string("simpleSecondaryVertexHighEffBJetTags"),
 
     applyJECToGroomedJets=cms.bool(True),
     doGroomedAK5 = cms.bool(True),
@@ -154,6 +145,7 @@ process.VplusJets = cms.EDAnalyzer("VplusJetsAnalysis",
     doGroomedCA8 = cms.bool(True),
     doGroomedCA12 = cms.bool(False)
 )
+
 
 if isMC:
     process.VplusJets.JEC_GlobalTag_forGroomedJet = cms.string("START53_V15")
@@ -167,15 +159,6 @@ process.TFileService = cms.Service(
     fileName = cms.string( OutputFileName ),
     closeFileFast = cms.untracked.bool(False)
 )
-
-
-
-process.QGTagger.srcJets = cms.InputTag('selectedPatJetsPFlow')
-process.QGTagger.isPatJet  = cms.untracked.bool(True) 
-#process.QGTagger.useCHS  = cms.untracked.bool(True) 
-#process.QGTagger.jec     = cms.untracked.string('ak5PFL1FastL2L3')
-
-
 
 ##
 ## MET shift correction on the fly
@@ -211,19 +194,18 @@ process.patMetShiftCorrected = cms.EDProducer("CorrectedPATMETProducer",
         cms.InputTag('pfMEtSysShiftCorr')
     ),
     applyType2Corrections = cms.bool(False)
-)   
+)
 
 process.myseq = cms.Sequence(
     process.pfMEtSysShiftCorrSequence *
     process.patMetShiftCorrected *
     process.TrackVtxPath *
-    process.HLTMu *
+    process.HLTEle *
     process.WPath *
     process.GenJetPath *
 ##    process.btagging * 
     process.TagJetPath *
     process.PFJetPath *
-    process.QuarkGluonTagger *
     process.RequireTwoJetsORboostedV *
     process.RequireTwoJetsORboostedVStep
     )
@@ -231,7 +213,7 @@ process.myseq = cms.Sequence(
 if isMC:
     process.myseq.remove ( process.noscraping)
     process.myseq.remove ( process.HBHENoiseFilter)
-    process.myseq.remove ( process.HLTMu)
+    process.myseq.remove ( process.HLTEle)
 else:
     process.myseq.remove ( process.noscraping)
     process.myseq.remove ( process.HBHENoiseFilter)
@@ -244,3 +226,8 @@ else:
 
 #process.outpath.remove(process.out)
 process.p = cms.Path( process.myseq  * process.VplusJets)
+
+
+
+
+

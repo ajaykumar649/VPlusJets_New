@@ -4,10 +4,10 @@ import HWWSignalShapes
 import HWW1D2FitsConfig
 from HWW1D2FitsConfig import mu2Pars, el2Pars
 
-def theConfig(**kwargs):
-    # (Nj, mH, isElectron = False, initFile = [], includeSignal = True,
-    #           MVACutOverride = None):
-    pars_mjj = HWW1D2FitsConfig.theConfig(**kwargs)
+def theConfig(Nj, mH, isElectron = False, initFile = [], includeSignal = True,
+              MVACutOverride = None):
+    pars_mjj = HWW1D2FitsConfig.theConfig(Nj, mH, isElectron, [], 
+                                          includeSignal, MVACutOverride)
     pars = Wjj2DFitterPars()
 
     pars.MCDirectory = pars_mjj.MCDirectory
@@ -18,81 +18,62 @@ def theConfig(**kwargs):
     pars.leptonEffFiles = pars_mjj.leptonEffFiles
     pars.lumiPerEpoch = pars_mjj.lumiPerEpoch
 
-    pars.isElectron = kwargs['isElectron']
-    if ('initFile' in kwargs):
-        pars.initialParametersFile = kwargs['initFile']
-    else:
-        pars.inititalParametersFile = []
+    pars.isElectron = isElectron
+    pars.initialParametersFile = initFile
 
     pars.backgrounds = pars_mjj.backgrounds
-    if ('includeSignal' in kwargs):
-        pars.includeSignal = kwargs['includeSignal']
-    else:
-        pars.includeSignal = False
+    pars.includeSignal = includeSignal
     pars.signals = pars_mjj.signals
     pars.yieldConstraints = pars_mjj.yieldConstraints
     #pars.yieldConstraints = {}
     pars.constrainShapes = []
 
-    pars.Njets = kwargs['Nj']
-    pars.mHiggs = kwargs['mH']
+    pars.Njets = Nj
+    pars.mHiggs = mH
 
     modePars = mu2Pars
-    if pars.isElectron:
+    if isElectron:
         flavorString = 'el'
-        if pars.Njets == 3:
+        if Nj == 3:
             modePars = el3Pars
         else:
             modePars = el2Pars
     else:
         flavorString = 'mu'
-        if pars.Njets == 3:
+        if Nj == 3:
             modePars = mu3Pars
         else:
             modePars = mu2Pars
 
     pars.btagVeto = pars_mjj.btagVeto
     
-    regionLow = pars_mjj.exclude[pars_mjj.var[0]][0]
-    regionHigh = pars_mjj.exclude[pars_mjj.var[0]][1]
-    region = "signal"
-    try:
-        regionLow = modePars[pars.mHiggs][6][kwargs['sideband']][0]
-        regionHigh = modePars[pars.mHiggs][6][kwargs['sideband']][1]
-        region = kwargs['sideband']
-    except KeyError:
-        pass
-    pars.regionLow = regionLow
-    pars.regionHigh = regionHigh
-    pars.region = region
-    print pars_mjj.var[0],'region:',region,'(%f, %f)' % (regionLow, regionHigh)
     pars.cuts = pars_mjj.cuts
     pars.cuts += '&&(%s>%.0f)&&(%s<%.0f)' % \
-        (pars_mjj.var[0], regionLow,
-         pars_mjj.var[0], regionHigh)
+        (pars_mjj.var[0], pars_mjj.exclude[pars_mjj.var[0]][0],
+         pars_mjj.var[0], pars_mjj.exclude[pars_mjj.var[0]][1])
 
     pars.dibosonFiles = pars_mjj.dibosonFiles
-    pars.dibosonModels = [ modePars[pars.mHiggs][5]['diboson'][1] ]
+    pars.dibosonModels = [ modePars[mH][5]['diboson'][1] ]
  
     pars.WpJFiles = pars_mjj.WpJFiles
-    pars.WpJModels = [ modePars[pars.mHiggs][5]['WpJ'][1] ]
-    if (len(modePars[pars.mHiggs][5]['WpJ']) > 3):
-        pars.WpJAuxModels = [ modePars[pars.mHiggs][5]['WpJ'][3] ]
+    pars.WpJModels = [ modePars[mH][5]['WpJ'][1] ]
+    if (len(modePars[mH][5]['WpJ']) > 3):
+        pars.WpJAuxModels = [ modePars[mH][5]['WpJ'][3] ]
 
     pars.topFiles = pars_mjj.topFiles
-    pars.topModels = [ modePars[pars.mHiggs][5]['top'][1] ]
+    pars.topModels = [ modePars[mH][5]['top'][1] ]
 
-    # ngen = HWWSignalShapes.NgenHiggs(pars.mHiggs, 'ggH')
+    # ngen = HWWSignalShapes.NgenHiggs(mH, 'ggH')
     pars.ggHFiles = pars_mjj.ggHFiles
-    pars.ggHModels = [ modePars[pars.mHiggs][5]['ggH'][1] ]
+    pars.ggHModels = [ modePars[mH][5]['ggH'][1] ]
     pars.ggHdoSystMult = False
     if pars.mHiggs >= 400:
         pars.ggHInterference = True
         pars.ggHSystMult = 'interf_ggH'
 
-    # ngen = HWWSignalShapes.NgenHiggs(pars.mHiggs, 'qqH')
+    # ngen = HWWSignalShapes.NgenHiggs(mH, 'qqH')
     pars.qqHFiles = pars_mjj.qqHFiles
-    pars.qqHModels = [ modePars[pars.mHiggs][5]['qqH'][1] ]
+    pars.qqHModels = [ modePars[mH][5]['qqH'][1] ]
 
     pars.QCDFiles = pars_mjj.QCDFiles
     pars.QCDModels = pars_mjj.QCDModels

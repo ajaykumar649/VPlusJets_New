@@ -241,11 +241,9 @@ print 'W+jets yield in the signal region:',n_WpJ_sig
 
 import HWW1D2FitsConfig_mWW
 print mWWArgs
-pars_mWW = HWW1D2FitsConfig_mWW.theConfig(Nj = opts.Nj, mH = opts.mH, 
-                                          isElectrons = opts.isElectron, 
-                                          initFile = mWWArgs,
-                                          includeSignal = True,
-                                          MVACutOverride = mvaCutOverride)
+pars_mWW = HWW1D2FitsConfig_mWW.theConfig(opts.Nj, opts.mH, 
+                                          opts.isElectron, mWWArgs,
+                                          True)
 pars_mWW.yieldConstraints['WpJ'] = fitter.ws.var('WpJ_nrm').getError()
 
 # add systematic errors multipliers to ggH signals

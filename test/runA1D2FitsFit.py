@@ -21,8 +21,6 @@ parser.add_option('--expLimit', type='int', default=0, dest='limit',
                   help='number of toys for expected limit, 0 is off')
 parser.add_option('--mva', dest='mvaCut', type='float',
                   help='override cut value for mva')
-parser.add_option('--sideband', dest='sb', type='int',
-                  help='use sideband dataset and model instead')
 (opts, args) = parser.parse_args()
 
 import os
@@ -36,21 +34,14 @@ if opts.limit:
 if hasattr(opts, "mvaCut") and opts.mvaCut:
     commonCmd.extend(['--mva', str(opts.mvaCut)])
 
-if hasattr(opts, 'sb') and opts.sb:
-    commonCmd.extend(['--sideband', str(opts.sb)])
-    commonCmd[1] = 'runHWW1D2FitsSideband.py'
-
 if opts.reuse:
     flavor = 'electron' if opts.isElectron else 'muon'
     commonCmd += [ '--ws', 'HWW%ilnujj_%s_2jets_1D2Fit_output.root' % (opts.mH, flavor) ]
 
-searchString = '*HWW%iParameters' % opts.mH
-if opts.sb:
-    searchString += '_sideband%i' % opts.sb
+searchString = '*HWW%iParameters_m??.txt' % opts.mH
 if opts.isElectron:
-    searchString += '_el' % opts.mH
+    searchString = '*HWW%iParameters_el_m??.txt' % opts.mH
     commonCmd += [ '--electrons' ]
-searchString += '_m??.txt'
 if opts.sig:
     pass
 else:

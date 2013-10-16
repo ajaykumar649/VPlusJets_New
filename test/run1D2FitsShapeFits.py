@@ -31,8 +31,6 @@ parser.add_option('--reuse', dest='reuse', action='store_true',
                   default=False, help='use previous fit to get data')
 parser.add_option('--mva', dest='mvaCut', type='float',
                   help='override cut value for mva')
-parser.add_option('--sideband', dest='sb', type='int',
-                  help='use sideband dataset and model instead')
 (opts, args) = parser.parse_args()
 
 components = [ 'ggH', 'qqH', 'diboson', 'top', 'WpJ' ]
@@ -47,9 +45,6 @@ if opts.isElectron:
 if hasattr(opts, "mvaCut") and opts.mvaCut:
     cmdBase.extend(['--mva', str(opts.mvaCut)])
 
-if hasattr(opts, 'sb') and opts.sb:
-    cmdBase.extend(['--sideband', str(opts.sb)])
-
 for component in components:
     cmd = list(cmdBase) + [ '--comp', component, ]
     if component == 'WpJ':
@@ -57,8 +52,6 @@ for component in components:
     cmd2 = list(cmd)
     cmd2[6] = 'HWW1D2FitsConfig_mWW'
     bn = '1D2FitsParameters/%sHWW%iParameters' % (component, opts.mH)
-    if opts.sb:
-        bn += '_sideband%i' % opts.sb
     if opts.isElectron:
         bn += '_el'
     if (component == 'ggH') and (opts.mH >= 400):

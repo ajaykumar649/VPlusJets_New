@@ -759,8 +759,6 @@ class Wjj2DFitterUtils:
                        )
         elif model == 37:
             # exponentiated polynomial of degree given by auxModel
-            if auxModel == None:
-                auxModel = 2
             coefList = RooArgList()
             coefNames = []
             for i in range(1,auxModel+1):
@@ -777,25 +775,6 @@ class Wjj2DFitterUtils:
             #                                             ','.join(coefNames)))
             ep = RooExpPoly(pdfName, pdfName, ws.var(var), coefList)
             getattr(ws, 'import')(ep)
-        elif model == 38:
-            #Nth order Bernstein polynomial where n is passed in as the auxModel
-            print 'Bernstein polynomial with',auxModel,'coefficients'
-            parSet = []
-            parList = RooArgList('parList')
-            for i in range(0, auxModel):
-                parSet.append('a%i_%s' % (i+1, idString))
-                a = ws.factory('%s[0.01, 0., 1.]' % parSet[-1])
-                a.setConstant(False)
-                parList.add(a)
-                # print varSet[-1]
-                # a.Print()
-            factoryStatement = "RooBernstein::%s(%s,{%s})" % \
-                           (pdfName, var, ','.join(parSet))
-            #print factoryStatement
-            # pdf = RooChebyshevPDF(pdfName, pdfName, ws.var(var), parList)
-            # getattr(ws, 'import')(pdf)
-            #ws.Print()
-            ws.factory(factoryStatement)
         elif model== 108:
             # expA+expB
             cA = ws.factory("cA_%s[-0.05,-1.0,0.0]" % idString)

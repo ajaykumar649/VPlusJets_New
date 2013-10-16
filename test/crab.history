@@ -1,0 +1,87 @@
+131003_144807: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_TTbar -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_TTbar -USER.ui_working_dir=crabDir/mu_TTbar -CMSSW.datasetpath=/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/dimatteo-SQWaT_PAT_53X_Summer12_v1-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131003_144916: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_qqh300 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_qqh300 -USER.ui_working_dir=crabDir/mu_qqh300 -CMSSW.datasetpath=/VBF_HToWWToLAndTauNuQQ_M-300_8TeV-powheg-pythia6/weizou-SQWaT_PAT_53X_Summer12_v2-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131003_144944: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_W4Jets -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_W4Jets -USER.ui_working_dir=crabDir/mu_W4Jets -CMSSW.datasetpath=/W4JetsToLNu_TuneZ2Star_8TeV-madgraph/ilyao-SQWaT_PAT_53X_W4JetsToLNu_TuneZ2Star_8TeV-madgraph-402ec72c9517e76360adc5ca179e6efb/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131004_102622: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_TTbar -status all
+131004_102629: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_TTbar -status all
+131004_102640: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_TTbar -status all
+131004_102658: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_TTbar -getoutput all
+131004_102809: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_TTbar -status all
+131004_102825: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_W4Jets -status all
+131004_102852: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_W4Jets -getoutput all
+131004_103207: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_W4Jets -status all
+131004_103223: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh300 -status all
+131004_103234: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh300 -getoutput all
+131004_103238: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh300 -status all
+131006_224455: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_qqh126 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_qqh126 -USER.ui_working_dir=crabDir/mu_qqh126 -CMSSW.datasetpath=/phantom_mh126_8TeV/ajkumar-SQWaT_PAT_phantom_Summer12_WW-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131007_014455: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh126 -status all
+131007_014517: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh126 -getoutput 7
+131007_014522: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh126 -status all
+131007_102048: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh126 -status all
+131007_102111: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh126 -getoutput 1-6
+131007_102116: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_qqh126 -status all
+131009_022235: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_Mtt1000toinf -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_Mtt1000toinf -USER.ui_working_dir=crabDir/mu_Mtt1000toinf -CMSSW.datasetpath=/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt1000toinf-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131009_022312: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/el_Mtt1000toinf -create -CMSSW.output_file=WenuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_el_Mtt1000toinf -USER.ui_working_dir=crabDir/el_Mtt1000toinf -CMSSW.datasetpath=/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt1000toinf-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WenuJetsAnalysisPAT_MC_cfg.py
+131009_092431: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/el_Mtt700to1000 -create -CMSSW.output_file=WenuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_el_Mtt700to1000 -USER.ui_working_dir=crabDir/el_Mtt700to1000 -CMSSW.datasetpath=/TT_Mtt-700to1000_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt700to1000-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WenuJetsAnalysisPAT_MC_cfg.py
+131009_092511: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_Mtt700to1000 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_Mtt700to1000 -USER.ui_working_dir=crabDir/mu_Mtt700to1000 -CMSSW.datasetpath=/TT_Mtt-700to1000_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt700to1000-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131009_114514: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf -status all
+131009_114527: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf -getoutput all
+131009_114558: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf -status all
+131009_114606: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -status all
+131009_114616: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -getoutput all
+131009_114645: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -status all
+131009_114851: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -resubmit 6
+131009_114900: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -status all
+131009_121148: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -status all
+131009_121203: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf -status all
+131009_121214: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000 -status all
+131009_121224: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000 -status all
+131009_143953: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000 -status all
+131009_144004: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000 -getoutput all
+131009_144031: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000 -status all
+131009_144040: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000 -status all
+131009_144051: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000 -getoutput all
+131009_144117: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000 -status all
+131009_144127: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf -status all
+131009_144134: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -status all
+131009_144146: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -getoutput 6
+131009_144151: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf -status all
+131010_171043: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/el_Mtt700to1000_v1 -create -CMSSW.output_file=WenuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_el_Mtt700to1000_v1 -USER.ui_working_dir=crabDir/el_Mtt700to1000_v1 -CMSSW.datasetpath=/TT_Mtt-700to1000_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt700to1000-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WenuJetsAnalysisPAT_MC_cfg.py
+131010_171217: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/el_Mtt1000toinf_v1 -create -CMSSW.output_file=WenuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_el_Mtt1000toinf_v1 -USER.ui_working_dir=crabDir/el_Mtt1000toinf_v1 -CMSSW.datasetpath=/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt1000toinf-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WenuJetsAnalysisPAT_MC_cfg.py
+131010_171257: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_Mtt1000toinf_v1 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_Mtt1000toinf_v1 -USER.ui_working_dir=crabDir/mu_Mtt1000toinf_v1 -CMSSW.datasetpath=/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt1000toinf-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131010_171336: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_Mtt700to1000_v1 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_Mtt700to1000_v1 -USER.ui_working_dir=crabDir/mu_Mtt700to1000_v1 -CMSSW.datasetpath=/TT_Mtt-700to1000_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt700to1000-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131011_011901: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000_v1 -status all
+131011_012125: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000_v1 -getoutput all
+131011_012321: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000_v1 -status all
+131011_012337: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000_v1 -resubmit 104,289
+131011_012352: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_012407: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -getoutput all
+131011_012701: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_012905: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -resubmit 133,289
+131011_145210: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000 -status all
+131011_150101: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_150118: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -getoutput 133,289
+131011_150130: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_150207: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000 -status all
+131011_150225: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000_v1 -status all
+131011_150233: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_150251: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt700to1000_v1 -getoutput 104,289
+131011_150255: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_150332: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf_v1 -status all
+131011_150344: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt700to1000_v1 -status all
+131011_150420: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf_v1 -getoutput all
+131011_150613: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf_v1 -status all
+131011_150624: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -status all
+131011_150636: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -getoutput all
+131011_150725: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -status all
+131011_150743: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -resubmit 44
+131011_150756: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -status all
+131011_150805: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf_v1 -status all
+131011_151307: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/mu_Mtt1000toinf_v1 -status all
+131011_151318: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -status all
+131011_153120: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -status all
+131011_153136: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -getoutput 44
+131011_153154: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -c crabDir/el_Mtt1000toinf_v1 -status all
+131016_154012: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_Mtt1000toinf_v2 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_Mtt1000toinf_v2 -USER.ui_working_dir=crabDir/mu_Mtt1000toinf_v2 -CMSSW.datasetpath=/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt1000toinf-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
+131016_154419: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/el_Mtt1000toinf_v2 -create -CMSSW.output_file=WenuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_el_Mtt1000toinf_v2 -USER.ui_working_dir=crabDir/el_Mtt1000toinf_v2 -CMSSW.datasetpath=/TT_Mtt-1000toInf_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt1000toinf-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WenuJetsAnalysisPAT_MC_cfg.py
+131016_154605: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/el_Mtt700to1000_v2 -create -CMSSW.output_file=WenuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_el_Mtt700to1000_v2 -USER.ui_working_dir=crabDir/el_Mtt700to1000_v2 -CMSSW.datasetpath=/TT_Mtt-700to1000_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt700to1000-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WenuJetsAnalysisPAT_MC_cfg.py
+131016_154950: /uscmst1/prod/grid/CRAB_2_9_1/python/crab.py -USER.user_remote_dir=nTuples_8TeV_3oct13/mu_Mtt700to1000_v2 -create -CMSSW.output_file=WmunuJetAnalysisntuple.root -USER.publish_data_name=name_you_prefer_mu_Mtt700to1000_v2 -USER.ui_working_dir=crabDir/mu_Mtt700to1000_v2 -CMSSW.datasetpath=/TT_Mtt-700to1000_CT10_TuneZ2star_8TeV-powheg-tauola/ajkumar-SQWaT_PAT_TT_Mtt700to1000-829f288d768dd564418efaaf3a8ab9aa/USER -CMSSW.dbs_url=https://cmsdbsprod.cern.ch:8443/cms_dbs_ph_analysis_02_writer/servlet/DBSServlet -submit=all -cfg=crab_multi_MC.cfg -CMSSW.pset=WmunuJetsAnalysisPAT_MC_cfg.py
